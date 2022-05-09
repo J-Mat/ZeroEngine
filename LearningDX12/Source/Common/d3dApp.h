@@ -64,7 +64,14 @@ protected:
 protected:
 	static FD3DApp* App;
 	LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-	bool InitWindow();
+	void LogAdapterOutputs(IDXGIAdapter* InAdapterPtr);
+	void LogAdapters();
+	void CreateCommandObjects();
+	void CreateSwapChain();
+	void LogOutputDisplayModes(IDXGIOutput* Output, DXGI_FORMAT Format);
+	bool Initialize();
+	bool InitDirect3D();
+	bool InitMainWindow();
 	virtual void OnResize();
 	virtual void Update(const GameTimer& gt) = 0;
 	virtual void Draw(const GameTimer& gt) = 0;
