@@ -358,6 +358,12 @@ bool FD3DApp::Initialize()
 		return false;
 	}
 	OnResize();
+	
+
+
+
+
+
 
 	return true;
 }
