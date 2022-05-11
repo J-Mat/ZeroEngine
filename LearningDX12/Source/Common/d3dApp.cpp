@@ -118,7 +118,8 @@ void FD3DApp::CreateCommandObjects()
 }
 
 void FD3DApp::CreateSwapChain()
-{	
+{  
+	// Release the previous swapchain we will be recreating.	
 	SwapChain.Reset();
 	DXGI_SWAP_CHAIN_DESC SwapChainDesc;
 	SwapChainDesc.BufferDesc.Width = ClientWidth;
@@ -145,6 +146,36 @@ void FD3DApp::CreateSwapChain()
 			SwapChain.GetAddressOf()
 		)
 	);
+}
+
+void FD3DApp::CreateRtvAndDsvDescriptorHeaps()
+{
+	D3D12_DESCRIPTOR_HEAP_DESC RtvHeapDesc;
+	RtvHeapDesc.NumDescriptors = SwapChainBufferCount;
+	RtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+	RtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+	RtvHeapDesc.NodeMask = 0; 
+	ThrowIfFailed(
+		D3DDevice->CreateDescriptorHeap(
+			&RtvHeapDesc, 
+			IID_PPV_ARGS(RtvHeap.GetAddressOf()))
+	);
+	
+	
+	D3D12_DESCRIPTOR_HEAP_DESC DsvHeapDesc;
+	DsvHeapDesc.NumDescriptors = 1;
+	DsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+	DsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;	
+	DsvHeapDesc.NodeMask = 0;
+	ThrowIfFailed(
+		D3DDevice->CreateDescriptorHeap(
+			&DsvHeapDesc, 
+			IID_PPV_ARGS(DsvHeap.GetAddressOf()))
+	);
+}
+
+void FD3DApp::FlushCommandQueue()
+{
 }
 
 LRESULT CALLBACK
@@ -255,14 +286,19 @@ bool FD3DApp::InitDirect3D()
 #endif // _DEBUG
 
 	CreateCommandObjects();
-	
+	CreateSwapChain();
+	CreateRtvAndDsvDescriptorHeaps();
 
 	return true;
 }
 
 void FD3DApp::OnResize()
 {
-
+	assert(D3DDevice);
+	assert(SwapChain);
+	assert(DirectCmdListAlloctor);
+	
+	Flus 
 }
 
 bool FD3DApp::Initialize()

@@ -68,6 +68,9 @@ protected:
 	void LogAdapters();
 	void CreateCommandObjects();
 	void CreateSwapChain();
+	void CreateRtvAndDsvDescriptorHeaps();
+	void FlushCommandQueue();
+
 	void LogOutputDisplayModes(IDXGIOutput* Output, DXGI_FORMAT Format);
 	bool Initialize();
 	bool InitDirect3D();
