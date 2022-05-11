@@ -176,6 +176,29 @@ void FD3DApp::CreateRtvAndDsvDescriptorHeaps()
 
 void FD3DApp::FlushCommandQueue()
 {
+	// Advance the fence value to mark commands up to this fence point.
+	++CurrentFence;
+
+	// Add an instruction to the command queue to set a new fence point.  Because we 
+	// are on the GPU timeline, the new fence point won't be set until the GPU finishes
+	// processing all the commands prior to this Signal().
+	ThrowIfFailed(
+		CommanQueue->Signal(Fence.Get(), CurrentFence)
+	);
+	
+	if (Fence->GetCompletedValue() < CurrentFence)
+	{
+		HANDLE EventHandle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
+
+		// Fire event when GPU hits current fence.  
+		ThrowIfFailed(
+			Fence->SetEventOnCompletion(CurrentFence, EventHandle)
+		); 
+
+		// Wait until the GPU hits current fence event is fired.
+		WaitForSingleObject(EventHandle, INFINITE);
+		CloseHandle(EventHandle);
+	}
 }
 
 LRESULT CALLBACK
@@ -297,8 +320,30 @@ void FD3DApp::OnResize()
 	assert(D3DDevice);
 	assert(SwapChain);
 	assert(DirectCmdListAlloctor);
+
+	FlushCommandQueue();
+
+	ThrowIfFailed(
+		CommandList->Reset(DirectCmdListAlloctor.Get(), nullptr)
+	);
 	
-	Flus 
+	// Release the previous resources we will be recreating.
+	for (int Index = 0; Index < SwapChainBufferCount; ++Index)
+	{
+		SwapChangeBuffers[Index].Reset();
+	}
+
+	DepthStencilBuffer.Reset();
+
+	ThrowIfFailed(
+		SwapChain->ResizeBuffers(
+			SwapChainBufferCount,
+			ClientWidth, ClientHeight,
+			BackBufferFormat,
+			DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH
+		)
+	);
+	
 }
 
 bool FD3DApp::Initialize()
