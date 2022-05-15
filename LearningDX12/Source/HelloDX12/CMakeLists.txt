@@ -18,6 +18,8 @@ set (SRC_FILES
 	Source/main.cpp
 )
 
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS") 
+
 add_executable(HelloDX12 WIN32
 	${HEADER_FILES}
 	${SRC_FILES}
@@ -32,4 +34,5 @@ target_link_libraries(HelloDX12
 	d3d12.lib
 	dxgi.lib
 	dxguid.lib
+	d3dcompiler.lib
 )
