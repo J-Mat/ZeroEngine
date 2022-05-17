@@ -13,6 +13,7 @@ add_definitions(-DDEBUG)
 
 project(LearningDX12 LANGUAGES CXX)
 
+add_subdirectory( Source/Core)
 add_subdirectory( Source/HelloDX12)
 
 set_directory_properties(PROPERTIES VS_STARTUP_PROJECT HelloDX12)
