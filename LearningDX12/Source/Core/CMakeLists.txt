@@ -1,20 +1,32 @@
-cmake_minimum_required( VERSION 3.9.1)
+# Set the project name
+project (Core)
 
-project(Core)
-
-
-file(GLOB HEADER_FILES 
-	"./*.h"
+set (SRC_FILES
+	d3dApp.cpp
+	d3dUtil.cpp
+	GameTimer.cpp
+	DDSTextureLoader.cpp
+	MathHelper.cpp
 )
 
-file(GLOB SRC_FILES 
-	"./*.cpp"
+set( HEADER_FILES
+	d3dx12.h
+	d3dApp.h
+	d3dUtil.h
+	GameTimer.h
+	DDSTextureLoader.h
+	MathHelper.h
 )
 
-add_library(${PROJECT_NAME}, 
-	STATIC
-	${HEADER_FILES}
-	${SRC_FILES}
+# Add a library with the above sources
+add_library(${PROJECT_NAME} STATIC
+    ${SRC_FILES}
+    ${HEADER_FILES}
+)
+
+
+target_include_directories( ${PROJECT_NAME}
+    PUBLIC ${PROJECT_SOURCE_DIR}
 )
 
 target_link_libraries(Core
