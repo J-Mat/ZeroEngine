@@ -35,82 +35,99 @@ ComPtr<ID3DBlob> d3dUtil::LoadBinary(const std::wstring& filename)
     return blob;
 }
 
-Microsoft::WRL::ComPtr<ID3D12Resource> d3dUtil::CreateDefaultBuffer(
-    ID3D12Device* device,
-    ID3D12GraphicsCommandList* cmdList,
-    const void* initData,
-    UINT64 byteSize,
-    Microsoft::WRL::ComPtr<ID3D12Resource>& uploadBuffer)
+
+ComPtr<ID3D12Resource> d3dUtil::CreateDefaultBuffer(ID3D12Device* Device, ID3D12GraphicsCommandList* CmdList, const void* InitData, UINT64 ByteSize, Microsoft::WRL::ComPtr<ID3D12Resource>& UploadBuffer)
 {
-    ComPtr<ID3D12Resource> defaultBuffer;
-
+    ComPtr<ID3D12Resource> DefaultBuffer;
+    
     // Create the actual default buffer resource.
-    ThrowIfFailed(device->CreateCommittedResource(
-        &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-        D3D12_HEAP_FLAG_NONE,
-        &CD3DX12_RESOURCE_DESC::Buffer(byteSize),
-		D3D12_RESOURCE_STATE_COMMON,
-        nullptr,
-        IID_PPV_ARGS(defaultBuffer.GetAddressOf())));
-
-    // In order to copy CPU memory data into our default buffer, we need to create
-    // an intermediate upload heap. 
-    ThrowIfFailed(device->CreateCommittedResource(
-        &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-		D3D12_HEAP_FLAG_NONE,
-        &CD3DX12_RESOURCE_DESC::Buffer(byteSize),
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-        nullptr,
-        IID_PPV_ARGS(uploadBuffer.GetAddressOf())));
-
-
+    ThrowIfFailed(
+        Device->CreateCommittedResource(
+            &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+            D3D12_HEAP_FLAG_NONE,
+            &CD3DX12_RESOURCE_DESC::Buffer(ByteSize),
+            D3D12_RESOURCE_STATE_COMMON,
+            nullptr,
+            IID_PPV_ARGS(DefaultBuffer.GetAddressOf())
+        )
+    );
+    
+	// In order to copy CPU memory data into our default buffer, we need to create
+    // an intermediate upload heap.  
+    ThrowIfFailed(
+        Device->CreateCommittedResource(
+            &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+            D3D12_HEAP_FLAG_NONE,
+            &CD3DX12_RESOURCE_DESC::Buffer(ByteSize),
+            D3D12_RESOURCE_STATE_GENERIC_READ,
+            nullptr,
+            IID_PPV_ARGS(UploadBuffer.GetAddressOf())
+        )
+    );
+    
     // Describe the data we want to copy into the default buffer.
-    D3D12_SUBRESOURCE_DATA subResourceData = {};
-    subResourceData.pData = initData;
-    subResourceData.RowPitch = byteSize;
-    subResourceData.SlicePitch = subResourceData.RowPitch;
+    D3D12_SUBRESOURCE_DATA SubResourceData = {};
+    SubResourceData.pData = InitData;
+    SubResourceData.RowPitch = ByteSize;
+    SubResourceData.SlicePitch = SubResourceData.RowPitch;
 
-    // Schedule to copy the data to the default buffer resource.  At a high level, the helper function UpdateSubresources
+	// Schedule to copy the data to the default buffer resource.  At a high level, the helper function UpdateSubresources
     // will copy the CPU memory into the intermediate upload heap.  Then, using ID3D12CommandList::CopySubresourceRegion,
     // the intermediate upload heap data will be copied to mBuffer.
-	cmdList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(defaultBuffer.Get(), 
-		D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST));
-    UpdateSubresources<1>(cmdList, defaultBuffer.Get(), uploadBuffer.Get(), 0, 0, 1, &subResourceData);
-	cmdList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(defaultBuffer.Get(),
-		D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ));
+    CmdList->ResourceBarrier(
+        1,
+        &CD3DX12_RESOURCE_BARRIER::Transition(
+            DefaultBuffer.Get(),
+            D3D12_RESOURCE_STATE_COMMON,
+            D3D12_RESOURCE_STATE_COPY_DEST
+        )
+    );
+    UpdateSubresources<1>(CmdList, DefaultBuffer.Get(), UploadBuffer.Get(), 0, 0, 1, &SubResourceData);
+    CmdList->ResourceBarrier(
+        1,
+        &CD3DX12_RESOURCE_BARRIER::Transition(
+            DefaultBuffer.Get(),
+            D3D12_RESOURCE_STATE_COPY_DEST,
+            D3D12_RESOURCE_STATE_GENERIC_READ
+        )
+    );
 
-    // Note: uploadBuffer has to be kept alive after the above function calls because
+	// Note: uploadBuffer has to be kept alive after the above function calls because
     // the command list has not been executed yet that performs the actual copy.
     // The caller can Release the uploadBuffer after it knows the copy has been executed.
-
-
-    return defaultBuffer;
+    
+    return DefaultBuffer;
 }
 
-ComPtr<ID3DBlob> d3dUtil::CompileShader(
-	const std::wstring& filename,
-	const D3D_SHADER_MACRO* defines,
-	const std::string& entrypoint,
-	const std::string& target)
+ComPtr<ID3DBlob> d3dUtil::CompileShader(const std::wstring& Filename, const D3D_SHADER_MACRO* Defines, const std::string& Entrypoint, const std::string& Target)
 {
-	UINT compileFlags = 0;
+	UINT CompileFlags = 0;
 #if defined(DEBUG) || defined(_DEBUG)  
-	compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+	CompileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
+    HRESULT hr = S_OK;
+    
+    ComPtr<ID3DBlob> ByteCode = nullptr;
+    ComPtr<ID3DBlob> Errors;
+    
+    hr = D3DCompileFromFile(
+        Filename.c_str(),
+        Defines,
+        D3D_COMPILE_STANDARD_FILE_INCLUDE,
+        Entrypoint.c_str(),
+        Target.c_str(),
+        CompileFlags,
+        0,
+        &ByteCode,
+        &Errors
+    );
 
-	HRESULT hr = S_OK;
-
-	ComPtr<ID3DBlob> byteCode = nullptr;
-	ComPtr<ID3DBlob> errors;
-	hr = D3DCompileFromFile(filename.c_str(), defines, D3D_COMPILE_STANDARD_FILE_INCLUDE,
-		entrypoint.c_str(), target.c_str(), compileFlags, 0, &byteCode, &errors);
-
-	if(errors != nullptr)
-		OutputDebugStringA((char*)errors->GetBufferPointer());
+	if (Errors != nullptr)
+		OutputDebugStringA((char*)Errors->GetBufferPointer());
 
 	ThrowIfFailed(hr);
 
-	return byteCode;
+	return ByteCode;
 }
 
 std::wstring DxException::ToString()const
