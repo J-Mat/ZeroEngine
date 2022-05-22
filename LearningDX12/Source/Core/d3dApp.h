@@ -62,7 +62,7 @@ protected:
 	
 	UINT RtvDescriptorSize = 0;
 	UINT DsvDescriptorSize = 0;
-	UINT mCbvSrvUavDescriptorSize = 0;
+	UINT CbvSrvUavDescriptorSize = 0;
 	
 	std::wstring MainWndCaption = L"d3d App";
 	D3D_DRIVER_TYPE D3DDriverType = D3D_DRIVER_TYPE_HARDWARE;

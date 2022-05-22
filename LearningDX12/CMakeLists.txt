@@ -13,8 +13,13 @@ add_definitions(-DUNICODE)
 
 add_definitions(-DDEBUG)
 
+add_definitions(-DSOLUTION_DIR="${PROJECT_SOURCE_DIR}")
+
+SET(SOLUTION_DIR {PROJECT_SOURCE_DIR})
+
 project(LearningDX12 LANGUAGES CXX)
 
 # Add sub directories
 add_subdirectory(Source/Core)
 add_subdirectory(Source/HelloDX12)
+add_subdirectory(Source/Box)

@@ -476,6 +476,7 @@ bool FD3DApp::InitDirect3D()
 
 	RtvDescriptorSize = D3DDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	DsvDescriptorSize = D3DDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+	CbvSrvUavDescriptorSize = D3DDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 	// Check 4X MSAA quality support for our back buffer format.
 	// All Direct3D 11 capable devices support 4X MSAA for all render 
@@ -620,6 +621,11 @@ void FD3DApp::OnResize()
 	ScreenViewport.MaxDepth = 1.0f;
 
 	ScissorRect = { 0, 0, ClientWidth, ClientHeight };
+}
+
+float FD3DApp::AspectRatio() const
+{
+	return static_cast<float>(ClientWidth) / ClientHeight;
 }
 
 bool FD3DApp::Get4xMsaaState() const
