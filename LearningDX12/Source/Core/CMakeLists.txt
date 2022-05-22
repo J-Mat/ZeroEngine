@@ -7,6 +7,7 @@ set (SRC_FILES
 	GameTimer.cpp
 	DDSTextureLoader.cpp
 	MathHelper.cpp
+	GeometryGenerator.cpp
 )
 
 set( HEADER_FILES
@@ -16,6 +17,8 @@ set( HEADER_FILES
 	GameTimer.h
 	DDSTextureLoader.h
 	MathHelper.h
+	GeometryGenerator.h
+	UploadBuffer.h
 )
 
 # Add a library with the above sources

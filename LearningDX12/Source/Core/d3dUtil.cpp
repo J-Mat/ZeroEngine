@@ -106,12 +106,18 @@ ComPtr<ID3DBlob> d3dUtil::CompileShader(const std::wstring& Filename, const D3D_
 	CompileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
     HRESULT hr = S_OK;
+
+    std::string Str(SOLUTION_DIR);
+	int SizeNeeded = MultiByteToWideChar(CP_UTF8, 0, &Str[0], (int)Str.size(), NULL, 0);
+	std::wstring WStr(SizeNeeded, 0);
+	MultiByteToWideChar(CP_UTF8, 0, &Str[0], (int)Str.size(), &WStr[0], SizeNeeded);
+    std::wstring Path = WStr + L"/" + Filename;
     
     ComPtr<ID3DBlob> ByteCode = nullptr;
     ComPtr<ID3DBlob> Errors;
     
     hr = D3DCompileFromFile(
-        Filename.c_str(),
+        Path.c_str(),
         Defines,
         D3D_COMPILE_STANDARD_FILE_INCLUDE,
         Entrypoint.c_str(),

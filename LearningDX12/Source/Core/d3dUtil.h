@@ -151,7 +151,7 @@ public:
 struct SubmeshGeometry
 {
     UINT IndexCount = 0;
-    UINT StartIndexLocationt = 0;
+    UINT StartIndexLocation = 0;
     INT BaseVertexLocation = 0;
     
     DirectX::BoundingBox Bounds;

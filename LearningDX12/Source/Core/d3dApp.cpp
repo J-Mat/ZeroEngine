@@ -223,7 +223,7 @@ void FD3DApp::CreateCommandObjects()
 	D3D12_COMMAND_QUEUE_DESC QueueDesc = {};
 	QueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 	QueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-	ThrowIfFailed(D3DDevice->CreateCommandQueue(&QueueDesc, IID_PPV_ARGS(&CommanQueue)));
+	ThrowIfFailed(D3DDevice->CreateCommandQueue(&QueueDesc, IID_PPV_ARGS(&CommandQueue)));
 	
 	ThrowIfFailed(D3DDevice->CreateCommandAllocator(
 		D3D12_COMMAND_LIST_TYPE_DIRECT,
@@ -270,7 +270,7 @@ void FD3DApp::CreateSwapChain()
 
 	ThrowIfFailed(
 		DxgiFactory->CreateSwapChain(
-			CommanQueue.Get(),
+			CommandQueue.Get(),
 			&SwapChainDesc,
 			SwapChain.GetAddressOf()
 		)
@@ -312,7 +312,7 @@ void FD3DApp::FlushCommandQueue()
 	// are on the GPU timeline, the new fence point won't be set until the GPU finishes
 	// processing all the commands prior to this Signal().
 	ThrowIfFailed(
-		CommanQueue->Signal(Fence.Get(), CurrentFence)
+		CommandQueue->Signal(Fence.Get(), CurrentFence)
 	);
 	
 	if (Fence->GetCompletedValue() < CurrentFence)
@@ -605,7 +605,7 @@ void FD3DApp::OnResize()
 		CommandList->Close()
 	);
 	ID3D12CommandList* CmdLists[] = { CommandList.Get() };
-	CommanQueue->ExecuteCommandLists(_countof(CmdLists), CmdLists);
+	CommandQueue->ExecuteCommandLists(_countof(CmdLists), CmdLists);
 
 	// Wait until resize is complete.
 	FlushCommandQueue();

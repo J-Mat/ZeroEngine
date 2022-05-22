@@ -45,7 +45,7 @@ protected:
 	ComPtr<ID3D12Fence> Fence;
 	UINT64 CurrentFence = 0;
 	
-	ComPtr<ID3D12CommandQueue> CommanQueue;
+	ComPtr<ID3D12CommandQueue> CommandQueue;
 	ComPtr<ID3D12CommandAllocator> DirectCmdListAlloctor;
 	ComPtr<ID3D12GraphicsCommandList> CommandList;
 
