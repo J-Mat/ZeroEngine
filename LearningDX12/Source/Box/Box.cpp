@@ -237,8 +237,8 @@ void FBoxApp::OnMouseMove(WPARAM btnState, int x, int y)
 		float dy = XMConvertToRadians(0.25f * static_cast<float>(y - LastMousePos.y));
 
 		// Update angles based on input to orbit camera around box.
-		Theta += dx;
-		Phi += dy;
+		Theta -= dx;
+		Phi -= dy;
 
 		// Restrict the angle mPhi.
 		Phi = MathHelper::Clamp(Phi, 0.1f, MathHelper::Pi - 0.1f);

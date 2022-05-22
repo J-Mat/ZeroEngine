@@ -122,7 +122,9 @@ public:
         const void* InitData,
         UINT64 ByteSize,
         Microsoft::WRL::ComPtr<ID3D12Resource>& UploadBuffer);
-
+       
+    static std::wstring GetPath(const std::wstring& FileName);
+    
 	static ComPtr<ID3DBlob> CompileShader(
 		const std::wstring& Filename,
 		const D3D_SHADER_MACRO* Defines,
