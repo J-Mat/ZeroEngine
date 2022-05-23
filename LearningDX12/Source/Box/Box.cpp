@@ -8,7 +8,7 @@ using namespace DirectX;
 using namespace Microsoft::WRL;
 using namespace DirectX::PackedVector;
 
-struct Vertex
+struct FVertex
 {
 	XMFLOAT3 Pos;
 	XMFLOAT4 Color;
@@ -365,16 +365,16 @@ void FBoxApp::BuildShadersAndInputLayout()
 
 void FBoxApp::BuildBoxGeometry()
 {
-	std::array<Vertex, 8> Vertices =
+	std::array<FVertex, 8> Vertices =
 	{
-		Vertex({ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT4(Colors::White) }),
-		Vertex({ XMFLOAT3(-1.0f, +1.0f, -1.0f), XMFLOAT4(Colors::Black) }),
-		Vertex({ XMFLOAT3(+1.0f, +1.0f, -1.0f), XMFLOAT4(Colors::Red) }),
-		Vertex({ XMFLOAT3(+1.0f, -1.0f, -1.0f), XMFLOAT4(Colors::Green) }),
-		Vertex({ XMFLOAT3(-1.0f, -1.0f, +1.0f), XMFLOAT4(Colors::Blue) }),
-		Vertex({ XMFLOAT3(-1.0f, +1.0f, +1.0f), XMFLOAT4(Colors::Yellow) }),
-		Vertex({ XMFLOAT3(+1.0f, +1.0f, +1.0f), XMFLOAT4(Colors::Cyan) }),
-		Vertex({ XMFLOAT3(+1.0f, -1.0f, +1.0f), XMFLOAT4(Colors::Magenta) })
+		FVertex({ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT4(Colors::White) }),
+		FVertex({ XMFLOAT3(-1.0f, +1.0f, -1.0f), XMFLOAT4(Colors::Black) }),
+		FVertex({ XMFLOAT3(+1.0f, +1.0f, -1.0f), XMFLOAT4(Colors::Red) }),
+		FVertex({ XMFLOAT3(+1.0f, -1.0f, -1.0f), XMFLOAT4(Colors::Green) }),
+		FVertex({ XMFLOAT3(-1.0f, -1.0f, +1.0f), XMFLOAT4(Colors::Blue) }),
+		FVertex({ XMFLOAT3(-1.0f, +1.0f, +1.0f), XMFLOAT4(Colors::Yellow) }),
+		FVertex({ XMFLOAT3(+1.0f, +1.0f, +1.0f), XMFLOAT4(Colors::Cyan) }),
+		FVertex({ XMFLOAT3(+1.0f, -1.0f, +1.0f), XMFLOAT4(Colors::Magenta) })
 	};
 	
 	std::array<std::uint16_t, 36> Indices =
@@ -404,7 +404,7 @@ void FBoxApp::BuildBoxGeometry()
 		4, 3, 7
 	};
 	
-	const UINT VBByteSize = (UINT)Vertices.size() * sizeof(Vertex);
+	const UINT VBByteSize = (UINT)Vertices.size() * sizeof(FVertex);
 	const UINT IBByteSize = (UINT)Indices.size() * sizeof(std::uint16_t);
 
 	BoxGeo = std::make_unique<MeshGeometry>();
@@ -435,7 +435,7 @@ void FBoxApp::BuildBoxGeometry()
 		BoxGeo->IndexBufferUploader
 	);
 	
-	BoxGeo->VertexByteStride = sizeof(Vertex);
+	BoxGeo->VertexByteStride = sizeof(FVertex);
 	BoxGeo->VertexBufferByteSize = VBByteSize;
 	BoxGeo->IndexFormat = DXGI_FORMAT_R16_UINT;
 	BoxGeo->IndexBufferByteSize = IBByteSize;
