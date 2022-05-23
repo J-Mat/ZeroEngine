@@ -21,5 +21,5 @@ project(LearningDX12 LANGUAGES CXX)
 
 # Add sub directories
 add_subdirectory(Source/Core)
-add_subdirectory(Source/HelloDX12)
 add_subdirectory(Source/Box)
+add_subdirectory(Source/Shape)
