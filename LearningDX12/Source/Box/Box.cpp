@@ -440,7 +440,7 @@ void FBoxApp::BuildBoxGeometry()
 	BoxGeo->IndexFormat = DXGI_FORMAT_R16_UINT;
 	BoxGeo->IndexBufferByteSize = IBByteSize;
 
-	SubmeshGeometry SubMesh;
+	FSubmeshGeometry SubMesh;
 	SubMesh.IndexCount = (UINT)Indices.size();
 	SubMesh.StartIndexLocation = 0;
 	SubMesh.BaseVertexLocation = 0;

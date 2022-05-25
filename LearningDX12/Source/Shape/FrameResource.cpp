@@ -1,3 +1,9 @@
+/*
+ * @Author: mikey.zhaopeng 
+ * @Date: 2022-05-24 17:07:58 
+ * @Last Modified by:   mikey.zhaopeng 
+ * @Last Modified time: 2022-05-24 17:07:58 
+ */
 #include "FrameResource.h"
 
 FFrameResource::FrameResource(ID3D12Device* Device, UINT PassCount, UINT ObjectCount, UINT WaveVertCount)

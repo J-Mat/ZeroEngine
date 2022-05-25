@@ -1,4 +1,10 @@
-﻿#include "d3dApp.h"
+﻿/*
+ * @Author: J_Mat 
+ * @Date: 2022-05-24 17:20:37 
+ * @Last Modified by: J_Mat
+ * @Last Modified time: 2022-05-24 17:21:29
+ */
+#include "d3dApp.h"
 #include <DirectXColors.h>
 
 using namespace DirectX;
@@ -21,12 +27,10 @@ private:
 FHelloD3D12App::FHelloD3D12App(HINSTANCE hInstance)
 	: FD3DApp(hInstance)
 {
-
 }
 
 FHelloD3D12App::~FHelloD3D12App()
 {
-
 }
 
 bool FHelloD3D12App::Initialize()

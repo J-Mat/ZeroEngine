@@ -150,7 +150,7 @@ public:
 // geometries are stored in one vertex and index buffer.  It provides the offsets
 // and data needed to draw a subset of geometry stores in the vertex and index 
 // buffers so that we can implement the technique described by Figure 6.3.
-struct SubmeshGeometry
+struct FSubmeshGeometry
 {
     UINT IndexCount = 0;
     UINT StartIndexLocation = 0;
@@ -184,7 +184,7 @@ struct MeshGeometry
 	// A MeshGeometry may store multiple geometries in one vertex/index buffer.
     // Use this container to define the Submesh geometries so we can draw
     // the Submeshes individually.
-    std::unordered_map<std::string, SubmeshGeometry> DrawArgs;
+    std::unordered_map<std::string, FSubmeshGeometry> DrawArgs;
     
     D3D12_VERTEX_BUFFER_VIEW VertexBufferView() const
     {
