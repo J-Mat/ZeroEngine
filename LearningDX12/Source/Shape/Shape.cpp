@@ -81,6 +81,11 @@ private:
 	virtual void OnMouseUp(WPARAM btnState, int x, int y)override;
 	virtual void OnMouseMove(WPARAM btnState, int x, int y)override;
 
+	void OnKeyboardInput(const GameTimer& gt);
+	void UpdateCamera(const GameTimer& gt);
+	void UpdateObjectCBs(const GameTimer& gt);
+	void UpdateMainPassCB(const GameTimer& gt);
+
     void BuildDescriptorHeaps();
     void BuildConstantBufferViews();
     void BuildRootSignature();
@@ -157,6 +162,10 @@ bool FShapeApp::Initialize()
 	BuildShadersAndInputLayout();
 	BuildShapeGeometry();
 	BuildRenderItems();
+	BuildFrameResources();
+	BuildDescriptorHeaps();
+	BuildConstantBufferViews();
+	BuildPSOs();
 
 	// Execute the initialization commands.
 	ThrowIfFailed(CommandList->Close());
@@ -180,26 +189,7 @@ void FShapeApp::OnResize()
 
 void FShapeApp::Update(const GameTimer& gt)
 {
-	// Convert Spherical to Cartesian coordinates.
-	float X = Radius * sinf(Phi) * cosf(Theta);
-	float Z = Radius * sinf(Phi) * sinf(Theta);
-	float Y = Radius * cosf(Phi);
-	
-	XMVECTOR Pos = XMVectorSet( X, Y, Z, 1.0f );
-	XMVECTOR Target = XMVectorZero();
-	XMVECTOR Up = XMVectorSet( 0.0f, 1.0f, 0.0f, 0.0f );
-		
-	XMMATRIX ViewMatrix = DirectX::XMMatrixLookAtLH(Pos, Target, Up);
-	XMStoreFloat4x4(&View, ViewMatrix);
-	
-	XMMATRIX WorldMatrix = XMLoadFloat4x4(&World);
-	XMMATRIX ProjMatrix = XMLoadFloat4x4(&Proj);
-	XMMATRIX WorldViewProj = WorldMatrix * ViewMatrix * ProjMatrix;
-
-	// Update the constant buffer with the latest worldViewProj matrix.
-	FObjectConstants ObjConstants;
-	XMStoreFloat4x4(&ObjConstants.WorldViewProj, XMMatrixTranspose(WorldViewProj));
-	ObjectCB->CopyData(0, ObjConstants);
+	OnKeybor
 }
 
 void FShapeApp::Draw(const GameTimer& gt)
@@ -278,9 +268,89 @@ void FShapeApp::OnMouseMove(WPARAM btnState, int x, int y)
 	LastMousePos.y = y;
 }
 
+void FShapeApp::OnKeyboardInput(const GameTimer& gt)
+{
+    if(GetAsyncKeyState('1') & 0x8000)
+        bIsWireFrame = true;
+    else
+        bIsWireFrame = false;
+}
+
+void FShapeApp::UpdateCamera(const GameTimer& gt)
+{
+	// Convert Spherical to Cartesian coordinates.
+	EyePos.x = Radius*sinf(Phi)*cosf(Theta);
+	EyePos.z = Radius*sinf(Phi)*sinf(Theta);
+	EyePos.y = Radius*cosf(Phi);
+
+	// Build the view matrix.
+	XMVECTOR pos = XMVectorSet(EyePos.x, EyePos.y, EyePos.z, 1.0f);
+	XMVECTOR target = XMVectorZero();
+	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+
+	XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
+	XMStoreFloat4x4(&View, view);
+}
+
+
+void FShapeApp::UpdateObjectCBs(const GameTimer& gt)
+{
+	auto CurrentObjectCB = CurrentFrameResource->ObjectCB.get();
+
+}
+
+void FShapeApp::UpdateMainPassCB(const GameTimer& gt)
+{
+	XMMATRIX ViewMatrix = XMLoadFloat4x4(&View);
+	XMMATRIX ProjMatrix = XMLoadFloat4x4(&Proj);
+
+	XMMATRIX ViewProj = XMMatrixMultiply(ViewMatrix, ProjMatrix);
+	XMMATRIX InvView = XMMatrixInverse(&XMMatrixDeterminant(ViewMatrix), ViewMatrix);
+	XMMATRIX InvProj = XMMatrixInverse(&XMMatrixDeterminant(ProjMatrix), ProjMatrix);
+	XMMATRIX invViewProj = XMMatrixInverse(&XMMatrixDeterminant(ViewProj), ViewProj);
+
+	XMStoreFloat4x4(&MainPassCB.View, XMMatrixTranspose(ViewMatrix));
+	XMStoreFloat4x4(&MainPassCB.InvView, XMMatrixTranspose(InvView));
+	XMStoreFloat4x4(&MainPassCB.Proj, XMMatrixTranspose(ProjMatrix));
+	XMStoreFloat4x4(&MainPassCB.InvProj, XMMatrixTranspose(InvProj));
+	XMStoreFloat4x4(&MainPassCB.ViewProj, XMMatrixTranspose(ViewProj));
+	XMStoreFloat4x4(&MainPassCB.InvViewProj, XMMatrixTranspose(invViewProj));
+	MainPassCB.EyePosW = EyePos;
+	MainPassCB.RenderTargetSize = XMFLOAT2((float)ClientWidth, (float)ClientHeight);
+	MainPassCB.InvRenderTargetSize = XMFLOAT2(1.0f / ClientWidth, 1.0f / ClientHeight);
+	MainPassCB.NearZ = 1.0f;
+	MainPassCB.FarZ = 1000.0f;
+	MainPassCB.TotalTime = gt.TotalTime();
+	MainPassCB.DeltaTime = gt.DeltaTime();
+	
+	auto CurPassCB = CurrentFrameResource->PassCB.get();
+	CurPassCB->CopyData(0, MainPassCB);
+}
+
 void FShapeApp::BuildDescriptorHeaps()
 {
-	//UINT ObjCount
+	UINT ObjCount = (UINT)OpaqueRitems.size();
+	
+   	// Need a CBV descriptor for each object for each frame resource,
+    // +1 for the perPass CBV for each frame resource.
+	UINT NumDescriptors = (ObjCount + 1) * gNumFrameResources;
+
+	// Save an offset to the start of the pass CBVs.  These are the last 3 descriptors.
+	PassCBVOffset = ObjCount * gNumFrameResources;
+
+	D3D12_DESCRIPTOR_HEAP_DESC CBVHeapDesc;
+	CBVHeapDesc.NumDescriptors = NumDescriptors;
+	CBVHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	CBVHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	CBVHeapDesc.NodeMask = 0;
+	ThrowIfFailed(
+		D3DDevice->CreateDescriptorHeap(&CBVHeapDesc, IID_PPV_ARGS(&CBVHeap))
+	);
+}
+
+void FShapeApp::BuildConstantBufferViews()
+{
+	
 }
 
 void FShapeApp::BuildRootSignature()
@@ -327,8 +397,8 @@ void FShapeApp::BuildRootSignature()
 void FShapeApp::BuildShadersAndInputLayout()
 {
 	HRESULT hr = S_OK;
-	Shaders["StandarVS"] = d3dUtil::CompileShader(L"Shaders\\Color.hlsl", nullptr, "VS", "vs_5_1");
-	Shaders["OpaquePS"] = d3dUtil::CompileShader(L"Shaders\\color.hlsl", nullptr, "PS", "ps_5_1");
+	Shaders["standarVS"] = d3dUtil::CompileShader(L"Shaders\\Color.hlsl", nullptr, "VS", "vs_5_1");
+	Shaders["opaquePS"] = d3dUtil::CompileShader(L"Shaders\\color.hlsl", nullptr, "PS", "ps_5_1");
 	
 	/*
 	typedef struct D3D12_INPUT_ELEMENT_DESC
@@ -443,7 +513,7 @@ void FShapeApp::BuildShapeGeometry()
 	const UINT IBByteSize = (UINT)Indices.size() * sizeof(std::uint16_t);
 	
 	auto Geo = std::make_unique<MeshGeometry>();
-	Geo->Name = "ShapGeo";
+	Geo->Name = ITEM_SHAPE;
 	
 	ThrowIfFailed(D3DCreateBlob(VBByteSize, &Geo->VertexBufferCPU));
 	CopyMemory(Geo->VertexBufferCPU->GetBufferPointer(), Vertices.data(), VBByteSize);
@@ -492,11 +562,122 @@ void FShapeApp::BuildRenderItems()
 	AllRenderItems.push_back(std::move(GridRenderItem));
 
 	UINT ObjCBIndex = 2;
-	//xxoo
+	for (int i = 0; i < 5;++i)
+	{
+		auto LeftCylinderItem = std::make_unique<FRenderItem>();
+		auto LeftSphereItem = std::make_unique<FRenderItem>();
+		
+		auto RightCylinderItem = std::make_unique<FRenderItem>();
+		auto RightSphereItem = std::make_unique<FRenderItem>();
+		
+		XMMATRIX LeftCylinderlWorld = XMMatrixTranslation(-5.0f, 1.5f, -10.0f + i*5.0f);
+		XMMATRIX RightCylinderWorld = XMMatrixTranslation(+5.0f, 1.5f, -10.0f + i*5.0f);
+
+		XMMATRIX LeftSphereWorld = XMMatrixTranslation(-5.0f, 3.5f, -10.0f + i*5.0f);
+		XMMATRIX RightSphereWorld = XMMatrixTranslation(+5.0f, 3.5f, -10.0f + i*5.0f);
+		
+		XMStoreFloat4x4(&LeftCylinderItem->World, LeftCylinderlWorld);
+		LeftCylinderItem->ObjCBIndex = ObjCBIndex++;
+		LeftCylinderItem->Geo = Geometries[ITEM_SHAPE].get();
+		LeftCylinderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		LeftCylinderItem->IndexCount = LeftCylinderItem->Geo->DrawArgs[ITEM_CYLINDER].IndexCount;
+		LeftCylinderItem->StartIndexLocation = LeftCylinderItem->Geo->DrawArgs[ITEM_CYLINDER].StartIndexLocation;
+		LeftCylinderItem->BaseVertexLocation = LeftCylinderItem->Geo->DrawArgs[ITEM_CYLINDER].BaseVertexLocation;
+
+		XMStoreFloat4x4(&LeftSphereItem->World, LeftSphereWorld);
+		LeftSphereItem->ObjCBIndex = ObjCBIndex++;
+		LeftSphereItem->Geo = Geometries[ITEM_SHAPE].get();
+		LeftSphereItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		LeftSphereItem->IndexCount = LeftSphereItem->Geo->DrawArgs[ITEM_SPHERE].IndexCount;
+		LeftSphereItem->StartIndexLocation = LeftSphereItem->Geo->DrawArgs[ITEM_SPHERE].StartIndexLocation;
+		LeftSphereItem->BaseVertexLocation = LeftSphereItem->Geo->DrawArgs[ITEM_SPHERE].BaseVertexLocation;
+
+		XMStoreFloat4x4(&RightCylinderItem->World, RightCylinderWorld);
+		RightCylinderItem->ObjCBIndex = ObjCBIndex++;
+		RightCylinderItem->Geo = Geometries[ITEM_SHAPE].get();
+		RightCylinderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		RightCylinderItem->IndexCount = RightCylinderItem->Geo->DrawArgs[ITEM_CYLINDER].IndexCount;
+		RightCylinderItem->StartIndexLocation = RightCylinderItem->Geo->DrawArgs[ITEM_CYLINDER].StartIndexLocation;
+		RightCylinderItem->BaseVertexLocation = RightCylinderItem->Geo->DrawArgs[ITEM_CYLINDER].BaseVertexLocation;
+
+		XMStoreFloat4x4(&RightSphereItem->World, RightSphereWorld);
+		RightSphereItem->ObjCBIndex = ObjCBIndex++;
+		RightSphereItem->Geo = Geometries[ITEM_SHAPE].get();
+		RightSphereItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		RightSphereItem->IndexCount = RightSphereItem->Geo->DrawArgs[ITEM_SPHERE].IndexCount;
+		RightSphereItem->StartIndexLocation = RightSphereItem->Geo->DrawArgs[ITEM_SPHERE].StartIndexLocation;
+		RightSphereItem->BaseVertexLocation = RightSphereItem->Geo->DrawArgs[ITEM_SPHERE].BaseVertexLocation;
+		
+		AllRenderItems.push_back(std::move(LeftCylinderItem));
+		AllRenderItems.push_back(std::move(RightCylinderItem));
+		AllRenderItems.push_back(std::move(LeftSphereItem));
+		AllRenderItems.push_back(std::move(RightSphereItem));
+	}
+	
+	for (auto& Item : AllRenderItems)
+	{
+		OpaqueRitems.push_back(Item.get());
+	}
+}
+
+
+void FShapeApp::BuildFrameResources()
+{
+	for (int i = 0;i < gNumFrameResources; ++i)
+	{
+		FrameResources.push_back(
+			std::make_unique<FFrameResource>(
+				D3DDevice.Get(), 
+				1, 
+				(UINT)AllRenderItems.size()
+			)
+		);
+	}
 }
 
 void FShapeApp::BuildPSOs()
 {
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC OpaquePSODesc;
+	
+	//
+	// PSO for opaque objects.
+	//
+	ZeroMemory(&OpaquePSODesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
+	OpaquePSODesc.InputLayout = {InputLayout.data(), (UINT)InputLayout.size()};
+	OpaquePSODesc.pRootSignature = RootSignature.Get();
+	OpaquePSODesc.VS = 
+	{
+		reinterpret_cast<BYTE*>(Shaders["standardVS"]->GetBufferPointer()), 
+		Shaders["standardVS"]->GetBufferSize()
+	};
+	OpaquePSODesc.PS = 
+	{ 
+		reinterpret_cast<BYTE*>(Shaders["opaquePS"]->GetBufferPointer()),
+		Shaders["opaquePS"]->GetBufferSize()
+	};
+	OpaquePSODesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	OpaquePSODesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
+	OpaquePSODesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	OpaquePSODesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	OpaquePSODesc.SampleMask = UINT_MAX;
+	OpaquePSODesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	OpaquePSODesc.NumRenderTargets = 1;
+	OpaquePSODesc.RTVFormats[0] = BackBufferFormat;
+	OpaquePSODesc.SampleDesc.Count = X4MSAAState ? 4: 1;
+	OpaquePSODesc.SampleDesc.Quality = X4MSAAState ? (X4MSAAQuality - 1) : 0;
+	OpaquePSODesc.DSVFormat = DepthStencilFormat;
+	ThrowIfFailed(
+		D3DDevice->CreateGraphicsPipelineState(&OpaquePSODesc, IID_PPV_ARGS(&PSOs["opaque"]))
+	);
+
+	//
+    // PSO for opaque wireframe objects.
+    //
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC opaqueWireframePsoDesc = OpaquePSODesc;
+    opaqueWireframePsoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
+	ThrowIfFailed(
+		D3DDevice->CreateGraphicsPipelineState(&opaqueWireframePsoDesc, IID_PPV_ARGS(&PSOs["opaque_wireframe"]))
+	);
 }
 
 

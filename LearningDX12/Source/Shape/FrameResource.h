@@ -42,8 +42,8 @@ struct FFrameResource
 {
 public:
 	FFrameResource(ID3D12Device* Device, UINT PassCount, UINT ObjectCount);
-	FFrameResource(const FFrameResource&rhs) = delete;
-	FFrameResource& operator(const FFrameResource& rhs) = delete;
+	FFrameResource(const FFrameResource& rhs) = delete;
+	FFrameResource& operator=(const FFrameResource& rhs) = delete;
 	~FFrameResource();
 
     // We cannot reset the allocator until the GPU is done processing the commands.
