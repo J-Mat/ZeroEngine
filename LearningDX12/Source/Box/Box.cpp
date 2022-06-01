@@ -16,7 +16,7 @@ struct FVertex
 
 struct FObjectConstants
 {
-	XMFLOAT4X4 WorldViewProj = MathHelper::Identity4x4();
+	XMFLOAT4X4 World = MathHelper::Identity4x4();
 };
 
 class FBoxApp : public FD3DApp
@@ -137,7 +137,7 @@ void FBoxApp::Update(const GameTimer& gt)
 
 	// Update the constant buffer with the latest worldViewProj matrix.
 	FObjectConstants ObjConstants;
-	XMStoreFloat4x4(&ObjConstants.WorldViewProj, XMMatrixTranspose(WorldViewProj));
+	XMStoreFloat4x4(&ObjConstants.World, XMMatrixTranspose(WorldViewProj));
 	ObjectCB->CopyData(0, ObjConstants);
 }
 

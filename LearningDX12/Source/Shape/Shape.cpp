@@ -34,7 +34,7 @@ struct FVertex
 
 struct FObjectConstants
 {
-	XMFLOAT4X4 WorldViewProj = MathHelper::Identity4x4();
+	XMFLOAT4X4 World = MathHelper::Identity4x4();
 };
 
 // Lightweight structure stores parameters to draw a shape.  This will
@@ -98,11 +98,12 @@ private:
 private:
 	std::vector<std::unique_ptr<FFrameResource>> FrameResources;
 	FFrameResource* CurrentFrameResource = nullptr;
+	int CurrentFrameResourceIndex = 0;
 
 	ComPtr<ID3D12RootSignature> RootSignature = nullptr;
 	ComPtr<ID3D12DescriptorHeap> CBVHeap = nullptr;
 
-	ComPtr<ID3D12DescriptorHeap> mSrvDescriptorHeap = nullptr;
+	ComPtr<ID3D12DescriptorHeap> SrvDescriptorHeap = nullptr;
 
 	std::unordered_map<std::string, std::unique_ptr<MeshGeometry>> Geometries;
 	std::unordered_map<std::string, ComPtr<ID3DBlob>> Shaders;
@@ -189,36 +190,101 @@ void FShapeApp::OnResize()
 
 void FShapeApp::Update(const GameTimer& gt)
 {
-	OnKeybor
+	OnKeyboardInput(gt);
+	UpdateCamera(gt);
+	
+	CurrentFrameResourceIndex = (CurrentFrameResourceIndex + 1) % gNumFrameResources;
+	CurrentFrameResource = FrameResources[CurrentFrameResourceIndex].get();
+	
+	// Has the GPU finished processing the commands of the current frame resource?
+    // If not, wait until the GPU has completed commands up to this fence point.
+	if (CurrentFrameResource->Fence != 0 && 
+		Fence->GetCompletedValue() < CurrentFrameResource->Fence)
+	{
+		HANDLE EventHandle = CreateEventEx(nullptr, false , false, EVENT_ALL_ACCESS);
+		ThrowIfFailed(Fence->SetEventOnCompletion(CurrentFrameResource->Fence, EventHandle));
+		WaitForSingleObject(EventHandle, INFINITE);
+		CloseHandle(EventHandle);
+	}
+	
+	UpdateObjectCBs(gt);
+	UpdateMainPassCB(gt);
+	
 }
 
 void FShapeApp::Draw(const GameTimer& gt)
 {
+	auto CmdListAlloc = CurrentFrameResource->CommandListAllocator;
+
 	// Reuse the memory associated with command recording.
-	// We can only reset when the associated command lists have finished execution on the GPU.
-	ThrowIfFailed(DirectCmdListAlloctor->Reset());
-
-
-	// A command list can be reset after it has been added to the command queue via ExecuteCommandList.
-	// Reusing the command list reuses memory.
-	ThrowIfFailed(CommandList->Reset(DirectCmdListAlloctor.Get(), PSO.Get()));
-
+    // We can only reset when the associated command lists have finished execution on th
+	ThrowIfFailed(CmdListAlloc->Reset());
+	
+    // A command list can be reset after it has been added to the command queue via ExecuteCommandList.
+    // Reusing the command list reuses memory.
+	
+	if (bIsWireFrame)
+	{
+		ThrowIfFailed(CommandList->Reset(CmdListAlloc.Get(), PSOs["opaque_wireframe"].Get()));
+	}
+	else
+	{
+		ThrowIfFailed(CommandList->Reset(CmdListAlloc.Get(), PSOs["opaque"].Get()));
+	}
+	
 	CommandList->RSSetViewports(1, &ScreenViewport);
 	CommandList->RSSetScissorRects(1, &ScissorRect);
-	
-	// Indicate a state transition on the resource usage.	
-	CommandList->ResourceBarrier(
-		1, 
-		&CD3DX12_RESOURCE_BARRIER::Transition(
-			GetCurrentBackBuffer(),
-			D3D12_RESOURCE_STATE_PRESENT,
-			D3D12_RESOURCE_STATE_RENDER_TARGET
-		)
+
+	CommandList->ResourceBarrier(1, & CD3DX12_RESOURCE_BARRIER::Transition(
+		GetCurrentBackBuffer(),
+		D3D12_RESOURCE_STATE_PRESENT,
+		D3D12_RESOURCE_STATE_RENDER_TARGET)
 	);
 	
 	// Clear the back buffer and depth buffer.
-	CommandList->ClearRenderTargetView(GetCurrentBackBufferView(), Colors::LightSteelBlue, 0, nullptr);
+	CommandList->ClearRenderTargetView(GetCurrentBackBufferView(), Colors::AliceBlue, 0, nullptr);
 	CommandList->ClearDepthStencilView(GetDepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+
+   	// Specify the buffers we are going to render to.
+	CommandList->OMSetRenderTargets(1, &GetCurrentBackBufferView(), true, &GetDepthStencilView());
+
+	ID3D12DescriptorHeap* DescriptorHeaps[] = {CBVHeap.Get()};
+	CommandList->SetDescriptorHeaps(_countof(DescriptorHeaps), DescriptorHeaps);
+	
+	CommandList->SetGraphicsRootSignature(RootSignature.Get());
+	
+	int PassCBVIndex = PassCBVOffset + CurrentFrameResourceIndex;
+	auto PassCBVHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(CBVHeap->GetGPUDescriptorHandleForHeapStart());
+	PassCBVHandle.Offset(PassCBVIndex, CbvSrvUavDescriptorSize);
+	CommandList->SetGraphicsRootDescriptorTable(1, PassCBVHandle);
+	
+	DrawRenderItems(CommandList.Get(), OpaqueRitems);
+	
+	// Indicate a state transition on the resource usage.
+	CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
+		GetCurrentBackBuffer(),
+		D3D12_RESOURCE_STATE_RENDER_TARGET,
+		D3D12_RESOURCE_STATE_PRESENT)
+	);
+	
+	// Done recording commands.
+	ThrowIfFailed(CommandList->Close());
+
+	// Add the command list to the queue for execution. 
+	ID3D12CommandList* CmdsLists = { CommandList.Get()};
+	CommandQueue->ExecuteCommandLists(_countof(CmdsLists), CmdsLists);
+	
+	// Swap the back and front buffers
+	ThrowIfFailed(SwapChain->Present(0, 0)); 
+	CurrentBackBufferIndex = (CurrentBackBufferIndex + 1) % SwapChainBufferCount;
+	
+	// Advance the fence value to mark commands up to this fence point.
+	CurrentFrameResource->Fence = ++CurrentFence;
+	
+	// Add an instruction to the command queue to set a new fence point. 
+    // Because we are on the GPU timeline, the new fence point won't be 
+    // set until the GPU finishes processing all the commands prior to this Signal().
+	CommandQueue->Signal(Fence.Get(), CurrentFence);
 }
 
 
@@ -296,7 +362,20 @@ void FShapeApp::UpdateCamera(const GameTimer& gt)
 void FShapeApp::UpdateObjectCBs(const GameTimer& gt)
 {
 	auto CurrentObjectCB = CurrentFrameResource->ObjectCB.get();
-
+	for (auto& Item : AllRenderItems)
+	{
+		if (Item->NumFrameDirty > 0)
+		{
+			XMMATRIX World = XMLoadFloat4x4(&Item->World);
+			
+			FObjectConstants ObjConstants;
+			XMStoreFloat4x4(&ObjConstants.World, XMMatrixTranspose(World));
+			
+			CurrentObjectCB->CopyData(Item->ObjCBIndex, ObjConstants);
+		
+			Item->NumFrameDirty--;
+		}
+	}
 }
 
 void FShapeApp::UpdateMainPassCB(const GameTimer& gt)
@@ -350,7 +429,53 @@ void FShapeApp::BuildDescriptorHeaps()
 
 void FShapeApp::BuildConstantBufferViews()
 {
+	UINT ObjCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(FObjectConstants));
 	
+	UINT ObjCount = (UINT)OpaqueRitems.size();
+	
+	// Need a CBV descriptor for each object for each frame resource.
+	for (int FrameIndex = 0; FrameIndex < gNumFrameResources; ++FrameIndex)
+	{
+		auto ObjectCB = FrameResources[FrameIndex]->ObjectCB->Resource();
+		for (UINT i = 0; i < ObjCount; ++i)
+		{
+			D3D12_GPU_VIRTUAL_ADDRESS CBAddress = ObjectCB->GetGPUVirtualAddress();
+			
+			// Offset to the ith object constant buffer in the buffer.
+			CBAddress += i * ObjCBByteSize;
+			
+			 // Offset to the object cbv in the descriptor heap.
+			int HeapIndex = FrameIndex * ObjCount + i; 
+			auto Handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(CBVHeap->GetCPUDescriptorHandleForHeapStart());
+			Handle.Offset(HeapIndex, CbvSrvUavDescriptorSize);
+			
+			D3D12_CONSTANT_BUFFER_VIEW_DESC CBVDesc;
+			CBVDesc.BufferLocation = CBAddress;
+			CBVDesc.SizeInBytes = ObjCBByteSize;
+			
+			D3DDevice->CreateConstantBufferView(&CBVDesc, Handle);
+		}
+	}
+	
+	UINT PassCByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(FPassConstants));
+
+	// Last three descriptors are the pass CBVs for each frame resource.
+	for (int FrameIndex = 0; FrameIndex < gNumFrameResources; ++FrameIndex)
+	{
+		auto PassCB = FrameResources[FrameIndex]->PassCB->Resource();
+		D3D12_GPU_VIRTUAL_ADDRESS CBAddress = PassCB->GetGPUVirtualAddress();
+		
+		// Offset to the pass cbv in the descriptor heap.
+		int HeapIndex = PassCBVOffset + FrameIndex;
+		auto Handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(CBVHeap->GetCPUDescriptorHandleForHeapStart());
+		Handle.Offset(HeapIndex, CbvSrvUavDescriptorSize);
+			
+		D3D12_CONSTANT_BUFFER_VIEW_DESC CBVDesc;
+		CBVDesc.BufferLocation = CBAddress;
+		CBVDesc.SizeInBytes = PassCByteSize;
+			
+		D3DDevice->CreateConstantBufferView(&CBVDesc, Handle);
+	}
 }
 
 void FShapeApp::BuildRootSignature()
@@ -619,7 +744,30 @@ void FShapeApp::BuildRenderItems()
 		OpaqueRitems.push_back(Item.get());
 	}
 }
+void FShapeApp::DrawRenderItems(ID3D12GraphicsCommandList* CommandList, const std::vector<FRenderItem*>& RenderItems)
+{
+	UINT ObjCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(FObjectConstants));
+	
+	auto  ObjectCB = CurrentFrameResource->ObjectCB->Resource();
+	
+	// For each render item...
+	for (size_t i = 0; i < RenderItems.size();++i)
+	{
+		FRenderItem* Item = RenderItems[i];
+		
+		CommandList->IASetVertexBuffers(0, 1, &Item->Geo->VertexBufferView());
+		CommandList->IASetIndexBuffer(&Item->Geo->IndexBufferView());
+		CommandList->IASetPrimitiveTopology(Item->PrimitiveType); 
 
+		// Offset to the CBV in the descriptor heap for this object and for this frame
+		UINT CBVIndex = CurrentFrameResourceIndex *(UINT)OpaqueRitems.size() + Item->ObjCBIndex;
+		auto CBVHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(CBVHeap->GetGPUDescriptorHandleForHeapStart());
+		CBVHandle.Offset(CBVIndex, CbvSrvUavDescriptorSize);
+		
+		CommandList->SetGraphicsRootDescriptorTable(0, CBVHandle);
+		CommandList->DrawIndexedInstanced(Item->IndexCount, 1, Item->StartIndexLocation, Item->BaseVertexLocation, 0);
+	}
+}
 
 void FShapeApp::BuildFrameResources()
 {
