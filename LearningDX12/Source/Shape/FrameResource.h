@@ -59,7 +59,7 @@ public:
 
     // We cannot update a dynamic vertex buffer until the GPU is done processing
     // the commands that reference it.  So each frame needs their own.
-    std::unique_ptr<TUploadBuffer<FVertex>> WavesVB = nullptr;
+    //std::unique_ptr<TUploadBuffer<FVertex>> WavesVB = nullptr;
 
 	UINT64 Fence = 0;
 };

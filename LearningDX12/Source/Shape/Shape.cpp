@@ -26,17 +26,6 @@ const int gNumFrameResources = 3;
 #define ITEM_CYLINDER "Cylinder"
 
 
-struct FVertex
-{
-	XMFLOAT3 Pos;
-	XMFLOAT4 Color;
-};
-
-struct FObjectConstants
-{
-	XMFLOAT4X4 World = MathHelper::Identity4x4();
-};
-
 // Lightweight structure stores parameters to draw a shape.  This will
 // vary from app-to-app.
 struct FRenderItem
@@ -130,7 +119,7 @@ private:
 
 	float Theta = 1.5f * XM_PI;
 	float Phi = XM_PIDIV4;
-	float Radius = 5.0f;
+	float Radius = 15.0f;
 
 	POINT LastMousePos;
 };
@@ -271,7 +260,7 @@ void FShapeApp::Draw(const GameTimer& gt)
 	ThrowIfFailed(CommandList->Close());
 
 	// Add the command list to the queue for execution. 
-	ID3D12CommandList* CmdsLists = { CommandList.Get()};
+	ID3D12CommandList* CmdsLists[] = { CommandList.Get()};
 	CommandQueue->ExecuteCommandLists(_countof(CmdsLists), CmdsLists);
 	
 	// Swap the back and front buffers
@@ -484,7 +473,7 @@ void FShapeApp::BuildRootSignature()
 	CBVTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
 	
 	CD3DX12_DESCRIPTOR_RANGE CBVTable1;
-	CBVTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
+	CBVTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 1);
 	
 	// Root parameter can be a table, root descriptor or root constants.
 	CD3DX12_ROOT_PARAMETER SlotRootParameter[2];
@@ -522,8 +511,8 @@ void FShapeApp::BuildRootSignature()
 void FShapeApp::BuildShadersAndInputLayout()
 {
 	HRESULT hr = S_OK;
-	Shaders["standarVS"] = d3dUtil::CompileShader(L"Shaders\\Color.hlsl", nullptr, "VS", "vs_5_1");
-	Shaders["opaquePS"] = d3dUtil::CompileShader(L"Shaders\\color.hlsl", nullptr, "PS", "ps_5_1");
+	Shaders["standardVS"] = d3dUtil::CompileShader(L"Shaders\\Shape.hlsl", nullptr, "VS", "vs_5_1");
+	Shaders["opaquePS"] = d3dUtil::CompileShader(L"Shaders\\Shape.hlsl", nullptr, "PS", "ps_5_1");
 	
 	/*
 	typedef struct D3D12_INPUT_ELEMENT_DESC
@@ -655,10 +644,10 @@ void FShapeApp::BuildShapeGeometry()
 	Geo->IndexBufferByteSize = DXGI_FORMAT_R16_UINT;
 	Geo->IndexBufferByteSize = IBByteSize;
 
-	Geo->DrawArgs["Box"] = BoxSubmesh;
-	Geo->DrawArgs["Grid"] = GridSubmesh;
-	Geo->DrawArgs["Sphere"] = SphereSubmesh;
-	Geo->DrawArgs["Cylinder"] = CylinderSubmesh;
+	Geo->DrawArgs[ITEM_BOX] = BoxSubmesh;
+	Geo->DrawArgs[ITEM_GRID] = GridSubmesh;
+	Geo->DrawArgs[ITEM_SPHERE] = SphereSubmesh;
+	Geo->DrawArgs[ITEM_CYLINDER] = CylinderSubmesh;
 	
 	Geometries[Geo->Name] = std::move(Geo);
 }
@@ -669,7 +658,7 @@ void FShapeApp::BuildRenderItems()
 	auto BoxRenderItem = std::make_unique<FRenderItem>();
 	XMStoreFloat4x4(&BoxRenderItem->World, XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(0.0f, 0.5f, 0.0f));
 	BoxRenderItem->ObjCBIndex = 0;
-	BoxRenderItem->Geo = Geometries["ShapeGeo"].get();
+	BoxRenderItem->Geo = Geometries[ITEM_SHAPE].get();
 	BoxRenderItem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	BoxRenderItem->IndexCount = BoxRenderItem->Geo->DrawArgs[ITEM_BOX].IndexCount;
 	BoxRenderItem->StartIndexLocation = BoxRenderItem->Geo->DrawArgs[ITEM_BOX].StartIndexLocation;
@@ -679,7 +668,7 @@ void FShapeApp::BuildRenderItems()
 	auto GridRenderItem = std::make_unique<FRenderItem>();
 	GridRenderItem->World = MathHelper::Identity4x4();
 	GridRenderItem->ObjCBIndex = 1;
-	GridRenderItem->Geo = Geometries["ShapeGeo"].get();
+	GridRenderItem->Geo = Geometries[ITEM_SHAPE].get();
 	GridRenderItem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	GridRenderItem->IndexCount = GridRenderItem->Geo->DrawArgs[ITEM_GRID].IndexCount;  
 	GridRenderItem->StartIndexLocation = GridRenderItem->Geo->DrawArgs[ITEM_GRID].StartIndexLocation;
@@ -795,7 +784,7 @@ void FShapeApp::BuildPSOs()
 	OpaquePSODesc.pRootSignature = RootSignature.Get();
 	OpaquePSODesc.VS = 
 	{
-		reinterpret_cast<BYTE*>(Shaders["standardVS"]->GetBufferPointer()), 
+		reinterpret_cast<BYTE*>(Shaders["standardVS"]->GetBufferPointer()),
 		Shaders["standardVS"]->GetBufferSize()
 	};
 	OpaquePSODesc.PS = 
