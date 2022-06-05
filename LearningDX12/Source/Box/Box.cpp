@@ -48,7 +48,7 @@ private:
 	
 	std::unique_ptr<TUploadBuffer<FObjectConstants>> ObjectCB = nullptr;
 	
-	std::unique_ptr<MeshGeometry> BoxGeo = nullptr;
+	std::unique_ptr<FMeshGeometry> BoxGeo = nullptr;
 	
 	ComPtr<ID3DBlob> VSByteCode = nullptr;
 	ComPtr<ID3DBlob> PSByteCode = nullptr;
@@ -407,7 +407,7 @@ void FBoxApp::BuildBoxGeometry()
 	const UINT VBByteSize = (UINT)Vertices.size() * sizeof(FVertex);
 	const UINT IBByteSize = (UINT)Indices.size() * sizeof(std::uint16_t);
 
-	BoxGeo = std::make_unique<MeshGeometry>();
+	BoxGeo = std::make_unique<FMeshGeometry>();
 	BoxGeo->Name = "Box";
 	ThrowIfFailed(
 		D3DCreateBlob(VBByteSize, &BoxGeo->VertexBufferCPU)
