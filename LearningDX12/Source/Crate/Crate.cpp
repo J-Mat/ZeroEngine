@@ -75,11 +75,12 @@ private:
 	void BuildFrameResources();
 	void LoadTexture();
 	void BuildDescriptorHeaps();
-	void BuildMaterials();
 	void BuildRootSignature();
 	void BuildShadersAndInputLayout();
-	void BuildBoxGeometry();
+	void BuildShapeGeometry();
 	void BuildPSO();
+	void BuildMaterials();
+	void BuildRenderItems();
 	void DrawRenderItems(ID3D12GraphicsCommandList* CommandList, const std::vector<FRenderItem*>& RenderItems);
 	std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> GetStaticSamplers();
 
@@ -328,13 +329,67 @@ void FCrateApp::UpdateCamera(const GameTimer& gt)
 	XMStoreFloat4x4(&View, view);
 }
 
+
 void FCrateApp::UpdateMaterialCBs(const GameTimer& gt)
 {
-	
+	auto CurrentMaterialCB = CurrentFrameResource->MaterialCB.get();
+	for (auto& E : Materials)
+	{
+		// Only update the cbuffer data if the constants have changed.  If the cbuffer
+		// data changes, it needs to be updated for each FrameResource.
+		FMaterial* Mat = E.second.get();
+		if (Mat->NumFramesDirty > 0)
+		{
+			XMMATRIX TransForm = XMLoadFloat4x4(&Mat->MatTransform);
+
+			FMaterialConstants MaterialConstants;
+			MaterialConstants.DiffuseAlbedo = Mat->DiffuseAlbedo;
+			MaterialConstants.FresnelR0 = Mat->FresnelR0;
+			MaterialConstants.Roughness = Mat->Roughness;
+
+			XMStoreFloat4x4(&MaterialConstants.MatTransform, XMMatrixTranspose(TransForm));
+
+			CurrentMaterialCB->CopyData(Mat->MatCBIndex, MaterialConstants);
+
+			--Mat->NumFramesDirty;
+		}
+	}
 }
 
 void FCrateApp::UpdateMainPassCB(const GameTimer& gt)
 {
+	XMMATRIX ViewMatrix = XMLoadFloat4x4(&View);
+	XMMATRIX ProjMatrix = XMLoadFloat4x4(&Proj);
+
+	XMMATRIX ViewProj = XMMatrixMultiply(ViewMatrix, ProjMatrix);
+	XMMATRIX InvView = XMMatrixInverse(&XMMatrixDeterminant(ViewMatrix), ViewMatrix);
+	XMMATRIX InvProj = XMMatrixInverse(&XMMatrixDeterminant(ProjMatrix), ProjMatrix);
+	XMMATRIX invViewProj = XMMatrixInverse(&XMMatrixDeterminant(ViewProj), ViewProj);
+
+	XMStoreFloat4x4(&MainPassCB.View, XMMatrixTranspose(ViewMatrix));
+	XMStoreFloat4x4(&MainPassCB.InvView, XMMatrixTranspose(InvView));
+	XMStoreFloat4x4(&MainPassCB.Proj, XMMatrixTranspose(ProjMatrix));
+	XMStoreFloat4x4(&MainPassCB.InvProj, XMMatrixTranspose(InvProj));
+	XMStoreFloat4x4(&MainPassCB.ViewProj, XMMatrixTranspose(ViewProj));
+	XMStoreFloat4x4(&MainPassCB.InvViewProj, XMMatrixTranspose(invViewProj));
+	MainPassCB.EyePosW = EyePos;
+	MainPassCB.RenderTargetSize = XMFLOAT2((float)ClientWidth, (float)ClientHeight);
+	MainPassCB.InvRenderTargetSize = XMFLOAT2(1.0f / ClientWidth, 1.0f / ClientHeight);
+	MainPassCB.NearZ = 1.0f;
+	MainPassCB.FarZ = 1000.0f;
+	MainPassCB.TotalTime = gt.TotalTime();
+	MainPassCB.DeltaTime = gt.DeltaTime();
+
+	MainPassCB.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
+	MainPassCB.Lights[0].Direction = { 0.57735f, -0.57735f, 0.57735f };
+	MainPassCB.Lights[0].Strength = { 0.6f, 0.6f, 0.6f };
+	MainPassCB.Lights[1].Direction = { -0.57735f, -0.57735f, 0.57735f };
+	MainPassCB.Lights[1].Strength = { 0.3f, 0.3f, 0.3f };
+	MainPassCB.Lights[2].Direction = { 0.0f, -0.707f, -0.707f };
+	MainPassCB.Lights[2].Strength = { 0.15f, 0.15f, 0.15f };
+
+	auto CurPassCB = CurrentFrameResource->PassCB.get();
+	CurPassCB->CopyData(0, MainPassCB);
 }
 
 void FCrateApp::BuildDescriptorHeaps()
@@ -350,6 +405,23 @@ void FCrateApp::BuildDescriptorHeaps()
 			IID_PPV_ARGS(&CBVHeap)
 		)
 	);
+
+	//
+	// Fill out the heap with actual descriptors.
+	//
+	CD3DX12_CPU_DESCRIPTOR_HANDLE Descriptor(SrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+	
+	auto WoodCrateTex = Textures["WoodCrateTex"]->Resource;
+	
+	D3D12_SHADER_RESOURCE_VIEW_DESC SrcDesc = {};
+	SrcDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	SrcDesc.Format = WoodCrateTex->GetDesc().Format;
+	SrcDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	SrcDesc.Texture2D.MostDetailedMip = 0;
+	SrcDesc.Texture2D.MipLevels = WoodCrateTex->GetDesc().MipLevels;
+	SrcDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+	
+	D3DDevice->CreateShaderResourceView(WoodCrateTex.Get(), &SrcDesc, Descriptor);
 }
 
 void FCrateApp::BuildFrameResources()
@@ -369,7 +441,17 @@ void FCrateApp::BuildFrameResources()
 
 void FCrateApp::LoadTexture()
 {
-
+	auto WoodCrateTex = std::make_unique<FTexture>();
+	WoodCrateTex->Name = "WoodCrateTex";
+	WoodCrateTex->Filename = d3dUtil::GetPath(L"Textures/WoodCrate01.dds");
+	ThrowIfFailed(
+		DirectX::CreateDDSTextureFromFile12(D3DDevice.Get(),
+			CommandList.Get(),
+			WoodCrateTex->Filename.c_str(),
+			WoodCrateTex->Resource,
+			WoodCrateTex->UploadHeap)
+	);
+	Textures[WoodCrateTex->Name] = std::move(WoodCrateTex);
 }
 
 void FCrateApp::BuildMaterials()
@@ -385,8 +467,50 @@ void FCrateApp::BuildMaterials()
 	Materials["woodCrate"] = std::move(woodCrate);
 }
 
+void FCrateApp::BuildRenderItems()
+{
+}
+
 void FCrateApp::BuildRootSignature()
 {
+	CD3DX12_DESCRIPTOR_RANGE TexTable;
+	TexTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+	
+	// Root parameter can be a table, root descriptor or root constants.
+	CD3DX12_ROOT_PARAMETER SlotRootParameter[4];
+
+	// Perfomance TIP: Order from most frequent to least frequent.
+	SlotRootParameter[0].InitAsDescriptorTable(0, &TexTable, D3D12_SHADER_VISIBILITY_PIXEL);
+	SlotRootParameter[1].InitAsConstantBufferView(0);
+	SlotRootParameter[1].InitAsConstantBufferView(1);
+	SlotRootParameter[1].InitAsConstantBufferView(2);
+	
+	auto StaticSamplers = GetStaticSamplers();
+
+	// A root signature is an array of root parameters.
+	CD3DX12_ROOT_SIGNATURE_DESC RootSigDesc(4, SlotRootParameter,
+		(UINT)StaticSamplers.size(), StaticSamplers.data(), 
+		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
+	);
+	
+	// create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
+	ComPtr<ID3DBlob> SerializedRootSig = nullptr;
+	ComPtr<ID3DBlob> ErrorBlob = nullptr;
+	HRESULT HR = D3D12SerializeRootSignature(&RootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
+		SerializedRootSig.GetAddressOf(), ErrorBlob.GetAddressOf());
+
+	if (ErrorBlob != nullptr)
+	{
+		::OutputDebugStringA((char*)ErrorBlob->GetBufferPointer());
+	}
+	ThrowIfFailed(HR);
+
+	ThrowIfFailed(
+		D3DDevice->CreateRootSignature(
+			0,
+			SerializedRootSig->GetBufferPointer(),
+			SerializedRootSig->GetBufferSize(),
+			IID_PPV_ARGS(RootSignature.GetAddressOf())));
 }
 
 void FCrateApp::BuildShadersAndInputLayout()
@@ -402,9 +526,28 @@ void FCrateApp::BuildShadersAndInputLayout()
 	};
 }
 
-void FCrateApp::BuildBoxGeometry()
+void FCrateApp::BuildShapeGeometry()
 {
+	FGeometryGenerator GeoGen; 
+	FGeometryGenerator::FMeshData Box = GeoGen.CreateBox(1.0f, 1.0f, 1.0f, 3);
 	
+	FSubmeshGeometry BoxSubMesh;
+	BoxSubMesh.IndexCount = (UINT)Box.Indices32.size();
+	BoxSubMesh.StartIndexLocation = 0;
+	BoxSubMesh.BaseVertexLocation = 0;
+	
+	std::vector<FVertex> Vertices(Box.Vertices.size());
+	for (size_t i = 0; i < Box.Vertices.size(); ++i)
+	{
+		Vertices[i].Pos = Box.Vertices[i].Position;
+		Vertices[i].Normal = Box.Vertices[i].Position;
+		Vertices[i].TexC = Box.Vertices[i].TexC;
+	}
+	
+	std::vector<std::uint16_t> Indices = Box.GetIndices16();
+
+	const UINT VBByteSize = (UINT)Vertices.size() * sizeof(FVertex);
+	const UINT IBByteSize = (UINT)Indices.size() + sizeof(std::uint16_t);
 }
 
 void FCrateApp::BuildPSO()
@@ -470,7 +613,61 @@ void FCrateApp::DrawRenderItems(ID3D12GraphicsCommandList* CommandList, const st
 
 std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> FCrateApp::GetStaticSamplers()
 {
+	// Applications usually only need a handful of samplers.  So just define them all up front
+	// and keep them available as part of the root signature. 
+	
+	const CD3DX12_STATIC_SAMPLER_DESC PointWrap(
+		0,
+		D3D12_FILTER_MIN_MAG_MIP_POINT, // filter
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressU
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressV
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP
+	); // addressW
+	
+	const CD3DX12_STATIC_SAMPLER_DESC PointClamp(
+		1, // shaderRegister
+		D3D12_FILTER_MIN_MAG_MIP_POINT, // filter
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressU
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressV
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP
+	); // addressW
 
+	const CD3DX12_STATIC_SAMPLER_DESC LinearWrap(
+		2, // shaderRegister
+		D3D12_FILTER_MIN_MAG_MIP_LINEAR, // filter
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressU
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressV
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP
+	); // addressW
+
+	const CD3DX12_STATIC_SAMPLER_DESC LinearClamp(
+		3, // shaderRegister
+		D3D12_FILTER_MIN_MAG_MIP_LINEAR, // filter
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressU
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressV
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP
+	); // addressW
+
+	const CD3DX12_STATIC_SAMPLER_DESC AnisotropicWrap(
+		4, // shaderRegister
+		D3D12_FILTER_ANISOTROPIC, // filter
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressU
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressV
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressW
+		0.0f,                             // mipLODBias
+		8
+	);       
+
+	const CD3DX12_STATIC_SAMPLER_DESC AnisotropicClamp(
+		5, // shaderRegister
+		D3D12_FILTER_ANISOTROPIC, // filter
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressU
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressV
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressW
+		0.0f,                              // mipLODBias
+		8
+	);
+	return { PointWrap, PointClamp, LinearWrap, LinearClamp, AnisotropicWrap, AnisotropicClamp };
 }
 
 int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmdshow)

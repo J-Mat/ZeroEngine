@@ -45,6 +45,7 @@ struct FVertex
 {
 	XMFLOAT3 Pos;
 	XMFLOAT3 Normal;
+	XMFLOAT2 TexC;
 };
 
 // Stores the resources needed for the CPU to build the command lists
