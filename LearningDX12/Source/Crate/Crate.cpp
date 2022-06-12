@@ -43,11 +43,6 @@ struct FRenderItem
 	int BaseVertexLocation = 0;
 };
 
-struct FObjectConstants
-{
-	XMFLOAT4X4 World = MathHelper::Identity4x4();
-};
-
 class FCrateApp : public FD3DApp
 {
 public:
@@ -65,10 +60,9 @@ private:
 	virtual void OnMouseUp(WPARAM btnState, int x, int y)override;
 	virtual void OnMouseMove(WPARAM btnState, int x, int y)override;
 
-
 	void OnKeyboardInput(const GameTimer& gt);
 	void UpdateCamera(const GameTimer& gt);
-	void UpdateObjectCBs(const GameTimer& gt)
+	void UpdateObjectCBs(const GameTimer& gt);
 	void UpdateMaterialCBs(const GameTimer& gt);
 	void UpdateMainPassCB(const GameTimer& gt);
 
@@ -90,7 +84,6 @@ private:
 	int CurrentFrameResourceIndex = 0;
 
 	ComPtr<ID3D12RootSignature> RootSignature = nullptr;
-	ComPtr<ID3D12DescriptorHeap> CBVHeap = nullptr;
 
 	ComPtr<ID3D12DescriptorHeap> SrvDescriptorHeap = nullptr;
 
@@ -122,7 +115,7 @@ private:
 
 	float Theta = 1.5f * XM_PI;
 	float Phi = XM_PIDIV4;
-	float Radius = 15.0f;
+	float Radius = 2.5f;
 
 	POINT LastMousePos;
 };
@@ -151,12 +144,18 @@ bool FCrateApp::Initialize()
 		CommandList->Reset(DirectCmdListAlloctor.Get(), nullptr)
 	);
 	
+	CbvSrvUavDescriptorSize = D3DDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	
-	BuildDescriptorHeaps();
+	LoadTexture();
 	BuildRootSignature();
+	BuildDescriptorHeaps();
 	BuildShadersAndInputLayout();
-	BuildBoxGeometry();
+	BuildShapeGeometry();
+	BuildMaterials();
+	BuildRenderItems();
+	BuildFrameResources();
 	BuildPSO();
+
 	// Execute the initialization commands.
 	ThrowIfFailed(CommandList->Close());
 	ID3D12CommandList* CmdsLists[] = { CommandList.Get() };
@@ -197,8 +196,8 @@ void FCrateApp::Update(const GameTimer& gt)
 	}
 
 	UpdateObjectCBs(gt);
-	UpdateMainPassCB(gt);
 	UpdateMaterialCBs(gt);
+	UpdateMainPassCB(gt);
 }
 
 void FCrateApp::Draw(const GameTimer& gt)
@@ -228,6 +227,9 @@ void FCrateApp::Draw(const GameTimer& gt)
 
 	// Specify the buffers we are going to render to.
 	CommandList->OMSetRenderTargets(1, &GetCurrentBackBufferView(), true, &GetDepthStencilView());
+
+	ID3D12DescriptorHeap* DescriptorHeaps[] = { SrvDescriptorHeap.Get() };
+	CommandList->SetDescriptorHeaps(_countof(DescriptorHeaps), DescriptorHeaps);
 
 	CommandList->SetGraphicsRootSignature(RootSignature.Get());
 	auto PassCB = CurrentFrameResource->PassCB->Resource();
@@ -308,6 +310,51 @@ void FCrateApp::OnMouseMove(WPARAM btnState, int x, int y)
 	LastMousePos.y = y;
 }
 
+void FCrateApp::BuildShapeGeometry()
+{
+	FGeometryGenerator GeoGen;
+	FGeometryGenerator::FMeshData Box = GeoGen.CreateBox(1.0f, 1.0f, 1.0f, 3);
+	
+	FSubmeshGeometry BoxSubmesh;
+	BoxSubmesh.IndexCount = (UINT)Box.Indices32.size();
+	BoxSubmesh.StartIndexLocation = 0;
+	BoxSubmesh.BaseVertexLocation = 0;
+	
+	std::vector<FVertex> Vertices(Box.Vertices.size());
+	
+	for (int i = 0; i < Box.Vertices.size(); ++i)
+	{
+		Vertices[i].Pos = Box.Vertices[i].Position;
+		Vertices[i].Normal = Box.Vertices[i].Normal;
+		Vertices[i].TexC = Box.Vertices[i].TexC;
+	}
+	
+	std::vector<std::uint16_t>  Indices = Box.GetIndices16();
+	
+	const UINT VBByteSize = (UINT)Vertices.size() * sizeof(FVertex);
+	const UINT IBByteSize = (UINT)Indices.size() * sizeof(std::uint16_t);
+	
+	auto Geo = std::make_unique<FMeshGeometry>();
+	Geo->Name = "boxGeo";
+	ThrowIfFailed(D3DCreateBlob(VBByteSize, &Geo->VertexBufferCPU));
+	CopyMemory(Geo->VertexBufferCPU->GetBufferPointer(), Vertices.data(), VBByteSize);
+	
+	ThrowIfFailed(D3DCreateBlob(IBByteSize, &Geo->IndexBufferCPU));
+	CopyMemory(Geo->IndexBufferCPU->GetBufferPointer(), Indices.data(), IBByteSize);
+	
+	Geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(D3DDevice.Get(), CommandList.Get(), Vertices.data(), VBByteSize, Geo->VertexBufferUploader);
+	Geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(D3DDevice.Get(), CommandList.Get(), Indices.data(), IBByteSize, Geo->IndexBufferUploader);
+	
+	Geo->VertexByteStride = sizeof(FVertex);
+	Geo->VertexBufferByteSize = VBByteSize;
+	Geo->IndexFormat = DXGI_FORMAT_R16_UINT;
+	Geo->IndexBufferByteSize = IBByteSize;
+	
+	Geo->DrawArgs["box"] = BoxSubmesh;
+	
+	Geometries[Geo->Name] = std::move(Geo);
+}
+
 void FCrateApp::OnKeyboardInput(const GameTimer& gt)
 {
 
@@ -329,6 +376,27 @@ void FCrateApp::UpdateCamera(const GameTimer& gt)
 	XMStoreFloat4x4(&View, view);
 }
 
+
+void FCrateApp::UpdateObjectCBs(const GameTimer& gt)
+{
+	auto CurrentObjectCB = CurrentFrameResource->ObjectCB.get();
+	for (auto& Item : AllRenderItems)
+	{
+		if (Item->NumFrameDirty > 0)
+		{
+			XMMATRIX World = XMLoadFloat4x4(&Item->World);
+			XMMATRIX TexTransform = XMLoadFloat4x4(&Item->TexTransform);
+
+			FObjectConstants ObjConstants;
+			XMStoreFloat4x4(&ObjConstants.World, XMMatrixTranspose(World));
+			XMStoreFloat4x4(&ObjConstants.TexTransform, XMMatrixTranspose(TexTransform));
+
+			CurrentObjectCB->CopyData(Item->ObjCBIndex, ObjConstants);
+
+			Item->NumFrameDirty--;
+		}
+	}
+}
 
 void FCrateApp::UpdateMaterialCBs(const GameTimer& gt)
 {
@@ -394,6 +462,9 @@ void FCrateApp::UpdateMainPassCB(const GameTimer& gt)
 
 void FCrateApp::BuildDescriptorHeaps()
 {
+	//
+	// Create the SRV heap.
+	//
 	D3D12_DESCRIPTOR_HEAP_DESC CBVHeapDesc;
 	CBVHeapDesc.NumDescriptors = 1;
 	CBVHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
@@ -402,7 +473,7 @@ void FCrateApp::BuildDescriptorHeaps()
 	ThrowIfFailed(
 		D3DDevice->CreateDescriptorHeap(
 			&CBVHeapDesc,
-			IID_PPV_ARGS(&CBVHeap)
+			IID_PPV_ARGS(&SrvDescriptorHeap)
 		)
 	);
 
@@ -432,7 +503,8 @@ void FCrateApp::BuildFrameResources()
 			std::make_unique<FFrameResource>(
 				D3DDevice.Get(),
 				1,
-				(UINT)AllRenderItems.size()
+				(UINT)AllRenderItems.size(),
+				(UINT)Materials.size()
 				)
 		);
 	}
@@ -458,17 +530,31 @@ void FCrateApp::BuildMaterials()
 {
 	auto woodCrate = std::make_unique<FMaterial>();
 	woodCrate->Name = "woodCrate";
-	woodCrate->MatCBIndex = 3;
-	woodCrate->DiffuseSrvHeapIndex = 3;
+	woodCrate->MatCBIndex = 0;
+	woodCrate->DiffuseSrvHeapIndex = 0;
 	woodCrate->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	woodCrate->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05);
-	woodCrate->Roughness = 0.3f;
+	woodCrate->Roughness = 0.2f;
 
 	Materials["woodCrate"] = std::move(woodCrate);
 }
 
 void FCrateApp::BuildRenderItems()
 {
+	auto BoxItem = std::make_unique<FRenderItem>();
+	BoxItem->ObjCBIndex = 0;
+	BoxItem->Mat = Materials["woodCrate"].get();
+	BoxItem->Geo = Geometries["boxGeo"].get();
+	BoxItem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	BoxItem->IndexCount = BoxItem->Geo->DrawArgs["box"].IndexCount;
+	BoxItem->StartIndexLocation = BoxItem->Geo->DrawArgs["box"].StartIndexLocation;
+	BoxItem->BaseVertexLocation = BoxItem->Geo->DrawArgs["box"].BaseVertexLocation;
+	AllRenderItems.push_back(std::move(BoxItem));
+	
+	for (auto& e: AllRenderItems)
+	{
+		OpaqueRitems.push_back(e.get());
+	}
 }
 
 void FCrateApp::BuildRootSignature()
@@ -480,10 +566,10 @@ void FCrateApp::BuildRootSignature()
 	CD3DX12_ROOT_PARAMETER SlotRootParameter[4];
 
 	// Perfomance TIP: Order from most frequent to least frequent.
-	SlotRootParameter[0].InitAsDescriptorTable(0, &TexTable, D3D12_SHADER_VISIBILITY_PIXEL);
+	SlotRootParameter[0].InitAsDescriptorTable(1, &TexTable, D3D12_SHADER_VISIBILITY_PIXEL); // 0
 	SlotRootParameter[1].InitAsConstantBufferView(0);
-	SlotRootParameter[1].InitAsConstantBufferView(1);
-	SlotRootParameter[1].InitAsConstantBufferView(2);
+	SlotRootParameter[2].InitAsConstantBufferView(1);
+	SlotRootParameter[3].InitAsConstantBufferView(2);
 	
 	auto StaticSamplers = GetStaticSamplers();
 
@@ -515,8 +601,8 @@ void FCrateApp::BuildRootSignature()
 
 void FCrateApp::BuildShadersAndInputLayout()
 {
-	Shaders["standardVS"] = d3dUtil::CompileShader(L"Shaders\\Default.hlsl", nullptr, "VS", "vs_5_0");
-	Shaders["opaquePS"] = d3dUtil::CompileShader(L"Shaders\\Default.hlsl", nullptr, "PS", "ps_5_0");
+	Shaders["standardVS"] = d3dUtil::CompileShader(L"Shaders\\Tex\\Default.hlsl", nullptr, "VS", "vs_5_0");
+	Shaders["opaquePS"] = d3dUtil::CompileShader(L"Shaders\\Tex\\Default.hlsl", nullptr, "PS", "ps_5_0");
 
 	InputLayout =
 	{
@@ -524,30 +610,6 @@ void FCrateApp::BuildShadersAndInputLayout()
 		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 	};
-}
-
-void FCrateApp::BuildShapeGeometry()
-{
-	FGeometryGenerator GeoGen; 
-	FGeometryGenerator::FMeshData Box = GeoGen.CreateBox(1.0f, 1.0f, 1.0f, 3);
-	
-	FSubmeshGeometry BoxSubMesh;
-	BoxSubMesh.IndexCount = (UINT)Box.Indices32.size();
-	BoxSubMesh.StartIndexLocation = 0;
-	BoxSubMesh.BaseVertexLocation = 0;
-	
-	std::vector<FVertex> Vertices(Box.Vertices.size());
-	for (size_t i = 0; i < Box.Vertices.size(); ++i)
-	{
-		Vertices[i].Pos = Box.Vertices[i].Position;
-		Vertices[i].Normal = Box.Vertices[i].Position;
-		Vertices[i].TexC = Box.Vertices[i].TexC;
-	}
-	
-	std::vector<std::uint16_t> Indices = Box.GetIndices16();
-
-	const UINT VBByteSize = (UINT)Vertices.size() * sizeof(FVertex);
-	const UINT IBByteSize = (UINT)Indices.size() + sizeof(std::uint16_t);
 }
 
 void FCrateApp::BuildPSO()
@@ -594,17 +656,21 @@ void FCrateApp::DrawRenderItems(ID3D12GraphicsCommandList* CommandList, const st
 	for (size_t i = 0; i < RenderItems.size(); ++i)
 	{
 		FRenderItem* Item = RenderItems[i];
-
+		
 		CommandList->IASetVertexBuffers(0, 1, &Item->Geo->VertexBufferView());
 		CommandList->IASetIndexBuffer(&Item->Geo->IndexBufferView());
 		CommandList->IASetPrimitiveTopology(Item->PrimitiveType);
-
+		
+		CD3DX12_GPU_DESCRIPTOR_HANDLE Tex(SrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+		Tex.Offset(Item->Mat->DiffuseSrvHeapIndex, CbvSrvUavDescriptorSize);
+		
 		D3D12_GPU_VIRTUAL_ADDRESS ObjCBAddress = ObjectCB->GetGPUVirtualAddress() + Item->ObjCBIndex * ObjCBByteSize;
 		D3D12_GPU_VIRTUAL_ADDRESS MatCBAddress = MatCB->GetGPUVirtualAddress() + Item->Mat->MatCBIndex * MatCBByteSize;
-
-		CommandList->SetGraphicsRootConstantBufferView(0, ObjCBAddress);
-		CommandList->SetGraphicsRootConstantBufferView(1, MatCBAddress);
-
+		
+		CommandList->SetGraphicsRootDescriptorTable(0, Tex);
+		CommandList->SetGraphicsRootConstantBufferView(1, ObjCBAddress);
+		CommandList->SetGraphicsRootConstantBufferView(3, MatCBAddress);
+		
 		CommandList->DrawIndexedInstanced(Item->IndexCount, 1, Item->StartIndexLocation, Item->BaseVertexLocation, 0);
 	}
 }
