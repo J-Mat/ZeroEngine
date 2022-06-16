@@ -546,6 +546,8 @@ void FD3DApp::OnResize()
 			SwapChain->GetBuffer(i, IID_PPV_ARGS(&SwapChangeBuffers[i]))
 		);	
 		D3DDevice->CreateRenderTargetView(SwapChangeBuffers[i].Get(), nullptr, RTVHeapHandle);
+
+		//
 		RTVHeapHandle.Offset(1, RtvDescriptorSize);
 	}
 	

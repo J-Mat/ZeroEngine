@@ -32,6 +32,8 @@ struct FRenderItem
 	FRenderItem() = default;
 	XMFLOAT4X4 World = MathHelper::Identity4x4();
 
+	XMFLOAT4X4 TexTransform = MathHelper::Identity4x4();
+
 	// Dirty flag indicating the object data has changed and we need to update the constant buffer.
 	// Because we have an object cbuffer for each FrameResource, we have to apply the
 	// update to each FrameResource.  Thus, when we modify obect data we should set
@@ -41,6 +43,7 @@ struct FRenderItem
 	// Index into GPU constant buffer corresponding to the ObjectCB for this render item.
 	UINT ObjCBIndex = -1;
 
+	FMaterial* Mat = nullptr;
 	FMeshGeometry *Geo = nullptr;
 
 	// Primitive topology.
@@ -80,16 +83,22 @@ private:
 	void UpdateObjectCBs(const GameTimer &gt);
 	void UpdateMainPassCB(const GameTimer &gt);
 	void UpdateWaves(const GameTimer& gt);
+	void UpdateMaterialCBs(const GameTimer& gt);
 
+	void LoadTextures();
 	void BuildRootSignature();
+	void BuildDescriptorHeaps();
 	void BuildShadersAndInputLayout();
 	void BuildLandGeometry();
 	void BuildWavesGeometryBuffers();
+	void BuildBoxGeometry();
 	void BuildPSOs();
 	void BuildFrameResources();
+	void BuildMaterials();
 	void BuildRenderItems();
 	void DrawRenderItems(ID3D12GraphicsCommandList *cmdList, const std::vector<FRenderItem *> &ritems);
 
+	std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> FTexWavesApp::GetStaticSamplers();
 	float GetHillsHeight(float x, float z) const;
 	XMFLOAT3 GetHillsNormal(float x, float z) const;
 
@@ -98,12 +107,16 @@ private:
 	FFrameResource *CurrentFrameResource = nullptr;
 	int CurrentFrameResourceIndex = 0;
 
+	UINT CbvSrvDescriptorSize = 0;
+
 	ComPtr<ID3D12RootSignature> RootSignature = nullptr;
-	ComPtr<ID3D12DescriptorHeap> CBVHeap = nullptr;
 
 	ComPtr<ID3D12DescriptorHeap> SrvDescriptorHeap = nullptr;
 
 	std::unordered_map<std::string, std::unique_ptr<FMeshGeometry>> Geometries;
+	std::unordered_map<std::string, std::unique_ptr<FMaterial>> Materials;
+	std::unordered_map<std::string, std::unique_ptr<FTexture>> Textures;
+
 	std::unordered_map<std::string, ComPtr<ID3DBlob>> Shaders;
 	std::unordered_map<std::string, ComPtr<ID3D12PipelineState>> PSOs;
 
@@ -172,13 +185,19 @@ bool FTexWavesApp::Initialize()
 
 	// Reset the command list to prep for initialization commands.
 	ThrowIfFailed(CommandList->Reset(DirectCmdListAlloctor.Get(), nullptr));
+
+	CbvSrvDescriptorSize = D3DDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	
 	Waves = std::make_unique<FWaves>(128, 128, 1.0f, 0.03f, 4.0f, 0.2f);
 
+	LoadTextures();
 	BuildRootSignature();
+	BuildDescriptorHeaps();
 	BuildShadersAndInputLayout();
 	BuildLandGeometry();
 	BuildWavesGeometryBuffers();
+	BuildBoxGeometry();
+	BuildMaterials();
 	BuildRenderItems();
 	BuildFrameResources();
 	BuildPSOs();
@@ -238,14 +257,7 @@ void FTexWavesApp::Draw(const GameTimer &gt)
 	// A command list can be reset after it has been added to the command queue via ExecuteCommandList.
 	// Reusing the command list reuses memory.
 
-	if (bIsWireFrame)
-	{
-		ThrowIfFailed(CommandList->Reset(CmdListAlloc.Get(), PSOs["opaque_wireframe"].Get()));
-	}
-	else
-	{
-		ThrowIfFailed(CommandList->Reset(CmdListAlloc.Get(), PSOs["opaque"].Get()));
-	}
+	ThrowIfFailed(CommandList->Reset(CmdListAlloc.Get(), PSOs["opaque"].Get()));
 
 	CommandList->RSSetViewports(1, &ScreenViewport);
 	CommandList->RSSetScissorRects(1, &ScissorRect);
@@ -261,12 +273,15 @@ void FTexWavesApp::Draw(const GameTimer &gt)
 
 	// Specify the buffers we are going to render to.
 	CommandList->OMSetRenderTargets(1, &GetCurrentBackBufferView(), true, &GetDepthStencilView());
+	
+	ID3D12DescriptorHeap* DescriptorHeaps[] = { SrvDescriptorHeap.Get() };
+	CommandList->SetDescriptorHeaps(_countof(DescriptorHeaps), DescriptorHeaps);
 
 	CommandList->SetGraphicsRootSignature(RootSignature.Get());
 
 	// Bind per-pass constant buffer.  We only need to do this once per-pass.
 	auto PassCB = CurrentFrameResource->PassCB->Resource();
-	CommandList->SetGraphicsRootConstantBufferView(1, PassCB->GetGPUVirtualAddress());
+	CommandList->SetGraphicsRootConstantBufferView(2, PassCB->GetGPUVirtualAddress());
 	
 	DrawRenderItems(CommandList.Get(), RenderLayers[(int)URenderLayer::Opaque]);
 
@@ -385,6 +400,32 @@ void FTexWavesApp::UpdateObjectCBs(const GameTimer &gt)
 	}
 }
 
+void FTexWavesApp::UpdateMaterialCBs(const GameTimer& gt)
+{
+	auto CurrentMaterialCB = CurrentFrameResource->MaterialCB.get();
+	for (auto& E : Materials)
+	{
+		// Only update the cbuffer data if the constants have changed.  If the cbuffer
+		// data changes, it needs to be updated for each FrameResource.
+		FMaterial* Mat = E.second.get();
+		if (Mat->NumFramesDirty > 0)
+		{
+			XMMATRIX TransForm = XMLoadFloat4x4(&Mat->MatTransform);
+
+			FMaterialConstants MaterialConstants;
+			MaterialConstants.DiffuseAlbedo = Mat->DiffuseAlbedo;
+			MaterialConstants.FresnelR0 = Mat->FresnelR0;
+			MaterialConstants.Roughness = Mat->Roughness;
+
+			XMStoreFloat4x4(&MaterialConstants.MatTransform, XMMatrixTranspose(TransForm));
+
+			CurrentMaterialCB->CopyData(Mat->MatCBIndex, MaterialConstants);
+
+			--Mat->NumFramesDirty;
+		}
+	}
+}
+
 void FTexWavesApp::UpdateMainPassCB(const GameTimer &gt)
 {
 	XMMATRIX ViewMatrix = XMLoadFloat4x4(&View);
@@ -435,29 +476,73 @@ void FTexWavesApp::UpdateWaves(const GameTimer& gt)
 	auto CurrWavesVB = CurrentFrameResource->WavesVB.get();
 	for(int i = 0; i < Waves->VertexCount(); ++i)
 	{
-		FVertex v;
+		FVertex Vertex;
 
-		v.Pos = Waves->Position(i);
-        v.Color = XMFLOAT4(DirectX::Colors::Blue);
+		Vertex.Pos = Waves->Position(i);
+		Vertex.Normal = Waves->Normal(i);
+		
 
-		CurrWavesVB->CopyData(i, v);
+		// Derive tex-coords from position by 
+		// mapping [-w/2,w/2] --> [0,1]
+		Vertex.TexC.x = 0.5f + Vertex.Pos.x / Waves->Width();
+		Vertex.TexC.y = 0.5f - Vertex.Pos.z / Waves->Depth();
+
+		CurrWavesVB->CopyData(i, Vertex);
 	}
 
 	// Set the dynamic VB of the wave renderitem to the current frame VB.
 	WavesRenderItem->Geo->VertexBufferGPU = CurrWavesVB->Resource();
 }
 
+void FTexWavesApp::LoadTextures()
+{
+	auto GrassTex = std::make_unique<FTexture>();
+	GrassTex->Name = "grassTex";
+	GrassTex->Filename = d3dUtil::GetPath(L"Textures/grass.dds");
+	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(D3DDevice.Get(),
+		CommandList.Get(), GrassTex->Filename.c_str(),
+		GrassTex->Resource, GrassTex->UploadHeap));
+
+	auto WaterTex = std::make_unique<FTexture>();
+	WaterTex->Name = "waterTex";
+	WaterTex->Filename = d3dUtil::GetPath(L"Textures/water1.dds");
+	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(D3DDevice.Get(),
+		CommandList.Get(), WaterTex->Filename.c_str(),
+		WaterTex->Resource, WaterTex->UploadHeap));
+
+	auto FenceTex = std::make_unique<FTexture>();
+	FenceTex->Name = "fenceTex";
+	FenceTex->Filename = d3dUtil::GetPath(L"Textures/WoodCrate01.dds");
+	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(D3DDevice.Get(),
+		CommandList.Get(), FenceTex->Filename.c_str(),
+		FenceTex->Resource, FenceTex->UploadHeap));
+
+	Textures[GrassTex->Name] = std::move(GrassTex);
+	Textures[WaterTex->Name] = std::move(WaterTex);
+	Textures[FenceTex->Name] = std::move(FenceTex);
+}
+
+
 void FTexWavesApp::BuildRootSignature()
 {
-	// Root parameter can be a table, root descriptor or root constants.
-	CD3DX12_ROOT_PARAMETER SlotRootParameter[2];
+	CD3DX12_DESCRIPTOR_RANGE TexTable;
+	TexTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
 
-	// Create root CBV.
-	SlotRootParameter[0].InitAsConstantBufferView(0);
-	SlotRootParameter[1].InitAsConstantBufferView(1);
+	// Root parameter can be a table, root descriptor or root constants.
+	CD3DX12_ROOT_PARAMETER SlotRootParameter[4];
+
+	// Perfomance TIP: Order from most frequent to least frequent.
+	SlotRootParameter[0].InitAsDescriptorTable(1, &TexTable, D3D12_SHADER_VISIBILITY_PIXEL);
+	SlotRootParameter[1].InitAsConstantBufferView(0);
+	SlotRootParameter[2].InitAsConstantBufferView(1);
+	SlotRootParameter[3].InitAsConstantBufferView(2);
+
+	auto staticSamplers = GetStaticSamplers();
 
 	// A root signature is an array of root parameters.
-	CD3DX12_ROOT_SIGNATURE_DESC RootSigDesc(2, SlotRootParameter, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+	CD3DX12_ROOT_SIGNATURE_DESC RootSigDesc(4, SlotRootParameter,
+		(UINT)staticSamplers.size(), staticSamplers.data(),
+		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
 	// create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
 	ComPtr<ID3DBlob> SerializedRootSig = nullptr;
@@ -479,29 +564,58 @@ void FTexWavesApp::BuildRootSignature()
 			IID_PPV_ARGS(RootSignature.GetAddressOf())));
 }
 
+void FTexWavesApp::BuildDescriptorHeaps()
+{
+	//
+	// Create the SRV heap.
+	//
+	D3D12_DESCRIPTOR_HEAP_DESC SrvHeapDesc = {};
+	SrvHeapDesc.NumDescriptors = 3;
+	SrvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	SrvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	ThrowIfFailed(D3DDevice->CreateDescriptorHeap(&SrvHeapDesc, IID_PPV_ARGS(&SrvDescriptorHeap)));
+
+	//
+	// Fill out the heap with actual descriptors.
+	//
+	CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(SrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+
+	auto GrassTex = Textures["grassTex"]->Resource;
+	auto WaterTex = Textures["waterTex"]->Resource;
+	auto FenceTex = Textures["fenceTex"]->Resource;
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc = {};
+	SrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	SrvDesc.Format = GrassTex->GetDesc().Format;
+	SrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	SrvDesc.Texture2D.MostDetailedMip = 0;
+	SrvDesc.Texture2D.MipLevels = -1;
+	D3DDevice->CreateShaderResourceView(GrassTex.Get(), &SrvDesc, hDescriptor);
+
+	// next descriptor
+	hDescriptor.Offset(1, CbvSrvDescriptorSize);
+
+	SrvDesc.Format = WaterTex->GetDesc().Format;
+	D3DDevice->CreateShaderResourceView(WaterTex.Get(), &SrvDesc, hDescriptor);
+
+	// next descriptor
+	hDescriptor.Offset(1, CbvSrvDescriptorSize);
+
+	SrvDesc.Format = FenceTex->GetDesc().Format;
+	D3DDevice->CreateShaderResourceView(FenceTex.Get(), &SrvDesc, hDescriptor);
+}
+
 void FTexWavesApp::BuildShadersAndInputLayout()
 {
-	HRESULT hr = S_OK;
-	Shaders["standardVS"] = d3dUtil::CompileShader(L"Shaders\\Shape.hlsl", nullptr, "VS", "vs_5_0");
-	Shaders["opaquePS"] = d3dUtil::CompileShader(L"Shaders\\Shape.hlsl", nullptr, "PS", "ps_5_0");
+	Shaders["standardVS"] = d3dUtil::CompileShader(L"Shaders\\Tex\\Default.hlsl", nullptr, "VS", "vs_5_0");
+	Shaders["opaquePS"] = d3dUtil::CompileShader(L"Shaders\\Tex\\Default.hlsl", nullptr, "PS", "ps_5_0");
 
-	/*
-	typedef struct D3D12_INPUT_ELEMENT_DESC
-	{
-		LPCSTR SemanticName;
-		UINT SemanticIndex;
-		DXGI_FORMAT Format;
-		UINT InputSlot;
-		UINT AlignedByteOffset;
-		D3D12_INPUT_CLASSIFICATION InputSlotClass;
-		UINT InstanceDataStepRate;
-	} 	D3D12_INPUT_ELEMENT_DESC;
-	*/
 	InputLayout =
-		{
-			{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-			{"Color", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-		};
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+	};
 }
 
 void FTexWavesApp::BuildLandGeometry()
@@ -518,36 +632,11 @@ void FTexWavesApp::BuildLandGeometry()
 	std::vector<FVertex> Vertices(Grid.Vertices.size());
 	for (size_t i = 0; i < Grid.Vertices.size(); ++i)
 	{
-		auto &p = Grid.Vertices[i].Position;
-		Vertices[i].Pos = p;
-		Vertices[i].Pos.y = GetHillsHeight(p.x, p.z);
-
-		// Color the vertex based on its height.
-		if (Vertices[i].Pos.y < -10.0f)
-		{
-			// Sandy beach color.
-			Vertices[i].Color = XMFLOAT4(1.0f, 0.96f, 0.62f, 1.0f);
-		}
-		else if (Vertices[i].Pos.y < 5.0f)
-		{
-			// Light yellow-green.
-			Vertices[i].Color = XMFLOAT4(0.48f, 0.77f, 0.46f, 1.0f);
-		}
-		else if (Vertices[i].Pos.y < 12.0f)
-		{
-			// Dark yellow-green.
-			Vertices[i].Color = XMFLOAT4(0.1f, 0.48f, 0.19f, 1.0f);
-		}
-		else if (Vertices[i].Pos.y < 20.0f)
-		{
-			// Dark brown.
-			Vertices[i].Color = XMFLOAT4(0.45f, 0.39f, 0.34f, 1.0f);
-		}
-		else
-		{
-			// White snow.
-			Vertices[i].Color = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-		}
+		auto& Pos = Grid.Vertices[i].Position;
+		Vertices[i].Pos = Pos;
+		Vertices[i].Pos.y = GetHillsHeight(Pos.x, Pos.z);
+		Vertices[i].Normal = GetHillsNormal(Pos.x, Pos.z);
+		Vertices[i].TexC = Grid.Vertices[i].TexC;
 	}
 
 	const UINT VBByteSize = (UINT)Vertices.size() * sizeof(FVertex);
@@ -637,11 +726,91 @@ void FTexWavesApp::BuildWavesGeometryBuffers()
 	Geometries["waterGeo"] = std::move(geo);
 }
 
+void FTexWavesApp::BuildBoxGeometry()
+{
+	FGeometryGenerator GeoGen;
+	FGeometryGenerator::FMeshData Box = GeoGen.CreateBox(8.0f, 8.0f, 8.0f, 3);
+
+	FSubmeshGeometry BoxSubmesh;
+	BoxSubmesh.IndexCount = (UINT)Box.Indices32.size();
+	BoxSubmesh.StartIndexLocation = 0;
+	BoxSubmesh.BaseVertexLocation = 0;
+
+	std::vector<FVertex> Vertices(Box.Vertices.size());
+
+	for (int i = 0; i < Box.Vertices.size(); ++i)
+	{
+		Vertices[i].Pos = Box.Vertices[i].Position;
+		Vertices[i].Normal = Box.Vertices[i].Normal;
+		Vertices[i].TexC = Box.Vertices[i].TexC;
+	}
+
+	std::vector<std::uint16_t>  Indices = Box.GetIndices16();
+
+	const UINT VBByteSize = (UINT)Vertices.size() * sizeof(FVertex);
+	const UINT IBByteSize = (UINT)Indices.size() * sizeof(std::uint16_t);
+
+	auto Geo = std::make_unique<FMeshGeometry>();
+	Geo->Name = "boxGeo";
+	ThrowIfFailed(D3DCreateBlob(VBByteSize, &Geo->VertexBufferCPU));
+	CopyMemory(Geo->VertexBufferCPU->GetBufferPointer(), Vertices.data(), VBByteSize);
+
+	ThrowIfFailed(D3DCreateBlob(IBByteSize, &Geo->IndexBufferCPU));
+	CopyMemory(Geo->IndexBufferCPU->GetBufferPointer(), Indices.data(), IBByteSize);
+
+	Geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(D3DDevice.Get(), CommandList.Get(), Vertices.data(), VBByteSize, Geo->VertexBufferUploader);
+	Geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(D3DDevice.Get(), CommandList.Get(), Indices.data(), IBByteSize, Geo->IndexBufferUploader);
+
+	Geo->VertexByteStride = sizeof(FVertex);
+	Geo->VertexBufferByteSize = VBByteSize;
+	Geo->IndexFormat = DXGI_FORMAT_R16_UINT;
+	Geo->IndexBufferByteSize = IBByteSize;
+
+	Geo->DrawArgs["box"] = BoxSubmesh;
+
+	Geometries[Geo->Name] = std::move(Geo);
+}
+
+void FTexWavesApp::BuildMaterials()
+{
+	auto Grass = std::make_unique<FMaterial>();
+	Grass->Name = "grass";
+	Grass->MatCBIndex = 0;
+	Grass->DiffuseSrvHeapIndex = 0;
+	Grass->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	Grass->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
+	Grass->Roughness = 0.125f;
+
+	// This is not a good water material definition, but we do not have all the rendering
+	// tools we need (transparency, environment reflection), so we fake it for now.
+	auto Water = std::make_unique<FMaterial>();
+	Water->Name = "water";
+	Water->MatCBIndex = 1;
+	Water->DiffuseSrvHeapIndex = 1;
+	Water->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	Water->FresnelR0 = XMFLOAT3(0.2f, 0.2f, 0.2f);
+	Water->Roughness = 0.0f;
+
+	auto Wirefence = std::make_unique<FMaterial>();
+	Wirefence->Name = "wirefence";
+	Wirefence->MatCBIndex = 2;
+	Wirefence->DiffuseSrvHeapIndex = 2;
+	Wirefence->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	Wirefence->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
+	Wirefence->Roughness = 0.25f;
+
+	Materials["grass"] = std::move(Grass);
+	Materials["water"] = std::move(Water);
+	Materials["wirefence"] = std::move(Wirefence);
+}
+
 void FTexWavesApp::BuildRenderItems()
 {
 	auto WavesRitem = std::make_unique<FRenderItem>();
 	WavesRitem->World = MathHelper::Identity4x4();
+	XMStoreFloat4x4(&WavesRitem->TexTransform, XMMatrixScaling(5.0f, 5.0f, 1.0f));
 	WavesRitem->ObjCBIndex = 0;
+	WavesRitem->Mat = Materials["water"].get();
 	WavesRitem->Geo = Geometries["waterGeo"].get();
 	WavesRitem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	WavesRitem->IndexCount = WavesRitem->Geo->DrawArgs["grid"].IndexCount;
@@ -654,7 +823,9 @@ void FTexWavesApp::BuildRenderItems()
 
 	auto GridRitem = std::make_unique<FRenderItem>();
 	GridRitem->World = MathHelper::Identity4x4();
+	XMStoreFloat4x4(&GridRitem->TexTransform, XMMatrixScaling(5.0f, 5.0f, 1.0f));
 	GridRitem->ObjCBIndex = 1;
+	GridRitem->Mat = Materials["grass"].get();
 	GridRitem->Geo = Geometries["landGeo"].get();
 	GridRitem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	GridRitem->IndexCount = GridRitem->Geo->DrawArgs["grid"].IndexCount;
@@ -663,28 +834,49 @@ void FTexWavesApp::BuildRenderItems()
 
 	RenderLayers[(int)URenderLayer::Opaque].push_back(GridRitem.get());
 
+	auto BoxRitem = std::make_unique<FRenderItem>();
+	XMStoreFloat4x4(&BoxRitem->World, XMMatrixTranslation(3.0f, 2.0f, -9.0f));
+	BoxRitem->ObjCBIndex = 2;
+	BoxRitem->Mat = Materials["wirefence"].get();
+	BoxRitem->Geo = Geometries["boxGeo"].get();
+	BoxRitem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	BoxRitem->IndexCount = BoxRitem->Geo->DrawArgs["box"].IndexCount;
+	BoxRitem->StartIndexLocation = BoxRitem->Geo->DrawArgs["box"].StartIndexLocation;
+	BoxRitem->BaseVertexLocation = BoxRitem->Geo->DrawArgs["box"].BaseVertexLocation;
+
+	RenderLayers[(int)URenderLayer::Opaque].push_back(BoxRitem.get());
+
 	AllRenderItems.push_back(std::move(WavesRitem));
 	AllRenderItems.push_back(std::move(GridRitem));
+	AllRenderItems.push_back(std::move(BoxRitem));
 }
 
 void FTexWavesApp::DrawRenderItems(ID3D12GraphicsCommandList *CommandList, const std::vector<FRenderItem *> &RenderItems)
 {
 	UINT ObjCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(FObjectConstants));
+	UINT MatCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(FMaterialConstants));
+
 	auto ObjectCB = CurrentFrameResource->ObjectCB->Resource();
+	auto MatCB = CurrentFrameResource->MaterialCB->Resource();
 
 	for (int i = 0; i < RenderItems.size(); ++i)
 	{
-		auto* Item = RenderItems[i];
-		
+		FRenderItem* Item = RenderItems[i];
+
 		CommandList->IASetVertexBuffers(0, 1, &Item->Geo->VertexBufferView());
 		CommandList->IASetIndexBuffer(&Item->Geo->IndexBufferView());
 		CommandList->IASetPrimitiveTopology(Item->PrimitiveType);
-		
-		D3D12_GPU_VIRTUAL_ADDRESS ObjCBAddress = ObjectCB->GetGPUVirtualAddress();
-		ObjCBAddress += Item->ObjCBIndex * ObjCBByteSize;
-	
-		CommandList->SetGraphicsRootConstantBufferView(0, ObjCBAddress);
-		
+
+		CD3DX12_GPU_DESCRIPTOR_HANDLE Tex(SrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+		Tex.Offset(Item->Mat->DiffuseSrvHeapIndex, CbvSrvUavDescriptorSize);
+
+		D3D12_GPU_VIRTUAL_ADDRESS ObjCBAddress = ObjectCB->GetGPUVirtualAddress() + Item->ObjCBIndex * ObjCBByteSize;
+		D3D12_GPU_VIRTUAL_ADDRESS MatCBAddress = MatCB->GetGPUVirtualAddress() + Item->Mat->MatCBIndex * MatCBByteSize;
+
+		CommandList->SetGraphicsRootDescriptorTable(0, Tex);
+		CommandList->SetGraphicsRootConstantBufferView(1, ObjCBAddress);
+		CommandList->SetGraphicsRootConstantBufferView(3, MatCBAddress);
+
 		CommandList->DrawIndexedInstanced(Item->IndexCount, 1, Item->StartIndexLocation, Item->BaseVertexLocation, 0);
 	}
 }
@@ -698,6 +890,7 @@ void FTexWavesApp::BuildFrameResources()
 				D3DDevice.Get(),
 				1,
 				(UINT)AllRenderItems.size(),
+				(UINT)Materials.size(),
 				Waves->VertexCount()));
 	}
 }
@@ -743,6 +936,66 @@ void FTexWavesApp::BuildPSOs()
 	ThrowIfFailed(
 		D3DDevice->CreateGraphicsPipelineState(&opaqueWireframePsoDesc, IID_PPV_ARGS(&PSOs["opaque_wireframe"])));
 }
+
+std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> FTexWavesApp::GetStaticSamplers()
+{
+	// Applications usually only need a handful of samplers.  So just define them all up front
+	// and keep them available as part of the root signature. 
+
+	const CD3DX12_STATIC_SAMPLER_DESC PointWrap(
+		0,
+		D3D12_FILTER_MIN_MAG_MIP_POINT, // filter
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressU
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressV
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP
+	); // addressW
+
+	const CD3DX12_STATIC_SAMPLER_DESC PointClamp(
+		1, // shaderRegister
+		D3D12_FILTER_MIN_MAG_MIP_POINT, // filter
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressU
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressV
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP
+	); // addressW
+
+	const CD3DX12_STATIC_SAMPLER_DESC LinearWrap(
+		2, // shaderRegister
+		D3D12_FILTER_MIN_MAG_MIP_LINEAR, // filter
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressU
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressV
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP
+	); // addressW
+
+	const CD3DX12_STATIC_SAMPLER_DESC LinearClamp(
+		3, // shaderRegister
+		D3D12_FILTER_MIN_MAG_MIP_LINEAR, // filter
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressU
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressV
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP
+	); // addressW
+
+	const CD3DX12_STATIC_SAMPLER_DESC AnisotropicWrap(
+		4, // shaderRegister
+		D3D12_FILTER_ANISOTROPIC, // filter
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressU
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressV
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressW
+		0.0f,                             // mipLODBias
+		8
+	);
+
+	const CD3DX12_STATIC_SAMPLER_DESC AnisotropicClamp(
+		5, // shaderRegister
+		D3D12_FILTER_ANISOTROPIC, // filter
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressU
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressV
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressW
+		0.0f,                              // mipLODBias
+		8
+	);
+	return { PointWrap, PointClamp, LinearWrap, LinearClamp, AnisotropicWrap, AnisotropicClamp };
+}
+
 
 int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmdshow)
 {

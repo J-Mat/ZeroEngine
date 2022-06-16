@@ -76,8 +76,10 @@ private:
 	void UpdateMaterialCBs(const GameTimer &gt);
 	void UpdateMainPassCB(const GameTimer &gt);
 
+	void LoadTextures();
 	void BuildRootSignature();
 	void BuildMaterials();
+	void BuildDescriptorHeaps();
 	void BuildShadersAndInputLayout();
 	void BuildShapeGeometry();
 	void BuildSkullGeometry();
@@ -85,6 +87,7 @@ private:
 	void BuildFrameResources();
 	void BuildRenderItems();
 	void DrawRenderItems(ID3D12GraphicsCommandList *cmdList, const std::vector<FRenderItem *> &ritems);
+	std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> GetStaticSamplers();
 
 private:
 	std::vector<std::unique_ptr<FFrameResource>> FrameResources;
@@ -148,7 +151,10 @@ bool FTexColumn::Initialize()
 	// Reset the command list to prep for initialization commands.
 	ThrowIfFailed(
 		CommandList->Reset(DirectCmdListAlloctor.Get(), nullptr));
+	
+	CbvSrvUavDescriptorSize = D3DDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
+	LoadTextures();
 	BuildRootSignature();
 	BuildShadersAndInputLayout();
 	BuildShapeGeometry();
@@ -414,17 +420,55 @@ void FTexColumn::UpdateMainPassCB(const GameTimer &gt)
 	CurPassCB->CopyData(0, MainPassCB);
 }
 
+void FTexColumn::LoadTextures()
+{
+	auto bricksTex = std::make_unique<FTexture>();
+	bricksTex->Name = "bricksTex";
+	bricksTex->Filename = d3dUtil::GetPath(L"Textures/bricks.dds");
+	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(D3DDevice.Get(),
+		CommandList.Get(), bricksTex->Filename.c_str(),
+		bricksTex->Resource, bricksTex->UploadHeap));
+
+	auto stoneTex = std::make_unique<FTexture>();
+	stoneTex->Name = "stoneTex";
+	stoneTex->Filename = d3dUtil::GetPath(L"Textures/stone.dds");
+	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(D3DDevice.Get(),
+		CommandList.Get(), stoneTex->Filename.c_str(),
+		stoneTex->Resource, stoneTex->UploadHeap));
+
+	auto tileTex = std::make_unique<FTexture>();
+	tileTex->Name = "tileTex";
+	tileTex->Filename = d3dUtil::GetPath(L"Textures/tile.dds");
+	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(D3DDevice.Get(),
+		CommandList.Get(), tileTex->Filename.c_str(),
+		tileTex->Resource, tileTex->UploadHeap));
+
+	Textures[bricksTex->Name] = std::move(bricksTex);
+	Textures[stoneTex->Name] = std::move(stoneTex);
+	Textures[tileTex->Name] = std::move(tileTex);
+}
+
 void FTexColumn::BuildRootSignature()
 {
-	CD3DX12_ROOT_PARAMETER SlotRootParameter[3];
+	CD3DX12_DESCRIPTOR_RANGE TexTable;
+	TexTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
 
-	SlotRootParameter[0].InitAsConstantBufferView(0);
-	SlotRootParameter[1].InitAsConstantBufferView(1);
-	SlotRootParameter[2].InitAsConstantBufferView(2);
+	// Root parameter can be a table, root descriptor or root constants.
+	CD3DX12_ROOT_PARAMETER SlotRootParameter[4];
+
+	// Perfomance TIP: Order from most frequent to least frequent.
+	SlotRootParameter[0].InitAsDescriptorTable(1, &TexTable, D3D12_SHADER_VISIBILITY_PIXEL); // 0
+	SlotRootParameter[1].InitAsConstantBufferView(0);
+	SlotRootParameter[2].InitAsConstantBufferView(1);
+	SlotRootParameter[3].InitAsConstantBufferView(2);
+
+	auto StaticSamplers = GetStaticSamplers();
 
 	// A root signature is an array of root parameters.
-	CD3DX12_ROOT_SIGNATURE_DESC RootSigDesc(3, SlotRootParameter, 0, nullptr,
-											D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+	CD3DX12_ROOT_SIGNATURE_DESC RootSigDesc(4, SlotRootParameter,
+		(UINT)StaticSamplers.size(), StaticSamplers.data(),
+		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
+	);
 
 	// create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
 	ComPtr<ID3DBlob> SerializedRootSig = nullptr;
@@ -444,6 +488,19 @@ void FTexColumn::BuildRootSignature()
 			SerializedRootSig->GetBufferPointer(),
 			SerializedRootSig->GetBufferSize(),
 			IID_PPV_ARGS(RootSignature.GetAddressOf())));
+}
+
+
+void FTexColumn::BuildDescriptorHeaps()
+{
+	//
+	// Create the SRV heap.
+	//
+	D3D12_DESCRIPTOR_HEAP_DESC SrvHeapDesc = {};
+	SrvHeapDesc.NumDescriptors = 3;
+	
+	
+	
 }
 
 void FTexColumn::BuildMaterials()
@@ -488,20 +545,15 @@ void FTexColumn::BuildMaterials()
 
 void FTexColumn::BuildShadersAndInputLayout()
 {
-	const D3D_SHADER_MACRO AlphaTestDefines[] =
-		{
-			"ALPHA_TEST", "1",
-			NULL, NULL};
-
-	Shaders["standardVS"] = d3dUtil::CompileShader(L"Shaders\\Default.hlsl", nullptr, "VS", "vs_5_1");
-	Shaders["opaquePS"] = d3dUtil::CompileShader(L"Shaders\\Default.hlsl", nullptr, "PS", "ps_5_1");
+	Shaders["standardVS"] = d3dUtil::CompileShader(L"Shaders\\Tex\\Default.hlsl", nullptr, "VS", "vs_5_0");
+	Shaders["opaquePS"] = d3dUtil::CompileShader(L"Shaders\\Tex\\Default.hlsl", nullptr, "PS", "ps_5_0");
 
 	InputLayout =
-		{
-			{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-			{"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-			{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-		};
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+	};
 }
 
 void FTexColumn::BuildShapeGeometry()
@@ -804,11 +856,15 @@ void FTexColumn::DrawRenderItems(ID3D12GraphicsCommandList *CommandList, const s
 		CommandList->IASetIndexBuffer(&Item->Geo->IndexBufferView());
 		CommandList->IASetPrimitiveTopology(Item->PrimitiveType);
 
+		CD3DX12_GPU_DESCRIPTOR_HANDLE Tex(SrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+		Tex.Offset(Item->Mat->DiffuseSrvHeapIndex, CbvSrvUavDescriptorSize);
+
 		D3D12_GPU_VIRTUAL_ADDRESS ObjCBAddress = ObjectCB->GetGPUVirtualAddress() + Item->ObjCBIndex * ObjCBByteSize;
 		D3D12_GPU_VIRTUAL_ADDRESS MatCBAddress = MatCB->GetGPUVirtualAddress() + Item->Mat->MatCBIndex * MatCBByteSize;
 		
-		CommandList->SetGraphicsRootConstantBufferView(0, ObjCBAddress);
-		CommandList->SetGraphicsRootConstantBufferView(1, MatCBAddress);
+		CommandList->SetGraphicsRootDescriptorTable(0, Tex);
+		CommandList->SetGraphicsRootConstantBufferView(1, ObjCBAddress);
+		CommandList->SetGraphicsRootConstantBufferView(3, MatCBAddress);
 		
 		CommandList->DrawIndexedInstanced(Item->IndexCount, 1, Item->StartIndexLocation, Item->BaseVertexLocation, 0);
 	}
@@ -857,6 +913,65 @@ void FTexColumn::BuildPSOs()
 	OpaquePSODesc.DSVFormat = DepthStencilFormat;
 	ThrowIfFailed(
 		D3DDevice->CreateGraphicsPipelineState(&OpaquePSODesc, IID_PPV_ARGS(&OpaquePSO)));
+}
+
+std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> FTexColumn::GetStaticSamplers()
+{
+	// Applications usually only need a handful of samplers.  So just define them all up front
+	// and keep them available as part of the root signature. 
+
+	const CD3DX12_STATIC_SAMPLER_DESC PointWrap(
+		0,
+		D3D12_FILTER_MIN_MAG_MIP_POINT, // filter
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressU
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressV
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP
+	); // addressW
+
+	const CD3DX12_STATIC_SAMPLER_DESC PointClamp(
+		1, // shaderRegister
+		D3D12_FILTER_MIN_MAG_MIP_POINT, // filter
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressU
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressV
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP
+	); // addressW
+
+	const CD3DX12_STATIC_SAMPLER_DESC LinearWrap(
+		2, // shaderRegister
+		D3D12_FILTER_MIN_MAG_MIP_LINEAR, // filter
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressU
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressV
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP
+	); // addressW
+
+	const CD3DX12_STATIC_SAMPLER_DESC LinearClamp(
+		3, // shaderRegister
+		D3D12_FILTER_MIN_MAG_MIP_LINEAR, // filter
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressU
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressV
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP
+	); // addressW
+
+	const CD3DX12_STATIC_SAMPLER_DESC AnisotropicWrap(
+		4, // shaderRegister
+		D3D12_FILTER_ANISOTROPIC, // filter
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressU
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressV
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressW
+		0.0f,                             // mipLODBias
+		8
+	);
+
+	const CD3DX12_STATIC_SAMPLER_DESC AnisotropicClamp(
+		5, // shaderRegister
+		D3D12_FILTER_ANISOTROPIC, // filter
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressU
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressV
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressW
+		0.0f,                              // mipLODBias
+		8
+	);
+	return { PointWrap, PointClamp, LinearWrap, LinearClamp, AnisotropicWrap, AnisotropicClamp };
 }
 
 int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmdshow)

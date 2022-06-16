@@ -1,4 +1,4 @@
-project(Crate)
+project(09_TexColumns)
 
 set (SRC_FILES
     FrameResource.h
@@ -6,10 +6,9 @@ set (SRC_FILES
 )
 
 
-
 # Create the executable
 add_executable(${PROJECT_NAME}  WIN32 
-    Crate.cpp
+TexColumns.cpp
     ${SRC_FILES}
 )
 
@@ -24,6 +23,6 @@ target_include_directories( ${PROJECT_NAME}
     PUBLIC ${PROJECT_SOURCE_DIR}/Shaders
 )
 
-project(${PROJECT_NAME} LANGUAGES CXX)
+project(09_TexColumns LANGUAGES CXX)
 
 SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS") 
