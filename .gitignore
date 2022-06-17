@@ -30,3 +30,4 @@
 *.exe
 *.out
 *.app
+/LearningDX12/.vscode

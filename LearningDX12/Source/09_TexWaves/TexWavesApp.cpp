@@ -129,8 +129,7 @@ private:
 	std::vector<std::unique_ptr<FRenderItem>> AllRenderItems;
 
 	// Render items divided by PSO.
-	std::vector<FRenderItem *> RenderLayers[(int)URenderLayer::Count];
-
+	std::vector<FRenderItem *> RenderLayers[(int)URenderLayer::Count]; 
 	std::unique_ptr<FWaves> Waves;
 
 	FPassConstants MainPassCB;
@@ -143,7 +142,7 @@ private:
 	XMFLOAT4X4 Proj = MathHelper::Identity4x4();
 
 	float Theta = 1.5f * XM_PI;
-	float Phi = XM_PIDIV4;
+	float Phi = XM_PIDIV2 - 0.1f;
 	float Radius = 50.0f;
 
 	POINT LastMousePos;
@@ -242,6 +241,7 @@ void FTexWavesApp::Update(const GameTimer &gt)
 	}
 
 	UpdateObjectCBs(gt);
+	UpdateMaterialCBs(gt);
 	UpdateMainPassCB(gt);
 	UpdateWaves(gt);
 }
@@ -389,9 +389,11 @@ void FTexWavesApp::UpdateObjectCBs(const GameTimer &gt)
 		if (Item->NumFrameDirty > 0)
 		{
 			XMMATRIX World = XMLoadFloat4x4(&Item->World);
+			XMMATRIX TexTransform = XMLoadFloat4x4(&Item->TexTransform);
 
 			FObjectConstants ObjConstants;
 			XMStoreFloat4x4(&ObjConstants.World, XMMatrixTranspose(World));
+			XMStoreFloat4x4(&ObjConstants.TexTransform, XMMatrixTranspose(TexTransform));
 
 			CurrentObjectCB->CopyData(Item->ObjCBIndex, ObjConstants);
 
@@ -449,6 +451,14 @@ void FTexWavesApp::UpdateMainPassCB(const GameTimer &gt)
 	MainPassCB.FarZ = 1000.0f;
 	MainPassCB.TotalTime = gt.TotalTime();
 	MainPassCB.DeltaTime = gt.DeltaTime();
+
+	MainPassCB.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
+	MainPassCB.Lights[0].Direction = { 0.57735f, -0.57735f, 0.57735f };
+	MainPassCB.Lights[0].Strength = { 0.6f, 0.6f, 0.6f };
+	MainPassCB.Lights[1].Direction = { -0.57735f, -0.57735f, 0.57735f };
+	MainPassCB.Lights[1].Strength = { 0.3f, 0.3f, 0.3f };
+	MainPassCB.Lights[2].Direction = { 0.0f, -0.707f, -0.707f };
+	MainPassCB.Lights[2].Strength = { 0.15f, 0.15f, 0.15f };
 
 	auto CurPassCB = CurrentFrameResource->PassCB.get();
 	CurPassCB->CopyData(0, MainPassCB);
