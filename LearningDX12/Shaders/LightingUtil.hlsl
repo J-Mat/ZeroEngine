@@ -1,3 +1,9 @@
+//***************************************************************************************
+// LightingUtil.hlsl by Frank Luna (C) 2015 All Rights Reserved.
+//
+// Contains API for shader lighting.
+//***************************************************************************************
+
 #define MaxLights 16
 
 struct Light
@@ -15,8 +21,7 @@ struct Material
     float4 DiffuseAlbedo;
     float3 FresnelR0;
     float Shininess;
-}; 
-
+};
 
 float CalcAttenuation(float d, float falloffStart, float falloffEnd)
 {
