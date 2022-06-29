@@ -63,11 +63,11 @@ enum class URenderLayer : int
 	Count
 };
 
-class FFogWavesApp : public FD3DApp
+class FStencil : public FD3DApp
 {
 public:
-	FFogWavesApp(HINSTANCE hInstance);
-	~FFogWavesApp();
+	FStencil(HINSTANCE hInstance);
+	~FStencil();
 
 	virtual bool Initialize() override;
 
@@ -92,16 +92,14 @@ private:
 	void BuildRootSignature();
 	void BuildDescriptorHeaps();
 	void BuildShadersAndInputLayout();
-	void BuildLandGeometry();
-	void BuildWavesGeometryBuffers();
-	void BuildBoxGeometry();
+	void BuildRoomGeometry();
 	void BuildPSOs();
 	void BuildFrameResources();
 	void BuildMaterials();
 	void BuildRenderItems();
 	void DrawRenderItems(ID3D12GraphicsCommandList *cmdList, const std::vector<FRenderItem *> &ritems);
 
-	std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> FFogWavesApp::GetStaticSamplers();
+	std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> FStencil::GetStaticSamplers();
 	float GetHillsHeight(float x, float z) const;
 	XMFLOAT3 GetHillsNormal(float x, float z) const;
 
@@ -150,21 +148,21 @@ private:
 	POINT LastMousePos;
 };
 
-FFogWavesApp::FFogWavesApp(HINSTANCE hInstance)
+FStencil::FStencil(HINSTANCE hInstance)
 	: FD3DApp(hInstance)
 {
 }
 
-FFogWavesApp::~FFogWavesApp()
+FStencil::~FStencil()
 {
 }
 
-float FFogWavesApp::GetHillsHeight(float X, float Z) const
+float FStencil::GetHillsHeight(float X, float Z) const
 {
 	return 0.3f * (Z * sinf(0.1f * X) + X * cosf(0.1f * Z));
 }
 
-XMFLOAT3 FFogWavesApp::GetHillsNormal(float X, float Z) const
+XMFLOAT3 FStencil::GetHillsNormal(float X, float Z) const
 {
 	XMFLOAT3 N(
 		-0.03f * Z * cosf(0.1f * X) - 0.3f * cosf(0.1f * Z),
@@ -177,7 +175,7 @@ XMFLOAT3 FFogWavesApp::GetHillsNormal(float X, float Z) const
 	return N;
 }
 
-bool FFogWavesApp::Initialize()
+bool FStencil::Initialize()
 {
 	if (!FD3DApp::Initialize())
 	{
@@ -194,7 +192,7 @@ bool FFogWavesApp::Initialize()
 	BuildRootSignature();
 	BuildDescriptorHeaps();
 	BuildShadersAndInputLayout();
-	BuildLandGeometry();
+	BuildRoomGeometry();
 	BuildWavesGeometryBuffers();
 	BuildBoxGeometry();
 	BuildMaterials();
@@ -213,7 +211,7 @@ bool FFogWavesApp::Initialize()
 	return true;
 }
 
-void FFogWavesApp::OnResize()
+void FStencil::OnResize()
 {
 	FD3DApp::OnResize();
 
@@ -222,7 +220,7 @@ void FFogWavesApp::OnResize()
 	DirectX::XMStoreFloat4x4(&Proj, P);
 }
 
-void FFogWavesApp::Update(const GameTimer &gt)
+void FStencil::Update(const GameTimer &gt)
 {
 	OnKeyboardInput(gt);
 	UpdateCamera(gt);
@@ -248,7 +246,7 @@ void FFogWavesApp::Update(const GameTimer &gt)
 	UpdateWaves(gt);
 }
 
-void FFogWavesApp::Draw(const GameTimer &gt)
+void FStencil::Draw(const GameTimer &gt)
 {
 	auto CmdListAlloc = CurrentFrameResource->CommandListAllocator;
 
@@ -320,7 +318,7 @@ void FFogWavesApp::Draw(const GameTimer &gt)
 	CommandQueue->Signal(Fence.Get(), CurrentFence);
 }
 
-void FFogWavesApp::OnMouseDown(WPARAM btnState, int x, int y)
+void FStencil::OnMouseDown(WPARAM btnState, int x, int y)
 {
 	LastMousePos.x = x;
 	LastMousePos.y = y;
@@ -328,12 +326,12 @@ void FFogWavesApp::OnMouseDown(WPARAM btnState, int x, int y)
 	SetCapture(MainWnd);
 }
 
-void FFogWavesApp::OnMouseUp(WPARAM btnState, int x, int y)
+void FStencil::OnMouseUp(WPARAM btnState, int x, int y)
 {
 	ReleaseCapture();
 }
 
-void FFogWavesApp::OnMouseMove(WPARAM btnState, int x, int y)
+void FStencil::OnMouseMove(WPARAM btnState, int x, int y)
 {
 	if ((btnState & MK_LBUTTON) != 0)
 	{
@@ -365,7 +363,7 @@ void FFogWavesApp::OnMouseMove(WPARAM btnState, int x, int y)
 	LastMousePos.y = y;
 }
 
-void FFogWavesApp::OnKeyboardInput(const GameTimer &gt)
+void FStencil::OnKeyboardInput(const GameTimer &gt)
 {
 	if (GetAsyncKeyState('1') & 0x8000)
 		bIsWireFrame = true;
@@ -373,7 +371,7 @@ void FFogWavesApp::OnKeyboardInput(const GameTimer &gt)
 		bIsWireFrame = false;
 }
 
-void FFogWavesApp::UpdateCamera(const GameTimer &gt)
+void FStencil::UpdateCamera(const GameTimer &gt)
 {
 	// Convert Spherical to Cartesian coordinates.
 	EyePos.x = Radius * sinf(Phi) * cosf(Theta);
@@ -389,7 +387,7 @@ void FFogWavesApp::UpdateCamera(const GameTimer &gt)
 	XMStoreFloat4x4(&View, view);
 }
 
-void FFogWavesApp::UpdateObjectCBs(const GameTimer &gt)
+void FStencil::UpdateObjectCBs(const GameTimer &gt)
 {
 	auto CurrentObjectCB = CurrentFrameResource->ObjectCB.get();
 	for (auto &Item : AllRenderItems)
@@ -410,7 +408,7 @@ void FFogWavesApp::UpdateObjectCBs(const GameTimer &gt)
 	}
 }
 
-void FFogWavesApp::UpdateMaterialCBs(const GameTimer& gt)
+void FStencil::UpdateMaterialCBs(const GameTimer& gt)
 {
 	auto CurrentMaterialCB = CurrentFrameResource->MaterialCB.get();
 	for (auto& E : Materials)
@@ -436,7 +434,7 @@ void FFogWavesApp::UpdateMaterialCBs(const GameTimer& gt)
 	}
 }
 
-void FFogWavesApp::AnimateMaterials(const GameTimer& gt)
+void FStencil::AnimateMaterials(const GameTimer& gt)
 {
 	// Scroll the water material texture coordinates.
 	auto waterMat = Materials["water"].get();
@@ -460,7 +458,7 @@ void FFogWavesApp::AnimateMaterials(const GameTimer& gt)
 	waterMat->NumFramesDirty = gNumFrameResources;
 }
 
-void FFogWavesApp::UpdateMainPassCB(const GameTimer &gt)
+void FStencil::UpdateMainPassCB(const GameTimer &gt)
 {
 	XMMATRIX ViewMatrix = XMLoadFloat4x4(&View);
 	XMMATRIX ProjMatrix = XMLoadFloat4x4(&Proj);
@@ -496,7 +494,7 @@ void FFogWavesApp::UpdateMainPassCB(const GameTimer &gt)
 	CurPassCB->CopyData(0, MainPassCB);
 }
 
-void FFogWavesApp::UpdateWaves(const GameTimer& gt)
+void FStencil::UpdateWaves(const GameTimer& gt)
 {
 	static float t_base = 0.0f;
 	if((Timer.TotalTime() - t_base) >= 0.25f)
@@ -536,7 +534,7 @@ void FFogWavesApp::UpdateWaves(const GameTimer& gt)
 	WavesRenderItem->Geo->VertexBufferGPU = CurrWavesVB->Resource();
 }
 
-void FFogWavesApp::LoadTextures()
+void FStencil::LoadTextures()
 {
 	auto GrassTex = std::make_unique<FTexture>();
 	GrassTex->Name = "grassTex";
@@ -565,7 +563,7 @@ void FFogWavesApp::LoadTextures()
 }
 
 
-void FFogWavesApp::BuildRootSignature()
+void FStencil::BuildRootSignature()
 {
 	CD3DX12_DESCRIPTOR_RANGE TexTable;
 	TexTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
@@ -606,7 +604,7 @@ void FFogWavesApp::BuildRootSignature()
 			IID_PPV_ARGS(RootSignature.GetAddressOf())));
 }
 
-void FFogWavesApp::BuildDescriptorHeaps()
+void FStencil::BuildDescriptorHeaps()
 {
 	//
 	// Create the SRV heap.
@@ -647,7 +645,7 @@ void FFogWavesApp::BuildDescriptorHeaps()
 	D3DDevice->CreateShaderResourceView(FenceTex.Get(), &SrvDesc, hDescriptor);
 }
 
-void FFogWavesApp::BuildShadersAndInputLayout()
+void FStencil::BuildShadersAndInputLayout()
 {
 	const D3D_SHADER_MACRO Defines[] =
 	{
@@ -675,160 +673,118 @@ void FFogWavesApp::BuildShadersAndInputLayout()
 	};
 }
 
-void FFogWavesApp::BuildLandGeometry()
+void FStencil::BuildRoomGeometry()
 {
-	FGeometryGenerator GeometryGenerator;
-	FGeometryGenerator::FMeshData Grid = GeometryGenerator.CreateGrid(160.0f, 160.0f, 50, 50);
-
+	// Create and specify geometry.  For this sample we draw a floor
+	// and a wall with a mirror on it.  We put the floor, wall, and
+	// mirror geometry in one vertex buffer.
 	//
-	// Extract the vertex elements we are interested and apply the height function to
-	// each vertex.  In addition, color the vertices based on their height so we have
-	// sandy looking beaches, grassy low hills, and snow mountain peaks.
-	//
-
-	std::vector<FVertex> Vertices(Grid.Vertices.size());
-	for (size_t i = 0; i < Grid.Vertices.size(); ++i)
+	//   |--------------|
+	//   |              |
+	//   |----|----|----|
+	//   |Wall|Mirr|Wall|
+	//   |    | or |    |
+	//   /--------------/
+	//  /   Floor      /
+	// /--------------/
+	std::array<FVertex, 20> Vertices =
 	{
-		auto& Pos = Grid.Vertices[i].Position;
-		Vertices[i].Pos = Pos;
-		Vertices[i].Pos.y = GetHillsHeight(Pos.x, Pos.z);
-		Vertices[i].Normal = GetHillsNormal(Pos.x, Pos.z);
-		Vertices[i].TexC = Grid.Vertices[i].TexC;
-	}
+		// Floor: Observe we tile texture coordinates.
+		FVertex(-3.5f, 0.0f, -10.0f, 0.0f, 1.0f, 0.0f, 0.0f, 4.0f), // 0 
+		FVertex(-3.5f, 0.0f,   0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f),
+		FVertex(7.5f, 0.0f,   0.0f, 0.0f, 1.0f, 0.0f, 4.0f, 0.0f),
+		FVertex(7.5f, 0.0f, -10.0f, 0.0f, 1.0f, 0.0f, 4.0f, 4.0f),
 
-	const UINT VBByteSize = (UINT)Vertices.size() * sizeof(FVertex);
+		// Wall: Observe we tile texture coordinates, and that we
+		// leave a gap in the middle for the mirror.
+		FVertex(-3.5f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 2.0f), // 4
+		FVertex(-3.5f, 4.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f),
+		FVertex(-2.5f, 4.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.5f, 0.0f),
+		FVertex(-2.5f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.5f, 2.0f),
 
-	std::vector<std::uint16_t> Indices = Grid.GetIndices16();
-	const UINT IBByteSize = (UINT)Indices.size() * sizeof(std::uint16_t);
+		FVertex(2.5f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 2.0f), // 8 
+		FVertex(2.5f, 4.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f),
+		FVertex(7.5f, 4.0f, 0.0f, 0.0f, 0.0f, -1.0f, 2.0f, 0.0f),
+		FVertex(7.5f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 2.0f, 2.0f),
 
-	auto Geo = std::make_unique<FMeshGeometry>();
-	Geo->Name = "landGeo";
+		FVertex(-3.5f, 4.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f), // 12
+		FVertex(-3.5f, 6.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f),
+		FVertex(7.5f, 6.0f, 0.0f, 0.0f, 0.0f, -1.0f, 6.0f, 0.0f),
+		FVertex(7.5f, 4.0f, 0.0f, 0.0f, 0.0f, -1.0f, 6.0f, 1.0f),
 
-	ThrowIfFailed(D3DCreateBlob(VBByteSize, &Geo->VertexBufferCPU));
-	CopyMemory(Geo->VertexBufferCPU->GetBufferPointer(), Vertices.data(), VBByteSize);
+		// Mirror
+		FVertex(-2.5f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f), // 16
+		FVertex(-2.5f, 4.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f),
+		FVertex(2.5f, 4.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f),
+		FVertex(2.5f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f)
+	};
+	
 
-	ThrowIfFailed(D3DCreateBlob(IBByteSize, &Geo->IndexBufferCPU));
-	CopyMemory(Geo->IndexBufferCPU->GetBufferPointer(), Indices.data(), IBByteSize);
-
-	Geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(D3DDevice.Get(), CommandList.Get(), Vertices.data(), VBByteSize, Geo->VertexBufferUploader);
-	Geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(D3DDevice.Get(), CommandList.Get(), Indices.data(), IBByteSize, Geo->IndexBufferUploader);
-
-	Geo->VertexByteStride = sizeof(FVertex);
-	Geo->VertexBufferByteSize = VBByteSize;
-	Geo->IndexFormat = DXGI_FORMAT_R16_UINT;
-	Geo->IndexBufferByteSize = IBByteSize;
-
-	FSubmeshGeometry SubMesh;
-	SubMesh.IndexCount = (UINT)Indices.size();
-	SubMesh.StartIndexLocation = 0;
-	SubMesh.BaseVertexLocation = 0;
-
-	Geo->DrawArgs["grid"] = SubMesh;
-	Geometries["landGeo"] = std::move(Geo);
-}
-
-void FFogWavesApp::BuildWavesGeometryBuffers()
-{
-	std::vector<std::uint16_t> indices(3 * Waves->TriangleCount()); // 3 indices per face
-	assert(Waves->VertexCount() < 0x0000ffff);
-
-	// Iterate over each quad.
-	int m = Waves->RowCount();
-	int n = Waves->ColumnCount();
-	int k = 0;
-	for(int i = 0; i < m - 1; ++i)
+	std::array<std::int16_t, 30> Indices =
 	{
-		for(int j = 0; j < n - 1; ++j)
-		{
-			indices[k] = i*n + j;
-			indices[k + 1] = i*n + j + 1;
-			indices[k + 2] = (i + 1)*n + j;
+		// Floor
+		0, 1, 2,
+		0, 2, 3,
 
-			indices[k + 3] = (i + 1)*n + j;
-			indices[k + 4] = i*n + j + 1;
-			indices[k + 5] = (i + 1)*n + j + 1;
+		// Walls
+		4, 5, 6,
+		4, 6, 7,
 
-			k += 6; // next quad
-		}
-	}
+		8, 9, 10,
+		8, 10, 11,
 
-	UINT vbByteSize = Waves->VertexCount()*sizeof(FVertex);
-	UINT ibByteSize = (UINT)indices.size()*sizeof(std::uint16_t);
+		12, 13, 14,
+		12, 14, 15,
 
-	auto geo = std::make_unique<FMeshGeometry>();
-	geo->Name = "waterGeo";
+		// Mirror
+		16, 17, 18,
+		16, 18, 19
+	};
 
-	// Set dynamically.
-	geo->VertexBufferCPU = nullptr;
-	geo->VertexBufferGPU = nullptr;
+	FSubmeshGeometry FloorSubmesh;
+	FloorSubmesh.IndexCount = 6;
+	FloorSubmesh.StartIndexLocation = 0;
+	FloorSubmesh.BaseVertexLocation = 0;
+
+	FSubmeshGeometry WallSubmesh;
+	WallSubmesh.IndexCount = 18;
+	WallSubmesh.StartIndexLocation = 6;
+	WallSubmesh.BaseVertexLocation = 0;
+
+	FSubmeshGeometry MirrorSubmesh;
+	MirrorSubmesh.IndexCount = 6;
+	MirrorSubmesh.StartIndexLocation = 24;
+	MirrorSubmesh.BaseVertexLocation = 0;
+
+	const UINT VbByteSize = (UINT)Vertices.size() * sizeof(FVertex);
+	const UINT IbByteSize = (UINT)Indices.size() * sizeof(std::uint16_t);
+
+	ThrowIfFailed(D3DCreateBlob(VbByteSize, &geo->VertexBufferCPU));
+	CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
 
 	ThrowIfFailed(D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU));
 	CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
 
-	geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(D3DDevice.Get(),
-		CommandList.Get(), indices.data(), ibByteSize, geo->IndexBufferUploader);
+	geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
+		mCommandList.Get(), vertices.data(), vbByteSize, geo->VertexBufferUploader);
 
-	geo->VertexByteStride = sizeof(FVertex);
+	geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
+		mCommandList.Get(), indices.data(), ibByteSize, geo->IndexBufferUploader);
+
+	geo->VertexByteStride = sizeof(Vertex);
 	geo->VertexBufferByteSize = vbByteSize;
 	geo->IndexFormat = DXGI_FORMAT_R16_UINT;
 	geo->IndexBufferByteSize = ibByteSize;
 
-	FSubmeshGeometry Submesh;
-	Submesh.IndexCount = (UINT)indices.size();
-	Submesh.StartIndexLocation = 0;
-	Submesh.BaseVertexLocation = 0;
+	geo->DrawArgs["floor"] = floorSubmesh;
+	geo->DrawArgs["wall"] = wallSubmesh;
+	geo->DrawArgs["mirror"] = mirrorSubmesh;
 
-	geo->DrawArgs["grid"] = Submesh;
-
-	Geometries["waterGeo"] = std::move(geo);
+	mGeometries[geo->Name] = std::move(geo);
 }
 
-void FFogWavesApp::BuildBoxGeometry()
-{
-	FGeometryGenerator GeoGen;
-	FGeometryGenerator::FMeshData Box = GeoGen.CreateBox(8.0f, 8.0f, 8.0f, 3);
 
-	FSubmeshGeometry BoxSubmesh;
-	BoxSubmesh.IndexCount = (UINT)Box.Indices32.size();
-	BoxSubmesh.StartIndexLocation = 0;
-	BoxSubmesh.BaseVertexLocation = 0;
-
-	std::vector<FVertex> Vertices(Box.Vertices.size());
-
-	for (int i = 0; i < Box.Vertices.size(); ++i)
-	{
-		Vertices[i].Pos = Box.Vertices[i].Position;
-		Vertices[i].Normal = Box.Vertices[i].Normal;
-		Vertices[i].TexC = Box.Vertices[i].TexC;
-	}
-
-	std::vector<std::uint16_t>  Indices = Box.GetIndices16();
-
-	const UINT VBByteSize = (UINT)Vertices.size() * sizeof(FVertex);
-	const UINT IBByteSize = (UINT)Indices.size() * sizeof(std::uint16_t);
-
-	auto Geo = std::make_unique<FMeshGeometry>();
-	Geo->Name = "boxGeo";
-	ThrowIfFailed(D3DCreateBlob(VBByteSize, &Geo->VertexBufferCPU));
-	CopyMemory(Geo->VertexBufferCPU->GetBufferPointer(), Vertices.data(), VBByteSize);
-
-	ThrowIfFailed(D3DCreateBlob(IBByteSize, &Geo->IndexBufferCPU));
-	CopyMemory(Geo->IndexBufferCPU->GetBufferPointer(), Indices.data(), IBByteSize);
-
-	Geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(D3DDevice.Get(), CommandList.Get(), Vertices.data(), VBByteSize, Geo->VertexBufferUploader);
-	Geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(D3DDevice.Get(), CommandList.Get(), Indices.data(), IBByteSize, Geo->IndexBufferUploader);
-
-	Geo->VertexByteStride = sizeof(FVertex);
-	Geo->VertexBufferByteSize = VBByteSize;
-	Geo->IndexFormat = DXGI_FORMAT_R16_UINT;
-	Geo->IndexBufferByteSize = IBByteSize;
-
-	Geo->DrawArgs["box"] = BoxSubmesh;
-
-	Geometries[Geo->Name] = std::move(Geo);
-}
-
-void FFogWavesApp::BuildMaterials()
+void FStencil::BuildMaterials()
 {
 	auto Grass = std::make_unique<FMaterial>();
 	Grass->Name = "grass";
@@ -861,7 +817,7 @@ void FFogWavesApp::BuildMaterials()
 	Materials["wirefence"] = std::move(Wirefence);
 }
 
-void FFogWavesApp::BuildRenderItems()
+void FStencil::BuildRenderItems()
 {
 	auto WavesRitem = std::make_unique<FRenderItem>();
 	WavesRitem->World = MathHelper::Identity4x4();
@@ -908,7 +864,7 @@ void FFogWavesApp::BuildRenderItems()
 	AllRenderItems.push_back(std::move(BoxRitem));
 }
 
-void FFogWavesApp::DrawRenderItems(ID3D12GraphicsCommandList *CommandList, const std::vector<FRenderItem *> &RenderItems)
+void FStencil::DrawRenderItems(ID3D12GraphicsCommandList *CommandList, const std::vector<FRenderItem *> &RenderItems)
 {
 	UINT ObjCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(FObjectConstants));
 	UINT MatCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(FMaterialConstants));
@@ -938,7 +894,7 @@ void FFogWavesApp::DrawRenderItems(ID3D12GraphicsCommandList *CommandList, const
 	}
 }
 
-void FFogWavesApp::BuildFrameResources()
+void FStencil::BuildFrameResources()
 {
 	for (int i = 0; i < gNumFrameResources; ++i)
 	{
@@ -947,12 +903,12 @@ void FFogWavesApp::BuildFrameResources()
 				D3DDevice.Get(),
 				1,
 				(UINT)AllRenderItems.size(),
-				(UINT)Materials.size(),
-				Waves->VertexCount()));
+				(UINT)Materials.size()
+				));
 	}
 }
 
-void FFogWavesApp::BuildPSOs()
+void FStencil::BuildPSOs()
 {
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC OpaquePSODesc;
 
@@ -1024,7 +980,7 @@ void FFogWavesApp::BuildPSOs()
 	
 }
 
-std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> FFogWavesApp::GetStaticSamplers()
+std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> FStencil::GetStaticSamplers()
 {
 	// Applications usually only need a handful of samplers.  So just define them all up front
 	// and keep them available as part of the root signature. 
@@ -1092,7 +1048,7 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
 
 	try
 	{
-		FFogWavesApp App(hInst);
+		FStencil App(hInst);
 		if (!App.Initialize())
 		{
 			return 0;

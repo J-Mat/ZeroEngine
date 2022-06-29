@@ -47,6 +47,11 @@ struct FPassConstants
 
 struct FVertex
 {
+	FVertex() = default;
+	FVertex(float x, float y, float z, float nx, float ny, float nz, float u, float v) :
+		Pos(x, y, z),
+		Normal(nx, ny, nz),
+		TexC(u, v) {}
 	XMFLOAT3 Pos;
 	XMFLOAT3 Normal;
 	XMFLOAT2 TexC;
@@ -57,7 +62,7 @@ struct FVertex
 struct FFrameResource
 {
 public:
-	FFrameResource(ID3D12Device* Device, UINT PassCount, UINT ObjectCount, UINT MaterialCount, UINT	WaveVertCount);
+	FFrameResource(ID3D12Device* Device, UINT PassCount, UINT ObjectCount, UINT MaterialCount);
 	FFrameResource(const FFrameResource& rhs) = delete;
 	FFrameResource& operator=(const FFrameResource& rhs) = delete;
 	~FFrameResource();
@@ -73,10 +78,6 @@ public:
 	std::unique_ptr<TUploadBuffer<FMaterialConstants>> MaterialCB = nullptr;
 	std::unique_ptr<TUploadBuffer<FObjectConstants>> ObjectCB = nullptr;
 
-
-    // We cannot update a dynamic vertex buffer until the GPU is done processing
-    // the commands that reference it.  So each frame needs their own.
-    std::unique_ptr<TUploadBuffer<FVertex>> WavesVB = nullptr;
 
 	UINT64 Fence = 0;
 };
