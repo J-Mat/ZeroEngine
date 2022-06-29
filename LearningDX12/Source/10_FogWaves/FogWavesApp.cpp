@@ -86,6 +86,7 @@ private:
 	void UpdateMainPassCB(const GameTimer &gt);
 	void UpdateWaves(const GameTimer& gt);
 	void UpdateMaterialCBs(const GameTimer& gt);
+	void AnimateMaterials(const GameTimer& gt);
 
 	void LoadTextures();
 	void BuildRootSignature();
@@ -242,6 +243,7 @@ void FFogWavesApp::Update(const GameTimer &gt)
 		CloseHandle(EventHandle);
 	}
 
+	AnimateMaterials(gt);
 	UpdateObjectCBs(gt);
 	UpdateMaterialCBs(gt);
 	UpdateMainPassCB(gt);
@@ -436,6 +438,30 @@ void FFogWavesApp::UpdateMaterialCBs(const GameTimer& gt)
 	}
 }
 
+void FFogWavesApp::AnimateMaterials(const GameTimer& gt)
+{
+	// Scroll the water material texture coordinates.
+	auto waterMat = Materials["water"].get();
+
+	float& tu = waterMat->MatTransform(3, 0);
+	float& tv = waterMat->MatTransform(3, 1);
+
+	tu += 0.1f * gt.DeltaTime();
+	tv += 0.02f * gt.DeltaTime();
+
+	if (tu >= 1.0f)
+		tu -= 1.0f;
+
+	if (tv >= 1.0f)
+		tv -= 1.0f;
+
+	waterMat->MatTransform(3, 0) = tu;
+	waterMat->MatTransform(3, 1) = tv;
+
+	// Material has changed, so need to update cbuffer.
+	waterMat->NumFramesDirty = gNumFrameResources;
+}
+
 void FFogWavesApp::UpdateMainPassCB(const GameTimer &gt)
 {
 	XMMATRIX ViewMatrix = XMLoadFloat4x4(&View);
@@ -462,7 +488,7 @@ void FFogWavesApp::UpdateMainPassCB(const GameTimer &gt)
 
 	MainPassCB.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
 	MainPassCB.Lights[0].Direction = { 0.57735f, -0.57735f, 0.57735f };
-	MainPassCB.Lights[0].Strength = { 0.6f, 0.6f, 0.6f };
+	MainPassCB.Lights[0].Strength = { 0.9f, 0.9f, 0.8f };
 	MainPassCB.Lights[1].Direction = { -0.57735f, -0.57735f, 0.57735f };
 	MainPassCB.Lights[1].Strength = { 0.3f, 0.3f, 0.3f };
 	MainPassCB.Lights[2].Direction = { 0.0f, -0.707f, -0.707f };
@@ -530,7 +556,7 @@ void FFogWavesApp::LoadTextures()
 
 	auto FenceTex = std::make_unique<FTexture>();
 	FenceTex->Name = "fenceTex";
-	FenceTex->Filename = d3dUtil::GetPath(L"Textures/WoodCrate01.dds");
+	FenceTex->Filename = d3dUtil::GetPath(L"Textures/WireFence.dds");
 	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(D3DDevice.Get(),
 		CommandList.Get(), FenceTex->Filename.c_str(),
 		FenceTex->Resource, FenceTex->UploadHeap));
@@ -639,9 +665,9 @@ void FFogWavesApp::BuildShadersAndInputLayout()
 	};
 
 
-	Shaders["standardVS"] = d3dUtil::CompileShader(L"Shaders\\Tex\\Default.hlsl", nullptr, "VS", "vs_5_0");
-	Shaders["opaquePS"] = d3dUtil::CompileShader(L"Shaders\\Tex\\Default.hlsl", Defines, "PS", "ps_5_0");
-	Shaders["alphaTestedPS"] = d3dUtil::CompileShader(L"Shaders\\Tex\\Default.hlsl", AlphaTestDefines, "PS", "ps_5_0");
+	Shaders["standardVS"] = d3dUtil::CompileShader(L"Shaders\\10_Blend\\Default.hlsl", nullptr, "VS", "vs_5_0");
+	Shaders["opaquePS"] = d3dUtil::CompileShader(L"Shaders\\10_Blend\\Default.hlsl", Defines, "PS", "ps_5_0");
+	Shaders["alphaTestedPS"] = d3dUtil::CompileShader(L"Shaders\\10_Blend\\Default.hlsl", AlphaTestDefines, "PS", "ps_5_0");
 
 	InputLayout =
 	{
@@ -820,7 +846,7 @@ void FFogWavesApp::BuildMaterials()
 	Water->Name = "water";
 	Water->MatCBIndex = 1;
 	Water->DiffuseSrvHeapIndex = 1;
-	Water->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	Water->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 0.5f);
 	Water->FresnelR0 = XMFLOAT3(0.2f, 0.2f, 0.2f);
 	Water->Roughness = 0.0f;
 
