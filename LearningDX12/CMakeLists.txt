@@ -29,3 +29,6 @@ add_subdirectory(Source/09_Crate)
 add_subdirectory(Source/09_TexColumns)
 add_subdirectory(Source/09_TexWaves)
 add_subdirectory(Source/10_FogWaves)
+add_subdirectory(Source/11_Stencil)
+
+
