@@ -1066,7 +1066,7 @@ void FStencil::BuildFrameResources()
 		FrameResources.push_back(
 			std::make_unique<FFrameResource>(
 				D3DDevice.Get(),
-				1,
+				2,
 				(UINT)AllRenderItems.size(),
 				(UINT)Materials.size()
 				));
