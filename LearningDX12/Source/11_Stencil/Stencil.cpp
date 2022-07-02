@@ -65,13 +65,6 @@ struct FRenderItem
 	int BaseVertexLocation = 0;
 };
 
-enum class URenderLayer : int
-{
-	Opaque = 0,
-	Transparent,
-	AlphaTested,
-	Count
-};
 
 class FStencil : public FD3DApp
 {
@@ -158,9 +151,9 @@ private:
 	XMFLOAT4X4 View = MathHelper::Identity4x4();
 	XMFLOAT4X4 Proj = MathHelper::Identity4x4();
 
-	float Theta = 1.5f * XM_PI;
-	float Phi = XM_PIDIV2 - 0.1f;
-	float Radius = 50.0f;
+	float Theta = 1.24f * XM_PI;
+	float Phi = 0.42f * XM_PI;
+	float Radius = 12.0f;
 
 	POINT LastMousePos;
 };
@@ -294,6 +287,8 @@ void FStencil::Draw(const GameTimer &gt)
 	CommandList->SetDescriptorHeaps(_countof(DescriptorHeaps), DescriptorHeaps);
 
 	CommandList->SetGraphicsRootSignature(RootSignature.Get());
+	
+	UINT PassCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(FPassConstants));
 
 	// Bind per-pass constant buffer.  We only need to do this once per-pass.
 	auto PassCB = CurrentFrameResource->PassCB->Resource();
@@ -306,13 +301,21 @@ void FStencil::Draw(const GameTimer &gt)
 	
 	// Draw the reflection into the mirror only (only for pixels where the stencil buffer is 1).
 	// Note that we must supply a different per-pass constant buffer--one with the lights reflected.
-	CommandList->SetGraphicsRootConstantBufferView(2, PassCB);
+	CommandList->SetGraphicsRootConstantBufferView(2, PassCB->GetGPUVirtualAddress() + 1 * PassCBByteSize);
 	CommandList->SetPipelineState(PSOs["drawStencilReflections"].Get());
 	DrawRenderItems(CommandList.Get(), RenderLayers[(int)URenderLayer::Reflected]);
 
+	// Restore main pass constants and stencil ref.
+	CommandList->SetGraphicsRootConstantBufferView(2, PassCB->GetGPUVirtualAddress());
+	CommandList->OMSetStencilRef(0);
+	
+	// Draw mirror with transparency so reflection blends through.
 	CommandList->SetPipelineState(PSOs["transparent"].Get());
 	DrawRenderItems(CommandList.Get(), RenderLayers[(int)URenderLayer::Transparent]);
 
+	// Draw shadows
+	CommandList->SetPipelineState(PSOs["shadow"].Get());
+	DrawRenderItems(CommandList.Get(), RenderLayers[(int)URenderLayer::Shadow]);
 
 	// Indicate a state transition on the resource usage.
 	CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
@@ -516,26 +519,6 @@ void FStencil::UpdateReflectedPassCB(const GameTimer& gt)
 
 void FStencil::AnimateMaterials(const GameTimer& gt)
 {
-	// Scroll the water material texture coordinates.
-	auto waterMat = Materials["water"].get();
-
-	float& tu = waterMat->MatTransform(3, 0);
-	float& tv = waterMat->MatTransform(3, 1);
-
-	tu += 0.1f * gt.DeltaTime();
-	tv += 0.02f * gt.DeltaTime();
-
-	if (tu >= 1.0f)
-		tu -= 1.0f;
-
-	if (tv >= 1.0f)
-		tv -= 1.0f;
-
-	waterMat->MatTransform(3, 0) = tu;
-	waterMat->MatTransform(3, 1) = tv;
-
-	// Material has changed, so need to update cbuffer.
-	waterMat->NumFramesDirty = gNumFrameResources;
 }
 
 void FStencil::UpdateMainPassCB(const GameTimer &gt)
@@ -657,40 +640,47 @@ void FStencil::BuildDescriptorHeaps()
 	//
 	// Create the SRV heap.
 	//
-	D3D12_DESCRIPTOR_HEAP_DESC SrvHeapDesc = {};
-	SrvHeapDesc.NumDescriptors = 3;
-	SrvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	SrvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	ThrowIfFailed(D3DDevice->CreateDescriptorHeap(&SrvHeapDesc, IID_PPV_ARGS(&SrvDescriptorHeap)));
+	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
+	srvHeapDesc.NumDescriptors = 4;
+	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	ThrowIfFailed(D3DDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&SrvDescriptorHeap)));
 
 	//
 	// Fill out the heap with actual descriptors.
 	//
 	CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(SrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 
-	auto GrassTex = Textures["grassTex"]->Resource;
-	auto WaterTex = Textures["waterTex"]->Resource;
-	auto FenceTex = Textures["fenceTex"]->Resource;
+	auto bricksTex = Textures["bricksTex"]->Resource;
+	auto checkboardTex = Textures["checkboardTex"]->Resource;
+	auto iceTex = Textures["iceTex"]->Resource;
+	auto white1x1Tex = Textures["white1x1Tex"]->Resource;
 
-	D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc = {};
-	SrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	SrvDesc.Format = GrassTex->GetDesc().Format;
-	SrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	SrvDesc.Texture2D.MostDetailedMip = 0;
-	SrvDesc.Texture2D.MipLevels = -1;
-	D3DDevice->CreateShaderResourceView(GrassTex.Get(), &SrvDesc, hDescriptor);
-
-	// next descriptor
-	hDescriptor.Offset(1, CbvSrvDescriptorSize);
-
-	SrvDesc.Format = WaterTex->GetDesc().Format;
-	D3DDevice->CreateShaderResourceView(WaterTex.Get(), &SrvDesc, hDescriptor);
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.Format = bricksTex->GetDesc().Format;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	srvDesc.Texture2D.MipLevels = -1;
+	D3DDevice->CreateShaderResourceView(bricksTex.Get(), &srvDesc, hDescriptor);
 
 	// next descriptor
 	hDescriptor.Offset(1, CbvSrvDescriptorSize);
 
-	SrvDesc.Format = FenceTex->GetDesc().Format;
-	D3DDevice->CreateShaderResourceView(FenceTex.Get(), &SrvDesc, hDescriptor);
+	srvDesc.Format = checkboardTex->GetDesc().Format;
+	D3DDevice->CreateShaderResourceView(checkboardTex.Get(), &srvDesc, hDescriptor);
+
+	// next descriptor
+	hDescriptor.Offset(1, CbvSrvDescriptorSize);
+
+	srvDesc.Format = iceTex->GetDesc().Format;
+	D3DDevice->CreateShaderResourceView(iceTex.Get(), &srvDesc, hDescriptor);
+
+	// next descriptor
+	hDescriptor.Offset(1, CbvSrvDescriptorSize);
+
+	srvDesc.Format = white1x1Tex->GetDesc().Format;
+	D3DDevice->CreateShaderResourceView(white1x1Tex.Get(), &srvDesc, hDescriptor);
 }
 
 void FStencil::BuildShadersAndInputLayout()
@@ -1001,12 +991,12 @@ void FStencil::BuildRenderItems()
 	RenderLayers[(int)URenderLayer::Reflected].push_back(ReflectedSkullRitem.get());
 
 	// Shadowed skull will have different world matrix, so it needs to be its own render item.
-	auto shadowedSkullRitem = std::make_unique<FRenderItem>();
-	*shadowedSkullRitem = *SkullRitem;
-	shadowedSkullRitem->ObjCBIndex = 4;
-	shadowedSkullRitem->Mat = Materials["shadowMat"].get();
-	ShadowedSkullRenderitem = shadowedSkullRitem.get();
-	RenderLayers[(int)URenderLayer::Shadow].push_back(shadowedSkullRitem.get());
+	auto ShadowedSkullRitem = std::make_unique<FRenderItem>();
+	*ShadowedSkullRitem = *SkullRitem;
+	ShadowedSkullRitem->ObjCBIndex = 4;
+	ShadowedSkullRitem->Mat = Materials["shadowMat"].get();
+	ShadowedSkullRenderitem = ShadowedSkullRitem.get();
+	RenderLayers[(int)URenderLayer::Shadow].push_back(ShadowedSkullRitem.get());
 
 	auto MirrorRitem = std::make_unique<FRenderItem>();
 	MirrorRitem->World = MathHelper::Identity4x4();
@@ -1025,7 +1015,7 @@ void FStencil::BuildRenderItems()
 	AllRenderItems.push_back(std::move(WallsRitem));
 	AllRenderItems.push_back(std::move(SkullRitem));
 	AllRenderItems.push_back(std::move(ReflectedSkullRitem));
-	AllRenderItems.push_back(std::move(shadowedSkullRitem));
+	AllRenderItems.push_back(std::move(ShadowedSkullRitem));
 	AllRenderItems.push_back(std::move(MirrorRitem));
 }
 
@@ -1184,7 +1174,7 @@ void FStencil::BuildPSOs()
 	ReflectionsDSS.BackFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
 	ReflectionsDSS.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_EQUAL;
 	
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC DrawRefectionsPsoDesc = OpaquePSODesc;
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC DrawRefectionsPsoDesc = TransparentPsoDesc;
 	DrawRefectionsPsoDesc.DepthStencilState = ReflectionsDSS;
 	DrawRefectionsPsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
 	DrawRefectionsPsoDesc.RasterizerState.FrontCounterClockwise = true;
@@ -1206,11 +1196,13 @@ void FStencil::BuildPSOs()
 	
 	ShadowDSS.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
 	ShadowDSS.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+	// 模板判断通过，则递增
 	ShadowDSS.FrontFace.StencilPassOp = D3D12_STENCIL_OP_INCR;
 	ShadowDSS.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_EQUAL;
 	
 	ShadowDSS.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
 	ShadowDSS.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+	// 模板判断通过，则递增
 	ShadowDSS.BackFace.StencilPassOp = D3D12_STENCIL_OP_INCR;
 	ShadowDSS.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_EQUAL;
 
