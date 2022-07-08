@@ -66,6 +66,7 @@ enum class URenderLayer : int
 	Opaque = 0,
 	Transparent,
 	AlphaTested,
+	AlphaTestedTreeSprites,
 	Count
 };
 
@@ -131,6 +132,7 @@ private:
 	std::unordered_map<std::string, ComPtr<ID3D12PipelineState>> PSOs;
 
 	std::vector<D3D12_INPUT_ELEMENT_DESC> InputLayout;
+	std::vector<D3D12_INPUT_ELEMENT_DESC> TreeSpriteInputLayout;
 
 
 	FRenderItem* WavesRenderItem = nullptr;
@@ -153,7 +155,7 @@ private:
 
 	float Theta = 1.5f * XM_PI;
 	float Phi = XM_PIDIV2 - 0.1f;
-	float Radius = 50.0f;
+	float Radius = 100.0f;
 
 	POINT LastMousePos;
 };
@@ -206,6 +208,7 @@ bool FBillboard::Initialize()
 	BuildLandGeometry();
 	BuildWavesGeometryBuffers();
 	BuildBoxGeometry();
+	BuildTreeSpritesGeometry();
 	BuildMaterials();
 	BuildRenderItems();
 	BuildFrameResources();
@@ -298,6 +301,9 @@ void FBillboard::Draw(const GameTimer &gt)
 
 	CommandList->SetPipelineState(PSOs["alphaTested"].Get());
 	DrawRenderItems(CommandList.Get(), RenderLayers[(int)URenderLayer::AlphaTested]);
+
+	CommandList->SetPipelineState(PSOs["treeSprites"].Get());
+	DrawRenderItems(CommandList.Get(), RenderLayers[(int)URenderLayer::AlphaTestedTreeSprites]);
 
 	CommandList->SetPipelineState(PSOs["transparent"].Get());
 	DrawRenderItems(CommandList.Get(), RenderLayers[(int)URenderLayer::Transparent]);
@@ -568,9 +574,17 @@ void FBillboard::LoadTextures()
 		CommandList.Get(), FenceTex->Filename.c_str(),
 		FenceTex->Resource, FenceTex->UploadHeap));
 
+	auto TreeArrayTex = std::make_unique<FTexture>();
+	TreeArrayTex->Name = "treeArrayTex";
+	TreeArrayTex->Filename = d3dUtil::GetPath(L"Textures/treeArray2.dds");
+	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(D3DDevice.Get(),
+		CommandList.Get(), TreeArrayTex->Filename.c_str(),
+		TreeArrayTex->Resource, TreeArrayTex->UploadHeap));
+
 	Textures[GrassTex->Name] = std::move(GrassTex);
 	Textures[WaterTex->Name] = std::move(WaterTex);
 	Textures[FenceTex->Name] = std::move(FenceTex);
+	Textures[TreeArrayTex->Name] = std::move(TreeArrayTex);
 }
 
 
@@ -621,7 +635,7 @@ void FBillboard::BuildDescriptorHeaps()
 	// Create the SRV heap.
 	//
 	D3D12_DESCRIPTOR_HEAP_DESC SrvHeapDesc = {};
-	SrvHeapDesc.NumDescriptors = 3;
+	SrvHeapDesc.NumDescriptors = 4;
 	SrvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	SrvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	ThrowIfFailed(D3DDevice->CreateDescriptorHeap(&SrvHeapDesc, IID_PPV_ARGS(&SrvDescriptorHeap)));
@@ -634,6 +648,7 @@ void FBillboard::BuildDescriptorHeaps()
 	auto GrassTex = Textures["grassTex"]->Resource;
 	auto WaterTex = Textures["waterTex"]->Resource;
 	auto FenceTex = Textures["fenceTex"]->Resource;
+	auto TreeArrayTex = Textures["treeArrayTex"]->Resource;
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc = {};
 	SrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -654,6 +669,17 @@ void FBillboard::BuildDescriptorHeaps()
 
 	SrvDesc.Format = FenceTex->GetDesc().Format;
 	D3DDevice->CreateShaderResourceView(FenceTex.Get(), &SrvDesc, hDescriptor);
+
+	hDescriptor.Offset(1, CbvSrvDescriptorSize);
+	
+	auto Desc = TreeArrayTex->GetDesc();
+	SrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
+	SrvDesc.Format = TreeArrayTex->GetDesc().Format;
+	SrvDesc.Texture2DArray.MostDetailedMip = 0;
+	SrvDesc.Texture2DArray.MipLevels = -1;
+	SrvDesc.Texture2DArray.FirstArraySlice = 0;
+	SrvDesc.Texture2DArray.ArraySize = TreeArrayTex->GetDesc().DepthOrArraySize;
+	D3DDevice->CreateShaderResourceView(TreeArrayTex.Get(), &SrvDesc, hDescriptor);
 }
 
 void FBillboard::BuildShadersAndInputLayout()
@@ -672,15 +698,26 @@ void FBillboard::BuildShadersAndInputLayout()
 	};
 
 
-	Shaders["standardVS"] = d3dUtil::CompileShader(L"Shaders\\10_Blend\\Default.hlsl", nullptr, "VS", "vs_5_0");
-	Shaders["opaquePS"] = d3dUtil::CompileShader(L"Shaders\\10_Blend\\Default.hlsl", Defines, "PS", "ps_5_0");
-	Shaders["alphaTestedPS"] = d3dUtil::CompileShader(L"Shaders\\10_Blend\\Default.hlsl", AlphaTestDefines, "PS", "ps_5_0");
+	Shaders["standardVS"] = d3dUtil::CompileShader(L"Shaders\\12_Billboard\\Default.hlsl", nullptr, "VS", "vs_5_0");
+	Shaders["opaquePS"] = d3dUtil::CompileShader(L"Shaders\\12_Billboard\\Default.hlsl", Defines, "PS", "ps_5_0");
+	Shaders["alphaTestedPS"] = d3dUtil::CompileShader(L"Shaders\\12_Billboard\\Default.hlsl", AlphaTestDefines, "PS", "ps_5_0");
+
+	Shaders["treeSpriteVS"] = d3dUtil::CompileShader(L"Shaders\\12_Billboard\\TreeSprite.hlsl", nullptr, "VS", "vs_5_0");
+	Shaders["treeSpriteGS"] = d3dUtil::CompileShader(L"Shaders\\12_Billboard\\TreeSprite.hlsl", nullptr, "GS", "gs_5_0");
+	Shaders["treeSpritePS"] = d3dUtil::CompileShader(L"Shaders\\12_Billboard\\TreeSprite.hlsl", AlphaTestDefines, "PS", "ps_5_0");
+
 
 	InputLayout =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+	};
+
+	TreeSpriteInputLayout =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "SIZE", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 	};
 }
 
@@ -814,37 +851,37 @@ void FBillboard::BuildTreeSpritesGeometry()
 		Indices[i] = i;
 	}
 
-	const UINT vbByteSize = (UINT)Vertices.size() * sizeof(FTreeSpriteVertex);
-	const UINT ibByteSize = (UINT)Indices.size() * sizeof(std::uint16_t);
+	const UINT VbByteSize = (UINT)Vertices.size() * sizeof(FTreeSpriteVertex);
+	const UINT IbByteSize = (UINT)Indices.size() * sizeof(std::uint16_t);
 	
 	auto Geo = std::make_unique<FMeshGeometry>();
 	Geo->Name = "treeSpritesGeo";
 	
-	ThrowIfFailed(D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU));
-	CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
+	ThrowIfFailed(D3DCreateBlob(VbByteSize, &Geo->VertexBufferCPU));
+	CopyMemory(Geo->VertexBufferCPU->GetBufferPointer(), Vertices.data(), VbByteSize);
 
-	ThrowIfFailed(D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU));
-	CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
+	ThrowIfFailed(D3DCreateBlob(IbByteSize, &Geo->IndexBufferCPU));
+	CopyMemory(Geo->IndexBufferCPU->GetBufferPointer(), Indices.data(), IbByteSize);
 
-	geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
-		mCommandList.Get(), vertices.data(), vbByteSize, geo->VertexBufferUploader);
+	Geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(D3DDevice.Get(),
+		CommandList.Get(), Vertices.data(), VbByteSize, Geo->VertexBufferUploader);
 
-	geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
-		mCommandList.Get(), indices.data(), ibByteSize, geo->IndexBufferUploader);
+	Geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(D3DDevice.Get(),
+		CommandList.Get(), Indices.data(), IbByteSize, Geo->IndexBufferUploader);
 
-	geo->VertexByteStride = sizeof(TreeSpriteVertex);
-	geo->VertexBufferByteSize = vbByteSize;
-	geo->IndexFormat = DXGI_FORMAT_R16_UINT;
-	geo->IndexBufferByteSize = ibByteSize;
+	Geo->VertexByteStride = sizeof(FTreeSpriteVertex);
+	Geo->VertexBufferByteSize = VbByteSize;
+	Geo->IndexFormat = DXGI_FORMAT_R16_UINT;
+	Geo->IndexBufferByteSize = IbByteSize;
 
-	SubmeshGeometry submesh;
-	submesh.IndexCount = (UINT)indices.size();
-	submesh.StartIndexLocation = 0;
-	submesh.BaseVertexLocation = 0;
+	FSubmeshGeometry Submesh;
+	Submesh.IndexCount = (UINT)Indices.size();
+	Submesh.StartIndexLocation = 0;
+	Submesh.BaseVertexLocation = 0;
 
-	geo->DrawArgs["points"] = submesh;
+	Geo->DrawArgs["points"] = Submesh;
 
-	mGeometries["treeSpritesGeo"] = std::move(geo);
+	Geometries["treeSpritesGeo"] = std::move(Geo);
 }
 
 void FBillboard::BuildBoxGeometry()
@@ -920,9 +957,19 @@ void FBillboard::BuildMaterials()
 	Wirefence->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
 	Wirefence->Roughness = 0.25f;
 
+
+	auto TreeSprites = std::make_unique<FMaterial>();
+	TreeSprites->Name = "treeSprites";
+	TreeSprites->MatCBIndex = 3;
+	TreeSprites->DiffuseSrvHeapIndex = 3;
+	TreeSprites->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	TreeSprites->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
+	TreeSprites->Roughness = 0.125f;
+
 	Materials["grass"] = std::move(Grass);
 	Materials["water"] = std::move(Water);
 	Materials["wirefence"] = std::move(Wirefence);
+	Materials["treeSprites"] = std::move(TreeSprites);
 }
 
 void FBillboard::BuildRenderItems()
@@ -967,9 +1014,22 @@ void FBillboard::BuildRenderItems()
 
 	RenderLayers[(int)URenderLayer::AlphaTested].push_back(BoxRitem.get());
 
+	auto TreeSpritesRitem = std::make_unique<FRenderItem>();
+	TreeSpritesRitem->World = MathHelper::Identity4x4();
+	TreeSpritesRitem->ObjCBIndex = 3;
+	TreeSpritesRitem->Mat = Materials["treeSprites"].get();
+	TreeSpritesRitem->Geo = Geometries["treeSpritesGeo"].get();
+	TreeSpritesRitem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_POINTLIST;
+	TreeSpritesRitem->IndexCount = TreeSpritesRitem->Geo->DrawArgs["points"].IndexCount;
+	TreeSpritesRitem->StartIndexLocation = TreeSpritesRitem->Geo->DrawArgs["points"].StartIndexLocation;
+	TreeSpritesRitem->BaseVertexLocation = TreeSpritesRitem->Geo->DrawArgs["points"].BaseVertexLocation;
+
+	RenderLayers[(int)URenderLayer::AlphaTestedTreeSprites].push_back(TreeSpritesRitem.get());
+
 	AllRenderItems.push_back(std::move(WavesRitem));
 	AllRenderItems.push_back(std::move(GridRitem));
 	AllRenderItems.push_back(std::move(BoxRitem));
+	AllRenderItems.push_back(std::move(TreeSpritesRitem));
 }
 
 void FBillboard::DrawRenderItems(ID3D12GraphicsCommandList *CommandList, const std::vector<FRenderItem *> &RenderItems)
@@ -1086,6 +1146,30 @@ void FBillboard::BuildPSOs()
 		D3DDevice->CreateGraphicsPipelineState(&AlphaTestedPsoDesc, IID_PPV_ARGS(&PSOs["alphaTested"]))
 	);
 	
+	//
+	// PSO for tree sprites
+	//
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC TreeSpritePsoDesc = OpaquePSODesc;
+	TreeSpritePsoDesc.VS =
+	{
+		reinterpret_cast<BYTE*>(Shaders["treeSpriteVS"]->GetBufferPointer()),
+		Shaders["treeSpriteVS"]->GetBufferSize()
+	};
+	TreeSpritePsoDesc.GS =
+	{
+		reinterpret_cast<BYTE*>(Shaders["treeSpriteGS"]->GetBufferPointer()),
+		Shaders["treeSpriteGS"]->GetBufferSize()
+	};
+	TreeSpritePsoDesc.PS =
+	{
+		reinterpret_cast<BYTE*>(Shaders["treeSpritePS"]->GetBufferPointer()),
+		Shaders["treeSpritePS"]->GetBufferSize()
+	};
+	TreeSpritePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+	TreeSpritePsoDesc.InputLayout = { TreeSpriteInputLayout.data(), (UINT)TreeSpriteInputLayout.size() };
+	TreeSpritePsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+
+	ThrowIfFailed(D3DDevice->CreateGraphicsPipelineState(&TreeSpritePsoDesc, IID_PPV_ARGS(&PSOs["treeSprites"])));
 }
 
 std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> FBillboard::GetStaticSamplers()
