@@ -6,7 +6,7 @@
  */
 #include "FrameResource.h"
 
-FFrameResource::FFrameResource(ID3D12Device* Device, UINT PassCount, UINT ObjectCount, UINT MaterialCount, UINT	WaveVertCount)
+FFrameResource::FFrameResource(ID3D12Device* Device, UINT PassCount)
 {
 	ThrowIfFailed(
 		Device->CreateCommandAllocator(	
@@ -16,10 +16,6 @@ FFrameResource::FFrameResource(ID3D12Device* Device, UINT PassCount, UINT Object
 	);
 	
 	PassCB = std::make_unique<TUploadBuffer<FPassConstants>>(Device, PassCount, true);
-	MaterialCB = std::make_unique<TUploadBuffer<FMaterialConstants>>(Device, MaterialCount, true);
-	ObjectCB = std::make_unique<TUploadBuffer<FObjectConstants>>(Device, ObjectCount, true);
-	
-	WavesVB = std::make_unique<TUploadBuffer<FVertex>>(Device, WaveVertCount, false);
 }
 
 FFrameResource::~FFrameResource()

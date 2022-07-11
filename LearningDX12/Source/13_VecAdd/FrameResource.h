@@ -57,7 +57,7 @@ struct FVertex
 struct FFrameResource
 {
 public:
-	FFrameResource(ID3D12Device* Device, UINT PassCount, UINT ObjectCount, UINT MaterialCount, UINT	WaveVertCount);
+	FFrameResource(ID3D12Device* Device, UINT PassCount);
 	FFrameResource(const FFrameResource& rhs) = delete;
 	FFrameResource& operator=(const FFrameResource& rhs) = delete;
 	~FFrameResource();
