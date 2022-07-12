@@ -1,14 +1,18 @@
-project(13_VecAdd)
+project(13_WavesCS)
 
 set (SRC_FILES
     FrameResource.h
     FrameResource.cpp
+    Waves.h
+    Waves.cpp
+    GPUWaves.cpp
+    GPUWaves.h
 )
 
 
 # Create the executable
 add_executable(${PROJECT_NAME}  WIN32 
-    VecAdd.cpp
+    WavesCS.cpp
     ${SRC_FILES}
 )
 
