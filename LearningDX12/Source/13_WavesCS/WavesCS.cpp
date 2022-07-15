@@ -101,8 +101,7 @@ private:
 	void BuildDescriptorHeaps();
 	void BuildShadersAndInputLayout();
 	void BuildLandGeometry();
-	void BuildWavesGeometryBuffers();
-	void BuildTreeSpritesGeometry();
+	void BuildWavesGeometry();
 	void BuildBoxGeometry();
 	void BuildPSOs();
 	void BuildFrameResources();
@@ -198,7 +197,7 @@ bool FWavesCS::Initialize()
 
 	CbvSrvDescriptorSize = D3DDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	
-	Waves = std::make_unique<FWaves>(128, 128, 1.0f, 0.03f, 4.0f, 0.2f);
+	Waves = std::make_unique<FGPUWaves>(D3DDevice.Get(), CommandList.Get(), 256, 256, 0.25f, 0.03f, 2.0f, 0.2f);
 
 	LoadTextures();
 	BuildRootSignature();
@@ -206,9 +205,8 @@ bool FWavesCS::Initialize()
 	BuildDescriptorHeaps();
 	BuildShadersAndInputLayout();
 	BuildLandGeometry();
-	BuildWavesGeometryBuffers();
+	BuildWavesGeometry();
 	BuildBoxGeometry();
-	BuildTreeSpritesGeometry();
 	BuildMaterials();
 	BuildRenderItems();
 	BuildFrameResources();
@@ -790,115 +788,52 @@ void FWavesCS::BuildLandGeometry()
 	Geometries["landGeo"] = std::move(Geo);
 }
 
-void FWavesCS::BuildWavesGeometryBuffers()
+void FWavesCS::BuildWavesGeometry()
 {
-	std::vector<std::uint16_t> indices(3 * Waves->GetTriangleCount()); // 3 indices per face
-	assert(Waves->GetVertexCount() < 0x0000ffff);
+	FGeometryGenerator geoGen;
+	FGeometryGenerator::FMeshData grid = geoGen.CreateGrid(160.0f, 160.0f, Waves->RowCount(), Waves->ColumnCount());
 
-	// Iterate over each quad.
-	int m = Waves->RowCount();
-	int n = Waves->ColumnCount();
-	int k = 0;
-	for(int i = 0; i < m - 1; ++i)
+	std::vector<FVertex> vertices(grid.Vertices.size());
+	for (size_t i = 0; i < grid.Vertices.size(); ++i)
 	{
-		for(int j = 0; j < n - 1; ++j)
-		{
-			indices[k] = i*n + j;
-			indices[k + 1] = i*n + j + 1;
-			indices[k + 2] = (i + 1)*n + j;
-
-			indices[k + 3] = (i + 1)*n + j;
-			indices[k + 4] = i*n + j + 1;
-			indices[k + 5] = (i + 1)*n + j + 1;
-
-			k += 6; // next quad
-		}
+		vertices[i].Pos = grid.Vertices[i].Position;
+		vertices[i].Normal = grid.Vertices[i].Normal;
+		vertices[i].TexC = grid.Vertices[i].TexC;
 	}
 
-	UINT vbByteSize = Waves->GetVertexCount()*sizeof(FVertex);
-	UINT ibByteSize = (UINT)indices.size()*sizeof(std::uint16_t);
+	std::vector<std::uint32_t> indices = grid.Indices32;
+
+	UINT vbByteSize = Waves->GetVertexCount() * sizeof(FVertex);
+	UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint32_t);
 
 	auto geo = std::make_unique<FMeshGeometry>();
 	geo->Name = "waterGeo";
 
-	// Set dynamically.
-	geo->VertexBufferCPU = nullptr;
-	geo->VertexBufferGPU = nullptr;
+	ThrowIfFailed(D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU));
+	CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
 
 	ThrowIfFailed(D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU));
 	CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
+
+	geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(D3DDevice.Get(),
+		CommandList.Get(), vertices.data(), vbByteSize, geo->VertexBufferUploader);
 
 	geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(D3DDevice.Get(),
 		CommandList.Get(), indices.data(), ibByteSize, geo->IndexBufferUploader);
 
 	geo->VertexByteStride = sizeof(FVertex);
 	geo->VertexBufferByteSize = vbByteSize;
-	geo->IndexFormat = DXGI_FORMAT_R16_UINT;
+	geo->IndexFormat = DXGI_FORMAT_R32_UINT;
 	geo->IndexBufferByteSize = ibByteSize;
 
-	FSubmeshGeometry Submesh;
-	Submesh.IndexCount = (UINT)indices.size();
-	Submesh.StartIndexLocation = 0;
-	Submesh.BaseVertexLocation = 0;
+	FSubmeshGeometry submesh;
+	submesh.IndexCount = (UINT)indices.size();
+	submesh.StartIndexLocation = 0;
+	submesh.BaseVertexLocation = 0;
 
-	geo->DrawArgs["grid"] = Submesh;
+	geo->DrawArgs["grid"] = submesh;
 
 	Geometries["waterGeo"] = std::move(geo);
-}
-
-void FWavesCS::BuildTreeSpritesGeometry()
-{
-	static const int TreeCount = 16;
-	std::array<FTreeSpriteVertex, TreeCount> Vertices;
-	for (UINT i = 0; i < TreeCount;++i)
-	{
-		float x = MathHelper::RandF(-45.0f, 45.0f);
-		float z = MathHelper::RandF(-45.0f, 45.0f);
-		float y = GetHillsHeight(x, z);
-
-		// Move tree slightly above land height.
-		y += 8.0f;
-
-		Vertices[i].Pos = XMFLOAT3(x, y, z);
-		Vertices[i].Size = XMFLOAT2(20.0f, 20.0f);
-	}
-	std::array<std::uint16_t, 16> Indices;
-	for (UINT i = 0; i < TreeCount; ++i)
-	{
-		Indices[i] = i;
-	}
-
-	const UINT VbByteSize = (UINT)Vertices.size() * sizeof(FTreeSpriteVertex);
-	const UINT IbByteSize = (UINT)Indices.size() * sizeof(std::uint16_t);
-	
-	auto Geo = std::make_unique<FMeshGeometry>();
-	Geo->Name = "treeSpritesGeo";
-	
-	ThrowIfFailed(D3DCreateBlob(VbByteSize, &Geo->VertexBufferCPU));
-	CopyMemory(Geo->VertexBufferCPU->GetBufferPointer(), Vertices.data(), VbByteSize);
-
-	ThrowIfFailed(D3DCreateBlob(IbByteSize, &Geo->IndexBufferCPU));
-	CopyMemory(Geo->IndexBufferCPU->GetBufferPointer(), Indices.data(), IbByteSize);
-
-	Geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(D3DDevice.Get(),
-		CommandList.Get(), Vertices.data(), VbByteSize, Geo->VertexBufferUploader);
-
-	Geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(D3DDevice.Get(),
-		CommandList.Get(), Indices.data(), IbByteSize, Geo->IndexBufferUploader);
-
-	Geo->VertexByteStride = sizeof(FTreeSpriteVertex);
-	Geo->VertexBufferByteSize = VbByteSize;
-	Geo->IndexFormat = DXGI_FORMAT_R16_UINT;
-	Geo->IndexBufferByteSize = IbByteSize;
-
-	FSubmeshGeometry Submesh;
-	Submesh.IndexCount = (UINT)Indices.size();
-	Submesh.StartIndexLocation = 0;
-	Submesh.BaseVertexLocation = 0;
-
-	Geo->DrawArgs["points"] = Submesh;
-
-	Geometries["treeSpritesGeo"] = std::move(Geo);
 }
 
 void FWavesCS::BuildBoxGeometry()
@@ -1149,29 +1084,42 @@ void FWavesCS::BuildPSOs()
 	);
 	
 	//
-	// PSO for tree sprites
+	// PSO for drawing waves
 	//
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC TreeSpritePsoDesc = OpaquePSODesc;
-	TreeSpritePsoDesc.VS =
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC WavesRenderPSO = TransparentPsoDesc;
+	WavesRenderPSO.VS =
 	{
-		reinterpret_cast<BYTE*>(Shaders["treeSpriteVS"]->GetBufferPointer()),
-		Shaders["treeSpriteVS"]->GetBufferSize()
+		reinterpret_cast<BYTE*>(Shaders["wavesVS"]->GetBufferPointer()),
+		Shaders["wavesVS"]->GetBufferSize()
 	};
-	TreeSpritePsoDesc.GS =
-	{
-		reinterpret_cast<BYTE*>(Shaders["treeSpriteGS"]->GetBufferPointer()),
-		Shaders["treeSpriteGS"]->GetBufferSize()
-	};
-	TreeSpritePsoDesc.PS =
-	{
-		reinterpret_cast<BYTE*>(Shaders["treeSpritePS"]->GetBufferPointer()),
-		Shaders["treeSpritePS"]->GetBufferSize()
-	};
-	TreeSpritePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
-	TreeSpritePsoDesc.InputLayout = { TreeSpriteInputLayout.data(), (UINT)TreeSpriteInputLayout.size() };
-	TreeSpritePsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+	ThrowIfFailed(D3DDevice->CreateGraphicsPipelineState(&WavesRenderPSO, IID_PPV_ARGS(&PSOs["wavesRender"])));
 
-	ThrowIfFailed(D3DDevice->CreateGraphicsPipelineState(&TreeSpritePsoDesc, IID_PPV_ARGS(&PSOs["treeSprites"])));
+
+	//
+	// PSO for disturbing waves
+	//
+	D3D12_COMPUTE_PIPELINE_STATE_DESC wavesDisturbPSO = {};
+	wavesDisturbPSO.pRootSignature = WavesRootSignature.Get();
+	wavesDisturbPSO.CS =
+	{
+		reinterpret_cast<BYTE*>(Shaders["wavesDisturbCS"]->GetBufferPointer()),
+		Shaders["wavesDisturbCS"]->GetBufferSize()
+	};
+	wavesDisturbPSO.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+	ThrowIfFailed(D3DDevice->CreateComputePipelineState(&wavesDisturbPSO, IID_PPV_ARGS(&PSOs["wavesDisturb"])));
+
+	//
+	// PSO for updating waves
+	//
+	D3D12_COMPUTE_PIPELINE_STATE_DESC wavesUpdatePSO = {};
+	wavesUpdatePSO.pRootSignature = WavesRootSignature.Get();
+	wavesUpdatePSO.CS =
+	{
+		reinterpret_cast<BYTE*>(Shaders["wavesUpdateCS"]->GetBufferPointer()),
+		Shaders["wavesUpdateCS"]->GetBufferSize()
+	};
+	wavesUpdatePSO.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+	ThrowIfFailed(D3DDevice->CreateComputePipelineState(&wavesUpdatePSO, IID_PPV_ARGS(&PSOs["wavesUpdate"])));
 }
 
 std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> FWavesCS::GetStaticSamplers()
