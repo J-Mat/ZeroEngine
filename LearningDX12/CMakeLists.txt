@@ -31,7 +31,8 @@ add_subdirectory(Source/09_TexWaves)
 add_subdirectory(Source/10_FogWaves)
 add_subdirectory(Source/11_Stencil)
 add_subdirectory(Source/12_Billboard)
-# add_subdirectory(Source/13_VecAdd)
+#　add_subdirectory(Source/13_VecAdd)
 add_subdirectory(Source/13_WavesCS)
+add_subdirectory(Source/13_Blur)
 
 

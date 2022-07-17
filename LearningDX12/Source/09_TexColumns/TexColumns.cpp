@@ -462,8 +462,8 @@ void FTexColumn::BuildRootSignature()
 	// Perfomance TIP: Order from most frequent to least frequent.
 	SlotRootParameter[0].InitAsDescriptorTable(1, &TexTable, D3D12_SHADER_VISIBILITY_PIXEL); // 0
 	SlotRootParameter[1].InitAsConstantBufferView(0); // register b0
-	SlotRootParameter[1].InitAsConstantBufferView(1); // register b1
-	SlotRootParameter[1].InitAsConstantBufferView(2); // register b2
+	SlotRootParameter[2].InitAsConstantBufferView(1); // register b1
+	SlotRootParameter[3].InitAsConstantBufferView(2); // register b2
 
 	auto StaticSamplers = GetStaticSamplers();
 
