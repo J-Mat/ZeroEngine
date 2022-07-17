@@ -34,5 +34,6 @@ add_subdirectory(Source/12_Billboard)
 #　add_subdirectory(Source/13_VecAdd)
 add_subdirectory(Source/13_WavesCS)
 add_subdirectory(Source/13_Blur)
+add_subdirectory(Source/14_Camera)
 
 

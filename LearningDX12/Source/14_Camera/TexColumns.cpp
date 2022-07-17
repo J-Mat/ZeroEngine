@@ -12,6 +12,7 @@
 #include <iostream>
 #include "GeometryGenerator.h"
 #include "FrameResource.h"
+#include "Camera.h"
 
 using namespace DirectX;
 using namespace Microsoft::WRL;
@@ -53,11 +54,11 @@ struct FRenderItem
 	int BaseVertexLocation = 0;
 };
 
-class FTexColumn : public FD3DApp
+class CameraApp : public FD3DApp
 {
 public:
-	FTexColumn(HINSTANCE hInstance);
-	~FTexColumn();
+	CameraApp(HINSTANCE hInstance);
+	~CameraApp();
 
 	virtual bool Initialize() override;
 
@@ -71,7 +72,6 @@ private:
 	virtual void OnMouseMove(WPARAM btnState, int x, int y) override;
 
 	void OnKeyboardInput(const GameTimer &gt);
-	void UpdateCamera(const GameTimer &gt);
 	void UpdateObjectCBs(const GameTimer &gt);
 	void UpdateMaterialCBs(const GameTimer &gt);
 	void UpdateMainPassCB(const GameTimer &gt);
@@ -121,27 +121,26 @@ private:
 
 	bool bIsWireFrame = false;
 
-	XMFLOAT3 EyePos = {0.0f, 0.0f, 0.0f};
-	XMFLOAT4X4 View = MathHelper::Identity4x4();
-	XMFLOAT4X4 Proj = MathHelper::Identity4x4();
-
 	float Theta = 1.5f * XM_PI;
 	float Phi = XM_PIDIV4;
 	float Radius = 15.0f;
 
+
+	FCamera Camera;
+
 	POINT LastMousePos;
 };
 
-FTexColumn::FTexColumn(HINSTANCE hInstance)
+CameraApp::CameraApp(HINSTANCE hInstance)
 	: FD3DApp(hInstance)
 {
 }
 
-FTexColumn::~FTexColumn()
+CameraApp::~CameraApp()
 {
 }
 
-bool FTexColumn::Initialize()
+bool CameraApp::Initialize()
 {
 	if (!FD3DApp::Initialize())
 	{
@@ -154,6 +153,8 @@ bool FTexColumn::Initialize()
 	
 	CbvSrvUavDescriptorSize = D3DDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
+	Camera.SetPosition(0.0f, 2.0f, -15.0f);
+	
 	LoadTextures();
 	BuildRootSignature();
 	BuildDescriptorHeaps();
@@ -175,19 +176,16 @@ bool FTexColumn::Initialize()
 	return true;
 }
 
-void FTexColumn::OnResize()
+void CameraApp::OnResize()
 {
 	FD3DApp::OnResize();
 
-	// The window resized, so update the aspect ratio and recompute the projection matrix.
-	XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f * MathHelper::Pi, AspectRatio(), 1.0f, 1000.0f);
-	DirectX::XMStoreFloat4x4(&Proj, P);
+	Camera.SetLens(0.25f * MathHelper::Pi, AspectRatio(), 1.0f, 1000.0f);
 }
 
-void FTexColumn::Update(const GameTimer &gt)
+void CameraApp::Update(const GameTimer &gt)
 {
 	OnKeyboardInput(gt);
-	UpdateCamera(gt);
 
 	CurrentFrameResourceIndex = (CurrentFrameResourceIndex + 1) % gNumFrameResources;
 	CurrentFrameResource = FrameResources[CurrentFrameResourceIndex].get();
@@ -208,7 +206,7 @@ void FTexColumn::Update(const GameTimer &gt)
 	UpdateMaterialCBs(gt);
 }
 
-void FTexColumn::Draw(const GameTimer &gt)
+void CameraApp::Draw(const GameTimer &gt)
 {
 	auto CmdListAlloc = CurrentFrameResource->CommandListAllocator;
 
@@ -271,7 +269,7 @@ void FTexColumn::Draw(const GameTimer &gt)
 	CommandQueue->Signal(Fence.Get(), CurrentFence);
 }
 
-void FTexColumn::OnMouseDown(WPARAM btnState, int x, int y)
+void CameraApp::OnMouseDown(WPARAM btnState, int x, int y)
 {
 	LastMousePos.x = x;
 	LastMousePos.y = y;
@@ -279,12 +277,12 @@ void FTexColumn::OnMouseDown(WPARAM btnState, int x, int y)
 	SetCapture(MainWnd);
 }
 
-void FTexColumn::OnMouseUp(WPARAM btnState, int x, int y)
+void CameraApp::OnMouseUp(WPARAM btnState, int x, int y)
 {
 	ReleaseCapture();
 }
 
-void FTexColumn::OnMouseMove(WPARAM btnState, int x, int y)
+void CameraApp::OnMouseMove(WPARAM btnState, int x, int y)
 {
 	if ((btnState & MK_LBUTTON) != 0)
 	{
@@ -292,55 +290,34 @@ void FTexColumn::OnMouseMove(WPARAM btnState, int x, int y)
 		float dx = XMConvertToRadians(0.25f * static_cast<float>(x - LastMousePos.x));
 		float dy = XMConvertToRadians(0.25f * static_cast<float>(y - LastMousePos.y));
 
-		// Update angles based on input to orbit camera around box.
-		Theta -= dx;
-		Phi -= dy;
-
-		// Restrict the angle mPhi.
-		Phi = MathHelper::Clamp(Phi, 0.1f, MathHelper::Pi - 0.1f);
-	}
-	else if ((btnState & MK_RBUTTON) != 0)
-	{
-		// Make each pixel correspond to 0.005 unit in the scene.
-		float dx = 0.005f * static_cast<float>(x - LastMousePos.x);
-		float dy = 0.005f * static_cast<float>(y - LastMousePos.y);
-
-		// Update the camera radius based on input.
-		Radius += dx - dy;
-
-		// Restrict the radius.
-		Radius = MathHelper::Clamp(Radius, 3.0f, 15.0f);
+		Camera.Pitch(dy);
+		Camera.RotateY(dx);
 	}
 
 	LastMousePos.x = x;
 	LastMousePos.y = y;
 }
 
-void FTexColumn::OnKeyboardInput(const GameTimer &gt)
+void CameraApp::OnKeyboardInput(const GameTimer &gt)
 {
-	if (GetAsyncKeyState('1') & 0x8000)
-		bIsWireFrame = true;
-	else
-		bIsWireFrame = false;
+	const float dt = gt.DeltaTime();
+
+	if (GetAsyncKeyState('W') & 0x8000)
+		Camera.Walk(10.0f * dt);
+
+	if (GetAsyncKeyState('S') & 0x8000)
+		Camera.Walk(-10.0f * dt);
+
+	if (GetAsyncKeyState('A') & 0x8000)
+		Camera.Strafe(-10.0f * dt);
+
+	if (GetAsyncKeyState('D') & 0x8000)
+		Camera.Strafe(10.0f * dt);
+
+	Camera.UpdateViewMatrix();
 }
 
-void FTexColumn::UpdateCamera(const GameTimer &gt)
-{
-	// Convert Spherical to Cartesian coordinates.
-	EyePos.x = Radius * sinf(Phi) * cosf(Theta);
-	EyePos.z = Radius * sinf(Phi) * sinf(Theta);
-	EyePos.y = Radius * cosf(Phi);
-
-	// Build the view matrix.
-	XMVECTOR pos = XMVectorSet(EyePos.x, EyePos.y, EyePos.z, 1.0f);
-	XMVECTOR target = XMVectorZero();
-	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-
-	XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
-	XMStoreFloat4x4(&View, view);
-}
-
-void FTexColumn::UpdateObjectCBs(const GameTimer &gt)
+void CameraApp::UpdateObjectCBs(const GameTimer &gt)
 {
 	auto CurrentObjectCB = CurrentFrameResource->ObjectCB.get();
 	for (auto &Item : AllRenderItems)
@@ -361,7 +338,7 @@ void FTexColumn::UpdateObjectCBs(const GameTimer &gt)
 	}
 }
 
-void FTexColumn::UpdateMaterialCBs(const GameTimer &gt)
+void CameraApp::UpdateMaterialCBs(const GameTimer &gt)
 {
 	auto CurrentMaterialCB = CurrentFrameResource->MaterialCB.get();
 	for (auto &E : Materials)
@@ -387,10 +364,10 @@ void FTexColumn::UpdateMaterialCBs(const GameTimer &gt)
 	}
 }
 
-void FTexColumn::UpdateMainPassCB(const GameTimer &gt)
+void CameraApp::UpdateMainPassCB(const GameTimer &gt)
 {
-	XMMATRIX ViewMatrix = XMLoadFloat4x4(&View);
-	XMMATRIX ProjMatrix = XMLoadFloat4x4(&Proj);
+	XMMATRIX ViewMatrix = Camera.GetView();
+	XMMATRIX ProjMatrix = Camera.GetProj();
 
 	XMMATRIX ViewProj = XMMatrixMultiply(ViewMatrix, ProjMatrix);
 	XMMATRIX InvView = XMMatrixInverse(&XMMatrixDeterminant(ViewMatrix), ViewMatrix);
@@ -403,7 +380,7 @@ void FTexColumn::UpdateMainPassCB(const GameTimer &gt)
 	XMStoreFloat4x4(&MainPassCB.InvProj, XMMatrixTranspose(InvProj));
 	XMStoreFloat4x4(&MainPassCB.ViewProj, XMMatrixTranspose(ViewProj));
 	XMStoreFloat4x4(&MainPassCB.InvViewProj, XMMatrixTranspose(invViewProj));
-	MainPassCB.EyePosW = EyePos;
+	MainPassCB.EyePosW = Camera.GetPosition3f();
 	MainPassCB.RenderTargetSize = XMFLOAT2((float)ClientWidth, (float)ClientHeight);
 	MainPassCB.InvRenderTargetSize = XMFLOAT2(1.0f / ClientWidth, 1.0f / ClientHeight);
 	MainPassCB.NearZ = 1.0f;
@@ -423,7 +400,7 @@ void FTexColumn::UpdateMainPassCB(const GameTimer &gt)
 	CurPassCB->CopyData(0, MainPassCB);
 }
 
-void FTexColumn::LoadTextures()
+void CameraApp::LoadTextures()
 {
 	auto bricksTex = std::make_unique<FTexture>();
 	bricksTex->Name = "bricksTex";
@@ -446,12 +423,20 @@ void FTexColumn::LoadTextures()
 		CommandList.Get(), tileTex->Filename.c_str(),
 		tileTex->Resource, tileTex->UploadHeap));
 
+	auto crateTex = std::make_unique<FTexture>();
+	crateTex->Name = "crateTex";
+	crateTex->Filename = d3dUtil::GetPath(L"Textures/WoodCrate01.dds");
+	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(D3DDevice.Get(),
+		CommandList.Get(), crateTex->Filename.c_str(),
+		crateTex->Resource, crateTex->UploadHeap));
+
 	Textures[bricksTex->Name] = std::move(bricksTex);
 	Textures[stoneTex->Name] = std::move(stoneTex);
 	Textures[tileTex->Name] = std::move(tileTex);
+	Textures[crateTex->Name] = std::move(crateTex);
 }
 
-void FTexColumn::BuildRootSignature()
+void CameraApp::BuildRootSignature()
 {
 	CD3DX12_DESCRIPTOR_RANGE TexTable;
 	TexTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
@@ -494,13 +479,13 @@ void FTexColumn::BuildRootSignature()
 }
 
 
-void FTexColumn::BuildDescriptorHeaps()
+void CameraApp::BuildDescriptorHeaps()
 {
 	//
 	// Create the SRV heap.
 	//
 	D3D12_DESCRIPTOR_HEAP_DESC SrvHeapDesc = {};
-	SrvHeapDesc.NumDescriptors = 3;
+	SrvHeapDesc.NumDescriptors = 4;
 	SrvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	SrvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	ThrowIfFailed(
@@ -515,6 +500,7 @@ void FTexColumn::BuildDescriptorHeaps()
 	auto BricksTex = Textures["bricksTex"]->Resource;
 	auto StoneTex = Textures["stoneTex"]->Resource;
 	auto TileTex = Textures["tileTex"]->Resource;
+	auto CrateTex = Textures["crateTex"]->Resource;
 	
 	D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc = {};
 	SrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -537,9 +523,17 @@ void FTexColumn::BuildDescriptorHeaps()
 	SrvDesc.Format = TileTex->GetDesc().Format;
 	SrvDesc.Texture2D.MipLevels = TileTex->GetDesc().MipLevels;
 	D3DDevice->CreateShaderResourceView(TileTex.Get(), &SrvDesc, Descriptor);
+
+
+	// next descriptor
+	Descriptor.Offset(1, CbvSrvUavDescriptorSize);
+
+	SrvDesc.Format = CrateTex->GetDesc().Format;
+	SrvDesc.Texture2D.MipLevels = CrateTex->GetDesc().MipLevels;
+	D3DDevice->CreateShaderResourceView(CrateTex.Get(), &SrvDesc, Descriptor);
 }
 
-void FTexColumn::BuildMaterials()
+void CameraApp::BuildMaterials()
 {
 	auto bricks0 = std::make_unique<FMaterial>();
 	bricks0->Name = "bricks0";
@@ -565,21 +559,21 @@ void FTexColumn::BuildMaterials()
 	tile0->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
 	tile0->Roughness = 0.2f;
 
-	auto skullMat = std::make_unique<FMaterial>();
-	skullMat->Name = "skullMat";
-	skullMat->MatCBIndex = 3;
-	skullMat->DiffuseSrvHeapIndex = 3;
-	skullMat->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	skullMat->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05);
-	skullMat->Roughness = 0.3f;
+	auto crate0 = std::make_unique<FMaterial>();
+	crate0->Name = "crate0";
+	crate0->MatCBIndex = 3;
+	crate0->DiffuseSrvHeapIndex = 3;
+	crate0->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	crate0->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
+	crate0->Roughness = 0.3f;
 
 	Materials["bricks0"] = std::move(bricks0);
 	Materials["stone0"] = std::move(stone0);
 	Materials["tile0"] = std::move(tile0);
-	Materials["skullMat"] = std::move(skullMat);
+	Materials["crate0"] = std::move(crate0);
 }
 
-void FTexColumn::BuildShadersAndInputLayout()
+void CameraApp::BuildShadersAndInputLayout()
 {
 	Shaders["standardVS"] = d3dUtil::CompileShader(L"Shaders\\Tex\\Default.hlsl", nullptr, "VS", "vs_5_0");
 	Shaders["opaquePS"] = d3dUtil::CompileShader(L"Shaders\\Tex\\Default.hlsl", nullptr, "PS", "ps_5_0");
@@ -592,7 +586,7 @@ void FTexColumn::BuildShadersAndInputLayout()
 	};
 }
 
-void FTexColumn::BuildShapeGeometry()
+void CameraApp::BuildShapeGeometry()
 {
 	FGeometryGenerator GeometryGenerator;
 	FGeometryGenerator::FMeshData Box = GeometryGenerator.CreateBox(1.5f, 0.5f, 1.5f, 3);
@@ -710,7 +704,7 @@ void FTexColumn::BuildShapeGeometry()
 	Geometries[Geo->Name] = std::move(Geo);
 }
 
-void FTexColumn::BuildSkullGeometry()
+void CameraApp::BuildSkullGeometry()
 {
 	std::wstring PathName = d3dUtil::GetPath(L"Models/skull.txt");
 	std::ifstream fin(PathName.c_str());
@@ -780,13 +774,13 @@ void FTexColumn::BuildSkullGeometry()
 	Geometries[Geo->Name] = std::move(Geo);
 }
 
-void FTexColumn::BuildRenderItems()
+void CameraApp::BuildRenderItems()
 {
 	auto BoxRenderItem = std::make_unique<FRenderItem>();
 	XMStoreFloat4x4(&BoxRenderItem->World, XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(0.0f, 0.5f, 0.0f));
 	XMStoreFloat4x4(&BoxRenderItem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 	BoxRenderItem->ObjCBIndex = 0;
-	BoxRenderItem->Mat = Materials["stone0"].get();
+	BoxRenderItem->Mat = Materials["crate0"].get();
 	BoxRenderItem->Geo = Geometries[ITEM_SHAPE].get();
 	BoxRenderItem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	BoxRenderItem->IndexCount = BoxRenderItem->Geo->DrawArgs[ITEM_BOX].IndexCount;
@@ -835,7 +829,7 @@ void FTexColumn::BuildRenderItems()
 		XMStoreFloat4x4(&LeftSphereItem->World, LeftSphereWorld);
 		LeftSphereItem->TexTransform = MathHelper::Identity4x4();
 		LeftSphereItem->ObjCBIndex = ObjCBIndex++;
-		LeftSphereItem->Mat = Materials["bricks0"].get();
+		LeftSphereItem->Mat = Materials["stone0"].get();
 		LeftSphereItem->Geo = Geometries[ITEM_SHAPE].get();
 		LeftSphereItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		LeftSphereItem->IndexCount = LeftSphereItem->Geo->DrawArgs[ITEM_SPHERE].IndexCount;
@@ -855,7 +849,7 @@ void FTexColumn::BuildRenderItems()
 		XMStoreFloat4x4(&RightSphereItem->World, RightSphereWorld);
 		RightSphereItem->TexTransform = MathHelper::Identity4x4();
 		RightSphereItem->ObjCBIndex = ObjCBIndex++;
-		RightSphereItem->Mat = Materials["bricks0"].get();
+		RightSphereItem->Mat = Materials["stone0"].get();
 		RightSphereItem->Geo = Geometries[ITEM_SHAPE].get();
 		RightSphereItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		RightSphereItem->IndexCount = RightSphereItem->Geo->DrawArgs[ITEM_SPHERE].IndexCount;
@@ -873,7 +867,7 @@ void FTexColumn::BuildRenderItems()
 		OpaqueRitems.push_back(Item.get());
 	}
 }
-void FTexColumn::DrawRenderItems(ID3D12GraphicsCommandList *CommandList, const std::vector<FRenderItem *> &RenderItems)
+void CameraApp::DrawRenderItems(ID3D12GraphicsCommandList *CommandList, const std::vector<FRenderItem *> &RenderItems)
 {
 	UINT ObjCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(FObjectConstants));
 	UINT MatCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(FMaterialConstants));
@@ -904,7 +898,7 @@ void FTexColumn::DrawRenderItems(ID3D12GraphicsCommandList *CommandList, const s
 	}
 }
 
-void FTexColumn::BuildFrameResources()
+void CameraApp::BuildFrameResources()
 {
 	for (int i = 0; i < gNumFrameResources; ++i)
 	{
@@ -917,7 +911,7 @@ void FTexColumn::BuildFrameResources()
 	}
 }
 
-void FTexColumn::BuildPSOs()
+void CameraApp::BuildPSOs()
 {
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC OpaquePSODesc;
 
@@ -949,7 +943,7 @@ void FTexColumn::BuildPSOs()
 		D3DDevice->CreateGraphicsPipelineState(&OpaquePSODesc, IID_PPV_ARGS(&OpaquePSO)));
 }
 
-std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> FTexColumn::GetStaticSamplers()
+std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> CameraApp::GetStaticSamplers()
 {
 	// Applications usually only need a handful of samplers.  So just define them all up front
 	// and keep them available as part of the root signature. 
@@ -1016,7 +1010,7 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
 
 	try
 	{
-		FTexColumn App(hInst);
+		CameraApp App(hInst);
 		if (!App.Initialize())
 		{
 			return 0;

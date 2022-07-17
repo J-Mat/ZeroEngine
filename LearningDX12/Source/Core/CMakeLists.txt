@@ -8,6 +8,7 @@ set (SRC_FILES
 	DDSTextureLoader.cpp
 	MathHelper.cpp
 	GeometryGenerator.cpp
+	Camera.cpp
 )
 
 set( HEADER_FILES
@@ -19,6 +20,7 @@ set( HEADER_FILES
 	MathHelper.h
 	GeometryGenerator.h
 	UploadBuffer.h
+	Camera.h
 )
 
 # Add a library with the above sources

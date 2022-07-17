@@ -1,4 +1,4 @@
-project(14_TexColumns)
+project(14_Camera)
 
 set (SRC_FILES
     FrameResource.h

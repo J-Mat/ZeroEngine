@@ -13,12 +13,12 @@
 
 #include "d3dUtil.h"
 
-class Camera
+class FCamera
 {
 public:
 
-	Camera();
-	~Camera();
+	FCamera();
+	~FCamera();
 
 	// Get/Set world camera position.
 	DirectX::XMVECTOR GetPosition()const;
@@ -75,24 +75,24 @@ public:
 private:
 
 	// Camera coordinate system with coordinates relative to world space.
-	DirectX::XMFLOAT3 mPosition = { 0.0f, 0.0f, 0.0f };
-	DirectX::XMFLOAT3 mRight = { 1.0f, 0.0f, 0.0f };
-	DirectX::XMFLOAT3 mUp = { 0.0f, 1.0f, 0.0f };
-	DirectX::XMFLOAT3 mLook = { 0.0f, 0.0f, 1.0f };
+	DirectX::XMFLOAT3 Position = { 0.0f, 0.0f, 0.0f };
+	DirectX::XMFLOAT3 Right = { 1.0f, 0.0f, 0.0f };
+	DirectX::XMFLOAT3 Up = { 0.0f, 1.0f, 0.0f };
+	DirectX::XMFLOAT3 Look = { 0.0f, 0.0f, 1.0f };
 
 	// Cache frustum properties.
-	float mNearZ = 0.0f;
-	float mFarZ = 0.0f;
-	float mAspect = 0.0f;
-	float mFovY = 0.0f;
-	float mNearWindowHeight = 0.0f;
-	float mFarWindowHeight = 0.0f;
+	float NearZ = 0.0f;
+	float FarZ = 0.0f;
+	float Aspect = 0.0f;
+	float FovY = 0.0f;
+	float NearWindowHeight = 0.0f;
+	float FarWindowHeight = 0.0f;
 
-	bool mViewDirty = true;
+	bool bViewDirty = true;
 
 	// Cache View/Proj matrices.
-	DirectX::XMFLOAT4X4 mView = MathHelper::Identity4x4();
-	DirectX::XMFLOAT4X4 mProj = MathHelper::Identity4x4();
+	DirectX::XMFLOAT4X4 View = MathHelper::Identity4x4();
+	DirectX::XMFLOAT4X4 Proj = MathHelper::Identity4x4();
 };
 
 #endif // CAMERA_H
