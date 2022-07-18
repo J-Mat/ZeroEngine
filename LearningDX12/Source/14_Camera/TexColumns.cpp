@@ -73,7 +73,7 @@ private:
 
 	void OnKeyboardInput(const GameTimer &gt);
 	void UpdateObjectCBs(const GameTimer &gt);
-	void UpdateMaterialCBs(const GameTimer &gt);
+	void UpdateMaterialBuffer(const GameTimer &gt);
 	void UpdateMainPassCB(const GameTimer &gt);
 
 	void LoadTextures();
@@ -104,11 +104,9 @@ private:
 	std::unordered_map<std::string, std::unique_ptr<FTexture>> Textures;
 
 	std::unordered_map<std::string, ComPtr<ID3DBlob>> Shaders;
-
+	std::unordered_map<std::string, ComPtr<ID3D12PipelineState>> PSOs;
 	std::vector<D3D12_INPUT_ELEMENT_DESC> InputLayout;
 
-
-	ComPtr<ID3D12PipelineState> OpaquePSO = nullptr;
 
 	// List of all the render items.
 	std::vector<std::unique_ptr<FRenderItem>> AllRenderItems;
@@ -202,8 +200,8 @@ void CameraApp::Update(const GameTimer &gt)
 	}
 
 	UpdateObjectCBs(gt);
+	UpdateMaterialBuffer(gt);
 	UpdateMainPassCB(gt);
-	UpdateMaterialCBs(gt);
 }
 
 void CameraApp::Draw(const GameTimer &gt)
@@ -217,7 +215,7 @@ void CameraApp::Draw(const GameTimer &gt)
 	// A command list can be reset after it has been added to the command queue via ExecuteCommandList.
 	// Reusing the command list reuses memory.
 
-	ThrowIfFailed(CommandList->Reset(CmdListAlloc.Get(), OpaquePSO.Get()));
+	ThrowIfFailed(CommandList->Reset(CmdListAlloc.Get(), PSOs["opaque"].Get()));
 
 	CommandList->RSSetViewports(1, &ScreenViewport);
 	CommandList->RSSetScissorRects(1, &ScissorRect);
@@ -238,8 +236,17 @@ void CameraApp::Draw(const GameTimer &gt)
 	CommandList->SetDescriptorHeaps(_countof(DescriptorHeaps), DescriptorHeaps);
 
 	CommandList->SetGraphicsRootSignature(RootSignature.Get());
+
+	// Bind all the materials used in this scene.  For structured buffers, we can bypass the heap and 
+	// set as a root descriptor.
 	auto PassCB = CurrentFrameResource->PassCB->Resource();
-	CommandList->SetGraphicsRootConstantBufferView(2, PassCB->GetGPUVirtualAddress());
+	CommandList->SetGraphicsRootConstantBufferView(1, PassCB->GetGPUVirtualAddress());
+
+	auto MatBuffer = CurrentFrameResource->MaterialBuffer->Resource();
+	CommandList->SetGraphicsRootShaderResourceView(2, MatBuffer->GetGPUVirtualAddress());
+
+	// Bind all the textures used in this scene.
+	CommandList->SetGraphicsRootDescriptorTable(3, SrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 	
 	DrawRenderItems(CommandList.Get(), OpaqueRitems);
 
@@ -330,6 +337,7 @@ void CameraApp::UpdateObjectCBs(const GameTimer &gt)
 			FObjectConstants ObjConstants;
 			XMStoreFloat4x4(&ObjConstants.World, XMMatrixTranspose(World));
 			XMStoreFloat4x4(&ObjConstants.TexTransform, XMMatrixTranspose(TexTransform));
+			ObjConstants.MaterialIndex = Item->Mat->MatCBIndex;
 
 			CurrentObjectCB->CopyData(Item->ObjCBIndex, ObjConstants);
 
@@ -338,9 +346,9 @@ void CameraApp::UpdateObjectCBs(const GameTimer &gt)
 	}
 }
 
-void CameraApp::UpdateMaterialCBs(const GameTimer &gt)
+void CameraApp::UpdateMaterialBuffer(const GameTimer &gt)
 {
-	auto CurrentMaterialCB = CurrentFrameResource->MaterialCB.get();
+	auto CurrentMaterialCB = CurrentFrameResource->MaterialBuffer.get();
 	for (auto &E : Materials)
 	{
 		// Only update the cbuffer data if the constants have changed.  If the cbuffer
@@ -350,14 +358,14 @@ void CameraApp::UpdateMaterialCBs(const GameTimer &gt)
 		{
 			XMMATRIX TransForm = XMLoadFloat4x4(&Mat->MatTransform);
 
-			FMaterialConstants MaterialConstants;
-			MaterialConstants.DiffuseAlbedo = Mat->DiffuseAlbedo;
-			MaterialConstants.FresnelR0 = Mat->FresnelR0;
-			MaterialConstants.Roughness = Mat->Roughness;
+			FMaterialData MaterialData;
+			MaterialData.DiffuseAlbedo = Mat->DiffuseAlbedo;
+			MaterialData.FresnelR0 = Mat->FresnelR0;
+			MaterialData.Roughness = Mat->Roughness;
+			XMStoreFloat4x4(&MaterialData.MatTransform, XMMatrixTranspose(TransForm));
+			MaterialData.DiffuseMapIndex = Mat->DiffuseSrvHeapIndex;
 
-			XMStoreFloat4x4(&MaterialConstants.MatTransform, XMMatrixTranspose(TransForm));
-
-			CurrentMaterialCB->CopyData(Mat->MatCBIndex, MaterialConstants);
+			CurrentMaterialCB->CopyData(Mat->MatCBIndex, MaterialData);
 
 			--Mat->NumFramesDirty;
 		}
@@ -439,16 +447,16 @@ void CameraApp::LoadTextures()
 void CameraApp::BuildRootSignature()
 {
 	CD3DX12_DESCRIPTOR_RANGE TexTable;
-	TexTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+	TexTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 4, 0, 0);
 
 	// Root parameter can be a table, root descriptor or root constants.
 	CD3DX12_ROOT_PARAMETER SlotRootParameter[4];
 
 	// Perfomance TIP: Order from most frequent to least frequent.
-	SlotRootParameter[0].InitAsDescriptorTable(1, &TexTable, D3D12_SHADER_VISIBILITY_PIXEL); // 0
-	SlotRootParameter[1].InitAsConstantBufferView(0); // register b0
-	SlotRootParameter[2].InitAsConstantBufferView(1); // register b1
-	SlotRootParameter[3].InitAsConstantBufferView(2); // register b2
+	SlotRootParameter[0].InitAsConstantBufferView(0);
+	SlotRootParameter[1].InitAsConstantBufferView(1);
+	SlotRootParameter[2].InitAsShaderResourceView(0, 1);
+	SlotRootParameter[3].InitAsDescriptorTable(1, &TexTable, D3D12_SHADER_VISIBILITY_PIXEL);
 
 	auto StaticSamplers = GetStaticSamplers();
 
@@ -575,8 +583,14 @@ void CameraApp::BuildMaterials()
 
 void CameraApp::BuildShadersAndInputLayout()
 {
-	Shaders["standardVS"] = d3dUtil::CompileShader(L"Shaders\\Tex\\Default.hlsl", nullptr, "VS", "vs_5_0");
-	Shaders["opaquePS"] = d3dUtil::CompileShader(L"Shaders\\Tex\\Default.hlsl", nullptr, "PS", "ps_5_0");
+	const D3D_SHADER_MACRO alphaTestDefines[] =
+	{
+		"ALPHA_TEST", "1",
+		NULL, NULL
+	};
+
+	Shaders["standardVS"] = d3dUtil::CompileShader(L"Shaders\\13_Camera\\Default.hlsl", nullptr, "VS", "vs_5_1");
+	Shaders["opaquePS"] = d3dUtil::CompileShader(L"Shaders\\13_Camera\\Default.hlsl", nullptr, "PS", "ps_5_1");
 
 	InputLayout =
 	{
@@ -870,10 +884,8 @@ void CameraApp::BuildRenderItems()
 void CameraApp::DrawRenderItems(ID3D12GraphicsCommandList *CommandList, const std::vector<FRenderItem *> &RenderItems)
 {
 	UINT ObjCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(FObjectConstants));
-	UINT MatCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(FMaterialConstants));
 
 	auto ObjectCB = CurrentFrameResource->ObjectCB->Resource();
-	auto MatCB = CurrentFrameResource->MaterialCB->Resource();
 
 	// For each render item...
 	for (size_t i = 0; i < RenderItems.size(); ++i)
@@ -884,15 +896,12 @@ void CameraApp::DrawRenderItems(ID3D12GraphicsCommandList *CommandList, const st
 		CommandList->IASetIndexBuffer(&Item->Geo->IndexBufferView());
 		CommandList->IASetPrimitiveTopology(Item->PrimitiveType);
 
-		CD3DX12_GPU_DESCRIPTOR_HANDLE Tex(SrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-		Tex.Offset(Item->Mat->DiffuseSrvHeapIndex, CbvSrvUavDescriptorSize);
-
 		D3D12_GPU_VIRTUAL_ADDRESS ObjCBAddress = ObjectCB->GetGPUVirtualAddress() + Item->ObjCBIndex * ObjCBByteSize;
-		D3D12_GPU_VIRTUAL_ADDRESS MatCBAddress = MatCB->GetGPUVirtualAddress() + Item->Mat->MatCBIndex * MatCBByteSize;
+
+		//CD3DX12_GPU_DESCRIPTOR_HANDLE Tex(SrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+		//Tex.Offset(Item->Mat->DiffuseSrvHeapIndex, CbvSrvUavDescriptorSize);
 		
-		CommandList->SetGraphicsRootDescriptorTable(0, Tex);
-		CommandList->SetGraphicsRootConstantBufferView(1, ObjCBAddress);
-		CommandList->SetGraphicsRootConstantBufferView(3, MatCBAddress);
+		CommandList->SetGraphicsRootConstantBufferView(0, ObjCBAddress);
 		
 		CommandList->DrawIndexedInstanced(Item->IndexCount, 1, Item->StartIndexLocation, Item->BaseVertexLocation, 0);
 	}
@@ -940,7 +949,7 @@ void CameraApp::BuildPSOs()
 	OpaquePSODesc.SampleDesc.Quality = X4MSAAState ? (X4MSAAQuality - 1) : 0;
 	OpaquePSODesc.DSVFormat = DepthStencilFormat;
 	ThrowIfFailed(
-		D3DDevice->CreateGraphicsPipelineState(&OpaquePSODesc, IID_PPV_ARGS(&OpaquePSO)));
+		D3DDevice->CreateGraphicsPipelineState(&OpaquePSODesc, IID_PPV_ARGS(&PSOs["opaque"])));
 }
 
 std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> CameraApp::GetStaticSamplers()

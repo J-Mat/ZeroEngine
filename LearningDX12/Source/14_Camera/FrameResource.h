@@ -10,6 +10,10 @@ struct FObjectConstants
 {
 	DirectX::XMFLOAT4X4 World = MathHelper::Identity4x4();
 	DirectX::XMFLOAT4X4 TexTransform = MathHelper::Identity4x4();
+	UINT     MaterialIndex;
+	UINT     ObjPad0;
+	UINT     ObjPad1;
+	UINT     ObjPad2;
 };
 
 struct FPassConstants
@@ -66,7 +70,7 @@ public:
 	// We cannot reset the allocator until the GPU is done processing the commands.
     // So each frame needs their own allocator.    Microsoft::WRL::ComPtr<ID3D12CommandAllocator> CmdListAlloc;
 	std::unique_ptr<TUploadBuffer<FPassConstants>> PassCB = nullptr;
-	std::unique_ptr<TUploadBuffer<FMaterialConstants>> MaterialCB = nullptr;
+	std::unique_ptr<TUploadBuffer<FMaterialData>> MaterialBuffer = nullptr;
 	std::unique_ptr<TUploadBuffer<FObjectConstants>> ObjectCB = nullptr;
 
 

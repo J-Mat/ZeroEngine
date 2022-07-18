@@ -16,7 +16,7 @@ FFrameResource::FFrameResource(ID3D12Device* Device, UINT PassCount, UINT Object
 	);
 	
 	PassCB = std::make_unique<TUploadBuffer<FPassConstants>>(Device, PassCount, true);
- 	MaterialCB = std::make_unique<TUploadBuffer<FMaterialConstants>>(Device, MaterialCount, true);
+	MaterialBuffer = std::make_unique<TUploadBuffer<FMaterialData>>(Device, MaterialCount, false);
 	ObjectCB = std::make_unique<TUploadBuffer<FObjectConstants>>(Device, ObjectCount, true);
 }
 
