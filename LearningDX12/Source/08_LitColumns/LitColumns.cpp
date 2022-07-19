@@ -53,11 +53,11 @@ struct FRenderItem
 	int BaseVertexLocation = 0;
 };
 
-class FTexColumn : public FD3DApp
+class FLitColumn : public FD3DApp
 {
 public:
-	FTexColumn(HINSTANCE hInstance);
-	~FTexColumn();
+	FLitColumn(HINSTANCE hInstance);
+	~FLitColumn();
 
 	virtual bool Initialize() override;
 
@@ -129,16 +129,16 @@ private:
 	POINT LastMousePos;
 };
 
-FTexColumn::FTexColumn(HINSTANCE hInstance)
+FLitColumn::FLitColumn(HINSTANCE hInstance)
 	: FD3DApp(hInstance)
 {
 }
 
-FTexColumn::~FTexColumn()
+FLitColumn::~FLitColumn()
 {
 }
 
-bool FTexColumn::Initialize()
+bool FLitColumn::Initialize()
 {
 	if (!FD3DApp::Initialize())
 	{
@@ -169,7 +169,7 @@ bool FTexColumn::Initialize()
 	return true;
 }
 
-void FTexColumn::OnResize()
+void FLitColumn::OnResize()
 {
 	FD3DApp::OnResize();
 
@@ -178,7 +178,7 @@ void FTexColumn::OnResize()
 	DirectX::XMStoreFloat4x4(&Proj, P);
 }
 
-void FTexColumn::Update(const GameTimer &gt)
+void FLitColumn::Update(const GameTimer &gt)
 {
 	OnKeyboardInput(gt);
 	UpdateCamera(gt);
@@ -202,7 +202,7 @@ void FTexColumn::Update(const GameTimer &gt)
 	UpdateMaterialCBs(gt);
 }
 
-void FTexColumn::Draw(const GameTimer &gt)
+void FLitColumn::Draw(const GameTimer &gt)
 {
 	auto CmdListAlloc = CurrentFrameResource->CommandListAllocator;
 
@@ -262,7 +262,7 @@ void FTexColumn::Draw(const GameTimer &gt)
 	CommandQueue->Signal(Fence.Get(), CurrentFence);
 }
 
-void FTexColumn::OnMouseDown(WPARAM btnState, int x, int y)
+void FLitColumn::OnMouseDown(WPARAM btnState, int x, int y)
 {
 	LastMousePos.x = x;
 	LastMousePos.y = y;
@@ -270,12 +270,12 @@ void FTexColumn::OnMouseDown(WPARAM btnState, int x, int y)
 	SetCapture(MainWnd);
 }
 
-void FTexColumn::OnMouseUp(WPARAM btnState, int x, int y)
+void FLitColumn::OnMouseUp(WPARAM btnState, int x, int y)
 {
 	ReleaseCapture();
 }
 
-void FTexColumn::OnMouseMove(WPARAM btnState, int x, int y)
+void FLitColumn::OnMouseMove(WPARAM btnState, int x, int y)
 {
 	if ((btnState & MK_LBUTTON) != 0)
 	{
@@ -307,7 +307,7 @@ void FTexColumn::OnMouseMove(WPARAM btnState, int x, int y)
 	LastMousePos.y = y;
 }
 
-void FTexColumn::OnKeyboardInput(const GameTimer &gt)
+void FLitColumn::OnKeyboardInput(const GameTimer &gt)
 {
 	if (GetAsyncKeyState('1') & 0x8000)
 		bIsWireFrame = true;
@@ -315,7 +315,7 @@ void FTexColumn::OnKeyboardInput(const GameTimer &gt)
 		bIsWireFrame = false;
 }
 
-void FTexColumn::UpdateCamera(const GameTimer &gt)
+void FLitColumn::UpdateCamera(const GameTimer &gt)
 {
 	// Convert Spherical to Cartesian coordinates.
 	EyePos.x = Radius * sinf(Phi) * cosf(Theta);
@@ -331,7 +331,7 @@ void FTexColumn::UpdateCamera(const GameTimer &gt)
 	XMStoreFloat4x4(&View, view);
 }
 
-void FTexColumn::UpdateObjectCBs(const GameTimer &gt)
+void FLitColumn::UpdateObjectCBs(const GameTimer &gt)
 {
 	auto CurrentObjectCB = CurrentFrameResource->ObjectCB.get();
 	for (auto &Item : AllRenderItems)
@@ -352,7 +352,7 @@ void FTexColumn::UpdateObjectCBs(const GameTimer &gt)
 	}
 }
 
-void FTexColumn::UpdateMaterialCBs(const GameTimer &gt)
+void FLitColumn::UpdateMaterialCBs(const GameTimer &gt)
 {
 	auto CurrentMaterialCB = CurrentFrameResource->MaterialCB.get();
 	for (auto &E : Materials)
@@ -378,7 +378,7 @@ void FTexColumn::UpdateMaterialCBs(const GameTimer &gt)
 	}
 }
 
-void FTexColumn::UpdateMainPassCB(const GameTimer &gt)
+void FLitColumn::UpdateMainPassCB(const GameTimer &gt)
 {
 	XMMATRIX ViewMatrix = XMLoadFloat4x4(&View);
 	XMMATRIX ProjMatrix = XMLoadFloat4x4(&Proj);
@@ -414,7 +414,7 @@ void FTexColumn::UpdateMainPassCB(const GameTimer &gt)
 	CurPassCB->CopyData(0, MainPassCB);
 }
 
-void FTexColumn::BuildRootSignature()
+void FLitColumn::BuildRootSignature()
 {
 	CD3DX12_ROOT_PARAMETER SlotRootParameter[3];
 
@@ -424,7 +424,7 @@ void FTexColumn::BuildRootSignature()
 
 	// A root signature is an array of root parameters.
 	CD3DX12_ROOT_SIGNATURE_DESC RootSigDesc(3, SlotRootParameter, 0, nullptr,
-											D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
 	// create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
 	ComPtr<ID3DBlob> SerializedRootSig = nullptr;
@@ -446,7 +446,7 @@ void FTexColumn::BuildRootSignature()
 			IID_PPV_ARGS(RootSignature.GetAddressOf())));
 }
 
-void FTexColumn::BuildMaterials()
+void FLitColumn::BuildMaterials()
 {
 	auto bricks0 = std::make_unique<FMaterial>();
 	bricks0->Name = "bricks0";
@@ -486,15 +486,15 @@ void FTexColumn::BuildMaterials()
 	Materials["skullMat"] = std::move(skullMat);
 }
 
-void FTexColumn::BuildShadersAndInputLayout()
+void FLitColumn::BuildShadersAndInputLayout()
 {
 	const D3D_SHADER_MACRO AlphaTestDefines[] =
 		{
 			"ALPHA_TEST", "1",
 			NULL, NULL};
 
-	Shaders["standardVS"] = d3dUtil::CompileShader(L"Shaders\\Default.hlsl", nullptr, "VS", "vs_5_1");
-	Shaders["opaquePS"] = d3dUtil::CompileShader(L"Shaders\\Default.hlsl", nullptr, "PS", "ps_5_1");
+	Shaders["standardVS"] = d3dUtil::CompileShader(L"Shaders\\08_LitColumns\\Default.hlsl", nullptr, "VS", "vs_5_1");
+	Shaders["opaquePS"] = d3dUtil::CompileShader(L"Shaders\\08_LitColumns\\Default.hlsl", nullptr, "PS", "ps_5_1");
 
 	InputLayout =
 		{
@@ -504,7 +504,7 @@ void FTexColumn::BuildShadersAndInputLayout()
 		};
 }
 
-void FTexColumn::BuildShapeGeometry()
+void FLitColumn::BuildShapeGeometry()
 {
 	FGeometryGenerator GeometryGenerator;
 	FGeometryGenerator::FMeshData Box = GeometryGenerator.CreateBox(1.5f, 0.5f, 1.5f, 3);
@@ -618,7 +618,7 @@ void FTexColumn::BuildShapeGeometry()
 	Geometries[Geo->Name] = std::move(Geo);
 }
 
-void FTexColumn::BuildSkullGeometry()
+void FLitColumn::BuildSkullGeometry()
 {
 	std::wstring PathName = d3dUtil::GetPath(L"Models/skull.txt");
 	std::ifstream fin(PathName.c_str());
@@ -688,7 +688,7 @@ void FTexColumn::BuildSkullGeometry()
 	Geometries[Geo->Name] = std::move(Geo);
 }
 
-void FTexColumn::BuildRenderItems()
+void FLitColumn::BuildRenderItems()
 {
 	auto BoxRenderItem = std::make_unique<FRenderItem>();
 	XMStoreFloat4x4(&BoxRenderItem->World, XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(0.0f, 0.5f, 0.0f));
@@ -787,7 +787,7 @@ void FTexColumn::BuildRenderItems()
 		OpaqueRitems.push_back(Item.get());
 	}
 }
-void FTexColumn::DrawRenderItems(ID3D12GraphicsCommandList *CommandList, const std::vector<FRenderItem *> &RenderItems)
+void FLitColumn::DrawRenderItems(ID3D12GraphicsCommandList *CommandList, const std::vector<FRenderItem *> &RenderItems)
 {
 	UINT ObjCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(FObjectConstants));
 	UINT MatCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(FMaterialConstants));
@@ -814,7 +814,7 @@ void FTexColumn::DrawRenderItems(ID3D12GraphicsCommandList *CommandList, const s
 	}
 }
 
-void FTexColumn::BuildFrameResources()
+void FLitColumn::BuildFrameResources()
 {
 	for (int i = 0; i < gNumFrameResources; ++i)
 	{
@@ -827,7 +827,7 @@ void FTexColumn::BuildFrameResources()
 	}
 }
 
-void FTexColumn::BuildPSOs()
+void FLitColumn::BuildPSOs()
 {
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC OpaquePSODesc;
 
@@ -842,9 +842,10 @@ void FTexColumn::BuildPSOs()
 			reinterpret_cast<BYTE *>(Shaders["standardVS"]->GetBufferPointer()),
 			Shaders["standardVS"]->GetBufferSize()};
 	OpaquePSODesc.PS =
-		{
+	{
 			reinterpret_cast<BYTE *>(Shaders["opaquePS"]->GetBufferPointer()),
-			Shaders["opaquePS"]->GetBufferSize()};
+			Shaders["opaquePS"]->GetBufferSize()
+	};
 	OpaquePSODesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	OpaquePSODesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	OpaquePSODesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
@@ -867,7 +868,7 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
 
 	try
 	{
-		FTexColumn App(hInst);
+		FLitColumn App(hInst);
 		if (!App.Initialize())
 		{
 			return 0;

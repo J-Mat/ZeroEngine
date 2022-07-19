@@ -1,16 +1,14 @@
-project(Waves)
+project(07_Shape)
 
 set (SRC_FILES
     FrameResource.h
     FrameResource.cpp
-    Waves.h
-    Waves.cpp
 )
 
 
 # Create the executable
 add_executable(${PROJECT_NAME}  WIN32 
-    WavesApp.cpp
+    Shape.cpp
     ${SRC_FILES}
 )
 
@@ -25,6 +23,6 @@ target_include_directories( ${PROJECT_NAME}
     PUBLIC ${PROJECT_SOURCE_DIR}/Shaders
 )
 
-project(Waves LANGUAGES CXX)
+project(${PROJECT_NAME} LANGUAGES CXX)
 
 SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS") 

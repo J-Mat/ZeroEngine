@@ -1,4 +1,4 @@
-project(LitWaves)
+project(08_LitWaves)
 
 set (SRC_FILES
     FrameResource.h
@@ -20,6 +20,6 @@ target_include_directories( ${PROJECT_NAME}
     PUBLIC ${PROJECT_SOURCE_DIR}/Shaders
 )
 
-project(LitWaves LANGUAGES CXX)
+project(${PROJECT_NAME} LANGUAGES CXX)
 
 SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS") 

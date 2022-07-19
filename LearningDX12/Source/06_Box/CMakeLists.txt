@@ -1,16 +1,7 @@
-project(Shape)
-
-set (SRC_FILES
-    FrameResource.h
-    FrameResource.cpp
-)
-
+project(06_Box)
 
 # Create the executable
-add_executable(${PROJECT_NAME}  WIN32 
-    Shape.cpp
-    ${SRC_FILES}
-)
+add_executable(${PROJECT_NAME}  WIN32 Box.cpp)
 
 # Link the static library from subproject1 using it's alias sub::lib1
 # Link the header only library from subproject2 using it's alias sub::lib2
@@ -23,6 +14,6 @@ target_include_directories( ${PROJECT_NAME}
     PUBLIC ${PROJECT_SOURCE_DIR}/Shaders
 )
 
-project(Shape LANGUAGES CXX)
+project(${PROJECT_NAME} LANGUAGES CXX)
 
 SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS") 

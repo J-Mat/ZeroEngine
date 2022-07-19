@@ -1,7 +1,18 @@
-project(Box)
+project(07_Waves)
+
+set (SRC_FILES
+    FrameResource.h
+    FrameResource.cpp
+    Waves.h
+    Waves.cpp
+)
+
 
 # Create the executable
-add_executable(${PROJECT_NAME}  WIN32 Box.cpp)
+add_executable(${PROJECT_NAME}  WIN32 
+    WavesApp.cpp
+    ${SRC_FILES}
+)
 
 # Link the static library from subproject1 using it's alias sub::lib1
 # Link the header only library from subproject2 using it's alias sub::lib2
@@ -14,6 +25,6 @@ target_include_directories( ${PROJECT_NAME}
     PUBLIC ${PROJECT_SOURCE_DIR}/Shaders
 )
 
-project(Box LANGUAGES CXX)
+project({PROJECT_NAME} LANGUAGES CXX)
 
 SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS") 
