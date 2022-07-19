@@ -550,8 +550,8 @@ void FLitWaves::BuildMaterials()
 
 void FLitWaves::BuildShadersAndInputLayout()
 {
-	Shaders["standardVS"] = d3dUtil::CompileShader(L"Shaders\\Default.hlsl", nullptr, "VS", "vs_5_0");
-	Shaders["opaquePS"] = d3dUtil::CompileShader(L"Shaders\\Default.hlsl", nullptr, "PS", "ps_5_0");
+	Shaders["standardVS"] = d3dUtil::CompileShader(L"Shaders\\08_LitColumns\\Default.hlsl", nullptr, "VS", "vs_5_0");
+	Shaders["opaquePS"] = d3dUtil::CompileShader(L"Shaders\\08_LitColumns\\Default.hlsl", nullptr, "PS", "ps_5_0");
 
 	InputLayout =
 	{
