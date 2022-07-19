@@ -38,5 +38,6 @@ add_subdirectory(Source/13_Blur)
 add_subdirectory(Source/15_Camera)
 add_subdirectory(Source/16_Instance)
 add_subdirectory(Source/17_Picking)
+add_subdirectory(Source/18_CubeMap)
 
 
