@@ -657,8 +657,8 @@ void InstancingAndCullingApp::BuildShadersAndInputLayout()
 		NULL, NULL
 	};
 
-	Shaders["standardVS"] = d3dUtil::CompileShader(L"Shaders\\15_Instance\\Default.hlsl", nullptr, "VS", "vs_5_1");
-	Shaders["opaquePS"] = d3dUtil::CompileShader(L"Shaders\\15_Instance\\Default.hlsl", nullptr, "PS", "ps_5_1");
+	Shaders["standardVS"] = d3dUtil::CompileShader(L"Shaders\\16_Instance\\Default.hlsl", nullptr, "VS", "vs_5_1");
+	Shaders["opaquePS"] = d3dUtil::CompileShader(L"Shaders\\16_Instance\\Default.hlsl", nullptr, "PS", "ps_5_1");
 	
     mInputLayout =
     {

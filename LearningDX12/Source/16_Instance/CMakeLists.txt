@@ -1,4 +1,4 @@
-project(14_Camera)
+project(16_Instance)
 
 set (SRC_FILES
     FrameResource.h
@@ -8,7 +8,7 @@ set (SRC_FILES
 
 # Create the executable
 add_executable(${PROJECT_NAME}  WIN32 
-    TexColumns.cpp
+    InstancingAndCullingApp.cpp
     ${SRC_FILES}
 )
 
