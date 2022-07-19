@@ -589,8 +589,8 @@ void CameraApp::BuildShadersAndInputLayout()
 		NULL, NULL
 	};
 
-	Shaders["standardVS"] = d3dUtil::CompileShader(L"Shaders\\13_Camera\\Default.hlsl", nullptr, "VS", "vs_5_1");
-	Shaders["opaquePS"] = d3dUtil::CompileShader(L"Shaders\\13_Camera\\Default.hlsl", nullptr, "PS", "ps_5_1");
+	Shaders["standardVS"] = d3dUtil::CompileShader(L"Shaders\\14_Camera\\Default.hlsl", nullptr, "VS", "vs_5_1");
+	Shaders["opaquePS"] = d3dUtil::CompileShader(L"Shaders\\14_Camera\\Default.hlsl", nullptr, "PS", "ps_5_1");
 
 	InputLayout =
 	{
