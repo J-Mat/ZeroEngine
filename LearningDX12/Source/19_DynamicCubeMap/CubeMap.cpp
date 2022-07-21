@@ -13,15 +13,18 @@
 #include "GeometryGenerator.h"
 #include "FrameResource.h"
 #include "Camera.h"
+#include "CubeRenderTarget.h"
 
 using namespace DirectX;
 using namespace Microsoft::WRL;
 // using namespace DirectX::PackedVector;
 const int gNumFrameResources = 3;
+const UINT gCubeMapSize = 512;
 
 enum class URenderLayer : int
 {
 	Opaque = 0,
+	OpaqueDynamicReflectors,
 	Sky,
 	Count
 };
@@ -475,7 +478,7 @@ void CameraApp::BuildRootSignature()
 	auto StaticSamplers = GetStaticSamplers();
 
 	// A root signature is an array of root parameters.
-	CD3DX12_ROOT_SIGNATURE_DESC RootSigDesc(5, SlotRootParameter,
+	CD3DX12_ROOT_SIGNATURE_DESC RootSigDesc(4, SlotRootParameter,
 		(UINT)StaticSamplers.size(), StaticSamplers.data(),
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
 	);
