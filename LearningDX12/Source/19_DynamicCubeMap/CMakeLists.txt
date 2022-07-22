@@ -10,7 +10,7 @@ set (SRC_FILES
 
 # Create the executable
 add_executable(${PROJECT_NAME}  WIN32 
-    CubeMap.cpp
+    DynamicCubeMap.cpp
     ${SRC_FILES}
 )
 

@@ -18,6 +18,7 @@ enum class UCubeMapFace : int
 
 class FCubeRenderTarget
 {
+public:
 	FCubeRenderTarget(ID3D12Device* InDevice,
 		UINT Width, UINT Height,
 		DXGI_FORMAT Format);
@@ -25,7 +26,6 @@ class FCubeRenderTarget
 	FCubeRenderTarget(const FCubeRenderTarget& rhs) = delete;
 	FCubeRenderTarget& operator=(const FCubeRenderTarget& rhs) = delete;
 	~FCubeRenderTarget() = default;
-
 
 	ID3D12Resource* GetResource();
 	CD3DX12_GPU_DESCRIPTOR_HANDLE GetSrv();
