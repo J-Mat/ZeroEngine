@@ -41,5 +41,6 @@ add_subdirectory(Source/17_Picking)
 add_subdirectory(Source/18_CubeMap)
 add_subdirectory(Source/19_DynamicCubeMap)
 add_subdirectory(Source/20_NormalMap)
+add_subdirectory(Source/21_ShadowMap)
 
 
