@@ -40,8 +40,6 @@ function ( ConstructSolutionDirTree CurDir HeadList SrcList)
                list ( APPEND HeaderFiles ${HppFiles} )
 
                message ( STATUS "DIR:  ${Child}")
-               # source_group ("${Child}" FILES ${HeaderFiles} )
-               # source_group ("${Child}" FILES ${SrcFiles}    )
 
                list ( APPEND TmpHeaderList ${HeaderFiles} )
                list ( APPEND TmpSrcList  ${SrcFiles} )
