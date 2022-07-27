@@ -28,26 +28,34 @@ function ( ConstructSolutionDirTree CurDir HeadList SrcList)
      message ( STATUS "The currdir is ${CurDir}" )
 
      file ( GLOB_RECURSE FOUND_FILES LIST_DIRECTORIES true RELATIVE ${CurDir} * )
-
-     message( STATUS "Files are ${FOUND_FILES}" )
+     # message( STATUS "Files are ${FOUND_FILES}" )
      foreach ( Child ${FOUND_FILES} )
           set( CandidateDir ${CurDir}/${Child} )
           if ( IS_DIRECTORY ${CandidateDir})
-               message ( STATUS "DIRECTORY:  ${CandidateDir}")
                file ( GLOB HeaderFiles "${CandidateDir}/*.h" )
                file ( GLOB SrcFiles    "${CandidateDir}/*.cpp" )
                file ( GLOB HppFiles    "${CandidateDir}/*.hpp" )
                list ( APPEND HeaderFiles ${HppFiles} )
 
-               message ( STATUS "DIR:  ${Child}")
+               #message ( STATUS "DIR:  ${Child}")
 
                list ( APPEND TmpHeaderList ${HeaderFiles} )
                list ( APPEND TmpSrcList  ${SrcFiles} )
 
+               #message ( STATUS "DIRECTORY:  ${CandidateDir}")
                message ( STATUS "HEAD: ${HeaderFiles}" )
                message ( STATUS "SRC : ${SrcFiles}" )
           endif()
      endforeach()
+     set ( HeaderFiles  "" )
+     set ( SrcFiles     "" )
+
+     file ( GLOB HeaderFiles "${CurDir}/*.h" )
+     file ( GLOB SrcFiles    "${CurDir}/*.cpp" )
+
+     list ( APPEND TmpHeaderList ${HeaderFiles} )
+     list ( APPEND TmpSrcList  ${SrcFiles} )
+
      set ( ${HeadList} ${TmpHeaderList} PARENT_SCOPE )
      set ( ${SrcList} ${TmpSrcList} PARENT_SCOPE )
 endfunction()
