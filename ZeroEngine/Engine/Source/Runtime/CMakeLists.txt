@@ -7,6 +7,9 @@ source_group(TREE ${EngineRuntimeDir} FILES ${HeadList} ${SrcList})
 add_library(${ProjectName} STATIC ${HeadList} ${SrcList})
 
 
+# 很丑陋 暂时没想到好方法
+target_include_directories(${ProjectName} PUBLIC ${ThirdPartyDir}/glm)
+
 target_include_directories(${ProjectName} 
     PRIVATE "${EngineSourceDir}"
     PRIVATE "${EngineRuntimeDir}" # make sure we can directly include "hepch.h"
