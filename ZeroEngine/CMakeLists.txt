@@ -14,4 +14,6 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
 set(ProjectRootDir "${CMAKE_CURRENT_SOURCE_DIR}")
 
+include(${CMAKE_SOURCE_DIR}/CMake/Tools.cmake)
+
 add_subdirectory(Engine)
