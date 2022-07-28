@@ -6,8 +6,8 @@ inline int GetKeyCode(int GLFWCode, int WinCode)
 {
 	switch (Zero::FRenderer::GetRHI())
 	{
-	case Zero::ERHI::DirectX12 return WinCode; break;
-	case Zero::ERHI::OpenGL    return GLFWCode; break;
+	case Zero::ERHI::DirectX12: return WinCode;
+	case Zero::ERHI::OpenGL:    return GLFWCode; 
 	default: return -1; break;
 	}
 }
@@ -140,3 +140,17 @@ inline int GetKeyCode(int GLFWCode, int WinCode)
 #define SIByL_KEY_MENU               (GetKeyCode(348,VK_MENU))			
 
 #define SIByL_KEY_LAST               SIByL_KEY_MENU
+
+
+#define SIByL_MOUSE_BUTTON_1         (GetKeyCode(0 ,VK_LBUTTON))
+#define SIByL_MOUSE_BUTTON_2         (GetKeyCode(1 ,VK_RBUTTON))
+#define SIByL_MOUSE_BUTTON_3         (GetKeyCode(2 ,VK_MBUTTON))
+#define SIByL_MOUSE_BUTTON_4         (GetKeyCode(3 ,VK_XBUTTON1))
+#define SIByL_MOUSE_BUTTON_5         (GetKeyCode(4 ,VK_XBUTTON2))
+#define SIByL_MOUSE_BUTTON_6         (GetKeyCode(5 ,0x07))
+#define SIByL_MOUSE_BUTTON_7         (GetKeyCode(6 ,0x07))
+#define SIByL_MOUSE_BUTTON_8         (GetKeyCode(7 ,0x07))
+#define SIByL_MOUSE_BUTTON_LAST      SIByL_MOUSE_BUTTON_8
+#define SIByL_MOUSE_BUTTON_LEFT      SIByL_MOUSE_BUTTON_1
+#define SIByL_MOUSE_BUTTON_RIGHT     SIByL_MOUSE_BUTTON_2
+#define SIByL_MOUSE_BUTTON_MIDDLE    SIByL_MOUSE_BUTTON_3
