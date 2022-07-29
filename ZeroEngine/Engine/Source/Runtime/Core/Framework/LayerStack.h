@@ -4,7 +4,7 @@
 #include "Layer.h"
 
 
-namespace SIByL
+namespace Zero
 {
 	class FLayerStack
 	{
@@ -17,11 +17,11 @@ namespace SIByL
 		void PopLayer(FLayer* Layer);
 		void PopOverlay(FLayer* Overlay);
 
-		std::vector<Layer*>::iterator begin() { return Layers.begin(); }
-		std::vector<Layer*>::iterator end() { return Layers.end(); }
+		std::vector<FLayer*>::iterator begin() { return Layers.begin(); }
+		std::vector<FLayer*>::iterator end() { return Layers.end(); }
 
 	private:
-		std::vector<Layer*> Layers;
+		std::vector<FLayer*> Layers;
 		unsigned int LayerInsertIndex = 0;
 	};
 }

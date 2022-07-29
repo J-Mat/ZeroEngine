@@ -37,10 +37,10 @@ namespace Zero
 		EVENT_CLASS_CATEGORY(EventCategoryApplication);
 	};
 
-	class SIByL_API FAppTickEvent :public Event
+	class FAppTickEvent :public FEvent
 	{
 	public:
-		AppTickEvent() {}
+		FAppTickEvent() {}
 
 		EVENT_CLASS_TYPE(AppTick);
 		EVENT_CLASS_CATEGORY(EventCategoryApplication);

@@ -41,7 +41,7 @@ namespace Zero
 			return GetCategoryFlags() & Category;
 		}
 		
-		bool Handled = false;
+		bool bHandled = false;
 	};
 
 
@@ -59,7 +59,7 @@ namespace Zero
 		{
 			if (Event.GetEventType() == T::GetStaticType())
 			{
-				Event.Handled = func(*(T*)&Event);
+				Event.bHandled = func(*(T*)&Event);
 				return true;
 			}
 			return false;

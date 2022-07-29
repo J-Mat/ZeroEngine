@@ -4,12 +4,12 @@
 
 namespace Zero
 {
-	class FWinWindow : public FWindowsBase
+	class FWinWindow : public FWindows
 	{
 	public:
 		static FWinWindow* Main;
 		FWinWindow(const FWindowsConfig& Config);
-		virtual ~FWinWindow();
+		virtual ~FWinWindow() = default;
 
 		void OnUpdate() override;
 		
@@ -18,7 +18,7 @@ namespace Zero
 		
 
 			// Window attributes
-		inline void SetEventCallback(const EventCallbackFn& InCallback) override
+		inline void SetEventCallback(const EventCallBackFn& InCallback) override
 		{
 			WindowData.EventCallback = InCallback;
 		}
@@ -26,7 +26,7 @@ namespace Zero
 		void SetVSync(bool bEnabled) override;
 		bool IsVSync() const override;
 
-		virtual void* GetNativeWindow() const override {return (void*)hMainWnd;};
+		virtual void* GetNativeWindow() const override {return (void*)WindowData.hMainWnd;};
 	private:
 		virtual void Init(const FWindowsConfig& Config);
 		virtual void Shutdown();
@@ -37,15 +37,15 @@ namespace Zero
 			std::string Title;
 			unsigned int Width, Height;
 			bool VSync;
+			HINSTANCE hAppInst = nullptr; // application instance handle
+			HWND      hMainWnd = nullptr; // main window handle
 
 			EventCallBackFn EventCallback;
 		};
 		FWindowData WindowData;
 	protected:
-		HINSTANCE hAppInst = nullptr; // application instance handle
-		HWND      hMainWnd = nullptr; // main window handle
 	public:
 		LRESULT CALLBACK MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-		HWND* GetHWND() { return &hMainWnd; }
+		HWND* GetHWND() { return &WindowData.hMainWnd; }
 	};
 }

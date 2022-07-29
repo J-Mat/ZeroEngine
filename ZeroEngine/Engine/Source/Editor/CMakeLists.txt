@@ -1,17 +1,15 @@
 set(ProjectName "ZeroEngineEditor")
-set(EditorSourceFiles "${CMAKE_CURRENT_SOURCE_DIR}/ZeroEngineEditorApp.cpp")
 
-source_group(TREE ${EngineEditorDir} FILES ${EditorSourceFiles})
+ConstructSolutionDirTree( ${CMAKE_CURRENT_SOURCE_DIR} HeadList SrcList)
 
-set(EditorSourceFiles "${CMAKE_CURRENT_SOURCE_DIR}/ZeroEngineEditorApp.cpp")
+source_group(TREE ${EngineEditorDir} FILES ${HeadList} ${SrcList})
 
 
-add_executable(${ProjectName} ${EditorSourceFiles})
+add_executable(${ProjectName} WIN32 ${HeadList} ${SrcList})
 
 target_link_libraries(${ProjectName} PRIVATE Runtime)
 
 target_include_directories(${ProjectName} PRIVATE
-	"${EngineSourceDir}"
 	"${EngineRuntimeDir}"
 )
 

@@ -1,7 +1,7 @@
 #include "WinWindow.h"
 #include "Core/Events/KeyEvent.h"
 #include "Core/Events/MouseEvent.h"
-#include "Core/Events/AppEvent.h"
+#include "Core/Events/ApplicationEvent.h"
 #include "Utils.h"
 
 namespace Zero
@@ -11,6 +11,29 @@ namespace Zero
 									auto Event = FEvent(__VA_ARGS__); \
 								   	WindowData.EventCallback(Event);
 
+	
+	FWinWindow* FWinWindow::Main = nullptr;
+	FWinWindow::FWinWindow(const FWindowsConfig& Config)
+	{
+		if (Main == nullptr)
+		{
+			Main = this;
+		}
+		Init(Config);
+	}
+
+	void FWinWindow::OnUpdate()
+	{
+		MSG msg = { 0 };
+
+		// If there are Window messages then process them.
+		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+	}
+
 	void FWinWindow::SetVSync(bool bEnabled)
 	{
 		
@@ -18,7 +41,15 @@ namespace Zero
 	
 	bool FWinWindow::IsVSync() const 
 	{
-		
+		return true;
+	}
+	
+	LRESULT CALLBACK
+		MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+	{
+		// Forward hwnd on because we can get messages (e.g., WM_CREATE)
+		// before CreateWindow returns, and thus before mhMainWnd is valid.
+		return FWinWindow::Main->MsgProc(hwnd, msg, wParam, lParam);
 	}
 	
 	void FWinWindow::Init(const FWindowsConfig& Config)
@@ -26,6 +57,7 @@ namespace Zero
 		WindowData.Title = Config.Title;
 		WindowData.Width = Config.Width;
 		WindowData.Height = Config.Height;
+		WindowData.hAppInst = Config.hAppInst;
 		
 		CORE_LOG_INFO("Creating windows {0} ({1}, {2})", Config.Title, Config.Width, Config.Height);
 
@@ -38,7 +70,7 @@ namespace Zero
 		wc.lpfnWndProc = MainWndProc;
 		wc.cbClsExtra = 0;
 		wc.cbWndExtra = 0;
-		wc.hInstance = hAppInst;
+		wc.hInstance = WindowData.hAppInst;
 		wc.hIcon = LoadIcon(0, IDI_APPLICATION);
 		wc.hCursor = LoadCursor(0, IDC_ARROW);
 		wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
@@ -62,20 +94,25 @@ namespace Zero
 		int Height = R.bottom - R.top;
 		CORE_LOG_INFO("WinWindow Init finished.");
 		
+		std::wstring MainWndCaption = Utils::String2WString(Config.Title);
+		WindowData.hMainWnd = CreateWindow(L"MainWnd", MainWndCaption.c_str(), 
+			WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, Width, Height, 0, 0, WindowData.hAppInst, 0);
 		
-	
+		if (!WindowData.hMainWnd)
+		{
+			CORE_LOG_ERROR("reateWindow Failed.");
+		}
+
+		ShowWindow(WindowData.hMainWnd , SW_SHOW);
 		
+		UpdateWindow(WindowData.hMainWnd);
 		
+		SetVSync(true);
 	}
 
-	LRESULT CALLBACK
-		MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+	void FWinWindow::Shutdown()
 	{
-		// Forward hwnd on because we can get messages (e.g., WM_CREATE)
-		// before CreateWindow returns, and thus before mhMainWnd is valid.
-		return FWinWindow::Main->MsgProc(hwnd, msg, wParam, lParam);
 	}
-
 
 	LRESULT CALLBACK FWinWindow::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{

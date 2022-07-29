@@ -1,8 +1,5 @@
 #pragma once
 
-class Test
-{
-public:
-protected:
-private:
-};
+#include "Core.h"
+#include "Core/Framework/Application.h"
+#include "Utils.h"

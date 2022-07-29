@@ -1,6 +1,6 @@
 #include "LayerStack.h"
 
-namespace SIByL
+namespace Zero
 {
 	FLayerStack::FLayerStack()
 	{
@@ -10,23 +10,25 @@ namespace SIByL
 	FLayerStack::~FLayerStack()
 	{
 		for (FLayer* Layer : Layers)
+		{
 			delete Layer;
+		}
 	}
 
 	void FLayerStack::PushLayer(FLayer* Layer)
 	{
-		Layers.emplace(m_Layers.begin() + LayerInsertIndex, Layer);
+		Layers.emplace(Layers.begin() + LayerInsertIndex, Layer);
 		LayerInsertIndex++;
 	}
 
-	void FLayerStack::PushOverlay(Layer* Overlay)
+	void FLayerStack::PushOverlay(FLayer* Overlay)
 	{
 		Layers.emplace_back(Overlay);
 	}
 
-	void FLayerStack::PopLayer(Layer* Layer)
+	void FLayerStack::PopLayer(FLayer* Layer)
 	{
-		auto it = std::find(Layers.begin(), Layers.end(), layer);
+		auto it = std::find(Layers.begin(), Layers.end(), Layer);
 		if (it != Layers.end())
 		{
 			Layers.erase(it);
@@ -34,10 +36,12 @@ namespace SIByL
 		}
 	}
 
-	void LayerStack::PopOverlay(Layer* overlay)
+	void FLayerStack::PopOverlay(FLayer* Overlay)
 	{
-		auto it = std::find(m_Layers.begin(), m_Layers.end(), overlay);
-		if (it != m_Layers.end())
+		auto it = std::find(Layers.begin(), Layers.end(), Overlay);
+		if (it != Layers.end())
+		{
 			Layers.erase(it);
+		}
 	}
 }

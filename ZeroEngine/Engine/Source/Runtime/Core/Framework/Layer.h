@@ -1,24 +1,26 @@
 #pragma once
 
-#include "../Base/Base.h"
-#include "../Base/Timer.h"
+#include "../Base/FrameTimer.h"
+
 
 namespace Zero
 {
+	class FEvent;
 	class FLayer
 	{
 	public:
 		FLayer(const std::string& Iname = "Layer")
-			: Name(Iname);
+			: Name(Iname) {};
 		virtual ~FLayer() = default;
-	
+
 		virtual void OnAttach() {}
 		virtual void OnDetach() {}
-		virtual void OnUpdate(FTimestep ts) {}
+		virtual void OnUpdate() {}
+		virtual void OnDraw() {}
 		virtual void OnImGuiRender() {}
 		virtual void OnEvent(FEvent& event) {}
 	protected:
 		std::string Name;
-	}
+	};
 }
 
