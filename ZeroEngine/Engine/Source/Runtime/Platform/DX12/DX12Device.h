@@ -11,7 +11,7 @@
 
 namespace Zero
 {
-	class FDX12Content : public FGraphicContext, public IPublicSingleton<FDX12Content>  
+	class FDX12Device : public FDevice, public IPublicSingleton<FDX12Device>  
 	{
 	public:
 		virtual void Init();
@@ -32,6 +32,9 @@ namespace Zero
 		UINT Cbv_Srv_UavDescriptorSize; 
 		ComPtr<IDXGIFactory4> DxgiFactory;
 		ComPtr<ID3D12Device> D3DDevice;
-		Ref<DX12CommandQueue> CommandQueue;
+
+		Scope<DX12CommandQueue> DirectCommandQueue;
+		Scope<DX12CommandQueue> ComputeCommandQueue;
+		Scope<DX12CommandQueue> CopyCommandQueue;
 	}
 }

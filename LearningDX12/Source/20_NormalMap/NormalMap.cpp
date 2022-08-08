@@ -479,6 +479,7 @@ void NormalMapApp::BuildRootSignature()
 	SlotRootParameter[4].InitAsDescriptorTable(1, &TexTable1, D3D12_SHADER_VISIBILITY_PIXEL);
 
 
+
 	auto StaticSamplers = GetStaticSamplers();
 
 	// A root signature is an array of root parameters.

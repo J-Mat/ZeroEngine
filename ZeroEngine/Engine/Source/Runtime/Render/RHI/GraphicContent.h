@@ -3,7 +3,7 @@
 
 namespace Zero
 {
-	class FGraphicContext
+	class FDevice
 	{
 		virtual void Init() = 0;
 	}
