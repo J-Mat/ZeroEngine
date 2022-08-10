@@ -3,7 +3,6 @@
 #include "Platform/Windows/WinWindow.h"
 namespace Zero
 {
-
 	Ref<FWindows> Zero::FWindows::Create(const FWindowsConfig& Config)
 	{
 		switch (Zero::FRenderer::GetRHI())

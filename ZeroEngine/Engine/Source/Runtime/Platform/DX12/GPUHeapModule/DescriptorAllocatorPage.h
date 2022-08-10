@@ -1,6 +1,8 @@
+#pragma once
 #include "Core.h"
-#include "Common/DX12Header.h"
-#include "DX12Device.h"
+#include "../Common/DX12Header.h"
+#include "../DX12Device.h"
+#include "DescriptorAllocation.h"
 
 
 namespace Zero
@@ -9,10 +11,18 @@ namespace Zero
 	{
 	public:
 		D3D12_DESCRIPTOR_HEAP_TYPE GetHeapType() const {return HeapType;}
-		FDescriptorAllocatorPage(FDX12Device& Device, D3D12_DESCRIPTOR_HEAP_TYPE Type, uint32_t NumDescriptors);
+		FDescriptorAllocatorPage(FDXDevice& Device, D3D12_DESCRIPTOR_HEAP_TYPE Type, uint32_t NumDescriptors);
 
+		bool HasSpace(uint32_t NumDescriptors);
+		uint32_t GetNumFreeHandles() const;
 		void AddNewBlock(uint32_t Offset, uint32_t NumDescriptors);
 		void FreeBlock(uint32_t Offset, uint32_t NumDescriptors);
+		void Free(FDescriptorAllocation&& Descriptor);
+		uint32_t ComputeOffset(D3D12_CPU_DESCRIPTOR_HANDLE Handle);
+
+		FDescriptorAllocation Allocate( uint32_t NumDescriptors );
+		void ReleaseStaleDescriptors();
+
 	private:
 		struct FFreeBlockInfo;
 
@@ -29,10 +39,9 @@ namespace Zero
 			FFreeListBySize::iterator FreeListBySizeIter;
 		};
 
-
-		struct StaleDescriptorInfo
+		struct FStaleDescriptorInfo
     	{
-			StaleDescriptorInfo( OffsetType InOffset, SizeType InSize )
+			FStaleDescriptorInfo(uint32_t InOffset, uint32_t InSize )
         	: Offset( InOffset )
         	, Size( InSize )
         	{}
@@ -50,7 +59,7 @@ namespace Zero
 
 		D3D12_DESCRIPTOR_HEAP_TYPE HeapType;
 
-		FDX12Device& Device;
+		FDXDevice& Device;
 
   		ComPtr<ID3D12DescriptorHeap> D3DDescriptorHeap;
 		D3D12_DESCRIPTOR_HEAP_TYPE HeapType;
@@ -60,5 +69,4 @@ namespace Zero
 		uint32_t  NumFreeHandles;
 		std::mutex AllocationMutex;
 	}
-
 }

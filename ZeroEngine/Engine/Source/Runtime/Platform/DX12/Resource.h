@@ -17,9 +17,9 @@ namespace Zero
     	bool CheckFormatSupport( D3D12_FORMAT_SUPPORT1 InFormatSupport ) const {return (InFormatSupport.Support1 &  FormatSupport) != 0;};
     	bool CheckFormatSupport( D3D12_FORMAT_SUPPORT1 InFormatSupport ) const {return (InFormatSupport.Support2 &  FormatSupport) != 0;};
 	protected:
-		FResource(FDX12Device &InDevice, const D3D12_RESOURCE_DESC& ResourceDesc,
+		FResource(FDXDevice &InDevice, const D3D12_RESOURCE_DESC& ResourceDesc,
 				const D3D12_CLEAR_VALUE* ClearValue = nullptr);
-		FResource(FDX12Device &InDevice, ComPtr<ID3D12Resource> Resource,
+		FResource(FDXDevice &InDevice, ComPtr<ID3D12Resource> Resource,
 				const D3D12_CLEAR_VALUE* ClearValue = nullptr)
 
 		virtual ~Resource() = default;

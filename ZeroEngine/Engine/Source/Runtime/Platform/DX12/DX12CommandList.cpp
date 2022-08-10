@@ -1,5 +1,4 @@
 #include "DX12CommandList.h"
-#include "DX12Content.h"
 
 namespace Zero
 {

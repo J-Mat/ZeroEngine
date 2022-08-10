@@ -2,7 +2,7 @@
 
 namespace Zero
 {
-	FResource::FResource(FDX12Device &InDevice, const D3D12_RESOURCE_DESC& ResourceDesc,
+	FResource::FResource(FDXDevice &InDevice, const D3D12_RESOURCE_DESC& ResourceDesc,
 				const D3D12_CLEAR_VALUE* ClearValue = nullptr)
 	: Device(InDevice)
 	{
@@ -24,7 +24,7 @@ namespace Zero
 		CheckFeatureSupport();
 	}
 
-	FResource::FResource( FDX12Device& InDevice, ComPtr<ID3D12Resource> Resource,
+	FResource::FResource( FDXDevice& InDevice, ComPtr<ID3D12Resource> Resource,
                     const D3D12_CLEAR_VALUE* ClearValue )
 	: Device(InDevice)
 	, D3Desource(Resource)
