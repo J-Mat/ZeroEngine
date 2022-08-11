@@ -4,11 +4,15 @@
 
 namespace Zero
 {
+	Scope<IGraphicFactroy> FRenderer::GraphicFactroy = nullptr;
+	ERHI FRenderer::RHI = ERHI::DirectX12;
+	ERayTracerAPI FRenderer::RayTracer = ERayTracerAPI::DXR;
+
 	void FRenderer::InitAPI()
 	{
 	}
 
-	static void SetRHI(ERHI InRHI)
+	void FRenderer::SetRHI(ERHI InRHI)
 	{	
 		RHI = InRHI;
 
@@ -23,8 +27,5 @@ namespace Zero
 	}
 
 
-	Scope<IGraphicFactroy> FRenderer::GraphicFactroy = nullptr;
-	ERHI FRenderer::RHI = ERHI::DirectX12;
-	ERayTracerAPI FRenderer::RayTracer = ERayTracerAPI::DXR;
 	std::function<FIndexBuffer*(unsigned int*, uint32_t)> CreateIndexBufferFuncs = {}; 
 }

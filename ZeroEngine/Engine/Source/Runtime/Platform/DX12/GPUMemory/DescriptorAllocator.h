@@ -2,7 +2,6 @@
 
 #include "Core.h"
 #include "../Common/DX12Header.h"
-#include "../DX12Device.h"
 #include "DescriptorAllocation.h"
 #include "DescriptorAllocatorPage.h"
 

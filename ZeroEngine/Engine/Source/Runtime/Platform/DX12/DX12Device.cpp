@@ -1,17 +1,16 @@
 #include "DX12Device.h"
 
 
-
 namespace Zero
 {
-	void FDXDevice::Init()
+	void FDX12Device::Init()
 	{
 		EnableDebugLayer();
 		CreateDevice();
 		GetDescriptorSize();
 	}
 	
-	void FDXDevice::EnableDebugLayer()
+	void FDX12Device::EnableDebugLayer()
 	{
 		#if defined(DEBUG) || defined(_DEBUG)
 		{
@@ -22,7 +21,7 @@ namespace Zero
 		#endif	
 	}
 	
-	void FDXDevice::CreateDevice()
+	void FDX12Device::CreateDevice()
 	{
 		
 		ThrowIfFailed(CreateDXGIFactory1(IID_PPV_ARGS(&DxgiFactory)));
@@ -37,14 +36,14 @@ namespace Zero
 		}
 	}
 	
-	void FDXDevice::GetDescriptorSize()
+	void FDX12Device::GetDescriptorSize()
 	{
 		RtvDescriptorSize = D3DDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 		DsvDescriptorSize = D3DDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 		Cbv_Srv_UavDescriptorSize = D3DDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	}
 	
-	void FDXDevice::CreateCommandQueue()
+	void FDX12Device::CreateCommandQueue()
 	{
 	}
 }

@@ -3,7 +3,7 @@
 
 namespace Zero
 {
-	FDescriptorAllocatorPage::FDescriptorAllocatorPage(FDXDevice& InDevice, D3D12_DESCRIPTOR_HEAP_TYPE Type, 
+	FDescriptorAllocatorPage::FDescriptorAllocatorPage(FDX12Device& InDevice, D3D12_DESCRIPTOR_HEAP_TYPE Type, 
 													  uint32_t NumDescriptors)
 	: Device(InDevice)
 	, HeapType(Type)

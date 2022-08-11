@@ -29,6 +29,7 @@
 #include <unordered_set>
 
 #include "Core/Log/Log.h"
+#include "Math.h"
 
 #include <Windows.h>
 #include <wincodec.h>

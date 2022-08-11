@@ -16,7 +16,6 @@ namespace Zero
 		virtual void Init();
 
 		ID3D12Device* GetDevice() { return D3DDevice.Get(); }
-		ID3D12Device* GetCommandQueue() { return CommandQueue->GetCommandList() }
 
 
 	private:
@@ -32,8 +31,8 @@ namespace Zero
 		ComPtr<IDXGIFactory4> DxgiFactory;
 		ComPtr<ID3D12Device> D3DDevice;
 
-		Scope<DX12CommandQueue> DirectCommandQueue;
-		Scope<DX12CommandQueue> ComputeCommandQueue;
-		Scope<DX12CommandQueue> CopyCommandQueue;
+		Scope<FDX12CommandQueue> DirectCommandQueue;
+		Scope<FDX12CommandQueue> ComputeCommandQueue;
+		Scope<FDX12CommandQueue> CopyCommandQueue;
 	};
 }

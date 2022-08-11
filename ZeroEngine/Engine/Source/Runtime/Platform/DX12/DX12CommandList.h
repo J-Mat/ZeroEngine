@@ -11,9 +11,9 @@ namespace Zero
 	class FDX12CommandList : public FCommandList
 	{
 	public:
-		FDX12CommandList(DX12Device& InDevice, D3D12_COMMAND_LIST_TYPE Type);
+		FDX12CommandList(FDX12Device& InDevice, D3D12_COMMAND_LIST_TYPE Type);
 		virtual ~FDX12CommandList() = default;
-		FDXDevice& GetDevice() const
+		FDX12Device& GetDevice() const
     	{
         	return Device;
     	}
@@ -29,7 +29,7 @@ namespace Zero
                       uint32_t startInstance = 0 );
 
 	private:
-		FDXDevice& Device; 
+		FDX12Device& Device;
 		D3D12_COMMAND_LIST_TYPE  CommandListType;
 		ComPtr<ID3D12CommandAllocator>	CommandAllocator;
 		ComPtr<ID3D12GraphicsCommandList> CommandList;

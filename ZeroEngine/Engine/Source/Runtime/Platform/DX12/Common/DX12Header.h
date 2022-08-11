@@ -5,12 +5,13 @@
 #include <d3d12.h>
 #include <D3Dcompiler.h>
 #include "d3dx12.h"
+#include "../DX12Device.h"
 
 class DxException
 {
 public:
     DxException() = default;
-    DxException::DxException(HRESULT hr, const std::wstring& FunctionName, const std::wstring& Filename, int LineNumber) :
+    DxException(HRESULT hr, const std::wstring& FunctionName, const std::wstring& Filename, int LineNumber) :
     ErrorCode(hr),
     FunctionName(FunctionName),
     Filename(Filename),
@@ -27,11 +28,12 @@ public:
 };
 
 
+
 #ifndef ThrowIfFailed
 #define ThrowIfFailed(x)                                              \
 {                                                                     \
     HRESULT hr__ = (x);                                               \
-    std::wstring wfn = Utils::String2WString(__FILE__);                       \
+    std::wstring wfn = Zero::Utils::String2WString(__FILE__);               \
     if(FAILED(hr__)) { throw DxException(hr__, L#x, wfn, __LINE__); } \
 }
 #endif

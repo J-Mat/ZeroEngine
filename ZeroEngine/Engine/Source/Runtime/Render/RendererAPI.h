@@ -1,6 +1,5 @@
 #pragma once
 #include "Core.h"
-#include "./RHI/GraphicFactory.h"
 
 namespace Zero
 {
@@ -21,17 +20,17 @@ namespace Zero
 	{
 	public:
 		static void SetRHI(ERHI InRHI);
-		static void SetRayTracerAPI(ERayTracerAPI rayTracer);
+		static void SetRayTracerAPI(ERayTracerAPI rayTracer) {}
 
 		static inline ERHI GetRHI() { return RHI; }
 		static inline ERayTracerAPI GetRayTracer() { return RayTracer; }
 		
 		static void InitAPI();
 		
-		Scope<IGraphicFactroy> GraphicFactroy;
+		static Scope<IGraphicFactroy> GraphicFactroy;
 	
-	private:
 		static ERHI RHI;
+	private:
 		static ERayTracerAPI RayTracer;
 	};
 	
