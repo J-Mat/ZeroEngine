@@ -45,18 +45,33 @@ namespace Zero
 		bProcessInFlightCommandLists = false;
 		ProcessInFlightCommandListsThread.join();
 	}
+
 	Ref<FDX12CommandList> FDX12CommandQueue::GetCommandList()
 	{
-		return Ref<FDX12CommandList>();
+		Ref<FDX12CommandList> CommandList;
+		
+		if (AvailableCommandLists.IsEmpty())
+		{
+			AvailableCommandLists.TryPop(CommandList);
+		}
+		else
+		{
+			CommandList = CreateRef<FDX12CommandList>(Device, CommandListType);
+		}
+		
+		return CommandList;
 	}
+
 	uint64_t FDX12CommandQueue::ExecuteCommandList(Ref<FDX12CommandList> CommandList)
 	{
 		return ExecuteCommandLists(std::vector<std::shared_ptr<FDX12CommandList>>({ CommandList }));
 	}
+
 	uint64_t FDX12CommandQueue::ExecuteCommandLists(const std::vector<Ref<FDX12CommandList>>& CommandLists)
 	{
 		return uint64_t();
 	}
+
 	uint64_t FDX12CommandQueue::Signal()
 	{
 		uint64_t OutFenceValue = ++FenceValue;
@@ -84,7 +99,12 @@ namespace Zero
 	}
 	void FDX12CommandQueue::Flush()
 	{
+		std::unique_lock<std::mutex> Lock(ProcessInFlightCommandListsThreadMutex);
+		ProcessInFlightCommandListsThreadCV.wait(Lock, [this] { return InFlightCommandLists.IsEmpty(); });
+
+		WaitForFenceValue(FenceValue);
 	}
+
 	void FDX12CommandQueue::ProcessInFlightCommandLists()
 	{
 	}

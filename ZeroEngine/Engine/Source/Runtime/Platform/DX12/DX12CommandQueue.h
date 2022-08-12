@@ -36,7 +36,7 @@ namespace Zero
 		std::atomic_uint64_t                       FenceValue;
 		
 		TThreadSafeQueue<CommandListEntry> InFlightCommandLists;
-		TThreadSafeQueue<FDX12CommandList> AvailableCommandLists;
+		TThreadSafeQueue<Ref<FDX12CommandList>> AvailableCommandLists;
 		
 		std::thread             ProcessInFlightCommandListsThread;
 		std::atomic_bool        bProcessInFlightCommandLists;

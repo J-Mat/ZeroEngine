@@ -21,6 +21,11 @@ namespace Zero
 		void FlushResourceBarriers();
 
 
+		ComPtr<ID3D12GraphicsCommandList2> GetD3D12CommandList() const
+		{
+			return CommandList;
+		}
+
 		/**
      	* Draw geometry.
      	*/
@@ -32,7 +37,7 @@ namespace Zero
 		FDX12Device& Device;
 		D3D12_COMMAND_LIST_TYPE  CommandListType;
 		ComPtr<ID3D12CommandAllocator>	CommandAllocator;
-		ComPtr<ID3D12GraphicsCommandList> CommandList;
+		ComPtr<ID3D12GraphicsCommandList2> CommandList;
 
 
 		virtual void Reset();
