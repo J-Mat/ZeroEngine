@@ -165,7 +165,6 @@ namespace Zero
 			std::map<UINT, D3D12_RESOURCE_STATES> SubResourceState;
 		};
 		
-		using ResourceList = std::vector < ID3D12Resource*>;
 		using ResourceStateMap = std::unordered_map<ID3D12Resource*, FResourcestate>;
 
 		ResourceStateMap FinalResourceState;

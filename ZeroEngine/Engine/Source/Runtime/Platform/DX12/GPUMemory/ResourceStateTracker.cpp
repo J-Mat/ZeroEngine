@@ -73,9 +73,14 @@ namespace Zero
 			ResourceBarrier(CD3DX12_RESOURCE_BARRIER::Transition(Resource, D3D12_RESOURCE_STATE_COMMON, StateAfter, SubResource));
 		}
 	}
+
 	void FResourceStateTracker::TransitionResource(const FResource& Resource, D3D12_RESOURCE_STATES StateAfter, UINT SubResource)
 	{
 		TransitionResource(Resource.GetD3DResource().Get(), StateAfter, SubResource);
+	}
+
+	void FResourceStateTracker::UAVBarrier(const FResource* resource)
+	{
 	}
 
 	uint32_t FResourceStateTracker::FlushPendingResourceBarriers(const Ref<FDX12CommandList>& CommandList)
@@ -95,10 +100,47 @@ namespace Zero
 				{
 					// If all subresources are being transitioned, and there are multiple
 					// subresources of the resource that are in a different state...
-					
+					FResourcestate& Resourcestate = Iter->second;
+					if (PendingTransiton.Subresource == D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES &&
+						!Resourcestate.SubResourceState.empty())
+					{
+						// Transition all subresources
+						for (auto SubsourceStateIter : Resourcestate.SubResourceState)
+						{
+							if (PendingTransiton.StateAfter != SubsourceStateIter.second)
+							{
+								D3D12_RESOURCE_BARRIER NewBarrier = PendingBarrier;
+								NewBarrier.Transition.Subresource = SubsourceStateIter.first;
+								NewBarrier.Transition.StateBefore = SubsourceStateIter.second;
+								ToExcuteBarriers.push_back(NewBarrier);
+							}
+						}
+					}
+					else
+					{
+						// No (sub)resources need to be transitioned. Just add a single transition barrier (if needed).
+						auto GlobalState = Iter->second.GetSubresourceState(PendingTransiton.Subresource);
+						if (PendingTransiton.StateAfter != GlobalState)
+						{
+							// Fix-up the before state based on current global state of the resource.
+							PendingBarrier.Transition.StateBefore = GlobalState;
+							ToExcuteBarriers.push_back(PendingBarrier);
+						}
+					}
 				}
 			}
 		}
+		
+		UINT NumBarriers = static_cast<UINT>(ToExcuteBarriers.size());
+		if (NumBarriers > 0)
+		{
+			CommandList->GetD3D12CommandList()->ResourceBarrier(NumBarriers, ToExcuteBarriers.data());
+		}
+
+		PendingResourceBarriersList.clear();
+
+		return NumBarriers;
+
 	}
 
 	void FResourceStateTracker::FlushResourceBarriers(const Ref<FDX12CommandList>& CommandList)
@@ -109,6 +151,26 @@ namespace Zero
 			CommandList->GetD3D12CommandList()->ResourceBarrier(NumBarriers, ResourceBarriersList.data());
 			ResourceBarriersList.clear();
 		}
+	}
+
+	void FResourceStateTracker::CommitFinalResourceStates()
+	{
+		CORE_ASSERT(s_bLocked, "s_bLocked is unlocked");
+
+		// Commit final resource states to the global resource state array (map).
+		for (const auto& ResourceState : FinalResourceState)
+		{
+			s_GlobalResourceState[ResourceState.first] = ResourceState.second;
+		}
+
+		FinalResourceState.clear();
+	}
+
+	void FResourceStateTracker::Reset()
+	{
+		PendingResourceBarriersList.clear();
+		ResourceBarriersList.clear();
+		FinalResourceState.clear();
 	}
 
 	void FResourceStateTracker::Lock()
@@ -122,6 +184,7 @@ namespace Zero
 		s_GlobalMutex.unlock();
 		s_bLocked = false;
 	}
+
 	void FResourceStateTracker::AddGlobalResourceState(ID3D12Resource* Resource, D3D12_RESOURCE_STATES State)
 	{
 		if (Resource != nullptr)

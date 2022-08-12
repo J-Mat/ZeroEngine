@@ -25,6 +25,8 @@ namespace Zero
 
 		virtual ~FResource() = default;
 
+
+		FDX12Device& Device;
 		std::string                 ResourceName;
 		ComPtr<ID3D12Resource>   	D3DResource;
 		D3D12_FEATURE_DATA_FORMAT_SUPPORT  FormatSupport;
