@@ -5,10 +5,12 @@
 
 namespace Zero
 {
-	class FBuffer : public FResource
+	class IBuffer : public IResource
 	{
-		FBuffer(FDX12Device& Device, const D3D12_RESOURCE_DESC& ResDesc);
-		FBuffer(FDX12Device& Device, Microsoft::WRL::ComPtr<ID3D12Resource> Resource);
+	public:
+		IBuffer(FDX12Device& Device);
+		IBuffer(FDX12Device& Device, const D3D12_RESOURCE_DESC& ResDesc);
+		IBuffer(FDX12Device& Device, Microsoft::WRL::ComPtr<ID3D12Resource> Resource);
 	};
 }
 

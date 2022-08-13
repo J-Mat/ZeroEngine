@@ -29,17 +29,17 @@ namespace Zero
 		
 		using CommandListEntry = std::tuple<uint64_t, Ref<FDX12CommandList>>;
 		
-		FDX12Device& Device;
-		D3D12_COMMAND_LIST_TYPE                    CommandListType;
+		FDX12Device& m_Device;
+		D3D12_COMMAND_LIST_TYPE                    m_CommandListType;
 		Microsoft::WRL::ComPtr<ID3D12CommandQueue> CommandQueue;
 		Microsoft::WRL::ComPtr<ID3D12Fence>        Fence;
-		std::atomic_uint64_t                       FenceValue;
+		std::atomic_uint64_t                       m_FenceValue;
 		
 		TThreadSafeQueue<CommandListEntry> InFlightCommandLists;
 		TThreadSafeQueue<Ref<FDX12CommandList>> AvailableCommandLists;
 		
 		std::thread             ProcessInFlightCommandListsThread;
-		std::atomic_bool        bProcessInFlightCommandLists;
+		std::atomic_bool        m_bProcessInFlightCommandLists;
 		std::mutex              ProcessInFlightCommandListsThreadMutex;
 		std::condition_variable ProcessInFlightCommandListsThreadCV;
 	};

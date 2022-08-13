@@ -49,7 +49,7 @@ namespace Zero
          */
         void TransitionResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES stateAfter,
             UINT subResource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES);
-        void TransitionResource(const FResource& resource, D3D12_RESOURCE_STATES stateAfter,
+        void TransitionResource(const IResource& resource, D3D12_RESOURCE_STATES stateAfter,
             UINT subResource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES);
 
         /**
@@ -58,7 +58,7 @@ namespace Zero
          * @param resource The resource to add a UAV barrier for. Can be NULL which
          * indicates that any UAV access could require the barrier.
          */
-        void UAVBarrier(const FResource* resource = nullptr);
+        void UAVBarrier(const IResource* resource = nullptr);
 
         /**
          * Push an aliasing barrier for the given resource.
@@ -69,7 +69,7 @@ namespace Zero
          * Either the beforeResource or the afterResource parameters can be NULL which
          * indicates that any placed or reserved resource could cause aliasing.
          */
-        void AliasBarrier(const FResource* ResourceBefore = nullptr, const FResource* ResourceAfter = nullptr);
+        void AliasBarrier(const IResource* ResourceBefore = nullptr, const IResource* ResourceAfter = nullptr);
 
         /**
          * Flush any pending resource barriers to the command list.

@@ -3,44 +3,54 @@
 
 namespace Zero
 {
-	FResource::FResource(FDX12Device &InDevice, const D3D12_RESOURCE_DESC& ResourceDesc,
+	IResource::IResource(FDX12Device& InDevice)
+	: m_Device(InDevice)
+	{
+	}
+	IResource::IResource(FDX12Device &InDevice, const D3D12_RESOURCE_DESC& ResourceDesc,
 				const D3D12_CLEAR_VALUE* ClearValue = nullptr)
-	: Device(InDevice)
+	: m_Device(InDevice)
 	{
 		auto D3dDevice = InDevice.GetDevice();
 		
 		if (ClearValue)
 		{
-			D3DClearValue = CreateScope<D3D12_CLEAR_VALUE>(*ClearValue);
+			m_D3DClearValue = CreateScope<D3D12_CLEAR_VALUE>(*ClearValue);
 		}
 		ThrowIfFailed(
 			D3dDevice->CreateCommittedResource(
 				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &ResourceDesc,
-				D3D12_RESOURCE_STATE_COMMON, D3DClearValue.get(), IID_PPV_ARGS( &D3DResource )));
+				D3D12_RESOURCE_STATE_COMMON, m_D3DClearValue.get(), IID_PPV_ARGS( &m_D3DResource )));
 
 		// to-do resource track
-		FResourceStateTracker::AddGlobalResourceState(D3DResource.Get(), D3D12_RESOURCE_STATE_COMMON);
+		FResourceStateTracker::AddGlobalResourceState(m_D3DResource.Get(), D3D12_RESOURCE_STATE_COMMON);
 		
 		CheckFeatureSupport();
 	}
 
-	FResource::FResource( FDX12Device& InDevice, ComPtr<ID3D12Resource> Resource,
+	IResource::IResource( FDX12Device& InDevice, ComPtr<ID3D12Resource> Resource,
                     const D3D12_CLEAR_VALUE* ClearValue )
-	: Device(InDevice)
-	, D3DResource(Resource)
+	: m_Device(InDevice)
+	, m_D3DResource(Resource)
 	{
 		if (ClearValue)
 		{
-			D3DClearValue = CreateScope<D3D12_CLEAR_VALUE>(*ClearValue);
+			m_D3DClearValue = CreateScope<D3D12_CLEAR_VALUE>(*ClearValue);
 		}
 		CheckFeatureSupport();
 	}
 
-	void FResource::CheckFeatureSupport()
+	void IResource::SetResource(ComPtr<ID3D12Resource> Resource)
 	{
-    	auto Desc              = D3DResource->GetDesc();
-    	FormatSupport.Format = Desc.Format;
-    	ThrowIfFailed( Device.GetDevice()->CheckFeatureSupport( D3D12_FEATURE_FORMAT_SUPPORT, &FormatSupport,
+		m_D3DResource = Resource;
+		CheckFeatureSupport();
+	}
+
+	void IResource::CheckFeatureSupport()
+	{
+    	auto Desc              = m_D3DResource->GetDesc();
+    	m_FormatSupport.Format = Desc.Format;
+    	ThrowIfFailed( m_Device.GetDevice()->CheckFeatureSupport( D3D12_FEATURE_FORMAT_SUPPORT, &m_FormatSupport,
                                                      sizeof( D3D12_FEATURE_DATA_FORMAT_SUPPORT ) ) );
 	}
 }

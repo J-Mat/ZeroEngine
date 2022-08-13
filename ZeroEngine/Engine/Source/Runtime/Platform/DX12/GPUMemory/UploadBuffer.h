@@ -15,6 +15,9 @@ namespace Zero
 			D3D12_GPU_VIRTUAL_ADDRESS GPU;
 		};
 
+		FUploadBuffer(FDX12Device& Device, size_t PageSize = _2MB);
+		virtual ~FUploadBuffer() {}
+		
 		FAllocation Allocate(size_t sizeInBytes, size_t alignment);
 		void Reset();
 	private:

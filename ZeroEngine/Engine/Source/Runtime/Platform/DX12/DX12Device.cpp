@@ -8,6 +8,7 @@ namespace Zero
 		EnableDebugLayer();
 		CreateDevice();
 		GetDescriptorSize();
+		CreateCommandQueue();
 	}
 	
 	void FDX12Device::EnableDebugLayer()
@@ -24,26 +25,50 @@ namespace Zero
 	void FDX12Device::CreateDevice()
 	{
 		
-		ThrowIfFailed(CreateDXGIFactory1(IID_PPV_ARGS(&DxgiFactory)));
+		ThrowIfFailed(CreateDXGIFactory1(IID_PPV_ARGS(&m_DxgiFactory)));
 
-		HRESULT  HardwardResult = D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&D3DDevice));
+		HRESULT  HardwardResult = D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_D3DDevice));
 		if (FAILED(HardwardResult))
 		{
 			ComPtr<IDXGIAdapter> WarpAdapterPtr;
-			ThrowIfFailed(DxgiFactory->EnumWarpAdapter(IID_PPV_ARGS(&WarpAdapterPtr)));
+			ThrowIfFailed(m_DxgiFactory->EnumWarpAdapter(IID_PPV_ARGS(&WarpAdapterPtr)));
 
-			ThrowIfFailed(D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&D3DDevice)));
+			ThrowIfFailed(D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_D3DDevice)));
 		}
 	}
 	
 	void FDX12Device::GetDescriptorSize()
 	{
-		RtvDescriptorSize = D3DDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-		DsvDescriptorSize = D3DDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
-		Cbv_Srv_UavDescriptorSize = D3DDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		m_RtvDescriptorSize = m_D3DDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+		m_DsvDescriptorSize = m_D3DDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+		m_Cbv_Srv_UavDescriptorSize = m_D3DDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	}
 	
 	void FDX12Device::CreateCommandQueue()
 	{
+		m_DirectCommandQueue = CreateScope<FDX12CommandQueue>(*this, D3D12_COMMAND_LIST_TYPE_DIRECT);
+		m_ComputeCommandQueue = CreateScope<FDX12CommandQueue>(*this, D3D12_COMMAND_LIST_TYPE_COMPUTE);
+		m_CopyCommandQueue = CreateScope<FDX12CommandQueue>(*this, D3D12_COMMAND_LIST_TYPE_COPY);
+	}
+
+	FDX12CommandQueue& FDX12Device::GetCommandQueue(D3D12_COMMAND_LIST_TYPE Type)
+	{
+		FDX12CommandQueue* CommandQueue;
+		switch (Type)
+		{
+		case D3D12_COMMAND_LIST_TYPE_DIRECT:
+			CommandQueue = m_DirectCommandQueue.get();
+			break;
+		case D3D12_COMMAND_LIST_TYPE_COMPUTE:
+			CommandQueue = m_ComputeCommandQueue.get();
+			break;
+		case D3D12_COMMAND_LIST_TYPE_COPY:
+			CommandQueue = m_CopyCommandQueue.get();
+			break;
+		default:
+			CORE_ASSERT(false, "Invalid command queue type.");
+		}
+
+		return *CommandQueue;
 	}
 }

@@ -26,36 +26,70 @@ namespace Zero
 	{
 		switch (Type)
 		{
-		case Zero::EShaderDataType::None:
-			return 0;
-		case Zero::EShaderDataType::Float:
-			break;
-		case Zero::EShaderDataType::Float2:
-			break;
-		case Zero::EShaderDataType::Float3:
-			break;
-		case Zero::EShaderDataType::Float4:
-			break;
-		case Zero::EShaderDataType::Mat3:
-			break;
-		case Zero::EShaderDataType::Mat4:
-			break;
-		case Zero::EShaderDataType::Int:
-			break;
-		case Zero::EShaderDataType::Int2:
-			break;
-		case Zero::EShaderDataType::Int3:
-			break;
-		case Zero::EShaderDataType::Int4:
-			break;
-		case Zero::EShaderDataType::Bool:
-			break;
-		case Zero::EShaderDataType::RGB:
-			break;
-		case Zero::EShaderDataType::RGBA:
-			break;
+		case Zero::EShaderDataType::Float:  return 4;
+		case Zero::EShaderDataType::Float2: return 4 * 2;
+		case Zero::EShaderDataType::Float3: return 4 * 3;
+		case Zero::EShaderDataType::Float4: return 4 * 4;
+		case Zero::EShaderDataType::Mat3:   return 4 * 3 * 3;
+		case Zero::EShaderDataType::Mat4:   return 4 * 4 * 4;
+		case Zero::EShaderDataType::Int:    return 4;
+		case Zero::EShaderDataType::Int2:   return 4 * 2;
+		case Zero::EShaderDataType::Int3:   return 4 * 3;
+		case Zero::EShaderDataType::Int4:   return 4 * 4;
+		case Zero::EShaderDataType::Bool:   return 1;
+		case Zero::EShaderDataType::RGB:    return 4 * 3;
+		case Zero::EShaderDataType::RGBA:   return 4 * 4;
 		default:
-			break;
+			CORE_LOG_ERROR("Unknown Format!");
+			return 0;
 		}
 	}
+
+	uint32_t GetShaderTypeComponentCount(EShaderDataType Type) 
+	{
+		switch (Type)
+		{
+		case Zero::EShaderDataType::Float:  return 1;
+		case Zero::EShaderDataType::Float2: return 2;
+		case Zero::EShaderDataType::Float3: return 3;
+		case Zero::EShaderDataType::Float4: return 4;
+		case Zero::EShaderDataType::Mat3:   return 3 * 3;
+		case Zero::EShaderDataType::Mat4:   return 4 * 4;
+		case Zero::EShaderDataType::Int:    return 1;
+		case Zero::EShaderDataType::Int2:   return 2;
+		case Zero::EShaderDataType::Int3:   return 3;
+		case Zero::EShaderDataType::Int4:   return 4;
+		case Zero::EShaderDataType::Bool:   return 1;
+		case Zero::EShaderDataType::RGB:    return 3;
+		case Zero::EShaderDataType::RGBA:   return 4;
+		default:
+			CORE_LOG_ERROR("Unknown Format!");
+			return 0;
+		}
+	}
+	
+	struct FBufferElement
+	{
+		std::string Name;
+		EShaderDataType Type;
+		uint32_t Size;
+		uint32_t Offset;
+		bool bNormaliezd;
+		FBufferElement(std::string _Name, EShaderDataType _Type, bool _bNormaliezd = false)
+			: Name(_Name)
+			, Type(_Type)
+			, Size(ShaderDataTypeSize(Type))
+			, Offset(0)
+			, bNormaliezd(_bNormaliezd)
+		{}
+
+		bool operator==(const FBufferElement& Other) const
+		{
+			return (Name == Other.Name) && (Type == Other.Type);
+		}
+		bool operator!=(const FBufferElement& Other) const
+		{
+			return !(*this == Other);
+		}
+	};
 }

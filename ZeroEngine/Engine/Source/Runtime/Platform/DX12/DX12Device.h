@@ -15,7 +15,8 @@ namespace Zero
 	public:
 		virtual void Init();
 
-		ID3D12Device* GetDevice() { return D3DDevice.Get(); }
+		ID3D12Device* GetDevice() { return m_D3DDevice.Get(); }
+		FDX12CommandQueue& GetCommandQueue(D3D12_COMMAND_LIST_TYPE Type = D3D12_COMMAND_LIST_TYPE_DIRECT);
 
 
 	private:
@@ -24,15 +25,16 @@ namespace Zero
 		void GetDescriptorSize();
 		void CreateCommandQueue();
 
+		
 	private:
-		UINT RtvDescriptorSize;
-		UINT DsvDescriptorSize;
-		UINT Cbv_Srv_UavDescriptorSize;
-		ComPtr<IDXGIFactory4> DxgiFactory;
-		ComPtr<ID3D12Device> D3DDevice;
+		UINT m_RtvDescriptorSize;
+		UINT m_DsvDescriptorSize;
+		UINT m_Cbv_Srv_UavDescriptorSize;
+		ComPtr<IDXGIFactory4> m_DxgiFactory;
+		ComPtr<ID3D12Device> m_D3DDevice;
 
-		Scope<FDX12CommandQueue> DirectCommandQueue;
-		Scope<FDX12CommandQueue> ComputeCommandQueue;
-		Scope<FDX12CommandQueue> CopyCommandQueue;
+		Scope<FDX12CommandQueue> m_DirectCommandQueue;
+		Scope<FDX12CommandQueue> m_ComputeCommandQueue;
+		Scope<FDX12CommandQueue> m_CopyCommandQueue;
 	};
 }

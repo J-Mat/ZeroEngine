@@ -4,24 +4,24 @@
 namespace Zero
 {
 	FDX12CommandQueue::FDX12CommandQueue(FDX12Device& InDevice, D3D12_COMMAND_LIST_TYPE Type)
-		: Device(InDevice)
-		, CommandListType(Type)
-		, FenceValue(0)
-		, bProcessInFlightCommandLists(true)
+		: m_Device(InDevice)
+		, m_CommandListType(Type)
+		, m_FenceValue(0)
+		, m_bProcessInFlightCommandLists(true)
 	{
-		auto D3DDevice = Device.GetDevice();
+		auto D3DDevice = m_Device.GetDevice();
 		
 		D3D12_COMMAND_QUEUE_DESC Desc = {};
-		Desc.Type = CommandListType;
+		Desc.Type = m_CommandListType;
 		Desc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
 		Desc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 		Desc.NodeMask = 0;
 		ThrowIfFailed(D3DDevice->CreateCommandQueue(&Desc, IID_PPV_ARGS(&CommandQueue)));
-		ThrowIfFailed(D3DDevice->CreateFence(FenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&Fence)));
+		ThrowIfFailed(D3DDevice->CreateFence(m_FenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&Fence)));
 		
 		char ThreadName[256];
 		sprintf_s(ThreadName, "ProccessInFlightCommandLists ");
-		switch (CommandListType)
+		switch (m_CommandListType)
 		{
 		case D3D12_COMMAND_LIST_TYPE_COPY:
 			CommandQueue->SetName(L"Copy Command Queue");
@@ -42,7 +42,7 @@ namespace Zero
 	}
 	FDX12CommandQueue::~FDX12CommandQueue()
 	{
-		bProcessInFlightCommandLists = false;
+		m_bProcessInFlightCommandLists = false;
 		ProcessInFlightCommandListsThread.join();
 	}
 
@@ -56,7 +56,7 @@ namespace Zero
 		}
 		else
 		{
-			CommandList = CreateRef<FDX12CommandList>(Device, CommandListType);
+			CommandList = CreateRef<FDX12CommandList>(m_Device, m_CommandListType);
 		}
 		
 		return CommandList;
@@ -74,8 +74,8 @@ namespace Zero
 
 	uint64_t FDX12CommandQueue::Signal()
 	{
-		uint64_t OutFenceValue = ++FenceValue;
-		CommandQueue->Signal(Fence.Get(), FenceValue);
+		uint64_t OutFenceValue = ++m_FenceValue;
+		CommandQueue->Signal(Fence.Get(), m_FenceValue);
 		return OutFenceValue;
 	}
 	bool FDX12CommandQueue::IsFenceComplete(uint64_t FenceValue)
@@ -102,7 +102,7 @@ namespace Zero
 		std::unique_lock<std::mutex> Lock(ProcessInFlightCommandListsThreadMutex);
 		ProcessInFlightCommandListsThreadCV.wait(Lock, [this] { return InFlightCommandLists.IsEmpty(); });
 
-		WaitForFenceValue(FenceValue);
+		WaitForFenceValue(m_FenceValue);
 	}
 
 	void FDX12CommandQueue::ProcessInFlightCommandLists()

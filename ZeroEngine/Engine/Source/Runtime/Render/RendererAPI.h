@@ -1,5 +1,6 @@
 #pragma once
 #include "Core.h"
+#include "RHI/VertexBuffer.h"
 
 namespace Zero
 {
@@ -36,15 +37,16 @@ namespace Zero
 	
 	class IGraphicFactroy
 	{
-		virtual FIndexBuffer* CreateIndexBuffer(unsigned int* Indices, uint32_t Count) = 0;
-	}
+		virtual Ref<IVertexBuffer> CreateVertexBuffer(void* data, uint32_t VertexCount, FVertexBufferLayout& Layout, IVertexBuffer::EType Type = IVertexBuffer::EType::Static) = 0;
+	};
 
 	class FDX12IndexBuffer;
+	class FDX12VertexBuffer;
 	class FDX12Factory : public IGraphicFactroy 
 	{
-		virtual FIndexBuffer* CreateIndexBuffer(unsigned int* Indices, uint32_t Count) 
+		virtual Ref<IVertexBuffer> CreateVertexBuffer(void* data, uint32_t VertexCount, FVertexBufferLayout& Layout, IVertexBuffer::EType Type = IVertexBuffer::EType::Static)
 		{
-			return new FDX12IndexBuffer(Indices, Count);
+			return FDX12VertexBuffer(data, VertexCount, Layout, Type);
 		}
 	}
 }

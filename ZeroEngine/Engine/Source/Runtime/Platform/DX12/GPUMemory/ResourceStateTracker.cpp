@@ -74,12 +74,12 @@ namespace Zero
 		}
 	}
 
-	void FResourceStateTracker::TransitionResource(const FResource& Resource, D3D12_RESOURCE_STATES StateAfter, UINT SubResource)
+	void FResourceStateTracker::TransitionResource(const IResource& Resource, D3D12_RESOURCE_STATES StateAfter, UINT SubResource)
 	{
 		TransitionResource(Resource.GetD3DResource().Get(), StateAfter, SubResource);
 	}
 
-	void FResourceStateTracker::UAVBarrier(const FResource* resource)
+	void FResourceStateTracker::UAVBarrier(const IResource* resource)
 	{
 	}
 
