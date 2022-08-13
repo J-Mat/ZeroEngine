@@ -32,25 +32,25 @@ namespace Zero
 			
 			void Reset();
 		private:
-			FDX12Device& Device;
+			FDX12Device& m_Device;
 			ComPtr<ID3D12Resource> Resource;
 
-			void* CPUPtr;
-			D3D12_GPU_VIRTUAL_ADDRESS GPUPtr;
+			void* m_CPUPtr;
+			D3D12_GPU_VIRTUAL_ADDRESS m_GPUPtr;
 	
-			size_t PageSize;
-			size_t Offset;
+			size_t m_PageSize;
+			size_t m_Offset;
 		};
 		
 		Ref<FPage> RequestPage();
 
 		using FPagePool = std::deque<Ref<FPage>>;
 
-		FDX12Device& Device;
-		FPagePool PagePool;
-		FPagePool AvaliablePages;
-		Ref<FPage> CurrentPage;
-		size_t PageSize;
+		FDX12Device& m_Device;
+		FPagePool m_PagePool;
+		FPagePool m_AvaliablePages;
+		Ref<FPage> m_CurrentPage;
+		size_t m_PageSize;
 	};
 	
 }
