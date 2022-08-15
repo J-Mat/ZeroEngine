@@ -2,7 +2,7 @@
 
 namespace Zero
 {
-	class FCommandList
+	class FCommandList :
 	{
 	public:
 		virtual ~FCommandList() {

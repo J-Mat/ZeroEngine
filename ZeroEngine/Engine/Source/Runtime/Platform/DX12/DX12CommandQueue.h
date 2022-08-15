@@ -31,14 +31,14 @@ namespace Zero
 		
 		FDX12Device& m_Device;
 		D3D12_COMMAND_LIST_TYPE                    m_CommandListType;
-		Microsoft::WRL::ComPtr<ID3D12CommandQueue> CommandQueue;
-		Microsoft::WRL::ComPtr<ID3D12Fence>        Fence;
+		Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_CommandQueue;
+		Microsoft::WRL::ComPtr<ID3D12Fence>        m_Fence;
 		std::atomic_uint64_t                       m_FenceValue;
 		
 		TThreadSafeQueue<CommandListEntry> InFlightCommandLists;
 		TThreadSafeQueue<Ref<FDX12CommandList>> AvailableCommandLists;
 		
-		std::thread             ProcessInFlightCommandListsThread;
+		std::thread             m_ProcessInFlightCommandListsThread;
 		std::atomic_bool        m_bProcessInFlightCommandLists;
 		std::mutex              ProcessInFlightCommandListsThreadMutex;
 		std::condition_variable ProcessInFlightCommandListsThreadCV;

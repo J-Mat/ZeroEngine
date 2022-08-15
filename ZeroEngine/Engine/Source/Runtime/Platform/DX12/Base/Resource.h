@@ -7,24 +7,24 @@ namespace Zero
 	{
 	public:
 		IResource(FDX12Device& InDevice);
-		IResource(FDX12Device &InDevice, const D3D12_RESOURCE_DESC& ResourceDesc,
+		IResource(FDX12Device& InDevice, const D3D12_RESOURCE_DESC& ResourceDesc,
 			const D3D12_CLEAR_VALUE* ClearValue = nullptr);
 		IResource(FDX12Device& InDevice, ComPtr<ID3D12Resource> Resource,
 			const D3D12_CLEAR_VALUE* ClearValue = nullptr);
 
 		void SetName(const std::string& Name) { m_ResourceName = Name; };
-    	const std::string& GetName() const { return m_ResourceName;}
+		const std::string& GetName() const { return m_ResourceName; }
 		virtual void SetResource(ComPtr<ID3D12Resource> Resource);
-	
 
-	  	/**
-     	* Check if the resource format supports a specific feature.
-     	*/
-    	bool CheckFormatSupport(D3D12_FORMAT_SUPPORT1 InFormatSupport ) const {return (m_FormatSupport.Support1 & InFormatSupport) != 0;}
-    	bool CheckFormatSupport(D3D12_FORMAT_SUPPORT2 InFormatSupport ) const {return (m_FormatSupport.Support2 & InFormatSupport) != 0;}
+
+		/**
+		* Check if the resource format supports a specific feature.
+		*/
+		bool CheckFormatSupport(D3D12_FORMAT_SUPPORT1 InFormatSupport) const { return (m_FormatSupport.Support1 & InFormatSupport) != 0; }
+		bool CheckFormatSupport(D3D12_FORMAT_SUPPORT2 InFormatSupport) const { return (m_FormatSupport.Support2 & InFormatSupport) != 0; }
 
 		ComPtr<ID3D12Resource> GetD3DResource() { return m_D3DResource; }
-		
+
 	protected:
 
 		virtual ~IResource() = default;
@@ -37,5 +37,5 @@ namespace Zero
 		Scope<D3D12_CLEAR_VALUE>     m_D3DClearValue;
 	private:
 		void CheckFeatureSupport();
-	}
+	};
 }

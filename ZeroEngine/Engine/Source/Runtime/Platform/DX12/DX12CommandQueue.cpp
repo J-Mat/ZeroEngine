@@ -16,34 +16,34 @@ namespace Zero
 		Desc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
 		Desc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 		Desc.NodeMask = 0;
-		ThrowIfFailed(D3DDevice->CreateCommandQueue(&Desc, IID_PPV_ARGS(&CommandQueue)));
-		ThrowIfFailed(D3DDevice->CreateFence(m_FenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&Fence)));
+		ThrowIfFailed(D3DDevice->CreateCommandQueue(&Desc, IID_PPV_ARGS(&m_CommandQueue)));
+		ThrowIfFailed(D3DDevice->CreateFence(m_FenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_Fence)));
 		
 		char ThreadName[256];
 		sprintf_s(ThreadName, "ProccessInFlightCommandLists ");
 		switch (m_CommandListType)
 		{
 		case D3D12_COMMAND_LIST_TYPE_COPY:
-			CommandQueue->SetName(L"Copy Command Queue");
+			m_CommandQueue->SetName(L"Copy Command Queue");
 			strcat_s(ThreadName, "(Copy)");
 			break;
 		case D3D12_COMMAND_LIST_TYPE_COMPUTE:
-			CommandQueue->SetName(L"Compute Command Queue");
+			m_CommandQueue->SetName(L"Compute Command Queue");
 			strcat_s(ThreadName, "(Compute)");
 			break;
 		case D3D12_COMMAND_LIST_TYPE_DIRECT:
-			CommandQueue->SetName(L"Direct Command Queue");
+			m_CommandQueue->SetName(L"Direct Command Queue");
 			strcat_s(ThreadName, "(Direct)");
 			break;
 		}
 
-		ProcessInFlightCommandListsThread = std::thread(&FDX12CommandQueue::ProcessInFlightCommandLists, this);
-		Utils::SetThreadName(ProcessInFlightCommandListsThread, ThreadName);
+		m_ProcessInFlightCommandListsThread = std::thread(&FDX12CommandQueue::ProcessInFlightCommandLists, this);
+		Utils::SetThreadName(m_ProcessInFlightCommandListsThread, ThreadName);
 	}
 	FDX12CommandQueue::~FDX12CommandQueue()
 	{
 		m_bProcessInFlightCommandLists = false;
-		ProcessInFlightCommandListsThread.join();
+		m_ProcessInFlightCommandListsThread.join();
 	}
 
 	Ref<FDX12CommandList> FDX12CommandQueue::GetCommandList()
@@ -69,18 +69,20 @@ namespace Zero
 
 	uint64_t FDX12CommandQueue::ExecuteCommandLists(const std::vector<Ref<FDX12CommandList>>& CommandLists)
 	{
-		return uint64_t();
+		FResourceStateTracker::Lock();
+		
+		// Command lists that need to put back on the command list queue.
 	}
 
 	uint64_t FDX12CommandQueue::Signal()
 	{
 		uint64_t OutFenceValue = ++m_FenceValue;
-		CommandQueue->Signal(Fence.Get(), m_FenceValue);
+		m_CommandQueue->Signal(m_Fence.Get(), m_FenceValue);
 		return OutFenceValue;
 	}
 	bool FDX12CommandQueue::IsFenceComplete(uint64_t FenceValue)
 	{
-		Fence->GetCompletedValue() >= FenceValue;
+		m_Fence->GetCompletedValue() >= FenceValue;
 	}
 	void FDX12CommandQueue::WaitForFenceValue(uint64_t FenceValue)
 	{
@@ -90,7 +92,7 @@ namespace Zero
 			if (Event)
 			{
 				// Is this function thread safe?
-				Fence->SetEventOnCompletion(FenceValue, Event);
+				m_Fence->SetEventOnCompletion(FenceValue, Event);
 				::WaitForSingleObject(Event, DWORD_MAX);
 
 				::CloseHandle(Event);

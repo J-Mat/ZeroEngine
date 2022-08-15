@@ -81,6 +81,9 @@ namespace Zero
 
 	void FResourceStateTracker::UAVBarrier(const IResource* resource)
 	{
+		//#todo
+		//#to 
+
 	}
 
 	uint32_t FResourceStateTracker::FlushPendingResourceBarriers(const Ref<FDX12CommandList>& CommandList)
@@ -140,7 +143,6 @@ namespace Zero
 		PendingResourceBarriersList.clear();
 
 		return NumBarriers;
-
 	}
 
 	void FResourceStateTracker::FlushResourceBarriers(const Ref<FDX12CommandList>& CommandList)

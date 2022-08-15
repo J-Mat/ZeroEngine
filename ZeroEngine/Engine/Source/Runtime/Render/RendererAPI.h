@@ -42,11 +42,11 @@ namespace Zero
 
 	class FDX12IndexBuffer;
 	class FDX12VertexBuffer;
-	class FDX12Factory : public IGraphicFactroy 
+	class FDX12Factory : public IGraphicFactroy
 	{
 		virtual Ref<IVertexBuffer> CreateVertexBuffer(void* data, uint32_t VertexCount, FVertexBufferLayout& Layout, IVertexBuffer::EType Type = IVertexBuffer::EType::Static)
 		{
 			return FDX12VertexBuffer(data, VertexCount, Layout, Type);
 		}
-	}
+	};
 }
