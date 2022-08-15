@@ -30,7 +30,7 @@ namespace Zero
 		* descriptor tables and determine the number of descriptors needed for
 		* each table.
 		*/
-		void ParseRootSignature(const std::shared_ptr<RootSignature>& rootSignature);
+		void ParseRootSignature(const std::shared_ptr<FRootSignature>& rootSignature);
 		
 	private:
 		/**
