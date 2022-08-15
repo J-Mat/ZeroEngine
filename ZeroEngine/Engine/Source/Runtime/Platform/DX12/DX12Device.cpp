@@ -9,6 +9,8 @@ namespace Zero
 		CreateDevice();
 		GetDescriptorSize();
 		CreateCommandQueue();
+
+		CheckFeatures();
 	}
 	
 	void FDX12Device::EnableDebugLayer()
@@ -49,6 +51,18 @@ namespace Zero
 		m_DirectCommandQueue = CreateScope<FDX12CommandQueue>(*this, D3D12_COMMAND_LIST_TYPE_DIRECT);
 		m_ComputeCommandQueue = CreateScope<FDX12CommandQueue>(*this, D3D12_COMMAND_LIST_TYPE_COMPUTE);
 		m_CopyCommandQueue = CreateScope<FDX12CommandQueue>(*this, D3D12_COMMAND_LIST_TYPE_COPY);
+	}
+
+	void FDX12Device::CheckFeatures()
+	{
+		D3D12_FEATURE_DATA_ROOT_SIGNATURE FeatureData;
+		FeatureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1;
+		if (FAILED(m_D3DDevice->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &FeatureData,
+			sizeof(D3D12_FEATURE_DATA_ROOT_SIGNATURE))))
+		{
+			FeatureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
+		}
+		m_HighestRootSignatureVersion = FeatureData.HighestVersion;
 	}
 
 	FDX12CommandQueue& FDX12Device::GetCommandQueue(D3D12_COMMAND_LIST_TYPE Type)

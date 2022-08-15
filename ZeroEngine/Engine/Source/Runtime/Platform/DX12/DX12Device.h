@@ -18,12 +18,16 @@ namespace Zero
 		ID3D12Device* GetDevice() { return m_D3DDevice.Get(); }
 		FDX12CommandQueue& GetCommandQueue(D3D12_COMMAND_LIST_TYPE Type = D3D12_COMMAND_LIST_TYPE_DIRECT);
 
-
+		D3D_ROOT_SIGNATURE_VERSION GetHighestRootSignatureVersion() const
+		{
+			return m_HighestRootSignatureVersion;
+		}
 	private:
 		void EnableDebugLayer();
 		void CreateDevice();
 		void GetDescriptorSize();
 		void CreateCommandQueue();
+		void CheckFeatures();
 
 		
 	private:
@@ -36,5 +40,8 @@ namespace Zero
 		Scope<FDX12CommandQueue> m_DirectCommandQueue;
 		Scope<FDX12CommandQueue> m_ComputeCommandQueue;
 		Scope<FDX12CommandQueue> m_CopyCommandQueue;
+
+
+		D3D_ROOT_SIGNATURE_VERSION m_HighestRootSignatureVersion;
 	};
 }
