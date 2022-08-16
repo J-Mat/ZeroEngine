@@ -32,19 +32,20 @@ namespace Zero
 		};
 		FImage(std::string Path);
 		FImage(uint32_t Width, uint32_t Height, uint32_t Channels, ZMath::vec4 Color = {0,0,0,0 });
+		~FImage();
 
 		void Clear(ZMath::vec4 Color = { 0,0,0,0 });
 
 		uint32_t GetWidth() { return m_Width; }
 		uint32_t GetHeight() { return m_Height; }
-		uint32_t GetChannel() { return m_Channel; }
+		uint32_t GetChannel() { return m_Channels; }
 		unsigned char* GetData() { return m_Data; }
 		uint32_t GetBufferSize() { return m_BufferSize; }
 
 	private:
 		int m_Width;
 		int m_Height;
-		int m_Channel;
+		int m_Channels;
 		EImgeType m_Type;
 
 		unsigned char* m_Data;

@@ -1,6 +1,7 @@
 #pragma once
 #include "Core.h"
-#include "RHI/VertexBuffer.h"
+#include "Platform/DX12/DX12VertexBuffer.h"
+#include "Platform/DX12/DX12Texture2D.h"
 
 namespace Zero
 {
@@ -37,16 +38,17 @@ namespace Zero
 	
 	class IGraphicFactroy
 	{
-		virtual Ref<IVertexBuffer> CreateVertexBuffer(void* data, uint32_t VertexCount, FVertexBufferLayout& Layout, IVertexBuffer::EType Type = IVertexBuffer::EType::Static) = 0;
+		virtual Ref<IVertexBuffer> CreateVertexBuffer(IDevice* Device, void* data, uint32_t VertexCount, FVertexBufferLayout& Layout, IVertexBuffer::EType Type = IVertexBuffer::EType::Static) = 0;
+		virtual Ref<ITexture2D> CreateTexture2D(IDevice* Device)
 	};
 
-	class FDX12IndexBuffer;
-	class FDX12VertexBuffer;
+	
+
 	class FDX12Factory : public IGraphicFactroy
 	{
-		virtual Ref<IVertexBuffer> CreateVertexBuffer(void* data, uint32_t VertexCount, FVertexBufferLayout& Layout, IVertexBuffer::EType Type = IVertexBuffer::EType::Static)
+		virtual Ref<IVertexBuffer> CreateVertexBuffer(IDevice* Device, void* data, uint32_t VertexCount, FVertexBufferLayout& Layout, IVertexBuffer::EType Type = IVertexBuffer::EType::Static)
 		{
-			return FDX12VertexBuffer(data, VertexCount, Layout, Type);
+			return CreateRef<FDX1VertexBuffer>((FDX12Device*)Device, data, VertexCount, Layout, Type);
 		}
 	};
 }
