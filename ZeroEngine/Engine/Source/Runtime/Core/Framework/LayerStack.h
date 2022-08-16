@@ -17,11 +17,11 @@ namespace Zero
 		void PopLayer(FLayer* Layer);
 		void PopOverlay(FLayer* Overlay);
 
-		std::vector<FLayer*>::iterator begin() { return Layers.begin(); }
-		std::vector<FLayer*>::iterator end() { return Layers.end(); }
+		std::vector<FLayer*>::iterator begin() { return m_Layers.begin(); }
+		std::vector<FLayer*>::iterator end() { return m_Layers.end(); }
 
 	private:
-		std::vector<FLayer*> Layers;
-		unsigned int LayerInsertIndex = 0;
+		std::vector<FLayer*> m_Layers;
+		unsigned int m_LayerInsertIndex = 0;
 	};
 }

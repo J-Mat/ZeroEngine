@@ -19,8 +19,8 @@ namespace Zero
 			// First check if there is already a known "final" state for the given resource.
 			// If there is, the resource has been used on the command list before and
 			// already has a known state within the command list execution.
-			const auto Iter = FinalResourceState.find(TransitionBarrier.pResource);
-			if (Iter != FinalResourceState.end())
+			const auto Iter = m_FinalResourceState.find(TransitionBarrier.pResource);
+			if (Iter != m_FinalResourceState.end())
 			{
 				auto& ResourceState = Iter->second;
 				// If the known final state of the resource is different...
@@ -57,7 +57,7 @@ namespace Zero
 			}
 
 			// Push the final known state (possibly replacing the previously known state for the subresource).
-			FinalResourceState[TransitionBarrier.pResource].SetSubResourceState(TransitionBarrier.Subresource, TransitionBarrier.StateAfter);
+			m_FinalResourceState[TransitionBarrier.pResource].SetSubResourceState(TransitionBarrier.Subresource, TransitionBarrier.StateAfter);
 		}
 		else
 		{
@@ -160,19 +160,19 @@ namespace Zero
 		CORE_ASSERT(s_bLocked, "s_bLocked is unlocked");
 
 		// Commit final resource states to the global resource state array (map).
-		for (const auto& ResourceState : FinalResourceState)
+		for (const auto& ResourceState : m_FinalResourceState)
 		{
 			s_GlobalResourceState[ResourceState.first] = ResourceState.second;
 		}
 
-		FinalResourceState.clear();
+		m_FinalResourceState.clear();
 	}
 
 	void FResourceStateTracker::Reset()
 	{
 		PendingResourceBarriersList.clear();
 		ResourceBarriersList.clear();
-		FinalResourceState.clear();
+		m_FinalResourceState.clear();
 	}
 
 	void FResourceStateTracker::Lock()

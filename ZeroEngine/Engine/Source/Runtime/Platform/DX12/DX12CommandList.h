@@ -17,7 +17,7 @@ namespace Zero
 		virtual ~FDX12CommandList() = default;
 
 		void FlushResourceBarriers();
-		ComPtr<ID3D12GraphicsCommandList2> GetD3D12CommandList() const { return m_CommandList;}
+		ComPtr<ID3D12GraphicsCommandList2> GetD3D12CommandList() const { return m_D3DCommandList;}
 
 		ComPtr<ID3D12Resource> CreateDefaultBuffer(const void* BufferData, size_t BufferSize, D3D12_RESOURCE_FLAGS Flags = D3D12_RESOURCE_FLAG_NONE);
 
@@ -52,6 +52,15 @@ namespace Zero
 		* Release tracked objects. Useful if the swap chain needs to be resized.
 		*/
 		void ReleaseTrackedObjects();
+
+		/**
+		* Set the currently bound descriptor heap.
+		* Should only be called by the DynamicDescriptorHeap class.
+		*/
+		void SetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE HeapType, ID3D12DescriptorHeap* Heap);
+
+		// Binds the current descriptor heaps to the command list.
+		void BindDescriptorHeaps();
 
 	private:
 		void TrackResource(Microsoft::WRL::ComPtr<ID3D12Object> Object);

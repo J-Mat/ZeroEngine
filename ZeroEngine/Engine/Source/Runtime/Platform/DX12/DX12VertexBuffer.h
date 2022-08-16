@@ -9,7 +9,7 @@ namespace Zero
 	class FDX1VertexBuffer :public IVertexBuffer, public IBuffer
 	{
 	public:
-		FDX1VertexBuffer(FDX12Device& Device, void* _Data, uint32_t _VertexCount, FVertexBufferLayout& _Layout, IVertexBuffer::EType _Type = IVertexBuffer::EType::Static);
+		FDX1VertexBuffer(FDX12Device& m_Device, void* _Data, uint32_t _VertexCount, FVertexBufferLayout& _Layout, IVertexBuffer::EType _Type = IVertexBuffer::EType::Static);
 
 	private:
 		FDX12Device& m_Device;

@@ -1027,7 +1027,7 @@ struct CD3DX12_ROOT_PARAMETER : public D3D12_ROOT_PARAMETER
     {
         rootParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
         rootParam.ShaderVisibility = visibility;
-        CD3DX12_ROOT_DESCRIPTOR::Init(rootParam.Descriptor, shaderRegister, registerSpace);
+        CD3DX12_ROOT_DESCRIPTOR::Init(rootParam.m_Descriptor, shaderRegister, registerSpace);
     }
 
     static inline void InitAsShaderResourceView(
@@ -1038,7 +1038,7 @@ struct CD3DX12_ROOT_PARAMETER : public D3D12_ROOT_PARAMETER
     {
         rootParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
         rootParam.ShaderVisibility = visibility;
-        CD3DX12_ROOT_DESCRIPTOR::Init(rootParam.Descriptor, shaderRegister, registerSpace);
+        CD3DX12_ROOT_DESCRIPTOR::Init(rootParam.m_Descriptor, shaderRegister, registerSpace);
     }
 
     static inline void InitAsUnorderedAccessView(
@@ -1049,7 +1049,7 @@ struct CD3DX12_ROOT_PARAMETER : public D3D12_ROOT_PARAMETER
     {
         rootParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_UAV;
         rootParam.ShaderVisibility = visibility;
-        CD3DX12_ROOT_DESCRIPTOR::Init(rootParam.Descriptor, shaderRegister, registerSpace);
+        CD3DX12_ROOT_DESCRIPTOR::Init(rootParam.m_Descriptor, shaderRegister, registerSpace);
     }
     
     inline void InitAsDescriptorTable(
@@ -1399,7 +1399,7 @@ struct CD3DX12_ROOT_PARAMETER1 : public D3D12_ROOT_PARAMETER1
     {
         rootParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
         rootParam.ShaderVisibility = visibility;
-        CD3DX12_ROOT_DESCRIPTOR1::Init(rootParam.Descriptor, shaderRegister, registerSpace, flags);
+        CD3DX12_ROOT_DESCRIPTOR1::Init(rootParam.m_Descriptor, shaderRegister, registerSpace, flags);
     }
 
     static inline void InitAsShaderResourceView(
@@ -1411,7 +1411,7 @@ struct CD3DX12_ROOT_PARAMETER1 : public D3D12_ROOT_PARAMETER1
     {
         rootParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
         rootParam.ShaderVisibility = visibility;
-        CD3DX12_ROOT_DESCRIPTOR1::Init(rootParam.Descriptor, shaderRegister, registerSpace, flags);
+        CD3DX12_ROOT_DESCRIPTOR1::Init(rootParam.m_Descriptor, shaderRegister, registerSpace, flags);
     }
 
     static inline void InitAsUnorderedAccessView(
@@ -1423,7 +1423,7 @@ struct CD3DX12_ROOT_PARAMETER1 : public D3D12_ROOT_PARAMETER1
     {
         rootParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_UAV;
         rootParam.ShaderVisibility = visibility;
-        CD3DX12_ROOT_DESCRIPTOR1::Init(rootParam.Descriptor, shaderRegister, registerSpace, flags);
+        CD3DX12_ROOT_DESCRIPTOR1::Init(rootParam.m_Descriptor, shaderRegister, registerSpace, flags);
     }
     
     inline void InitAsDescriptorTable(
@@ -2089,8 +2089,8 @@ inline HRESULT D3DX12SerializeVersionedRootSignature(
                             case D3D12_ROOT_PARAMETER_TYPE_CBV:
                             case D3D12_ROOT_PARAMETER_TYPE_SRV:
                             case D3D12_ROOT_PARAMETER_TYPE_UAV:
-                                pParameters_1_0[n].Descriptor.RegisterSpace = desc_1_1.pParameters[n].Descriptor.RegisterSpace;
-                                pParameters_1_0[n].Descriptor.ShaderRegister = desc_1_1.pParameters[n].Descriptor.ShaderRegister;
+                                pParameters_1_0[n].m_Descriptor.RegisterSpace = desc_1_1.pParameters[n].m_Descriptor.RegisterSpace;
+                                pParameters_1_0[n].m_Descriptor.ShaderRegister = desc_1_1.pParameters[n].m_Descriptor.ShaderRegister;
                                 break;
 
                             case D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE:
@@ -2963,12 +2963,12 @@ public:
         m_Desc.DXILLibrary = pCode ? *pCode : Default; 
     }
     void DefineExport(
-        LPCWSTR Name, 
+        LPCWSTR m_Name, 
         LPCWSTR ExportToRename = nullptr, 
         D3D12_EXPORT_FLAGS Flags = D3D12_EXPORT_FLAG_NONE)
     {
         D3D12_EXPORT_DESC Export;
-        Export.Name = m_Strings.LocalCopy(Name);
+        Export.m_Name = m_Strings.LocalCopy(m_Name);
         Export.ExportToRename = m_Strings.LocalCopy(ExportToRename);
         Export.Flags = Flags;
         m_Exports.push_back(Export);
@@ -3030,12 +3030,12 @@ public:
         m_CollectionRef = pExistingCollection; 
     }
     void DefineExport(
-        LPCWSTR Name, 
+        LPCWSTR m_Name, 
         LPCWSTR ExportToRename = nullptr, 
         D3D12_EXPORT_FLAGS Flags = D3D12_EXPORT_FLAG_NONE)
     {
         D3D12_EXPORT_DESC Export;
-        Export.Name = m_Strings.LocalCopy(Name);
+        Export.m_Name = m_Strings.LocalCopy(m_Name);
         Export.ExportToRename = m_Strings.LocalCopy(ExportToRename);
         Export.Flags = Flags;
         m_Exports.push_back(Export);

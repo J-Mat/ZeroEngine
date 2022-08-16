@@ -10,7 +10,7 @@ namespace Zero
 	{
 	public:
 		FLayer(const std::string& Iname = "Layer")
-			: Name(Iname) {};
+			: m_Name(Iname) {};
 		virtual ~FLayer() = default;
 
 		virtual void OnAttach() {}
@@ -20,7 +20,7 @@ namespace Zero
 		virtual void OnImGuiRender() {}
 		virtual void OnEvent(FEvent& event) {}
 	protected:
-		std::string Name;
+		std::string m_Name;
 	};
 }
 

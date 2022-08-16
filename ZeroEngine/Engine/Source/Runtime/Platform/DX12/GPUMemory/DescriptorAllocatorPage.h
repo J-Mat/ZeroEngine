@@ -9,14 +9,14 @@ namespace Zero
 	class FDescriptorAllocatorPage : public std::enable_shared_from_this<FDescriptorAllocatorPage>
 	{
 	public:
-		D3D12_DESCRIPTOR_HEAP_TYPE GetHeapType() const { return HeapType; }
-		FDescriptorAllocatorPage(FDX12Device& Device, D3D12_DESCRIPTOR_HEAP_TYPE Type, uint32_t NumDescriptors);
+		D3D12_DESCRIPTOR_HEAP_TYPE GetHeapType() const { return m_HeapType; }
+		FDescriptorAllocatorPage(FDX12Device& m_Device, D3D12_DESCRIPTOR_HEAP_TYPE Type, uint32_t NumDescriptors);
 
 		bool HasSpace(uint32_t NumDescriptors);
 		uint32_t GetNumFreeHandles() const;
 		void AddNewBlock(uint32_t Offset, uint32_t NumDescriptors);
 		void FreeBlock(uint32_t Offset, uint32_t NumDescriptors);
-		void Free(FDescriptorAllocation&& Descriptor);
+		void Free(FDescriptorAllocation&& m_Descriptor);
 		uint32_t ComputeOffset(D3D12_CPU_DESCRIPTOR_HANDLE Handle);
 
 		FDescriptorAllocation Allocate(uint32_t NumDescriptors);
@@ -52,20 +52,20 @@ namespace Zero
 
 		using FStaleDescriptorQueue = std::queue<FStaleDescriptorInfo>;
 
-		FFreeListByOffset FreeListByOffset;
-		FFreeListBySize  FreeListBySize;
+		FFreeListByOffset m_FreeListByOffset;
+		FFreeListBySize  m_FreeListBySize;
 		FStaleDescriptorQueue StaleDescriptorQueue;
 
-		D3D12_DESCRIPTOR_HEAP_TYPE HeapType;
+		D3D12_DESCRIPTOR_HEAP_TYPE m_HeapType;
 
-		FDX12Device& Device;
+		FDX12Device& m_Device;
 
-		ComPtr<ID3D12DescriptorHeap> D3DDescriptorHeap;
-		D3D12_DESCRIPTOR_HEAP_TYPE HeapType;
+		ComPtr<ID3D12DescriptorHeap> m_D3DDescriptorHeap;
+		D3D12_DESCRIPTOR_HEAP_TYPE m_HeapType;
 		CD3DX12_CPU_DESCRIPTOR_HANDLE BaseDescriptor;
-		uint32_t  DescriptorHandleIncrementSize;
-		uint32_t  NumDescriptorsInHeap;
-		uint32_t  NumFreeHandles;
-		std::mutex AllocationMutex;
+		uint32_t  m_DescriptorHandleIncrementSize;
+		uint32_t  m_NumDescriptorsInHeap;
+		uint32_t  m_NumFreeHandles;
+		std::mutex m_AllocationMutex;
 	};
 }

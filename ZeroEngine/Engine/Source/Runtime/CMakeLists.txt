@@ -10,6 +10,7 @@ add_library(${ProjectName} STATIC ${HeadList} ${SrcList})
 # 很丑陋 暂时没想到好方法
 target_include_directories(${ProjectName} PUBLIC ${ThirdPartyDir}/glm)
 
+
 target_include_directories(${ProjectName} 
     PRIVATE "${EngineSourceDir}"
     PRIVATE "${EngineRuntimeDir}" # make sure we can directly include "hepch.h"
@@ -17,6 +18,7 @@ target_include_directories(${ProjectName}
 
 target_link_libraries(${ProjectName}
     PUBLIC spdlog
+    PUBLIC stb_image
 )
 
 if (WIN32)

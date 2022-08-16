@@ -2,8 +2,8 @@
 
 namespace Zero
 {
-	FUploadBuffer::FUploadBuffer(FDX12Device& Device, size_t PageSize)
-	: m_Device(Device)
+	FUploadBuffer::FUploadBuffer(FDX12Device& m_Device, size_t PageSize)
+	: m_Device(m_Device)
 	, m_PageSize(PageSize)
 	{
 				

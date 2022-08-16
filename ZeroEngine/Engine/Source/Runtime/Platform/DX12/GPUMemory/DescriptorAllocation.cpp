@@ -4,16 +4,16 @@
 namespace Zero
 {
 	FDescriptorAllocation::FDescriptorAllocation()
-		: Descriptor{ 0 }
-		, NumHandles(0)
+		: m_Descriptor{ 0 }
+		, m_NumHandles(0)
 		, DescriptorSize(0)
 		, Page(nullptr)
 	{
 	}
 
 	FDescriptorAllocation::FDescriptorAllocation(D3D12_CPU_DESCRIPTOR_HANDLE InDescriptor, uint32_t InNumHandles, uint32_t InDescriptorSize, Ref<FDescriptorAllocatorPage> InPage)
-		: Descriptor(InDescriptor)
-		, NumHandles(InNumHandles)
+		: m_Descriptor(InDescriptor)
+		, m_NumHandles(InNumHandles)
 		, DescriptorSize(InDescriptorSize)
 		, Page(InPage)
 	{
@@ -25,13 +25,13 @@ namespace Zero
 	}
 	
 	FDescriptorAllocation::FDescriptorAllocation(FDescriptorAllocation&& Allocation) noexcept
-		: Descriptor(Allocation.Descriptor)
-		, NumHandles(Allocation.NumHandles)
-		, DescriptorSize(Allocation.NumHandles)
+		: m_Descriptor(Allocation.m_Descriptor)
+		, NumHandles(Allocation.m_NumHandles)
+		, DescriptorSize(Allocation.m_NumHandles)
 		, Page(std::move(Allocation.Page))
 	{
-		Allocation.Descriptor.ptr = 0;
-    	Allocation.NumHandles = 0;
+		Allocation.m_Descriptor.ptr = 0;
+    	Allocation.m_NumHandles = 0;
     	Allocation.DescriptorSize = 0;
 	}
 	
@@ -39,13 +39,13 @@ namespace Zero
 	{
 		Free();
 		
-		Descriptor = Other.Descriptor;
-  		NumHandles = Other.NumHandles;
+		m_Descriptor = Other.m_Descriptor;
+  		m_NumHandles = Other.m_NumHandles;
     	DescriptorSize = Other.DescriptorSize;
     	Page = std::move( Other.Page );
 
-    	Other.Descriptor.ptr = 0;
-    	Other.NumHandles = 0;
+    	Other.m_Descriptor.ptr = 0;
+    	Other.m_NumHandles = 0;
     	Other.DescriptorSize = 0;
 
     	return *this;
@@ -58,7 +58,7 @@ namespace Zero
 
 	bool FDescriptorAllocation::IsNull()
 	{
-		return Descriptor.ptr == 0;
+		return m_Descriptor.ptr == 0;
 	}
 	
 	bool FDescriptorAllocation::IsValid()
@@ -68,13 +68,13 @@ namespace Zero
 
 	D3D12_CPU_DESCRIPTOR_HANDLE FDescriptorAllocation::GetDescriptorHandle(uint32_t Offset) const
 	{
-		CORE_ASSERT(Offset < NumHandles, "GetDescriptorHandle Offset < NumHandles");
-		return { Descriptor.ptr + DescriptorSize * Offset };
+		CORE_ASSERT(Offset < m_NumHandles, "GetDescriptorHandle Offset < NumHandles");
+		return { m_Descriptor.ptr + DescriptorSize * Offset };
 	}
 	
 	uint32_t FDescriptorAllocation::GetNumHandles() const
 	{
-		return NumHandles;	
+		return m_NumHandles;	
 	}
 	
 	void FDescriptorAllocation::Free()
@@ -83,8 +83,8 @@ namespace Zero
 		{
 			Page->Free(std::move(*this));
 
-			Descriptor.ptr = 0;
-        	NumHandles = 0;
+			m_Descriptor.ptr = 0;
+        	m_NumHandles = 0;
         	DescriptorSize = 0;
         	Page.reset();
 		}

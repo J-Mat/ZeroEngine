@@ -73,6 +73,31 @@ namespace Zero
 		
 	}
 			
+	void FDX12CommandList::SetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE HeapType, ID3D12DescriptorHeap* Heap)
+	{
+		if (m_DescriptorHeaps[HeapType] != Heap)
+		{
+			m_DescriptorHeaps[HeapType] = Heap;
+			BindDescriptorHeaps();
+		}
+	}
+
+	void FDX12CommandList::BindDescriptorHeaps()
+	{
+		UINT NumDescriptorHeaps = 0;
+		ID3D12DescriptorHeap* DescriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES] = {};
+		for (uint32_t i = 0; i < D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES; ++i)
+		{
+			ID3D12DescriptorHeap* DescriptorHeap = m_DescriptorHeaps[i];
+			if (DescriptorHeap)
+			{
+				DescriptorHeaps[NumDescriptorHeaps++] = DescriptorHeap;
+			}
+		}
+
+		m_D3DCommandList->SetDescriptorHeaps(NumDescriptorHeaps, DescriptorHeaps);
+	}
+
 	void FDX12CommandList::TrackResource(Microsoft::WRL::ComPtr<ID3D12Object> Object)
 	{
 		m_TrackedObjects.push_back(Object);

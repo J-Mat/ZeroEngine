@@ -167,7 +167,7 @@ namespace Zero
 		
 		using ResourceStateMap = std::unordered_map<ID3D12Resource*, FResourcestate>;
 
-		ResourceStateMap FinalResourceState;
+		ResourceStateMap m_FinalResourceState;
 
 		static ResourceStateMap s_GlobalResourceState;
 		

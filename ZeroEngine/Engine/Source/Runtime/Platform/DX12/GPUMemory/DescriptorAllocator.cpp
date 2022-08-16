@@ -3,9 +3,9 @@
 namespace Zero
 {
     FDescriptorAllocator::FDescriptorAllocator(FDX12Device& InDevice, D3D12_DESCRIPTOR_HEAP_TYPE Type, uint32_t InNumDescriptorsPerHeap)
-        : Device(InDevice)
-        , HeapType(Type)
-        , NumDescriptorsPerHeap(InNumDescriptorsPerHeap)
+        : m_Device(InDevice)
+        , m_HeapType(Type)
+        , m_NumDescriptorsPerHeap(InNumDescriptorsPerHeap)
     {
        
         
@@ -17,47 +17,47 @@ namespace Zero
 
     Ref<FDescriptorAllocatorPage> FDescriptorAllocator::CreateAllocatorPage()
     {
-        Ref<FDescriptorAllocatorPage> NewPage = CreateRef<FDescriptorAllocatorPage>(Device, HeapType, NumDescriptorsPerHeap);
+        Ref<FDescriptorAllocatorPage> NewPage = CreateRef<FDescriptorAllocatorPage>(m_Device, m_HeapType, m_NumDescriptorsPerHeap);
         
-        HeapPool.emplace_back(NewPage);
-        AvailableHeaps.insert(HeapPool.size() - 1);
+        m_HeapPool.emplace_back(NewPage);
+        m_AvailableHeaps.insert(m_HeapPool.size() - 1);
         
         return NewPage;
     }
 
     void FDescriptorAllocator::ReleaseStaleDescriptors()
     {
-        std::lock_guard<std::mutex> Lock(AllocationMutex);
+        std::lock_guard<std::mutex> Lock(m_AllocationMutex);
        
-        for (size_t i = 0; i < HeapPool.size(); ++i)
+        for (size_t i = 0; i < m_HeapPool.size(); ++i)
         {
-            auto Page = HeapPool[i];
+            auto Page = m_HeapPool[i];
             Page->ReleaseStaleDescriptors();
             if (Page->GetNumFreeHandles() > 0)
             {
-                AvailableHeaps.insert(i);
+                m_AvailableHeaps.insert(i);
             }
         }
     }
 
     FDescriptorAllocation FDescriptorAllocator::Allocate(uint32_t NumDescriptors)
     {
-        std::lock_guard<std::mutex> Lock(AllocationMutex);
+        std::lock_guard<std::mutex> Lock(m_AllocationMutex);
         
         FDescriptorAllocation Allocation;
 
-        auto Iter = AvailableHeaps.begin();
+        auto Iter = m_AvailableHeaps.begin();
 
-        while (Iter != AvailableHeaps.end())
+        while (Iter != m_AvailableHeaps.end())
         {
             size_t Index = *Iter;
-            auto AllocatorPage = HeapPool[Index];
+            auto AllocatorPage = m_HeapPool[Index];
             
             auto Allocation = AllocatorPage->Allocate(NumDescriptors);
             
             if (AllocatorPage->GetNumFreeHandles() == 0)
             {
-                Iter = AvailableHeaps.erase(Iter);
+                Iter = m_AvailableHeaps.erase(Iter);
             }
             else
             {
@@ -71,7 +71,7 @@ namespace Zero
         
         if (Allocation.IsNull())
         {
-            NumDescriptorsPerHeap = std::max(NumDescriptorsPerHeap, NumDescriptors);
+            m_NumDescriptorsPerHeap = std::max(m_NumDescriptorsPerHeap, NumDescriptors);
             auto NewPage = CreateAllocatorPage();
             Allocation = NewPage->Allocate(NumDescriptors);
         }

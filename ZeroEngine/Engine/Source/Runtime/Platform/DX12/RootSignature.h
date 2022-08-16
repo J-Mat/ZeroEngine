@@ -9,16 +9,27 @@ namespace Zero
 	class FRootSignature
 	{
 	public:
-		FRootSignature(FDX12Device& Device, const D3D12_ROOT_SIGNATURE_DESC1& RootSignatureDesc);
+		FRootSignature(FDX12Device& m_Device, const D3D12_ROOT_SIGNATURE_DESC1& RootSignatureDesc);
 		virtual	~FRootSignature();
 		friend class std::default_delete<FRootSignature>;
+		uint32_t GetNumDescriptors(uint32_t RootIndex);
+		void SetRootSignatureDesc(const D3D12_ROOT_SIGNATURE_DESC1& RootSignatureDesc);
+		uint32_t GetDescriptorTableBitMask(D3D12_DESCRIPTOR_HEAP_TYPE DescriptorHeapType) const;
+
+		const D3D12_ROOT_SIGNATURE_DESC1& GetRootSignatureDesc() const
+		{
+			return m_RootSignatureDesc;
+		}
+		ComPtr<ID3D12RootSignature> GetD3D12RootSignature() const
+		{
+			return m_RootSignature;
+		}
 	private:
 		void Destroy();
-		void SetRootSignatureDesc(const D3D12_ROOT_SIGNATURE_DESC1& RootSignatureDesc);
 
 		FDX12Device& m_Device;
 		D3D12_ROOT_SIGNATURE_DESC1                  m_RootSignatureDesc;
-		Microsoft::WRL::ComPtr<ID3D12RootSignature> m_RootSignature;
+		ComPtr<ID3D12RootSignature> m_RootSignature;
 
 		// Need to know the number of descriptors per descriptor table.
 		// A maximum of 32 descriptor tables are supported (since a 32-bit

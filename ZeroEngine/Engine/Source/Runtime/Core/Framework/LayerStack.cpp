@@ -9,7 +9,7 @@ namespace Zero
 
 	FLayerStack::~FLayerStack()
 	{
-		for (FLayer* Layer : Layers)
+		for (FLayer* Layer : m_Layers)
 		{
 			delete Layer;
 		}
@@ -17,31 +17,31 @@ namespace Zero
 
 	void FLayerStack::PushLayer(FLayer* Layer)
 	{
-		Layers.emplace(Layers.begin() + LayerInsertIndex, Layer);
-		LayerInsertIndex++;
+		m_Layers.emplace(m_Layers.begin() + m_LayerInsertIndex, Layer);
+		m_LayerInsertIndex++;
 	}
 
 	void FLayerStack::PushOverlay(FLayer* Overlay)
 	{
-		Layers.emplace_back(Overlay);
+		m_Layers.emplace_back(Overlay);
 	}
 
 	void FLayerStack::PopLayer(FLayer* Layer)
 	{
-		auto it = std::find(Layers.begin(), Layers.end(), Layer);
-		if (it != Layers.end())
+		auto it = std::find(m_Layers.begin(), m_Layers.end(), Layer);
+		if (it != m_Layers.end())
 		{
-			Layers.erase(it);
-			LayerInsertIndex--;
+			m_Layers.erase(it);
+			m_LayerInsertIndex--;
 		}
 	}
 
 	void FLayerStack::PopOverlay(FLayer* Overlay)
 	{
-		auto it = std::find(Layers.begin(), Layers.end(), Overlay);
-		if (it != Layers.end())
+		auto it = std::find(m_Layers.begin(), m_Layers.end(), Overlay);
+		if (it != m_Layers.end())
 		{
-			Layers.erase(it);
+			m_Layers.erase(it);
 		}
 	}
 }

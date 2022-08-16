@@ -5,42 +5,42 @@ namespace Zero
 {
 	FDescriptorAllocatorPage::FDescriptorAllocatorPage(FDX12Device& InDevice, D3D12_DESCRIPTOR_HEAP_TYPE Type, 
 													  uint32_t NumDescriptors)
-	: Device(InDevice)
-	, HeapType(Type)
-	, NumDescriptorsInHeap(NumDescriptors)
+	: m_Device(InDevice)
+	, m_HeapType(Type)
+	, m_NumDescriptorsInHeap(NumDescriptors)
 	{
-		auto D3dDevice = Device.GetDevice();
+		auto D3dDevice = m_Device.GetDevice();
 		
 		D3D12_DESCRIPTOR_HEAP_DESC HeapDesc = {};
-		HeapDesc.Type   = HeapType;
-		HeapDesc.NumDescriptors = NumDescriptorsInHeap;
+		HeapDesc.Type   = m_HeapType;
+		HeapDesc.NumDescriptors = m_NumDescriptorsInHeap;
 
 		ThrowIfFailed(
-			D3dDevice->CreateDescriptorHeap(HeapDesc,  IID_PPV_ARGS( &D3DDescriptorHeap ) )
+			D3dDevice->CreateDescriptorHeap(HeapDesc,  IID_PPV_ARGS( &m_D3DDescriptorHeap ) )
 		);
 		
-		BaseDescriptor = D3DDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-		DescriptorHandleIncrementSize = D3dDevice->GetDescriptorHandleIncrementSize(HeapType);
-		NumFreeHandles = NumDescriptorsInHeap;
+		BaseDescriptor = m_D3DDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+		m_DescriptorHandleIncrementSize = D3dDevice->GetDescriptorHandleIncrementSize(m_HeapType);
+		m_NumFreeHandles = m_NumDescriptorsInHeap;
 		
-		AddNewBlock(0, NumFreeHandles);
+		AddNewBlock(0, m_NumFreeHandles);
 	}
 	
 	
 	bool FDescriptorAllocatorPage::HasSpace(uint32_t NumDescriptors)
 	{
-		return FreeListBySize.lower_bound(NumDescriptors) != FreeListBySize.end();
+		return m_FreeListBySize.lower_bound(NumDescriptors) != m_FreeListBySize.end();
 	}
 
 	uint32_t FDescriptorAllocatorPage::GetNumFreeHandles() const
 	{
-		return NumFreeHandles;
+		return m_NumFreeHandles;
 	}
 
 	void FDescriptorAllocatorPage::AddNewBlock(uint32_t Offset, uint32_t NumDescriptors)
 	{
-		auto OffsetIter = FreeListByOffset.emplace(Offset, NumDescriptors).first;
-		auto SizeIter = FreeListBySize.emplace(NumDescriptors, OffsetIter);
+		auto OffsetIter = m_FreeListByOffset.emplace(Offset, NumDescriptors).first;
+		auto SizeIter = m_FreeListBySize.emplace(NumDescriptors, OffsetIter);
 		OffsetIter->second.FreeListBySizeIter = SizeIter;
 	}
 
@@ -48,20 +48,20 @@ namespace Zero
 	{
 		// Find the first element whose offset is greater than the specified offset.
 	    // This is the block that should appear after the block that is being freed.
-		auto NextBlockIter = FreeListByOffset.upper_bound(Offset);
+		auto NextBlockIter = m_FreeListByOffset.upper_bound(Offset);
 		auto PreBlockIter = NextBlockIter;
-		if (NextBlockIter != FreeListByOffset.begin())
+		if (NextBlockIter != m_FreeListByOffset.begin())
 		{
 			--PreBlockIter;
 		}
 		else
 		{
-			PreBlockIter = FreeListByOffset.end();
+			PreBlockIter = m_FreeListByOffset.end();
 		}
 		
-		NumFreeHandles += NumDescriptors;
+		m_NumFreeHandles += NumDescriptors;
 		
-		if (PreBlockIter != FreeListByOffset.end() && Offset == PreBlockIter->first + PreBlockIter->second.Size)
+		if (PreBlockIter != m_FreeListByOffset.end() && Offset == PreBlockIter->first + PreBlockIter->second.Size)
 		{
 			// The previous block is exactly behind the block that is to be freed.
 			//
@@ -75,11 +75,11 @@ namespace Zero
 			NumDescriptors += PreBlockIter->second.Size;
 
 			// Remove the previous block from the free list.
-			FreeListBySize.erase(PreBlockIter->second.FreeListBySizeIter);
-			FreeListByOffset.erase(PreBlockIter);
+			m_FreeListBySize.erase(PreBlockIter->second.FreeListBySizeIter);
+			m_FreeListByOffset.erase(PreBlockIter);
 		}
 
-		if (NextBlockIter != FreeListByOffset.end() && Offset + NumDescriptors == NextBlockIter->first)
+		if (NextBlockIter != m_FreeListByOffset.end() && Offset + NumDescriptors == NextBlockIter->first)
 		{
 			// The next block is exactly in front of the block that is to be freed.
 			//
@@ -92,39 +92,39 @@ namespace Zero
 			NumDescriptors += NextBlockIter->second.Size;
 
 			// Remove the next block from the free list.
-			FreeListBySize.erase(NextBlockIter->second.FreeListBySizeIter);
-			FreeListByOffset.erase(NextBlockIter);
+			m_FreeListBySize.erase(NextBlockIter->second.FreeListBySizeIter);
+			m_FreeListByOffset.erase(NextBlockIter);
 		}
 
 		AddNewBlock(Offset, NumDescriptors);
 	}
 
-	void FDescriptorAllocatorPage::Free(FDescriptorAllocation&& Descriptor)
+	void FDescriptorAllocatorPage::Free(FDescriptorAllocation&& m_Descriptor)
 	{
-		uint32_t Offset = ComputeOffset(Descriptor.GetDescriptorHandle());
+		uint32_t Offset = ComputeOffset(m_Descriptor.GetDescriptorHandle());
 		
-		std::lock_guard<std::mutex> Lock(AllocationMutex);
+		std::lock_guard<std::mutex> Lock(m_AllocationMutex);
 
-		StaleDescriptorQueue.emplace( Offset, Descriptor.GetNumHandles() );
+		StaleDescriptorQueue.emplace( Offset, m_Descriptor.GetNumHandles() );
 	}
 
 
 	uint32_t FDescriptorAllocatorPage::ComputeOffset(D3D12_CPU_DESCRIPTOR_HANDLE Handle)
 	{
-		return static_cast<uint32_t>(Handle.ptr - BaseDescriptor.ptr) / DescriptorHandleIncrementSize;
+		return static_cast<uint32_t>(Handle.ptr - BaseDescriptor.ptr) / m_DescriptorHandleIncrementSize;
 	}
 
 	FDescriptorAllocation FDescriptorAllocatorPage::Allocate(uint32_t NumDescriptors)
 	{
-		std::lock_guard<std::mutex> Lock(AllocationMutex);
+		std::lock_guard<std::mutex> Lock(m_AllocationMutex);
 		
-		if (NumDescriptors > NumFreeHandles)
+		if (NumDescriptors > m_NumFreeHandles)
 		{
 			return FDescriptorAllocation();
 		}
 		
-		auto SmallestBlockIter = FreeListBySize.lower_bound(NumDescriptors);
-		if (SmallestBlockIter == FreeListBySize.end())
+		auto SmallestBlockIter = m_FreeListBySize.lower_bound(NumDescriptors);
+		if (SmallestBlockIter == m_FreeListBySize.end())
 		{
 			return FDescriptorAllocation();
 		}
@@ -141,13 +141,13 @@ namespace Zero
 			AddNewBlock(NewOffset, NewSize);
 		}
 	
-		NumFreeHandles -= NumDescriptors;
-		return { CD3DX12_CPU_DESCRIPTOR_HANDLE(BaseDescriptor, Offset, DescriptorHandleIncrementSize), NumDescriptors, DescriptorHandleIncrementSize, shared_from_this() };
+		m_NumFreeHandles -= NumDescriptors;
+		return { CD3DX12_CPU_DESCRIPTOR_HANDLE(BaseDescriptor, Offset, m_DescriptorHandleIncrementSize), NumDescriptors, m_DescriptorHandleIncrementSize, shared_from_this() };
 	}
 
 	void FDescriptorAllocatorPage::ReleaseStaleDescriptors()
 	{
-		std::lock_guard<std::mutex> Lock(AllocationMutex);
+		std::lock_guard<std::mutex> Lock(m_AllocationMutex);
 		
 		while (!StaleDescriptorQueue.empty())
 		{

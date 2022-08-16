@@ -22,6 +22,16 @@ namespace Zero
 		{
 			return m_HighestRootSignatureVersion;
 		}
+
+
+		/**
+		 * Gets the size of the handle increment for the given type of descriptor heap.
+		 */
+		UINT GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE Type) const
+		{
+			return m_D3DDevice->GetDescriptorHandleIncrementSize(Type);
+		}
+
 	private:
 		void EnableDebugLayer();
 		void CreateDevice();

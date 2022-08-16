@@ -19,13 +19,13 @@ namespace Zero
 		using DescriptorHeapPool = std::vector<Ref<FDescriptorAllocatorPage>>;
 		
 
-		FDX12Device& Device;
-		D3D12_DESCRIPTOR_HEAP_TYPE HeapType;
-		uint32_t NumDescriptorsPerHeap;
+		FDX12Device& m_Device;
+		D3D12_DESCRIPTOR_HEAP_TYPE m_HeapType;
+		uint32_t m_NumDescriptorsPerHeap;
 
-		DescriptorHeapPool HeapPool;
+		DescriptorHeapPool m_HeapPool;
 
-		std::set<size_t> AvailableHeaps;
-		std::mutex AllocationMutex;
+		std::set<size_t> m_AvailableHeaps;
+		std::mutex m_AllocationMutex;
 	};
 }

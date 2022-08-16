@@ -37,8 +37,8 @@ namespace Zero
 	private:
 		void Free();
 
-		D3D12_CPU_DESCRIPTOR_HANDLE Descriptor;
-		uint32_t NumHandles;
+		D3D12_CPU_DESCRIPTOR_HANDLE m_Descriptor;
+		uint32_t m_NumHandles;
 		uint32_t DescriptorSize;
 		
 		Ref<FDescriptorAllocatorPage> Page;

@@ -15,6 +15,7 @@
 
 #include "Core.h"
 #include "../Common/DX12Header.h"
+#include "../RootSignature.h"
 
 namespace Zero
 {
@@ -26,13 +27,72 @@ namespace Zero
 		virtual ~FDynamicDescriptorHeap();
 
 		/**
+		* Stages a contiguous range of CPU visible descriptors.
+		* Descriptors are not copied to the GPU visible descriptor heap until
+		* the CommitStagedDescriptors function is called.
+		*/
+		void StageDescriptors(uint32_t rootParameterIndex, uint32_t offset, uint32_t numDescriptors,
+			const D3D12_CPU_DESCRIPTOR_HANDLE srcDescriptors);
+
+		/**
+		 * Stage an inline CBV descriptor.
+		 */
+		void StageInlineCBV(uint32_t rootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS bufferLocation);
+
+		/**
+		 * Stage an inline SRV descriptor.
+		 */
+		void StageInlineSRV(uint32_t rootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS bufferLocation);
+
+		/**
+		 * Stage an inline UAV descriptor.
+		 */
+		void StageInlineUAV(uint32_t rootParamterIndex, D3D12_GPU_VIRTUAL_ADDRESS bufferLocation);
+
+
+		/**
 		* Parse the root signature to determine which root parameters contain
 		* descriptor tables and determine the number of descriptors needed for
 		* each table.
 		*/
-		void ParseRootSignature(const std::shared_ptr<FRootSignature>& rootSignature);
+		void ParseRootSignature(const std::shared_ptr<FRootSignature>& RootSignature);
+
+		void CommitStagedDescriptorsForDraw(FDX12CommandList& CommandList);
+
+		void Reset();
 		
 	private:
+		// Request a descriptor heap if one is available.
+		ComPtr<ID3D12DescriptorHeap> RequestDescriptorHeap();
+		// Create a new descriptor heap of no descriptor heap is available.
+		ComPtr<ID3D12DescriptorHeap> CreateDescriptorHeap();
+
+		// Compute the number of stale descriptors that need to be copied
+		// to GPU visible descriptor heap.
+		uint32_t ComputeStaleDescriptorCount() const;
+
+		// Compute the number of stale descriptors that need to be copied
+		// to GPU visible descriptor heap.
+		uint32_t ComputeStaleDescriptorCount() const;
+
+		/**
+		* Copy all of the staged descriptors to the GPU visible descriptor heap and
+		* bind the descriptor heap and the descriptor tables to the command list.
+		* The passed-in function object is used to set the GPU visible descriptors
+		* on the command list. Two possible functions are:
+		*   * Before a draw    : ID3D12GraphicsCommandList::SetGraphicsRootDescriptorTable
+		*   * Before a dispatch: ID3D12GraphicsCommandList::SetComputeRootDescriptorTable
+		*
+		* Since the DynamicDescriptorHeap can't know which function will be used, it must
+		* be passed as an argument to the function.
+		*/
+		void CommitDescriptorTables(
+			FDX12CommandList& CommandList,
+			std::function<void(ID3D12GraphicsCommandList*, UINT, D3D12_GPU_DESCRIPTOR_HANDLE)> SetFunc);
+		void CommitInlineDescriptors(
+			FDX12CommandList& CommandList, const D3D12_GPU_VIRTUAL_ADDRESS* bufferLocations, uint32_t& BitMask,
+			std::function<void(ID3D12GraphicsCommandList*, UINT, D3D12_GPU_VIRTUAL_ADDRESS)> SetFunc);
+
 		/**
 		* The maximum number of descriptor tables per root signature.
 		* A 32-bit mask is used to keep track of the root parameter indices that

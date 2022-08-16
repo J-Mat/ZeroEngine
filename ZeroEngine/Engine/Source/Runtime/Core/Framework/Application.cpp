@@ -6,13 +6,13 @@ namespace Zero
 {
 	FApplication* FApplication::s_Instance = nullptr;
 
-	FApplication::FApplication(HINSTANCE hInst, const std::string& Name)
+	FApplication::FApplication(HINSTANCE hInst, const std::string& m_Name)
 	{
 		CORE_ASSERT(!s_Instance, "Application already exists!");
 		s_Instance = this;
 		
 		// Init: Window
-		Window = FWindows::Create(FWindowsConfig(hInst, Name));
+		Window = FWindows::Create(FWindowsConfig(hInst, m_Name));
 		
 		// Init: Input System
 		FInput::Init();
