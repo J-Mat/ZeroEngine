@@ -22,7 +22,6 @@ namespace Zero
 				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &ResourceDesc,
 				D3D12_RESOURCE_STATE_COMMON, m_D3DClearValue.get(), IID_PPV_ARGS( &m_D3DResource )));
 
-		// to-do resource track
 		FResourceStateTracker::AddGlobalResourceState(m_D3DResource.Get(), D3D12_RESOURCE_STATE_COMMON);
 		
 		CheckFeatureSupport();
@@ -43,6 +42,7 @@ namespace Zero
 	void IResource::SetResource(ComPtr<ID3D12Resource> Resource)
 	{
 		m_D3DResource = Resource;
+		FResourceStateTracker::AddGlobalResourceState(m_D3DResource.Get(), D3D12_RESOURCE_STATE_COMMON);
 		CheckFeatureSupport();
 	}
 

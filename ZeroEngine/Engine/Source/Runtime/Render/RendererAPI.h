@@ -39,7 +39,7 @@ namespace Zero
 	class IGraphicFactroy
 	{
 		virtual Ref<IVertexBuffer> CreateVertexBuffer(IDevice* Device, void* data, uint32_t VertexCount, FVertexBufferLayout& Layout, IVertexBuffer::EType Type = IVertexBuffer::EType::Static) = 0;
-		virtual Ref<ITexture2D> CreateTexture2D(IDevice* Device)
+		virtual Ref<FTexture2D> CreateTexture2D(IDevice* Device, const std::string Path) = 0;
 	};
 
 	
@@ -49,6 +49,12 @@ namespace Zero
 		virtual Ref<IVertexBuffer> CreateVertexBuffer(IDevice* Device, void* data, uint32_t VertexCount, FVertexBufferLayout& Layout, IVertexBuffer::EType Type = IVertexBuffer::EType::Static)
 		{
 			return CreateRef<FDX1VertexBuffer>((FDX12Device*)Device, data, VertexCount, Layout, Type);
+		}
+
+		virtual Ref<FTexture2D> CreateTexture2D(IDevice* Device, const std::string Path)
+		{
+			Ref<FImage> Image = CreateRef<FImage>(Path);
+			return CreateRef<FDX12Texture>((FDX12Device*)Device, Image);
 		}
 	};
 }

@@ -6,6 +6,8 @@
 #include "GPUMemory/UploadBuffer.h"
 #include "GPUMemory/ResourceStateTracker.h"
 #include "DX12Device.h"
+#include "Render/Moudule/Image/Image.h"
+
 
 
 namespace Zero
@@ -20,6 +22,9 @@ namespace Zero
 		ComPtr<ID3D12GraphicsCommandList2> GetD3D12CommandList() const { return m_D3DCommandList;}
 
 		ComPtr<ID3D12Resource> CreateDefaultBuffer(const void* BufferData, size_t BufferSize, D3D12_RESOURCE_FLAGS Flags = D3D12_RESOURCE_FLAG_NONE);
+		
+
+		ComPtr<ID3D12Resource> CreateTextureResource(Ref<FImage> Image);
 
 		/**
 		* Draw geometry.
@@ -61,6 +66,23 @@ namespace Zero
 
 		// Binds the current descriptor heaps to the command list.
 		void BindDescriptorHeaps();
+
+
+		/**
+		* Transition a resource to a particular state.
+		*
+		* @param resource The resource to transition.
+		* @param stateAfter The state to transition the resource to. The before state is resolved by the resource state
+		* tracker.
+		* @param subresource The subresource to transition. By default, this is D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES
+		* which indicates that all subresources are transitioned to the same state.
+		* @param flushBarriers Force flush any barriers. Resource barriers need to be flushed before a command (draw,
+		* dispatch, or copy) that expects the resource to be in a particular state can run.
+		*/
+		void TransitionBarrier(const Ref<IResource>& Resource, D3D12_RESOURCE_STATES StateAfter,
+			UINT Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, bool bFlushBarriers = false);
+		void TransitionBarrier(ComPtr<ID3D12Resource> Resource, D3D12_RESOURCE_STATES StateAfter,
+			UINT Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, bool bFlushBarriers = false);
 
 	private:
 		void TrackResource(Microsoft::WRL::ComPtr<ID3D12Object> Object);

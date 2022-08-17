@@ -60,6 +60,51 @@ namespace Zero
 		
 		return ComPtr<ID3D12Resource>();
 	}
+
+	ComPtr<ID3D12Resource> FDX12CommandList::CreateTextureResource(Ref<FImage> Image)
+	{
+		ID3D12Device* D3DDevice = m_Device.GetDevice();
+		ComPtr<ID3D12Resource> TextureResource;
+
+		D3D12_RESOURCE_DESC TextureDesc = {};
+		TextureDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+		TextureDesc.Alignment = 0;
+		TextureDesc.Width = Image->GetWidth();
+		TextureDesc.Height = Image->GetHeight();
+		TextureDesc.DepthOrArraySize = 1;
+		TextureDesc.MipLevels = 1;
+		TextureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		TextureDesc.SampleDesc.Count = 1;
+		TextureDesc.SampleDesc.Quality = 0;
+		TextureDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+		TextureDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_SIMULTANEOUS_ACCESS;
+
+		ThrowIfFailed(
+			D3DDevice->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &TextureDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&TextureResource))
+		);
+
+		TransitionBarrier(TextureResource, D3D12_RESOURCE_STATE_COPY_DEST);
+		FlushResourceBarriers();
+
+		ComPtr<ID3D12Resource> IntermediateResource;
+		ThrowIfFailed(D3DDevice->CreateCommittedResource(
+			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
+			&CD3DX12_RESOURCE_DESC::Buffer(Image->GetBufferSize()), D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+			IID_PPV_ARGS(&IntermediateResource))
+		);
+
+		D3D12_SUBRESOURCE_DATA SubResourceData = {};
+		SubResourceData.pData = Image->GetData();
+		SubResourceData.RowPitch = Image->GetWidth() * 4;
+		SubResourceData.SlicePitch = Image->GetBufferSize();
+
+		UpdateSubresources<1>(m_D3DCommandList.Get(), TextureResource.Get(), IntermediateResource.Get(), 0, 0, 1, & SubResourceData);
+
+		TrackResource(IntermediateResource);
+		TrackResource(TextureResource);
+
+		return TextureResource;
+	}
 	
 
 	void FDX12CommandList::Draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t startVertex, uint32_t startInstance)
@@ -96,6 +141,28 @@ namespace Zero
 		}
 
 		m_D3DCommandList->SetDescriptorHeaps(NumDescriptorHeaps, DescriptorHeaps);
+	}
+
+	void FDX12CommandList::TransitionBarrier(const Ref<IResource>& Resource, D3D12_RESOURCE_STATES StateAfter, UINT Subresource, bool bFlushBarriers)
+	{
+		if (Resource)
+		{
+			TransitionBarrier(Resource->GetD3DResource(), StateAfter, Subresource, bFlushBarriers);
+		}
+	}
+
+	void FDX12CommandList::TransitionBarrier(ComPtr<ID3D12Resource> Resource, D3D12_RESOURCE_STATES StateAfter, UINT Subresource, bool bFlushBarriers)
+	{
+		if (Resource)
+		{
+			auto Barrier = CD3DX12_RESOURCE_BARRIER::Transition(Resource.Get(), D3D12_RESOURCE_STATE_COMMON, StateAfter);
+			m_ResourceStateTracker->ResourceBarrier(Barrier);
+		}
+		
+		if (bFlushBarriers)
+		{
+			FlushResourceBarriers();
+		}
 	}
 
 	void FDX12CommandList::TrackResource(Microsoft::WRL::ComPtr<ID3D12Object> Object)

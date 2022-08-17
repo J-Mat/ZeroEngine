@@ -12,7 +12,7 @@ namespace Zero
 		virtual void Bind(uint32_t Slot) const = 0;
 	};
 	
-	class ITexture2D : ITexture
+	class FTexture2D : ITexture
 	{
 	public:
 		enum class Format
@@ -22,6 +22,6 @@ namespace Zero
 			R32G32B32A32,
 			R24G8,
 		};
-		virtual ~ITexture2D() = default;
+		virtual ~FTexture2D() = default;
 	};
 }

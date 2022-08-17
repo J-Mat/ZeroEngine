@@ -6,6 +6,7 @@
 #include "./Common/d3dx12.h"
 #include <wrl.h>
 #include "DX12CommandQueue.h"
+#include "GPUMemory/DescriptorAllocator.h"
 
 
 namespace Zero
