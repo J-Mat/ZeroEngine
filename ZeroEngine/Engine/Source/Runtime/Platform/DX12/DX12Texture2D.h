@@ -8,11 +8,13 @@
 namespace Zero
 {
     class FDescriptorAllocation;
-	class FDX12Texture :public FTexture2D, public IResource
+	class FDX12Texture2D :public FTexture2D, public IResource
 	{
 	public:
-		FDX12Texture(FDX12Device& Device, const D3D12_RESOURCE_DESC& resourceDesc, const D3D12_CLEAR_VALUE* clearValue = nullptr);
-		FDX12Texture(FDX12Device& Device, Ref<FImage> ImageData);
+		FDX12Texture2D(FDX12Device& Device, const D3D12_RESOURCE_DESC& resourceDesc, const D3D12_CLEAR_VALUE* clearValue = nullptr);
+		FDX12Texture2D(FDX12Device& Device, Ref<FImage> ImageData);
+        
+        virtual void Resize(uint32_t Width, uint32_t Height, uint32_t DepthOrArraySize);
 
 		void CreateViews();
 
@@ -37,9 +39,33 @@ namespace Zero
         {
             return CheckFormatSupport(D3D12_FORMAT_SUPPORT1_DEPTH_STENCIL);
         }
+
+        /**
+        * Get the RTV for the texture.
+        */
+        D3D12_CPU_DESCRIPTOR_HANDLE GetRenderTargetView() const;
+
+        /**
+        * Get the DSV for the texture.
+        */
+        D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilView() const;
+
+        /**
+        * Get the default SRV for the texture.
+        */
+        D3D12_CPU_DESCRIPTOR_HANDLE GetShaderResourceView() const;
+
+        /**
+        * Get the UAV for the texture at a specific mip level.
+        * Note: Only only supported for 1D and 2D textures.
+        */
+        D3D12_CPU_DESCRIPTOR_HANDLE GetUnorderedAccessView(uint32_t mip) const;
 	private:
 		FDX12Device& m_Device;
-           
-        FDescriptorAllocation m_RenderTargetView;
+
+		FDescriptorAllocation m_RenderTargetView;
+		FDescriptorAllocation m_DepthStencilView;
+		FDescriptorAllocation m_ShaderResourceView;
+		FDescriptorAllocation m_UnorderedAccessView;
 	};
 }

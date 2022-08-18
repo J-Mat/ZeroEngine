@@ -9,10 +9,24 @@ namespace Zero
 		CreateDevice();
 		GetDescriptorSize();
 		CreateCommandQueue();
+		CreateDescriptors();
 
 		CheckFeatures();
 	}
 	
+	FDescriptorAllocation FDX12Device::AllocateDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE Type, uint32_t NumDescriptors)
+	{
+		return m_DescriptorAllocators[Type]->Allocate(NumDescriptors);
+	}
+
+	void FDX12Device::ReleaseStaleDescriptors()
+	{
+		for (int i = 0; i < D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES; ++i)
+		{
+			m_DescriptorAllocators[i]->ReleaseStaleDescriptors();
+		}
+	}
+
 	void FDX12Device::EnableDebugLayer()
 	{
 		#if defined(DEBUG) || defined(_DEBUG)
@@ -51,6 +65,14 @@ namespace Zero
 		m_DirectCommandQueue = CreateScope<FDX12CommandQueue>(*this, D3D12_COMMAND_LIST_TYPE_DIRECT);
 		m_ComputeCommandQueue = CreateScope<FDX12CommandQueue>(*this, D3D12_COMMAND_LIST_TYPE_COMPUTE);
 		m_CopyCommandQueue = CreateScope<FDX12CommandQueue>(*this, D3D12_COMMAND_LIST_TYPE_COPY);
+	}
+
+	void FDX12Device::CreateDescriptors()
+	{
+		for (int i = 0; i < D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES; ++i)
+		{
+			m_DescriptorAllocators[i] = CreateScope<FDescriptorAllocator>(this, static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(i));
+		}
 	}
 
 	void FDX12Device::CheckFeatures()

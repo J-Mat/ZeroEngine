@@ -12,8 +12,8 @@ namespace Zero
 		IResource(FDX12Device& InDevice, ComPtr<ID3D12Resource> Resource,
 			const D3D12_CLEAR_VALUE* ClearValue = nullptr);
 
-		void SetName(const std::string& m_Name) { m_ResourceName = m_Name; };
-		const std::string& GetName() const { return m_ResourceName; }
+		void SetName(const std::wstring& Name) { m_ResourceName = Name; };
+		const std::wstring& GetName() const { return m_ResourceName; }
 		virtual void SetResource(ComPtr<ID3D12Resource> Resource);
 
 
@@ -25,13 +25,24 @@ namespace Zero
 
 		ComPtr<ID3D12Resource> GetD3DResource() { return m_D3DResource; }
 
+		D3D12_RESOURCE_DESC GetD3D12ResourceDesc() const
+		{
+			D3D12_RESOURCE_DESC ResDesc = {};
+			if (m_D3DResource)
+			{
+				ResDesc = m_D3DResource->GetDesc();
+			}
+
+			return ResDesc;
+		}
+
 	protected:
 
 		virtual ~IResource() = default;
 
 
 		FDX12Device& m_Device;
-		std::string                 m_ResourceName;
+		std::wstring                 m_ResourceName;
 		ComPtr<ID3D12Resource>   	m_D3DResource;
 		D3D12_FEATURE_DATA_FORMAT_SUPPORT  m_FormatSupport;
 		Scope<D3D12_CLEAR_VALUE>     m_D3DClearValue;

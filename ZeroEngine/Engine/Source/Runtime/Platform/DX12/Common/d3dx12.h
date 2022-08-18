@@ -336,7 +336,7 @@ struct CD3DX12_BLEND_DESC : public D3D12_BLEND_DESC
             D3D12_COLOR_WRITE_ENABLE_ALL,
         };
         for (UINT i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; ++i)
-            RenderTarget[ i ] = defaultRenderTargetBlendDesc;
+            FRenderTarget[ i ] = defaultRenderTargetBlendDesc;
     }
 };
 

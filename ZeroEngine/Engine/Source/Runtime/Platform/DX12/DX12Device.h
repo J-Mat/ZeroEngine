@@ -33,11 +33,22 @@ namespace Zero
 			return m_D3DDevice->GetDescriptorHandleIncrementSize(Type);
 		}
 
+		/**
+		* Allocate a number of CPU visible descriptors.
+		*/
+		FDescriptorAllocation AllocateDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE Type, uint32_t NumDescriptors = 1);
+
+		/**
+		* Release stale descriptors. This should only be called with a completed frame counter.
+		*/
+		void ReleaseStaleDescriptors();
+
 	private:
 		void EnableDebugLayer();
 		void CreateDevice();
 		void GetDescriptorSize();
 		void CreateCommandQueue();
+		void CreateDescriptors();
 		void CheckFeatures();
 
 		
@@ -52,6 +63,7 @@ namespace Zero
 		Scope<FDX12CommandQueue> m_ComputeCommandQueue;
 		Scope<FDX12CommandQueue> m_CopyCommandQueue;
 
+		Scope<FDescriptorAllocator> m_DescriptorAllocators[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
 
 		D3D_ROOT_SIGNATURE_VERSION m_HighestRootSignatureVersion;
 	};

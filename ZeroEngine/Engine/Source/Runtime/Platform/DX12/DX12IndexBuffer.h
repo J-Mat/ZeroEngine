@@ -1,5 +1,7 @@
 #pragma once
+
 #include "Core.h"
+#include "../DX12/Common/DX12Header.h"
 #include "Render/RHI/IndexBuffer.h"
 
 namespace Zero
@@ -14,9 +16,5 @@ namespace Zero
 
 	private:
 		uint32_t IndexCount;
-		//Ref<DX12Resource> m_Resource;
-		//D3D12_INDEX_BUFFER_VIEW m_IndexBufferView;
 	};
-
-
 }

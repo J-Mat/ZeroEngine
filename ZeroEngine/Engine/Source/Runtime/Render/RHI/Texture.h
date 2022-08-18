@@ -23,5 +23,6 @@ namespace Zero
 			R24G8,
 		};
 		virtual ~FTexture2D() = default;
+		virtual void Resize(uint32_t Width, uint32_t Height, uint32_t DepthOrArraySize = 1) = 0;
 	};
 }
