@@ -36,6 +36,7 @@ namespace Zero
 		{
 			m_D3DClearValue = CreateScope<D3D12_CLEAR_VALUE>(*ClearValue);
 		}
+		FResourceStateTracker::AddGlobalResourceState(m_D3DResource.Get(), D3D12_RESOURCE_STATE_COMMON);
 		CheckFeatureSupport();
 	}
 

@@ -6,10 +6,10 @@ namespace Zero
 	class IResource
 	{
 	public:
-		IResource(FDX12Device& InDevice);
-		IResource(FDX12Device& InDevice, const D3D12_RESOURCE_DESC& ResourceDesc,
+		IResource(FDX12Device& Device);
+		IResource(FDX12Device& Device, const D3D12_RESOURCE_DESC& ResourceDesc,
 			const D3D12_CLEAR_VALUE* ClearValue = nullptr);
-		IResource(FDX12Device& InDevice, ComPtr<ID3D12Resource> Resource,
+		IResource(FDX12Device& Device, ComPtr<ID3D12Resource> Resource,
 			const D3D12_CLEAR_VALUE* ClearValue = nullptr);
 
 		void SetName(const std::wstring& Name) { m_ResourceName = Name; };

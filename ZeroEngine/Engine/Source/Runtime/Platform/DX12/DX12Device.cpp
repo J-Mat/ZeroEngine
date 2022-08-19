@@ -27,6 +27,13 @@ namespace Zero
 		}
 	}
 
+	void FDX12Device::Flush()
+	{
+		m_DirectCommandQueue->Flush();
+		m_ComputeCommandQueue->Flush();
+		m_CopyCommandQueue->Flush();
+	}
+
 	void FDX12Device::EnableDebugLayer()
 	{
 		#if defined(DEBUG) || defined(_DEBUG)
@@ -37,19 +44,50 @@ namespace Zero
 		}
 		#endif	
 	}
+
 	
 	void FDX12Device::CreateDevice()
 	{
+		m_Adapter = FAdapter::Create();
 		
-		ThrowIfFailed(CreateDXGIFactory1(IID_PPV_ARGS(&m_DxgiFactory)));
-
-		HRESULT  HardwardResult = D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_D3DDevice));
-		if (FAILED(HardwardResult))
+		auto DxgiAdapter = m_Adapter->GetDXGIAdapter();
+		ThrowIfFailed(D3D12CreateDevice(DxgiAdapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_D3DDevice)));
+		
+		// Enable debug messages (only works if the debug layer has already been enabled).
+		ComPtr<ID3D12InfoQueue> pInfoQueue;
+		if (SUCCEEDED(m_D3DDevice.As(&pInfoQueue)))
 		{
-			ComPtr<IDXGIAdapter> WarpAdapterPtr;
-			ThrowIfFailed(m_DxgiFactory->EnumWarpAdapter(IID_PPV_ARGS(&WarpAdapterPtr)));
+			pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, TRUE);
+			pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, TRUE);
+			pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, TRUE);
 
-			ThrowIfFailed(D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_D3DDevice)));
+			// Suppress whole categories of messages
+			// D3D12_MESSAGE_CATEGORY Categories[] = {};
+
+			// Suppress messages based on their severity level
+			D3D12_MESSAGE_SEVERITY Severities[] = { D3D12_MESSAGE_SEVERITY_INFO };
+
+			// Suppress individual messages by their ID
+			D3D12_MESSAGE_ID DenyIds[] = {
+				D3D12_MESSAGE_ID_CLEARRENDERTARGETVIEW_MISMATCHINGCLEARVALUE,  // I'm really not sure how to avoid this
+																			   // message.
+
+				D3D12_MESSAGE_ID_MAP_INVALID_NULLRANGE,  // This warning occurs when using capture frame while graphics
+														 // debugging.
+
+				D3D12_MESSAGE_ID_UNMAP_INVALID_NULLRANGE,  // This warning occurs when using capture frame while graphics
+														   // debugging.
+			};
+
+			D3D12_INFO_QUEUE_FILTER NewFilter = {};
+			// NewFilter.DenyList.NumCategories = _countof(Categories);
+			// NewFilter.DenyList.pCategoryList = Categories;
+			NewFilter.DenyList.NumSeverities = _countof(Severities);
+			NewFilter.DenyList.pSeverityList = Severities;
+			NewFilter.DenyList.NumIDs = _countof(DenyIds);
+			NewFilter.DenyList.pIDList = DenyIds;
+
+			ThrowIfFailed(pInfoQueue->PushStorageFilter(&NewFilter));
 		}
 	}
 	
@@ -106,5 +144,9 @@ namespace Zero
 		}
 
 		return *CommandQueue;
+	}
+	std::wstring FDX12Device::GetDescription() const
+	{
+		return m_Adapter->GetDescription();
 	}
 }

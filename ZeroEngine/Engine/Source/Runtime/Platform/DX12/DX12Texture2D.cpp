@@ -2,13 +2,13 @@
 
 namespace Zero
 {
-	FDX12Texture::FDX12Texture(FDX12Device& Device, const D3D12_RESOURCE_DESC& resourceDesc, const D3D12_CLEAR_VALUE* clearValue)
+	FDX12Texture2D::FDX12Texture2D(FDX12Device& Device, const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* clearValue)
 		: IResource(Device)
 		, m_Device(Device)
 	{
 	}
 
-	FDX12Texture::FDX12Texture(FDX12Device& Device, Ref<FImage> ImageData)
+	FDX12Texture2D::FDX12Texture2D(FDX12Device& Device, Ref<FImage> ImageData)
 		: IResource(Device)
 		, m_Device(Device)
 	{
@@ -17,7 +17,13 @@ namespace Zero
 		CreateViews();
 	}
 
-	void FDX12Texture::Resize(uint32_t Width, uint32_t Height, uint32_t DepthOrArraySize = 1)
+	FDX12Texture2D::FDX12Texture2D(FDX12Device& Device, ComPtr<ID3D12Resource> Resource, const D3D12_CLEAR_VALUE* ClearValue)
+		: IResource(Device, Resource, ClearValue)
+	{
+		CreateViews();
+	}
+
+	void FDX12Texture2D::Resize(uint32_t Width, uint32_t Height, uint32_t DepthOrArraySize = 1)
 	{
 		if (m_D3DResource)
 		{
@@ -96,7 +102,7 @@ namespace Zero
 		return UavDesc;
 	}
 
-	void FDX12Texture::CreateViews()
+	void FDX12Texture2D::CreateViews()
 	{
 		if (m_D3DResource)
 		{
@@ -139,19 +145,19 @@ namespace Zero
 			}
 		}
 	}
-	D3D12_CPU_DESCRIPTOR_HANDLE FDX12Texture::GetRenderTargetView() const
+	D3D12_CPU_DESCRIPTOR_HANDLE FDX12Texture2D::GetRenderTargetView() const
 	{
 		m_RenderTargetView.GetDescriptorHandle();
 	}
-	D3D12_CPU_DESCRIPTOR_HANDLE FDX12Texture::GetDepthStencilView() const
+	D3D12_CPU_DESCRIPTOR_HANDLE FDX12Texture2D::GetDepthStencilView() const
 	{
 		m_DepthStencilView.GetDescriptorHandle();
 	}
-	D3D12_CPU_DESCRIPTOR_HANDLE FDX12Texture::GetShaderResourceView() const
+	D3D12_CPU_DESCRIPTOR_HANDLE FDX12Texture2D::GetShaderResourceView() const
 	{
 		m_ShaderResourceView.GetDescriptorHandle();
 	}
-	D3D12_CPU_DESCRIPTOR_HANDLE FDX12Texture::GetUnorderedAccessView(uint32_t mip) const
+	D3D12_CPU_DESCRIPTOR_HANDLE FDX12Texture2D::GetUnorderedAccessView(uint32_t mip) const
 	{
 		return D3D12_CPU_DESCRIPTOR_HANDLE();
 	}

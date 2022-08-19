@@ -6,10 +6,10 @@
 
 namespace Zero
 {
-	#define TRANSFER_EVENT(FEvent, ...) if (WindowData.EventCallback == nullptr)\
+	#define TRANSFER_EVENT(FEvent, ...) if (m_WindowData.EventCallback == nullptr)\
 								  	return 0; \
 									auto Event = FEvent(__VA_ARGS__); \
-								   	WindowData.EventCallback(Event);
+								   	m_WindowData.EventCallback(Event);
 
 	
 	FWinWindow* FWinWindow::Main = nullptr;
@@ -36,12 +36,12 @@ namespace Zero
 
 	void FWinWindow::SetVSync(bool bEnabled)
 	{
-		
+		m_WindowData.bVSync = bEnabled;
 	}
 	
 	bool FWinWindow::IsVSync() const 
 	{
-		return true;
+		return m_WindowData.bVSync;
 	}
 	
 	LRESULT CALLBACK
@@ -54,10 +54,10 @@ namespace Zero
 	
 	void FWinWindow::Init(const FWindowsConfig& Config)
 	{
-		WindowData.Title = Config.Title;
-		WindowData.Width = Config.Width;
-		WindowData.Height = Config.Height;
-		WindowData.hAppInst = Config.hAppInst;
+		m_WindowData.Title = Config.Title;
+		m_WindowData.Width = Config.Width;
+		m_WindowData.Height = Config.Height;
+		m_WindowData.hAppInst = Config.hAppInst;
 		
 		CORE_LOG_INFO("Creating windows {0} ({1}, {2})", Config.Title, Config.Width, Config.Height);
 
@@ -70,7 +70,7 @@ namespace Zero
 		wc.lpfnWndProc = MainWndProc;
 		wc.cbClsExtra = 0;
 		wc.cbWndExtra = 0;
-		wc.hInstance = WindowData.hAppInst;
+		wc.hInstance = m_WindowData.hAppInst;
 		wc.hIcon = LoadIcon(0, IDI_APPLICATION);
 		wc.hCursor = LoadCursor(0, IDC_ARROW);
 		wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
@@ -95,23 +95,27 @@ namespace Zero
 		CORE_LOG_INFO("WinWindow Init finished.");
 		
 		std::wstring MainWndCaption = Utils::String2WString(Config.Title);
-		WindowData.hMainWnd = CreateWindow(L"MainWnd", MainWndCaption.c_str(), 
-			WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, Width, Height, 0, 0, WindowData.hAppInst, 0);
+		m_WindowData.hMainWnd = CreateWindow(L"MainWnd", MainWndCaption.c_str(), 
+			WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, Width, Height, 0, 0, m_WindowData.hAppInst, 0);
 		
-		if (!WindowData.hMainWnd)
+		if (!m_WindowData.hMainWnd)
 		{
 			CORE_LOG_ERROR("reateWindow Failed.");
 		}
-
-		ShowWindow(WindowData.hMainWnd , SW_SHOW);
 		
-		UpdateWindow(WindowData.hMainWnd);
+		m_Device = CreateScope<FDX12Device>();
+		m_Device->Init();
+		
+		ShowWindow(m_WindowData.hMainWnd , SW_SHOW);
+		
+		UpdateWindow(m_WindowData.hMainWnd);
 		
 		SetVSync(true);
 	}
 
 	void FWinWindow::Shutdown()
 	{
+		DestroyWindow(m_WindowData.hMainWnd)
 	}
 
 	LRESULT CALLBACK FWinWindow::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -125,9 +129,9 @@ namespace Zero
 			return 0;
 		case WM_SIZE:
 		{
-			WindowData.Width = LOWORD(lParam);
-			WindowData.Height = HIWORD(lParam);
-			TRANSFER_EVENT(FWindowResizeEvent, WindowData.Width, WindowData.Height);
+			m_WindowData.Width = LOWORD(lParam);
+			m_WindowData.Height = HIWORD(lParam);
+			TRANSFER_EVENT(FWindowResizeEvent, m_WindowData.Width, m_WindowData.Height);
 			return 0;
 		}
 		// WM_EXITSIZEMOVE is sent when the user grabs the resize bars.

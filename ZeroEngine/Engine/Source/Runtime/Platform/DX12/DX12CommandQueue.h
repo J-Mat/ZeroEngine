@@ -15,6 +15,9 @@ namespace Zero
 		virtual ~FDX12CommandQueue();
 
 		Ref<FDX12CommandList> GetCommandList();
+	
+		ComPtr<ID3D12CommandQueue> GetD3DCommandQueue() { return m_CommandQueue; }
+
 
 		uint64_t ExecuteCommandList(Ref<FDX12CommandList> CommandList);
 		uint64_t ExecuteCommandLists(const std::vector<Ref<FDX12CommandList>>& CommandLists);
@@ -31,8 +34,8 @@ namespace Zero
 		
 		FDX12Device& m_Device;
 		D3D12_COMMAND_LIST_TYPE                    m_CommandListType;
-		Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_CommandQueue;
-		Microsoft::WRL::ComPtr<ID3D12Fence>        m_Fence;
+		ComPtr<ID3D12CommandQueue> m_CommandQueue;
+		ComPtr<ID3D12Fence>        m_Fence;
 		std::atomic_uint64_t                       m_FenceValue;
 		
 		TThreadSafeQueue<CommandListEntry> InFlightCommandLists;

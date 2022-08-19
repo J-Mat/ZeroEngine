@@ -7,6 +7,7 @@
 #include <wrl.h>
 #include "DX12CommandQueue.h"
 #include "GPUMemory/DescriptorAllocator.h"
+#include "Adapter.h"
 
 
 namespace Zero
@@ -14,6 +15,7 @@ namespace Zero
 	class FDX12Device : public IDevice
 	{
 	public:
+		FDX12Device() = default;
 		virtual void Init();
 
 		ID3D12Device* GetDevice() { return m_D3DDevice.Get(); }
@@ -24,6 +26,10 @@ namespace Zero
 			return m_HighestRootSignatureVersion;
 		}
 
+		/**
+		* Get a description of the adapter that was used to create the device.
+		*/
+		std::wstring GetDescription() const;
 
 		/**
 		 * Gets the size of the handle increment for the given type of descriptor heap.
@@ -43,6 +49,13 @@ namespace Zero
 		*/
 		void ReleaseStaleDescriptors();
 
+		/**
+		* Get the adapter that was used to create this device.
+		*/
+		std::shared_ptr<FAdapter> GetAdapter() const { return m_Adapter; }
+		
+		void Flush();
+
 	private:
 		void EnableDebugLayer();
 		void CreateDevice();
@@ -58,6 +71,7 @@ namespace Zero
 		UINT m_Cbv_Srv_UavDescriptorSize;
 		ComPtr<IDXGIFactory4> m_DxgiFactory;
 		ComPtr<ID3D12Device> m_D3DDevice;
+		Ref<FAdapter> m_Adapter;
 
 		Scope<FDX12CommandQueue> m_DirectCommandQueue;
 		Scope<FDX12CommandQueue> m_ComputeCommandQueue;

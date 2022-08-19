@@ -11,8 +11,9 @@ namespace Zero
 	class FDX12Texture2D :public FTexture2D, public IResource
 	{
 	public:
-		FDX12Texture2D(FDX12Device& Device, const D3D12_RESOURCE_DESC& resourceDesc, const D3D12_CLEAR_VALUE* clearValue = nullptr);
+		FDX12Texture2D(FDX12Device& Device, const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* ClearValue = nullptr);
 		FDX12Texture2D(FDX12Device& Device, Ref<FImage> ImageData);
+        FDX12Texture2D(FDX12Device& Device, ComPtr<ID3D12Resource> Resource, const D3D12_CLEAR_VALUE* ClearValue);
         
         virtual void Resize(uint32_t Width, uint32_t Height, uint32_t DepthOrArraySize);
 

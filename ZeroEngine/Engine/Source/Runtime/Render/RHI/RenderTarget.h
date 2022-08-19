@@ -29,7 +29,14 @@ namespace Zero
 		FRenderTarget& operator=(const FRenderTarget& other) = default;
 		FRenderTarget& operator=(FRenderTarget&& other) = default;
 
+
+
+
 		virtual void AttachTexture(EAttachmentIndex AttachmentIndex, Ref<FTexture2D> Texture2D) = 0;
+		// virtual void AttachTexture(EAttachmentIndex AttachmentIndex, Ref<FDX12Texture2D> Texture2D);
+
+
+
 		virtual void Reset() = 0;
 		virtual Ref<FTexture2D> GetTexture(EAttachmentIndex AttachmentIndex) = 0;
 		

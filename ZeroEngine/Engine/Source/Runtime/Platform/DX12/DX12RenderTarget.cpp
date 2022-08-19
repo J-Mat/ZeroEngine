@@ -17,7 +17,7 @@ namespace Zero
 
 	void FDX12RenderTarget::AttachTexture(EAttachmentIndex AttachmentIndex, Ref<FTexture2D> Texture2D)
 	{
-		//FDX12Texture2D* test = dynamic_cast<FDX12Texture2D*>(Texture2D.get());
+		FDX12Texture2D* test = dynamic_cast<FDX12Texture2D*>(Texture2D.get());
 		m_Textures[AttachmentIndex] = Texture2D;
 
 		if (m_Textures[AttachmentIndex] && m_Textures[AttachmentIndex].get())
@@ -30,6 +30,7 @@ namespace Zero
 
 	void FDX12RenderTarget::Reset()
 	{
+		m_Textures = FRenderTargetList(EAttachmentIndex::NumAttachmentPoints);
 	}
 
 	D3D12_RT_FORMAT_ARRAY FDX12RenderTarget::GetRenderTargetFormats() const

@@ -6,7 +6,7 @@ namespace Zero
 	class FSwapChain
 	{
 	public:
-		FSwapChain(uint32_t Width, uint32_t Height) 
+		FSwapChain(uint32_t Width = 1, uint32_t Height = 1) 
 			: m_Width(Width), m_Height(Height)
 		{}
 		virtual ~FSwapChain() { }
