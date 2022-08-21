@@ -55,7 +55,8 @@ namespace Zero
 		virtual Ref<FTexture2D> CreateTexture2D(IDevice* Device, const std::string Path)
 		{
 			Ref<FImage> Image = CreateRef<FImage>(Path);
-			return CreateRef<FDX12Texture2D>((FDX12Device*)Device, Image);
+			FDX12Device* DX12Device = static_cast<FDX12Device*>(Device);
+			return CreateRef<FDX12Texture2D>(*DX12Device, Image);
 		}
 	};
 }

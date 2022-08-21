@@ -4,10 +4,10 @@
 #include "../DX12/Common/DX12Header.h"
 #include "Render/RHI/SwapChain.h"
 #include "DX12RenderTarget.h"
+#include "DX12CommandQueue.h"
 
 namespace Zero
 {
-	class FDX12CommandQueue;
 	class FDX12Texture2D;
 	class FDX12Device;
 	class FDX12SwapChain : public FSwapChain

@@ -7,8 +7,7 @@ namespace Zero
 	: m_Device(InDevice)
 	{
 	}
-	IResource::IResource(FDX12Device &InDevice, const D3D12_RESOURCE_DESC& ResourceDesc,
-				const D3D12_CLEAR_VALUE* ClearValue = nullptr)
+	IResource::IResource(FDX12Device& InDevice, const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* ClearValue)
 	: m_Device(InDevice)
 	{
 		auto D3dDevice = InDevice.GetDevice();
@@ -27,8 +26,7 @@ namespace Zero
 		CheckFeatureSupport();
 	}
 
-	IResource::IResource( FDX12Device& InDevice, ComPtr<ID3D12Resource> Resource,
-                    const D3D12_CLEAR_VALUE* ClearValue )
+	IResource::IResource( FDX12Device& InDevice, ComPtr<ID3D12Resource> Resource, const D3D12_CLEAR_VALUE* ClearValue )
 	: m_Device(InDevice)
 	, m_D3DResource(Resource)
 	{

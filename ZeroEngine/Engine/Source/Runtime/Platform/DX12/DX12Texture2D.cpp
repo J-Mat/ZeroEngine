@@ -1,5 +1,6 @@
 #include "DX12Texture2D.h"
 #include "DX12Device.h"
+#include "DX12CommandQueue.h"
 
 
 namespace Zero
@@ -150,15 +151,15 @@ namespace Zero
 	}
 	D3D12_CPU_DESCRIPTOR_HANDLE FDX12Texture2D::GetRenderTargetView() const
 	{
-		m_RenderTargetView.GetDescriptorHandle();
+		return m_RenderTargetView.GetDescriptorHandle();
 	}
 	D3D12_CPU_DESCRIPTOR_HANDLE FDX12Texture2D::GetDepthStencilView() const
 	{
-		m_DepthStencilView.GetDescriptorHandle();
+		return m_DepthStencilView.GetDescriptorHandle();
 	}
 	D3D12_CPU_DESCRIPTOR_HANDLE FDX12Texture2D::GetShaderResourceView() const
 	{
-		m_ShaderResourceView.GetDescriptorHandle();
+		return m_ShaderResourceView.GetDescriptorHandle();
 	}
 	D3D12_CPU_DESCRIPTOR_HANDLE FDX12Texture2D::GetUnorderedAccessView(uint32_t mip) const
 	{

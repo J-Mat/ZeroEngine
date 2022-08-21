@@ -73,6 +73,7 @@ namespace Zero
 		FResourceStateTracker::Lock();
 		
 		// Command lists that need to put back on the command list queue.
+		return 0;
 	
 	}
 

@@ -18,10 +18,11 @@ namespace Zero
 		NumAttachmentPoints
 	};
 
+	template<typename T>
 	class FRenderTarget
 	{
 	public:
-		FRenderTarget();
+		FRenderTarget() = default;
 
 		FRenderTarget(const FRenderTarget& copy) = default;
 		FRenderTarget(FRenderTarget&& copy) = default;
@@ -29,22 +30,18 @@ namespace Zero
 		FRenderTarget& operator=(const FRenderTarget& other) = default;
 		FRenderTarget& operator=(FRenderTarget&& other) = default;
 
-
-
-
-		virtual void AttachTexture(EAttachmentIndex AttachmentIndex, Ref<FTexture2D> Texture2D) = 0;
-		// virtual void AttachTexture(EAttachmentIndex AttachmentIndex, Ref<FDX12Texture2D> Texture2D);
-
-
+		virtual void AttachTexture(EAttachmentIndex AttachmentIndex, Ref<T> Texture2D) = 0;
 
 		virtual void Reset() = 0;
-		virtual Ref<FTexture2D> GetTexture(EAttachmentIndex AttachmentIndex) const = 0;
+		virtual Ref<T> GetTexture(EAttachmentIndex AttachmentIndex) const = 0;
 		
-		virtual void Resize(uint32_t Width, uint32_t Height);
+		virtual void Resize(uint32_t Width, uint32_t Height, uint32_t Depth) = 0;
 		uint32_t GetWidth() { return m_Width; }
 		uint32_t GetHeight() { return m_Height; }
 		
 	protected:
+		using FRenderTargetList = std::vector<Ref<T>>;
+		FRenderTargetList m_Textures;
 		uint32_t m_Width = 0;
 		uint32_t m_Height = 0;
 	};

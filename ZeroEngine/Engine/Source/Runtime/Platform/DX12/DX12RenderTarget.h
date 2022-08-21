@@ -8,22 +8,17 @@
 namespace Zero
 {
 	class FDX12Texture2D;
-	class FDX12RenderTarget : public FRenderTarget
+	class FDX12RenderTarget : public FRenderTarget<FDX12Texture2D>
 	{
 	public:
 		FDX12RenderTarget();
-		virtual Ref<FTexture2D> GetTexture(EAttachmentIndex AttachmentIndex) const { return m_Textures[AttachmentIndex]; }
-		virtual void Resize(uint32_t Width, uint32_t Height);
+		virtual Ref<FDX12Texture2D> GetTexture(EAttachmentIndex AttachmentIndex) const { return m_Textures[size_t(AttachmentIndex)]; }
+		virtual void Resize(uint32_t Width, uint32_t Height, uint32_t depth);
 
-
-
-		virtual void AttachTexture(EAttachmentIndex AttachmentIndex, Ref<FTexture2D> Texture2D);
+		virtual void AttachTexture(EAttachmentIndex AttachmentIndex, Ref<FDX12Texture2D> Texture2D);
 
 		virtual void Reset();
 	private:
-		using FRenderTargetList = std::vector<Ref<FDX12Texture2D>>;
-		FRenderTargetList m_Textures;
-
 		// Get the render target formats of the textures currently
 		// attached to this render target object.
 		// This is needed to configure the Pipeline state object.

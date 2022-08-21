@@ -45,7 +45,7 @@ namespace Zero
 		}
 	}
 
-	uint32_t GetShaderTypeComponentCount(EShaderDataType Type) 
+	static uint32_t GetShaderTypeComponentCount(EShaderDataType Type)
 	{
 		switch (Type)
 		{

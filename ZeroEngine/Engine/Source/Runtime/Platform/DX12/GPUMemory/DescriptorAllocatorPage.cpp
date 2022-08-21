@@ -18,7 +18,7 @@ namespace Zero
 		HeapDesc.NumDescriptors = m_NumDescriptorsInHeap;
 
 		ThrowIfFailed(
-			D3dDevice->CreateDescriptorHeap(HeapDesc,  IID_PPV_ARGS( &m_D3DDescriptorHeap ) )
+			D3dDevice->CreateDescriptorHeap(&HeapDesc,  IID_PPV_ARGS( &m_D3DDescriptorHeap ) )
 		);
 		
 		BaseDescriptor = m_D3DDescriptorHeap->GetCPUDescriptorHandleForHeapStart();

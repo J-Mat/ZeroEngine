@@ -15,7 +15,7 @@ namespace Zero
 	private:
 		FDX12Device& m_Device;
 		void CreateVertexBufferView();
-		D3D12_VERTEX_BUFFER_VIEW m_VertexBufferView;
+		D3D12_VERTEX_BUFFER_VIEW m_VertexBufferView = {};
 	};
 
 

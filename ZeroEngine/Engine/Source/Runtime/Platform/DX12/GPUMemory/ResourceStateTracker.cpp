@@ -76,7 +76,7 @@ namespace Zero
 		}
 	}
 
-	void FResourceStateTracker::TransitionResource(const IResource& Resource, D3D12_RESOURCE_STATES StateAfter, UINT SubResource)
+	void FResourceStateTracker::TransitionResource(IResource& Resource, D3D12_RESOURCE_STATES StateAfter, UINT SubResource)
 	{
 		TransitionResource(Resource.GetD3DResource().Get(), StateAfter, SubResource);
 	}

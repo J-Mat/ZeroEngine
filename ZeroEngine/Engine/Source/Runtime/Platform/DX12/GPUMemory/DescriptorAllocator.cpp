@@ -1,4 +1,5 @@
 #include "DescriptorAllocator.h"
+#include "DescriptorAllocatorPage.h"
 
 namespace Zero
 {

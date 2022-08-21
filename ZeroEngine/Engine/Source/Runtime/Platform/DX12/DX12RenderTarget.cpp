@@ -7,22 +7,22 @@ namespace Zero
 	{
 	}
 
-	void FDX12RenderTarget::Resize(uint32_t Width, uint32_t Height)
+	void FDX12RenderTarget::Resize(uint32_t Width, uint32_t Height, uint32_t Depth)
 	{
 		for (int i = 0; i < EAttachmentIndex::NumAttachmentPoints; ++i)
 		{
-			m_Textures[i]->Resize(Width, Height);
+			m_Textures[i]->Resize(Width, Height, Depth);
 		}
 	}
 
-	void FDX12RenderTarget::AttachTexture(EAttachmentIndex AttachmentIndex, Ref<FTexture2D> Texture2D)
+	void FDX12RenderTarget::AttachTexture(EAttachmentIndex AttachmentIndex, Ref<FDX12Texture2D> Texture2D)
 	{
-		FDX12Texture2D* test = dynamic_cast<FDX12Texture2D*>(Texture2D.get());
-		m_Textures[AttachmentIndex] = Texture2D;
+		size_t Index = size_t(AttachmentIndex);
+		m_Textures[Index] = Texture2D;
 
-		if (m_Textures[AttachmentIndex] && m_Textures[AttachmentIndex].get())
+		if (m_Textures[Index].get())
 		{
-			auto Desc = m_Textures[AttachmentIndex]->GetD3D12ResourceDesc();
+			auto Desc = m_Textures[Index]->GetD3D12ResourceDesc();
 			m_Width = static_cast<uint32_t>(Desc.Width);
 			m_Height = static_cast<uint32_t>(Desc.Height);
 		}

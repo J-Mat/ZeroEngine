@@ -5,13 +5,14 @@
 #include "Common/DX12Header.h"
 #include <wrl.h>
 #include "Adapter.h"
+#include "GPUMemory/DescriptorAllocation.h"
+
 
 
 namespace Zero
 {
 	class FDX12SwapChain;
 	class FDescriptorAllocator;
-	class FDescriptorAllocation;
 	class FDX12CommandQueue;
 	class FDX12Device : public IDevice
 	{
@@ -81,7 +82,7 @@ namespace Zero
 		Scope<FDX12CommandQueue> m_ComputeCommandQueue;
 		Scope<FDX12CommandQueue> m_CopyCommandQueue;
 
-		Scope<FDescriptorAllocator> m_DescriptorAllocators[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
+		Ref<FDescriptorAllocator> m_DescriptorAllocators[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
 
 		D3D_ROOT_SIGNATURE_VERSION m_HighestRootSignatureVersion;
 		

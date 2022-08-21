@@ -1,7 +1,6 @@
 #include "DX12Device.h"
 #include "Platform/DX12/DX12SwapChain.h"
 #include "GPUMemory/DescriptorAllocator.h"
-#include "GPUMemory/DescriptorAllocation.h"
 #include "DX12CommandQueue.h"
 
 
@@ -42,7 +41,7 @@ namespace Zero
 
 	void FDX12Device::CreatSwapChain(HWND hWnd)
 	{
-		m_SwapChain = CreateRef<FDX12SwapChain>(this, hWnd);
+		m_SwapChain = CreateRef<FDX12SwapChain>(*this, hWnd);
 		m_SwapChain->SetVSync(false);
 	}
 
@@ -121,7 +120,7 @@ namespace Zero
 	{
 		for (int i = 0; i < D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES; ++i)
 		{
-			m_DescriptorAllocators[i] = CreateScope<FDescriptorAllocator>(this, static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(i));
+			m_DescriptorAllocators[i] = CreateRef<FDescriptorAllocator>(*this, static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(i));
 		}
 	}
 

@@ -5,6 +5,8 @@
 #include "Platform/DX12/DX12RenderTarget.h"
 #include "Platform/DX12/DX12SwapChain.h"
 #include "Platform/DX12/DX12Texture2D.h"
+#include <type_traits>
+#include <memory>
 
 namespace Zero
 { 
@@ -20,10 +22,10 @@ namespace Zero
 		auto SwapChain = Device->GetSwapChain();
 		
 		const FDX12RenderTarget& RenderTarget = SwapChain->GetRenderTarget();
-		Ref<FTexture2D> Texture = RenderTarget.GetTexture(EAttachmentIndex::Color0);
+		Ref<FDX12Texture2D>  Texture = RenderTarget.GetTexture(EAttachmentIndex::Color0);
 		
-		ZMath::vec4 Color(0.4f, 0.6f, 0.9f, 1.0f);
-		CommandList->ClearTexture(std::make_shared<FDX12Texture2D>(static_cast<FDX12Texture2D*>(Texture.get())), Color);
+		ZMath::vec4 Color(0.4f, 0.6f, 0.9f, 1.0f);	
+		CommandList->ClearTexture(Texture, Color);
 
 		CommandQueue.ExecuteCommandList(CommandList);
 		
