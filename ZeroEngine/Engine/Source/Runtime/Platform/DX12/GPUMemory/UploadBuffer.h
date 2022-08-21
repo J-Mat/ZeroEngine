@@ -6,6 +6,7 @@
 
 namespace Zero
 {
+	class FDX12Device;
 	class FUploadBuffer
 	{
 	public:
@@ -15,7 +16,7 @@ namespace Zero
 			D3D12_GPU_VIRTUAL_ADDRESS GPU;
 		};
 
-		FUploadBuffer(FDX12Device& m_Device, size_t PageSize = _2MB);
+		FUploadBuffer(FDX12Device& Device, size_t PageSize = _2MB);
 		virtual ~FUploadBuffer() {}
 		
 		FAllocation Allocate(size_t sizeInBytes, size_t alignment);

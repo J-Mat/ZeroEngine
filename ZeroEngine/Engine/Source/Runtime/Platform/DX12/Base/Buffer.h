@@ -2,6 +2,7 @@
 #include "Core.h"
 #include "../Common/DX12Header.h"
 #include "Resource.h"
+#include "../DX12Device.h"
 
 namespace Zero
 {

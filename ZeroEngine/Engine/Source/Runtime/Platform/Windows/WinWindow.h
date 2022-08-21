@@ -49,6 +49,6 @@ namespace Zero
 		};
 		FWindowData m_WindowData;
 		
-		Scope<FDX12Device> m_Device;
+		Ref<FDX12Device> m_Device;
 	};
 }

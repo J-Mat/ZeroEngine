@@ -1,16 +1,17 @@
 #pragma once
 #include "Core.h"
 #include "../Common/DX12Header.h"
-#include "DescriptorAllocation.h"
 
 
 namespace Zero
 {
+	class FDX12Device;
+	class FDescriptorAllocation;
 	class FDescriptorAllocatorPage : public std::enable_shared_from_this<FDescriptorAllocatorPage>
 	{
 	public:
 		D3D12_DESCRIPTOR_HEAP_TYPE GetHeapType() const { return m_HeapType; }
-		FDescriptorAllocatorPage(FDX12Device& m_Device, D3D12_DESCRIPTOR_HEAP_TYPE Type, uint32_t NumDescriptors);
+		FDescriptorAllocatorPage(FDX12Device& Device, D3D12_DESCRIPTOR_HEAP_TYPE Type, uint32_t NumDescriptors);
 
 		bool HasSpace(uint32_t NumDescriptors);
 		uint32_t GetNumFreeHandles() const;
@@ -56,7 +57,6 @@ namespace Zero
 		FFreeListBySize  m_FreeListBySize;
 		FStaleDescriptorQueue StaleDescriptorQueue;
 
-		D3D12_DESCRIPTOR_HEAP_TYPE m_HeapType;
 
 		FDX12Device& m_Device;
 

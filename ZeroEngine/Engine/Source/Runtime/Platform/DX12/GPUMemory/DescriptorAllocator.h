@@ -4,6 +4,7 @@
 #include "../Common/DX12Header.h"
 #include "DescriptorAllocation.h"
 #include "DescriptorAllocatorPage.h"
+#include "../DX12Device.h"
 
 namespace Zero
 {

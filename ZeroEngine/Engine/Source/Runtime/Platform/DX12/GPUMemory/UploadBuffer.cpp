@@ -1,9 +1,10 @@
 #include "UploadBuffer.h"
+#include "../DX12Device.h"
 
 namespace Zero
 {
-	FUploadBuffer::FUploadBuffer(FDX12Device& m_Device, size_t PageSize)
-	: m_Device(m_Device)
+	FUploadBuffer::FUploadBuffer(FDX12Device& Device, size_t PageSize)
+	: m_Device(Device)
 	, m_PageSize(PageSize)
 	{
 				
@@ -38,8 +39,8 @@ namespace Zero
 
 	bool FUploadBuffer::FPage::HasSpace(size_t SizeInBytes, size_t Alignment) const
 	{
-		size_t AlignedSize = Math::AlignUp(SizeInBytes, Alignment);
-		size_t AlignedOffset = Math::AlignUp(m_Offset, Alignment);
+		size_t AlignedSize = ZMath::AlignUp(SizeInBytes, Alignment);
+		size_t AlignedOffset = ZMath::AlignUp(m_Offset, Alignment);
 		return AlignedOffset + AlignedSize <= m_PageSize;
 	}
 
@@ -49,8 +50,8 @@ namespace Zero
 		{
 			throw std::bad_alloc();
 		}
-		size_t AlignedSize = Math::AlignUp(SizeInBytes, Alignment);
-		m_Offset = Math::AlignUp(m_Offset, Alignment);
+		size_t AlignedSize = ZMath::AlignUp(SizeInBytes, Alignment);
+		m_Offset = ZMath::AlignUp(m_Offset, Alignment);
 		
 		FAllocation Allocation = { static_cast<uint8_t*>(m_CPUPtr) + m_Offset, m_GPUPtr + m_Offset };
 		

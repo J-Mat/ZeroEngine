@@ -1,4 +1,5 @@
 #include "RootSignature.h"
+#include "DX12Device.h"
 
 namespace Zero
 {
@@ -54,7 +55,7 @@ namespace Zero
 		UINT NumParameters = RootSignatureDesc.NumParameters;
 		D3D12_ROOT_PARAMETER1* pParameters = NumParameters > 0 ? new D3D12_ROOT_PARAMETER1[NumParameters] : nullptr;
 		
-		if (UINT i = 0; i < NumParameters; ++i)
+		for (UINT i = 0; i < NumParameters; ++i)
 		{
 			const D3D12_ROOT_PARAMETER1& RootParameter = RootSignatureDesc.pParameters[i];
 			pParameters[i] = RootParameter;

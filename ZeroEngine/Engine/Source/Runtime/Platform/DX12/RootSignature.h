@@ -6,6 +6,7 @@
 
 namespace Zero
 {
+	class FDX12Device;
 	class FRootSignature
 	{
 	public:

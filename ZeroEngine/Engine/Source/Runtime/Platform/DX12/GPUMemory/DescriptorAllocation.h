@@ -1,12 +1,12 @@
 #pragma once
 #include "Core.h"
 #include "../Common/DX12Header.h"
-#include "../DX12Device.h"
 #include "DescriptorAllocatorPage.h"
 
 
 namespace Zero
 {
+	class FDX12Device;
 	class FDescriptorAllocation
 	{
 	public:

@@ -1,4 +1,6 @@
 #include "DX12Texture2D.h"
+#include "DX12Device.h"
+
 
 namespace Zero
 {
@@ -19,6 +21,7 @@ namespace Zero
 
 	FDX12Texture2D::FDX12Texture2D(FDX12Device& Device, ComPtr<ID3D12Resource> Resource, const D3D12_CLEAR_VALUE* ClearValue)
 		: IResource(Device, Resource, ClearValue)
+		, m_Device(Device)
 	{
 		CreateViews();
 	}

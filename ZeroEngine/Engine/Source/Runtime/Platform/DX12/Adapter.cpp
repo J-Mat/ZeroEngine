@@ -33,10 +33,11 @@ namespace Zero
 		}
 		else
 		{
-			for (UINT i = 0; DxgiFactory6->EnumAdapterByGpuPreference(i, GpuPreference IID_PPV_ARGS(&DxgiAdapter)) != DXGI_ERROR_NOT_FOUND; ++i)
+			for (UINT i = 0; DxgiFactory6->EnumAdapterByGpuPreference(i, GpuPreference, IID_PPV_ARGS(&DxgiAdapter)) !=
+				DXGI_ERROR_NOT_FOUND;
+				++i)
 			{
-				if (SUCCEEDED(D3D12CreateDevice(DxgiAdapter.Get(), D3D_FEATURE_LEVEL_11_0, __uuidof(ID3D12Device),
-					nullptr)))
+				if (SUCCEEDED(D3D12CreateDevice(DxgiAdapter.Get(), D3D_FEATURE_LEVEL_11_0, __uuidof(ID3D12Device), nullptr)))
 				{
 					ThrowIfFailed(DxgiAdapter.As(&DxgiAdapter4));
 					break;
@@ -63,7 +64,7 @@ namespace Zero
 		CreateFactoryFlags = DXGI_CREATE_FACTORY_DEBUG;
 #endif
 		ThrowIfFailed(::CreateDXGIFactory2(CreateFactoryFlags, IID_PPV_ARGS(&DxgiFactory6)));
-		for (UINT i = 0; DxgiFactory6->EnumAdapterByGpuPreference(i, GpuPreference IID_PPV_ARGS(&DxgiAdapter)) !=
+		for (UINT i = 0; DxgiFactory6->EnumAdapterByGpuPreference(i, GpuPreference, IID_PPV_ARGS(&DxgiAdapter)) !=
 			DXGI_ERROR_NOT_FOUND;
 			++i)
 		{

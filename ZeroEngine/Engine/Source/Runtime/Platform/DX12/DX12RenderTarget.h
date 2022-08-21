@@ -7,22 +7,22 @@
 
 namespace Zero
 {
+	class FDX12Texture2D;
 	class FDX12RenderTarget : public FRenderTarget
 	{
 	public:
 		FDX12RenderTarget();
-		virtual Ref<FTexture2D> GetTexture(EAttachmentIndex AttachmentIndex) { return m_Textures[AttachmentIndex]; }
+		virtual Ref<FTexture2D> GetTexture(EAttachmentIndex AttachmentIndex) const { return m_Textures[AttachmentIndex]; }
 		virtual void Resize(uint32_t Width, uint32_t Height);
 
 
 
 		virtual void AttachTexture(EAttachmentIndex AttachmentIndex, Ref<FTexture2D> Texture2D);
 
-
 		virtual void Reset();
 	private:
-		using RenderTargetList = std::vector<Ref<FDX12Texture2D>>;
-		RenderTargetList m_Textures;
+		using FRenderTargetList = std::vector<Ref<FDX12Texture2D>>;
+		FRenderTargetList m_Textures;
 
 		// Get the render target formats of the textures currently
 		// attached to this render target object.

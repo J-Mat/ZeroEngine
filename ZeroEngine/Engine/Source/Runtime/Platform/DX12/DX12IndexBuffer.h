@@ -3,6 +3,7 @@
 #include "Core.h"
 #include "../DX12/Common/DX12Header.h"
 #include "Render/RHI/IndexBuffer.h"
+#include "DX12Device.h"
 
 namespace Zero
 {

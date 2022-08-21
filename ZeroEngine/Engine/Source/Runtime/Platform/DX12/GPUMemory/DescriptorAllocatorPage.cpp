@@ -1,4 +1,6 @@
 #include "DescriptorAllocatorPage.h"
+#include "../DX12Device.h"
+#include "DescriptorAllocation.h"
 
 
 namespace Zero

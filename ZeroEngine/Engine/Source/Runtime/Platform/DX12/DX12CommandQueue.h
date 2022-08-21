@@ -8,6 +8,7 @@
 
 namespace Zero
 {
+	class FDX12Device;
 	class FDX12CommandQueue
 	{
 	public:

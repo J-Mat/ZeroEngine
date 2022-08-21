@@ -1,4 +1,5 @@
 #include "DescriptorAllocation.h"
+#include "../DX12Device.h"
 
 
 namespace Zero
@@ -26,7 +27,7 @@ namespace Zero
 	
 	FDescriptorAllocation::FDescriptorAllocation(FDescriptorAllocation&& Allocation) noexcept
 		: m_Descriptor(Allocation.m_Descriptor)
-		, NumHandles(Allocation.m_NumHandles)
+		, m_NumHandles(Allocation.m_NumHandles)
 		, DescriptorSize(Allocation.m_NumHandles)
 		, Page(std::move(Allocation.Page))
 	{

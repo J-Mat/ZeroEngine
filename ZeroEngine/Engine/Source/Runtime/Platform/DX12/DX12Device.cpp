@@ -1,4 +1,8 @@
 #include "DX12Device.h"
+#include "Platform/DX12/DX12SwapChain.h"
+#include "GPUMemory/DescriptorAllocator.h"
+#include "GPUMemory/DescriptorAllocation.h"
+#include "DX12CommandQueue.h"
 
 
 namespace Zero
@@ -12,6 +16,8 @@ namespace Zero
 		CreateDescriptors();
 
 		CheckFeatures();
+		
+		
 	}
 	
 	FDescriptorAllocation FDX12Device::AllocateDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE Type, uint32_t NumDescriptors)
@@ -32,6 +38,12 @@ namespace Zero
 		m_DirectCommandQueue->Flush();
 		m_ComputeCommandQueue->Flush();
 		m_CopyCommandQueue->Flush();
+	}
+
+	void FDX12Device::CreatSwapChain(HWND hWnd)
+	{
+		m_SwapChain = CreateRef<FDX12SwapChain>(this, hWnd);
+		m_SwapChain->SetVSync(false);
 	}
 
 	void FDX12Device::EnableDebugLayer()

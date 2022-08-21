@@ -1,4 +1,6 @@
 #include "DynamicDescriptorHeap.h"
+#include "../DX12Device.h"
+#include "../DX12CommandList.h"
 
 
 namespace Zero
@@ -60,11 +62,9 @@ namespace Zero
 	void FDynamicDescriptorHeap::CommitStagedDescriptorsForDraw(FDX12CommandList& CommandList)
 	{
 		CommitDescriptorTables(CommandList, &ID3D12GraphicsCommandList::SetGraphicsRootDescriptorTable);
-		CommitInlineDescriptors(CommandList, m_InlineCBV,m_StaleCBVBitMask,&ID3D12GraphicsCommandList::SetGraphicsRootConstantBufferView);
-		CommitInlineDescriptors(CommandList, m_InlineSRV, m_StaleSRVBitMask,
-			&ID3D12GraphicsCommandList::SetGraphicsRootShaderResourceView);
-		CommitInlineDescriptors(CommandList, m_InlineUAV, m_StaleUAVBitMask,
-			&ID3D12GraphicsCommandList::SetGraphicsRootUnorderedAccessView);
+		CommitInlineDescriptors(CommandList, m_InlineCBV, m_StaleCBVBitMask, &ID3D12GraphicsCommandList::SetGraphicsRootConstantBufferView);
+		CommitInlineDescriptors(CommandList, m_InlineSRV, m_StaleSRVBitMask, &ID3D12GraphicsCommandList::SetGraphicsRootShaderResourceView);
+		CommitInlineDescriptors(CommandList, m_InlineUAV, m_StaleUAVBitMask, &ID3D12GraphicsCommandList::SetGraphicsRootUnorderedAccessView);
 	}
 
 	ComPtr<ID3D12DescriptorHeap> FDynamicDescriptorHeap::RequestDescriptorHeap()
@@ -174,6 +174,10 @@ namespace Zero
 				BitMask ^= (1 << RootIndex);
 			}
 		}
+	}
+
+	void FDynamicDescriptorHeap::StageDescriptors(uint32_t rootParameterIndex, uint32_t offset, uint32_t numDescriptors, const D3D12_CPU_DESCRIPTOR_HANDLE srcDescriptors)
+	{
 	}
 
 	void FDynamicDescriptorHeap::StageInlineCBV(uint32_t RootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)

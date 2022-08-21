@@ -38,7 +38,7 @@ namespace Zero
 
 
 		virtual void Reset() = 0;
-		virtual Ref<FTexture2D> GetTexture(EAttachmentIndex AttachmentIndex) = 0;
+		virtual Ref<FTexture2D> GetTexture(EAttachmentIndex AttachmentIndex) const = 0;
 		
 		virtual void Resize(uint32_t Width, uint32_t Height);
 		uint32_t GetWidth() { return m_Width; }

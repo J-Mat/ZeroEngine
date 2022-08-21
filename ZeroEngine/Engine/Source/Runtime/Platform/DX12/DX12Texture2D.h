@@ -4,9 +4,11 @@
 #include "Render/RHI/Texture.h"
 #include "Base/Resource.h"
 #include "Render/Moudule/Image/Image.h"
+#include "./GPUMemory/DescriptorAllocation.h"
 
 namespace Zero
 {
+    class FDX12Device;
     class FDescriptorAllocation;
 	class FDX12Texture2D :public FTexture2D, public IResource
 	{

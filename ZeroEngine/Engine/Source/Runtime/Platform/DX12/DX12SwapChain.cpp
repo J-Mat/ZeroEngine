@@ -1,4 +1,6 @@
 #include "DX12SwapChain.h"
+#include "DX12Device.h"
+#include "DX12CommandQueue.h"
 
 namespace Zero
 {
@@ -78,6 +80,87 @@ namespace Zero
 
 	FDX12SwapChain::~FDX12SwapChain()
 	{
+	}
+
+	void FDX12SwapChain::Resize(uint32_t Width, uint32_t Height)
+	{
+		if (m_Width != Width || m_Height != Height)
+		{
+			m_Width = std::max(Width, 1u);
+			m_Height = std::max(Height, 1u);
+
+			m_Device.Flush();
+			
+			m_RenderTarget.Reset();
+			for (UINT i = 0; i < s_BufferCount; ++i)
+			{
+				m_BackBufferTextures[i].reset();
+			}
+		
+			DXGI_SWAP_CHAIN_DESC SwapChainDesc = {};
+			ThrowIfFailed(m_DxgiSwapChain->GetDesc(&SwapChainDesc));
+			ThrowIfFailed(m_DxgiSwapChain->ResizeBuffers(s_BufferCount, m_Width, m_Height, SwapChainDesc.BufferDesc.Format, SwapChainDesc.Flags));
+			
+			m_CurrentBackBufferIndex = m_DxgiSwapChain->GetCurrentBackBufferIndex();
+			
+			UpdateRenderTargetViews();
+		}
+	}
+
+	void FDX12SwapChain::SetFullScreen(bool bFullScreen)
+	{
+		if (m_bFullScreen != bFullScreen)
+		{
+			m_bFullScreen = bFullScreen;
+		}
+	}
+
+	void FDX12SwapChain::WaitForSwapChain()
+	{
+		DWORD result = ::WaitForSingleObjectEx(m_hFrameLatencyWaitableObject, 1000, TRUE);  // Wait for 1 second (should never have to wait that long...)
+	}
+
+	const FDX12RenderTarget& FDX12SwapChain::GetRenderTarget() const
+	{
+		m_RenderTarget.AttachTexture(EAttachmentIndex::Color0, m_BackBufferTextures[m_CurrentBackBufferIndex]);
+		return m_RenderTarget;
+	}
+
+	UINT FDX12SwapChain::Present(const Ref<FDX12Texture2D>& Texture)
+	{
+		auto CommandList = m_CommandQueue.GetCommandList();
+		
+		Ref<FDX12Texture2D> BufferBuffer = m_BackBufferTextures[m_CurrentBackBufferIndex];
+		
+		if (Texture)
+		{
+			if (Texture->GetD3D12ResourceDesc().SampleDesc.Count > 1)
+			{
+				CommandList->ResolveSubResource(BufferBuffer, Texture);
+			}
+			else
+			{
+				CommandList->CopyResource(BufferBuffer, Texture);
+			}
+		}
+	
+		CommandList->TransitionBarrier(BufferBuffer, D3D12_RESOURCE_STATE_PRESENT);
+		m_CommandQueue.ExecuteCommandList(CommandList);
+
+		UINT SyncInterval = m_bVSync ? 1 : 0;
+		UINT PresentFlags = m_bTearingSupported && !m_bFullScreen && !m_bVSync ? DXGI_PRESENT_ALLOW_TEARING : 0;
+		ThrowIfFailed(m_DxgiSwapChain->Present(SyncInterval, PresentFlags));
+
+		m_FenceValues[m_CurrentBackBufferIndex] = m_CommandQueue.Signal();
+
+		m_CurrentBackBufferIndex = m_DxgiSwapChain->GetCurrentBackBufferIndex();
+
+		auto FenceValue = m_FenceValues[m_CurrentBackBufferIndex];
+		m_CommandQueue.WaitForFenceValue(FenceValue);
+		
+		m_Device.ReleaseStaleDescriptors();
+
+		return m_CurrentBackBufferIndex;
 	}
 
 	void FDX12SwapChain::UpdateRenderTargetViews()

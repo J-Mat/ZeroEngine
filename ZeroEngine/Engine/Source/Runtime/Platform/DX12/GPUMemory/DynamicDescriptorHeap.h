@@ -11,7 +11,6 @@
  *  The DynamicDescriptorHeap class is based on the one provided by the MiniEngine:
  *  https://github.com/Microsoft/DirectX-Graphics-Samples
  */
-#pragma once
 
 #include "Core.h"
 #include "../Common/DX12Header.h"
@@ -19,6 +18,8 @@
 
 namespace Zero
 {
+	class FDX12Device;
+	class FDX12CommandList;
 	class FDynamicDescriptorHeap
 	{
 	public:
@@ -66,10 +67,6 @@ namespace Zero
 		ComPtr<ID3D12DescriptorHeap> RequestDescriptorHeap();
 		// Create a new descriptor heap of no descriptor heap is available.
 		ComPtr<ID3D12DescriptorHeap> CreateDescriptorHeap();
-
-		// Compute the number of stale descriptors that need to be copied
-		// to GPU visible descriptor heap.
-		uint32_t ComputeStaleDescriptorCount() const;
 
 		// Compute the number of stale descriptors that need to be copied
 		// to GPU visible descriptor heap.

@@ -1,5 +1,6 @@
 
 #include "DX12CommandQueue.h"
+#include "DX12Device.h"
 
 namespace Zero
 {
@@ -72,6 +73,7 @@ namespace Zero
 		FResourceStateTracker::Lock();
 		
 		// Command lists that need to put back on the command list queue.
+	
 	}
 
 	uint64_t FDX12CommandQueue::Signal()
@@ -82,7 +84,7 @@ namespace Zero
 	}
 	bool FDX12CommandQueue::IsFenceComplete(uint64_t FenceValue)
 	{
-		m_Fence->GetCompletedValue() >= FenceValue;
+		return m_Fence->GetCompletedValue() >= FenceValue;
 	}
 	void FDX12CommandQueue::WaitForFenceValue(uint64_t FenceValue)
 	{

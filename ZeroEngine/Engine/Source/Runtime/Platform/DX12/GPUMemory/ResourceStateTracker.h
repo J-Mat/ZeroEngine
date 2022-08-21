@@ -22,11 +22,12 @@
  */
 #include "Core.h"
 #include "../Common/DX12Header.h"
-#include "../Base/Resource.h"
 
 namespace Zero
 {
-	class FResourceStateTracker
+    class FDX12CommandList;
+    class IResource;
+    class FResourceStateTracker
 	{
 	public:
 		FResourceStateTracker();
@@ -47,10 +48,8 @@ namespace Zero
          * @param subResource The subresource to transition. By default, this is D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES
          * which indicates that all subresources should be transitioned to the same state.
          */
-        void TransitionResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES stateAfter,
-            UINT subResource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES);
-        void TransitionResource(const IResource& resource, D3D12_RESOURCE_STATES stateAfter,
-            UINT subResource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES);
+        void TransitionResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES stateAfter, UINT subResource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES);
+        void TransitionResource(const IResource& resource, D3D12_RESOURCE_STATES stateAfter, UINT subResource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES);
 
         /**
          * Push a UAV resource barrier for the given resource.

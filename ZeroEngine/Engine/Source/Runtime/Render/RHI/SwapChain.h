@@ -11,6 +11,7 @@ namespace Zero
 		{}
 		virtual ~FSwapChain() { }
 
+		virtual void Resize(uint32_t Width, uint32_t Hegiht) {}
 		virtual void BindRenderTarget() {}
 		virtual void SetRenderTarget() {}
 		virtual void PreparePresent() {}
@@ -21,7 +22,7 @@ namespace Zero
 		*/
 		virtual bool IsFullScreen() const { return m_bFullScreen;}
 
-		void SetVSync(bool bVSync) { m_bVSync = bVSync;}
+		virtual void SetVSync(bool bVSync) { m_bVSync = bVSync;}
 
 		bool GetVSync() const { return m_bVSync; }
 

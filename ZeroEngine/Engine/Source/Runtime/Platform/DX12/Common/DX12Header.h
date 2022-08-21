@@ -5,37 +5,22 @@
 #include <d3d12.h>
 #include <D3Dcompiler.h>
 #include "d3dx12.h"
-#include "../DX12Device.h"
+#include <comdef.h> 
+#include <cstdint>
+#include <codecvt>
 
-class DxException
-{
-public:
-    DxException() = default;
-    DxException(HRESULT hr, const std::wstring& FunctionName, const std::wstring& Filename, int LineNumber) :
-    ErrorCode(hr),
-    FunctionName(FunctionName),
-    Filename(Filename),
-    LineNumber(LineNumber)
+namespace Zero
+{ 
+	inline void ThrowIfFailed(HRESULT hr)
 	{
+		if (FAILED(hr))
+		{
+			_com_error err(hr);
+			OutputDebugString(err.ErrorMessage());
+			std::wstring test = err.ErrorMessage();
+			throw std::exception(Utils::WString2String(test).c_str());
+		}
 	}
-
-    std::wstring ToString()const;
-
-    HRESULT ErrorCode = S_OK;
-    std::wstring FunctionName;
-    std::wstring Filename;
-    int LineNumber = -1;
-};
-
-
-
-#ifndef ThrowIfFailed
-#define ThrowIfFailed(x)                                              \
-{                                                                     \
-    HRESULT hr__ = (x);                                               \
-    std::wstring wfn = Zero::Utils::String2WString(__FILE__);               \
-    if(FAILED(hr__)) { throw DxException(hr__, L#x, wfn, __LINE__); } \
 }
-#endif
 
 using namespace Microsoft::WRL;

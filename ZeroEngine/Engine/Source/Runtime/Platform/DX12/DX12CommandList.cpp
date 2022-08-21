@@ -1,4 +1,5 @@
 #include "DX12CommandList.h"
+#include "DX12Texture2D.h"
 
 namespace Zero
 {
@@ -105,7 +106,48 @@ namespace Zero
 
 		return TextureResource;
 	}
+
+	void FDX12CommandList::ResolveSubResource(const Ref<IResource>& DstRes, const Ref<IResource> SrcRes, uint32_t DstSubRes, uint32_t SrcSubRes)
+	{
+		TransitionBarrier(DstRes, D3D12_RESOURCE_STATE_RESOLVE_DEST, DstSubRes);
+		TransitionBarrier(SrcRes, D3D12_RESOURCE_STATE_RESOLVE_SOURCE, SrcSubRes);
 	
+		FlushResourceBarriers();
+
+		m_D3DCommandList->ResolveSubresource(DstRes->GetD3DResource().Get(), DstSubRes,
+			SrcRes->GetD3DResource().Get(), SrcSubRes,
+			DstRes->GetD3D12ResourceDesc().Format);
+
+		TrackResource(SrcRes);
+		TrackResource(DstRes);
+	}
+
+	void FDX12CommandList::ClearTexture(const Ref<FDX12Texture2D>& Texture, const ZMath::vec4 Color)
+	{
+		TransitionBarrier(Texture, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, true);
+		float ClearColor[4] = { Color.r, Color.g, Color.b, Color.a };
+		m_D3DCommandList->ClearRenderTargetView(Texture->GetRenderTargetView(), ClearColor, 0, nullptr);
+
+		TrackResource(Texture);
+	}
+
+	void FDX12CommandList::CopyResource(const Ref<IResource>& DstRes, const Ref<IResource>& SrcRes)
+	{
+		CopyResource(DstRes->GetD3DResource(), SrcRes->GetD3DResource());
+	}
+
+	void FDX12CommandList::CopyResource(ComPtr<ID3D12Resource> DstRes, ComPtr<ID3D12Resource> SrcRes)
+	{
+		TransitionBarrier(DstRes, D3D12_RESOURCE_STATE_COPY_DEST);
+		TransitionBarrier(SrcRes, D3D12_RESOURCE_STATE_COPY_SOURCE);
+
+		FlushResourceBarriers();
+
+		m_D3DCommandList->CopyResource(DstRes.Get(), SrcRes.Get());
+
+		TrackResource(DstRes);
+		TrackResource(SrcRes);
+	}
 
 	void FDX12CommandList::Draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t startVertex, uint32_t startInstance)
 	{
@@ -155,7 +197,7 @@ namespace Zero
 	{
 		if (Resource)
 		{
-			auto Barrier = CD3DX12_RESOURCE_BARRIER::Transition(Resource.Get(), D3D12_RESOURCE_STATE_COMMON, StateAfter);
+			auto Barrier = CD3DX12_RESOURCE_BARRIER::Transition(Resource.Get(), D3D12_RESOURCE_STATE_COMMON, StateAfter, Subresource);
 			m_ResourceStateTracker->ResourceBarrier(Barrier);
 		}
 		
@@ -205,6 +247,10 @@ namespace Zero
 		ReleaseTrackedObjects();
 		
 		//#todo
+	}
+
+	void FDX12CommandList::ReleaseTrackedObjects()
+	{
 	}
 	
 	

@@ -1,4 +1,6 @@
 #include "ResourceStateTracker.h"
+#include "../DX12CommandList.h"
+#include "../Base/Resource.h"
 
 namespace Zero
 {
@@ -84,6 +86,10 @@ namespace Zero
 		//#todo
 		//#to 
 
+	}
+
+	void FResourceStateTracker::AliasBarrier(const IResource* ResourceBefore, const IResource* ResourceAfter)
+	{
 	}
 
 	uint32_t FResourceStateTracker::FlushPendingResourceBarriers(const Ref<FDX12CommandList>& CommandList)

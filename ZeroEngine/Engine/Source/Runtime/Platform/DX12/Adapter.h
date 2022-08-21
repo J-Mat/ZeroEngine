@@ -3,6 +3,7 @@
 #include "Core.h"
 #include "Common/DX12Header.h"
 #include <dxgi1_6.h>
+#include <wrl/client.h>
 
 
 namespace Zero
@@ -31,10 +32,10 @@ namespace Zero
 		ComPtr<IDXGIAdapter4> GetDXGIAdapter() const { return m_DxgiAdapter; }
 
 		const std::wstring GetDescription() const { return m_Desc.Description; }
-		
+
 
 	private:
 		ComPtr<IDXGIAdapter4> m_DxgiAdapter;
 		DXGI_ADAPTER_DESC3 m_Desc;
-	}
-};
+	};
+}

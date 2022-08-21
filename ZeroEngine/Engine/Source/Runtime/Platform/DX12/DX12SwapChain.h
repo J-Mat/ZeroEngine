@@ -9,6 +9,7 @@ namespace Zero
 {
 	class FDX12CommandQueue;
 	class FDX12Texture2D;
+	class FDX12Device;
 	class FDX12SwapChain : public FSwapChain
 	{
 	public:	 
@@ -23,6 +24,12 @@ namespace Zero
 		* @see https://docs.microsoft.com/en-us/windows/win32/direct3ddxgi/variable-refresh-rate-displays
 		*/
         bool IsTearingSupported() const { return m_bTearingSupported; }
+		virtual void Resize(uint32_t Width, uint32_t Height);
+		void SetFullScreen(bool bFullScreen);
+		void WaitForSwapChain();
+		const FDX12RenderTarget& GetRenderTarget() const;
+		UINT Present(const Ref<FDX12Texture2D>& Texture = nullptr);
+		
 	private:
 		void UpdateRenderTargetViews();
 		

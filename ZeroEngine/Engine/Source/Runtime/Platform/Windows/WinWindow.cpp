@@ -3,6 +3,8 @@
 #include "Core/Events/MouseEvent.h"
 #include "Core/Events/ApplicationEvent.h"
 #include "Utils.h"
+#include "Platform/DX12/DX12RenderPipeline.h"
+
 
 namespace Zero
 {
@@ -32,6 +34,7 @@ namespace Zero
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
+		FDX12RenderPipeline::GetInstance().DrawFrame(m_Device);
 	}
 
 	void FWinWindow::SetVSync(bool bEnabled)
@@ -103,8 +106,9 @@ namespace Zero
 			CORE_LOG_ERROR("reateWindow Failed.");
 		}
 		
-		m_Device = CreateScope<FDX12Device>();
+		m_Device = CreateRef<FDX12Device>();
 		m_Device->Init();
+		m_Device->CreatSwapChain(m_WindowData.hMainWnd);
 		
 		ShowWindow(m_WindowData.hMainWnd , SW_SHOW);
 		
@@ -115,7 +119,7 @@ namespace Zero
 
 	void FWinWindow::Shutdown()
 	{
-		DestroyWindow(m_WindowData.hMainWnd)
+		DestroyWindow(m_WindowData.hMainWnd);
 	}
 
 	LRESULT CALLBACK FWinWindow::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)

@@ -1,5 +1,6 @@
 #include "DX12VertexBuffer.h"
 #include "DX12CommandQueue.h"
+#include "DX12Device.h"
 
 namespace Zero
 {
@@ -8,7 +9,7 @@ namespace Zero
 		, IBuffer(_Device)
 		, m_Device(_Device)
 	{
-		m_Device.GetCommandQueue().GetCommandList()->CreateDefaultBuffer()
+		//m_Device.GetCommandQueue().GetCommandList()->CreateDefaultBuffer()
 	}
 	void FDX1VertexBuffer::CreateVertexBufferView()
 	{

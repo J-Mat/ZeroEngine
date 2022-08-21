@@ -5,13 +5,16 @@
 #include "Render/RHI/CommandList.h"
 #include "GPUMemory/UploadBuffer.h"
 #include "GPUMemory/ResourceStateTracker.h"
-#include "DX12Device.h"
 #include "Render/Moudule/Image/Image.h"
+#include "DX12Device.h"
 
 
 
 namespace Zero
 {
+	class IResource;
+	class FDX12Texture2D;
+	class FDX12Device;
 	class FDX12CommandList : public FCommandList, public std::enable_shared_from_this<FDX12CommandList>
 	{
 	public:
@@ -25,6 +28,16 @@ namespace Zero
 		
 
 		ComPtr<ID3D12Resource> CreateTextureResource(Ref<FImage> Image);
+		
+		void ResolveSubResource(const Ref<IResource>& DstRes, const Ref<IResource> SrcRes, uint32_t DstSubRes = 0, uint32_t SrcSubRes = 0);
+
+		void ClearTexture(const Ref<FDX12Texture2D>& Texture, const ZMath::vec4 Color);
+
+		/**
+		* Copy resources.
+		*/
+		void CopyResource(const Ref<IResource>& DstRes, const Ref<IResource>& SrcRes);
+		void CopyResource(ComPtr<ID3D12Resource> DstRes, ComPtr<ID3D12Resource> SrcRes);
 
 		/**
 		* Draw geometry.
@@ -47,11 +60,6 @@ namespace Zero
 		// Just close the command list. This is useful for pending command lists.
 		void Close();
 
-		/**
-		* Reset the command list. This should only be called by the CommandQueue
-		* before the command list is returned from CommandQueue::GetCommandList.
-		*/
-		void Reset();
 		
 		/**
 		* Release tracked objects. Useful if the swap chain needs to be resized.

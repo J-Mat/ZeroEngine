@@ -7,11 +7,14 @@ namespace Zero
 	{
 	public:
 		virtual ~ITexture() = default;
-		virtual uint32_t GetWidth() const = 0;
-		virtual uint32_t GetHeight() const = 0;
-		virtual void Bind(uint32_t Slot) const = 0;
-	};
-	
+		virtual uint32_t GetWidth() { return m_Width; };
+		virtual uint32_t GetHeight() { return m_Height; };
+		virtual void Bind(uint32_t Slot) {};
+	protected:
+		uint32_t m_Width;
+		uint32_t m_Height;
+	}; 
+
 	class FTexture2D : ITexture
 	{
 	public:

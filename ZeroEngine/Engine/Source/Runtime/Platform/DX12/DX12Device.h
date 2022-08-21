@@ -1,17 +1,18 @@
 #pragma once
 
 #include "Core.h"
-#include "Common/DX12Header.h"
 #include "Render/RHI/GraphicDevice.h"
-#include "./Common/d3dx12.h"
+#include "Common/DX12Header.h"
 #include <wrl.h>
-#include "DX12CommandQueue.h"
-#include "GPUMemory/DescriptorAllocator.h"
 #include "Adapter.h"
 
 
 namespace Zero
 {
+	class FDX12SwapChain;
+	class FDescriptorAllocator;
+	class FDescriptorAllocation;
+	class FDX12CommandQueue;
 	class FDX12Device : public IDevice
 	{
 	public:
@@ -55,6 +56,10 @@ namespace Zero
 		std::shared_ptr<FAdapter> GetAdapter() const { return m_Adapter; }
 		
 		void Flush();
+		
+		void CreatSwapChain(HWND hWnd);
+		Ref<FDX12SwapChain> GetSwapChain() { return m_SwapChain; }
+		
 
 	private:
 		void EnableDebugLayer();
@@ -69,7 +74,6 @@ namespace Zero
 		UINT m_RtvDescriptorSize;
 		UINT m_DsvDescriptorSize;
 		UINT m_Cbv_Srv_UavDescriptorSize;
-		ComPtr<IDXGIFactory4> m_DxgiFactory;
 		ComPtr<ID3D12Device> m_D3DDevice;
 		Ref<FAdapter> m_Adapter;
 
@@ -80,5 +84,7 @@ namespace Zero
 		Scope<FDescriptorAllocator> m_DescriptorAllocators[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
 
 		D3D_ROOT_SIGNATURE_VERSION m_HighestRootSignatureVersion;
+		
+		Ref<FDX12SwapChain> m_SwapChain;
 	};
 }
