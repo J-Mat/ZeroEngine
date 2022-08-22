@@ -18,7 +18,7 @@ namespace Zero
 		Desc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
 		Desc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 		Desc.NodeMask = 0;
-		ThrowIfFailed(D3DDevice->CreateCommandQueue(&Desc, IID_PPV_ARGS(&m_CommandQueue)));
+		ThrowIfFailed(D3DDevice->CreateCommandQueue(&Desc, IID_PPV_ARGS(&m_D3DCommandQueue)));
 		ThrowIfFailed(D3DDevice->CreateFence(m_FenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_Fence)));
 		
 		char ThreadName[256];
@@ -26,15 +26,15 @@ namespace Zero
 		switch (m_CommandListType)
 		{
 		case D3D12_COMMAND_LIST_TYPE_COPY:
-			m_CommandQueue->SetName(L"Copy Command Queue");
+			m_D3DCommandQueue->SetName(L"Copy Command Queue");
 			strcat_s(ThreadName, "(Copy)");
 			break;
 		case D3D12_COMMAND_LIST_TYPE_COMPUTE:
-			m_CommandQueue->SetName(L"Compute Command Queue");
+			m_D3DCommandQueue->SetName(L"Compute Command Queue");
 			strcat_s(ThreadName, "(Compute)");
 			break;
 		case D3D12_COMMAND_LIST_TYPE_DIRECT:
-			m_CommandQueue->SetName(L"Direct Command Queue");
+			m_D3DCommandQueue->SetName(L"Direct Command Queue");
 			strcat_s(ThreadName, "(Direct)");
 			break;
 		}
@@ -52,9 +52,9 @@ namespace Zero
 	{
 		Ref<FDX12CommandList> CommandList;
 		
-		if (AvailableCommandLists.IsEmpty())
+		if (m_AvailableCommandLists.IsEmpty())
 		{
-			AvailableCommandLists.TryPop(CommandList);
+			m_AvailableCommandLists.TryPop(CommandList);
 		}
 		else
 		{
@@ -74,14 +74,67 @@ namespace Zero
 		FResourceStateTracker::Lock();
 		
 		// Command lists that need to put back on the command list queue.
-		return 0;
-	
+		std::vector<Ref<FDX12CommandList>> ToBeQueued;
+		ToBeQueued.reserve(CommandLists.size() * 2);
+		
+		// Generate mips command lists.
+		std::vector<Ref<FDX12CommandList>> GenerateMipsCommandLists;
+		GenerateMipsCommandLists.reserve(CommandLists.size() * 2);
+
+		// Command lists that need to be executed.
+		std::vector<ID3D12CommandList*> D3DCommandLists;
+		D3DCommandLists.reserve(CommandLists.size() * 2);
+		
+		for (auto CommandList : CommandLists)
+		{
+			auto PendingCommandList = GetCommandList();
+			bool bHasPendingBarriers = CommandList->Close(PendingCommandList);
+			PendingCommandList->Close();
+			// If there are no pending barriers on the pending command list, there is no reason to
+			// execute an empty command list on the command queue.
+			if (bHasPendingBarriers)
+			{
+				D3DCommandLists.push_back(PendingCommandList->GetD3D12CommandList().Get());
+			}
+			D3DCommandLists.push_back(CommandList->GetD3D12CommandList().Get());
+			
+			ToBeQueued.push_back(PendingCommandList);
+			ToBeQueued.push_back(CommandList);
+			auto generateMipsCommandList = CommandList->GetGenerateMipsCommandList();
+			if (generateMipsCommandList)
+			{
+				GenerateMipsCommandLists.push_back(generateMipsCommandList);
+			}
+		}
+		
+		UINT NumCommandLists = static_cast<UINT>(D3DCommandLists.size());
+		m_D3DCommandQueue->ExecuteCommandLists(NumCommandLists, D3DCommandLists.data());
+		
+		uint64_t FenceValue = Signal();
+
+		FResourceStateTracker::Unlock();
+		
+		for (auto CommandList : ToBeQueued)
+		{
+			m_InFlightCommandLists.Push({ FenceValue, CommandList});
+		}
+
+		// If there are any command lists that generate mips then execute those
+		// after the initial resource command lists have finished.
+		if (GenerateMipsCommandLists.size() > 0)
+		{
+			auto& ComputeQueue = m_Device.GetCommandQueue(D3D12_COMMAND_LIST_TYPE_COMPUTE);
+			ComputeQueue.Wait(*this);
+			ComputeQueue.ExecuteCommandLists(GenerateMipsCommandLists);
+		}
+
+		return FenceValue;
 	}
 
 	uint64_t FDX12CommandQueue::Signal()
 	{
 		uint64_t OutFenceValue = ++m_FenceValue;
-		m_CommandQueue->Signal(m_Fence.Get(), m_FenceValue);
+		m_D3DCommandQueue->Signal(m_Fence.Get(), m_FenceValue);
 		return OutFenceValue;
 	}
 	bool FDX12CommandQueue::IsFenceComplete(uint64_t FenceValue)
@@ -105,13 +158,41 @@ namespace Zero
 	}
 	void FDX12CommandQueue::Flush()
 	{
-		std::unique_lock<std::mutex> Lock(ProcessInFlightCommandListsThreadMutex);
-		ProcessInFlightCommandListsThreadCV.wait(Lock, [this] { return InFlightCommandLists.IsEmpty(); });
+		std::unique_lock<std::mutex> Lock(m_ProcessInFlightCommandListsThreadMutex);
+		m_ProcessInFlightCommandListsThreadCV.wait(Lock, [this] { return m_InFlightCommandLists.IsEmpty(); });
 
 		WaitForFenceValue(m_FenceValue);
 	}
 
+	void FDX12CommandQueue::Wait(const FDX12CommandQueue& Other)
+	{
+		m_D3DCommandQueue->Wait(m_Fence.Get(), Other.m_FenceValue);
+	}
+
 	void FDX12CommandQueue::ProcessInFlightCommandLists()
 	{
+		std::unique_lock<std::mutex> Lock(m_ProcessInFlightCommandListsThreadMutex, std::defer_lock);
+
+		while (m_bProcessInFlightCommandLists)
+		{
+			FCommandListEntry CommandListEntry;
+
+			Lock.lock();
+			while (m_InFlightCommandLists.TryPop(CommandListEntry))
+			{
+				auto FenceValue = std::get<0>(CommandListEntry);
+				auto CommandList = std::get<1>(CommandListEntry);
+
+				WaitForFenceValue(FenceValue);
+
+				CommandList->Reset();
+				m_AvailableCommandLists.Push(CommandList);
+			}
+			Lock.unlock();
+			m_ProcessInFlightCommandListsThreadCV.notify_one();
+
+			// std::this_thread::sleep_for( std::chrono::milliseconds( 1 ) );
+			std::this_thread::yield();
+		}
 	}
 }

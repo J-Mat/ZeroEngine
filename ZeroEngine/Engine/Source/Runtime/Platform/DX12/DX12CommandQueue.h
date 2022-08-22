@@ -17,7 +17,7 @@ namespace Zero
 
 		Ref<FDX12CommandList> GetCommandList();
 	
-		ComPtr<ID3D12CommandQueue> GetD3DCommandQueue() { return m_CommandQueue; }
+		ComPtr<ID3D12CommandQueue> GetD3DCommandQueue() { return m_D3DCommandQueue; }
 
 
 		uint64_t ExecuteCommandList(Ref<FDX12CommandList> CommandList);
@@ -28,23 +28,29 @@ namespace Zero
 		void     WaitForFenceValue(uint64_t fenceValue);
 		void     Flush();
 
+		void Wait(const FDX12CommandQueue& Other);
+
 	private:
 		void ProcessInFlightCommandLists();
 		
-		using CommandListEntry = std::tuple<uint64_t, Ref<FDX12CommandList>>;
+
+		// Keep track of command allocators that are "in-flight"
+		// The first member is the fence value to wait for, the second is the
+		// a shared pointer to the "in-flight" command list.
+		using FCommandListEntry = std::tuple<uint64_t, Ref<FDX12CommandList>>;
 		
 		FDX12Device& m_Device;
 		D3D12_COMMAND_LIST_TYPE                    m_CommandListType;
-		ComPtr<ID3D12CommandQueue> m_CommandQueue;
+		ComPtr<ID3D12CommandQueue> m_D3DCommandQueue;
 		ComPtr<ID3D12Fence>        m_Fence;
 		std::atomic_uint64_t                       m_FenceValue;
 		
-		TThreadSafeQueue<CommandListEntry> InFlightCommandLists;
-		TThreadSafeQueue<Ref<FDX12CommandList>> AvailableCommandLists;
+		TThreadSafeQueue<FCommandListEntry> m_InFlightCommandLists;
+		TThreadSafeQueue<Ref<FDX12CommandList>> m_AvailableCommandLists;
 		
 		std::thread             m_ProcessInFlightCommandListsThread;
 		std::atomic_bool        m_bProcessInFlightCommandLists;
-		std::mutex              ProcessInFlightCommandListsThreadMutex;
-		std::condition_variable ProcessInFlightCommandListsThreadCV;
+		std::mutex              m_ProcessInFlightCommandListsThreadMutex;
+		std::condition_variable m_ProcessInFlightCommandListsThreadCV;
 	};
 }

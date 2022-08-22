@@ -7,6 +7,7 @@
 #include "GPUMemory/ResourceStateTracker.h"
 #include "Render/Moudule/Image/Image.h"
 #include "DX12Device.h"
+#include "GPUMemory/DynamicDescriptorHeap.h"
 
 
 
@@ -92,6 +93,14 @@ namespace Zero
 		void TransitionBarrier(ComPtr<ID3D12Resource> Resource, D3D12_RESOURCE_STATES StateAfter,
 			UINT Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, bool bFlushBarriers = false);
 
+
+		Ref<FDX12CommandList> GetGenerateMipsCommandList() const
+		{
+			return m_ComputeCommandList;
+		}
+
+		virtual void Reset();
+		virtual void Execute();
 	private:
 		void TrackResource(Microsoft::WRL::ComPtr<ID3D12Object> Object);
 		void TrackResource(const Ref<IResource>& res);
@@ -105,9 +114,17 @@ namespace Zero
 		Scope<FUploadBuffer> m_UploadBuffer;
 		Scope<FResourceStateTracker> m_ResourceStateTracker;
 		ID3D12DescriptorHeap* m_DescriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
+		Scope<FDynamicDescriptorHeap> m_DynamicDescriptorHeap[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
+
+		// For copy queues, it may be necessary to generate mips while loading textures.
+		// Mips can't be generated on copy queues but must be generated on compute or
+		// direct queues. In this case, a Compute command list is generated and executed
+		// after the copy queue is finished uploading the first sub resource.
+		Ref<FDX12CommandList> m_ComputeCommandList;
 
 
-		virtual void Reset();
-		virtual void Execute();
+		// Keep track of the currently bound root signatures to minimize root
+		// signature changes.
+		ID3D12RootSignature* m_RootSignature;
 	};
 }

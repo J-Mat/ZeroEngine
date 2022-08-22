@@ -4,8 +4,9 @@
 namespace Zero
 {
 	FDX12CommandList::FDX12CommandList(FDX12Device& InDevice, D3D12_COMMAND_LIST_TYPE Type)
-	: m_Device(InDevice), 
-	m_CommandListType(Type)
+	: m_Device(InDevice)
+	, m_CommandListType(Type)
+	, m_RootSignature(nullptr)
 	{
 		ThrowIfFailed(m_Device.GetDevice()->CreateCommandAllocator(m_CommandListType, IID_PPV_ARGS(&m_CommandAllocator)));
 
@@ -19,6 +20,7 @@ namespace Zero
 		for (int i = 0; i < D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES; ++i)
 		{
 			m_DescriptorHeaps[i] = nullptr;
+			m_DynamicDescriptorHeap[i] = CreateScope<FDynamicDescriptorHeap>(m_Device, static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(i));
 		}
 	}
 
@@ -246,11 +248,19 @@ namespace Zero
 
 		ReleaseTrackedObjects();
 		
-		//#todo
+		for (int i = 0; i < D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES; ++i)
+		{
+			m_DynamicDescriptorHeap[i]->Reset();
+			m_DescriptorHeaps[i] = nullptr;
+		}
+		
+		m_RootSignature = nullptr;
 	}
+	
 
 	void FDX12CommandList::ReleaseTrackedObjects()
 	{
+		m_TrackedObjects.clear();
 	}
 	
 	
