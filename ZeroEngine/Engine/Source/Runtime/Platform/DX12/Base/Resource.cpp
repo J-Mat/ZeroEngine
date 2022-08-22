@@ -1,4 +1,5 @@
 #include "Resource.h"
+#include "../DX12Device.h"
 #include "../GPUMemory/ResourceStateTracker.h"
 
 namespace Zero

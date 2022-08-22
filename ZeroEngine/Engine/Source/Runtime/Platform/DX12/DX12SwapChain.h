@@ -5,6 +5,7 @@
 #include "Render/RHI/SwapChain.h"
 #include "DX12RenderTarget.h"
 #include "DX12CommandQueue.h"
+#include <dxgi1_5.h>
 
 namespace Zero
 {

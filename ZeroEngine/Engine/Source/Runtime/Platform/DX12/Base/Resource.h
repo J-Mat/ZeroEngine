@@ -1,10 +1,10 @@
 #pragma once
 #include "../Common/DX12Header.h"
 #include "Core.h"
-#include "../DX12Device.h"
 
 namespace Zero
 {
+	class FDX12Device;
 	class IResource
 	{
 	public:
@@ -22,8 +22,8 @@ namespace Zero
 		/**
 		* Check if the resource format supports a specific feature.
 		*/
-		bool CheckFormatSupport(D3D12_FORMAT_SUPPORT1 InFormatSupport) const { return (m_FormatSupport.Support1 & InFormatSupport) != 0; }
-		bool CheckFormatSupport(D3D12_FORMAT_SUPPORT2 InFormatSupport) const { return (m_FormatSupport.Support2 & InFormatSupport) != 0; }
+		virtual bool CheckFormatSupport(D3D12_FORMAT_SUPPORT1 InFormatSupport) const { return (m_FormatSupport.Support1 & InFormatSupport) != 0; }
+		virtual bool CheckFormatSupport(D3D12_FORMAT_SUPPORT2 InFormatSupport) const { return (m_FormatSupport.Support2 & InFormatSupport) != 0; }
 
 		ComPtr<ID3D12Resource> GetD3DResource() { return m_D3DResource; }
 

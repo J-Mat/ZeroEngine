@@ -6,12 +6,13 @@
 #include <wrl.h>
 #include "Adapter.h"
 #include "GPUMemory/DescriptorAllocation.h"
+#include "DX12SwapChain.h"
 
 
 namespace Zero
 {
+	//class FDX12SwapChain;
 	class FDX12CommandQueue;
-	class FDX12SwapChain;
 	class FDescriptorAllocator;
 	class FDX12Device : public IDevice
 	{

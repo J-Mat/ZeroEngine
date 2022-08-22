@@ -1,6 +1,7 @@
 #include "DX12SwapChain.h"
 #include "DX12Device.h"
 #include "DX12CommandList.h"
+#include <dxgi1_2.h>
 
 namespace Zero
 {
