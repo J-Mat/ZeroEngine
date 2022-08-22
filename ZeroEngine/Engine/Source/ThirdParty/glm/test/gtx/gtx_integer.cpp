@@ -1,17 +1,9 @@
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// OpenGL Mathematics Copyright (c) 2005 - 2012 G-Truc Creation (www.g-truc.net)
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// Created : 2011-10-11
-// Updated : 2011-10-11
-// Licence : This source is under MIT licence
-// File    : test/gtx/gtx_integer.cpp
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#include <glm/glm.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/exponential.hpp>
+#include <glm/gtc/epsilon.hpp>
 #include <glm/gtx/integer.hpp>
-#include <glm/gtx/epsilon.hpp>
 #include <cstdio>
-
+/*
 int test_floor_log2()
 {
 	int Error = 0;
@@ -27,7 +19,7 @@ int test_floor_log2()
 
 	return Error;
 }
-
+*/
 int test_log2()
 {
 	int Error = 0;
@@ -41,10 +33,10 @@ int test_log2()
 		Error += glm::abs(double(A) - B) <= 24 ? 0 : 1;
 		assert(!Error);
 
-		printf("Log2(%d) Error: %d, %d\n", 1 << i, A, B);
+		std::printf("Log2(%d) error A=%d, B=%d\n", 1 << i, A, B);
 	}
 
-	printf("log2 error: %d\n", Error);
+	std::printf("log2 error=%d\n", Error);
 
 	return Error;
 }
@@ -60,13 +52,57 @@ int test_nlz()
 	return Error;
 }
 
+int test_pow_uint()
+{
+	int Error = 0;
+
+	glm::uint const p0 = glm::pow(2u, 0u);
+	Error += p0 == 1u ? 0 : 1;
+
+	glm::uint const p1 = glm::pow(2u, 1u);
+	Error += p1 == 2u ? 0 : 1;
+
+	glm::uint const p2 = glm::pow(2u, 2u);
+	Error += p2 == 4u ? 0 : 1;
+
+	return Error;
+}
+
+int test_pow_int()
+{
+	int Error = 0;
+
+	int const p0 = glm::pow(2, 0u);
+	Error += p0 == 1 ? 0 : 1;
+
+	int const p1 = glm::pow(2, 1u);
+	Error += p1 == 2 ? 0 : 1;
+
+	int const p2 = glm::pow(2, 2u);
+	Error += p2 == 4 ? 0 : 1;
+
+	int const p0n = glm::pow(-2, 0u);
+	Error += p0n == -1 ? 0 : 1;
+
+	int const p1n = glm::pow(-2, 1u);
+	Error += p1n == -2 ? 0 : 1;
+
+	int const p2n = glm::pow(-2, 2u);
+	Error += p2n == 4 ? 0 : 1;
+
+	return Error;
+}
+
 int main()
 {
 	int Error = 0;
 
 	Error += test_nlz();
-	Error += test_floor_log2();
+//	Error += test_floor_log2();
 	Error += test_log2();
+	Error += test_pow_uint();
+	Error += test_pow_int();
 
 	return Error;
 }
+

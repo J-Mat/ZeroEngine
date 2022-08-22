@@ -1,94 +1,45 @@
-cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
-cmake_policy(VERSION 2.6)
+cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
+cmake_policy(VERSION 3.2)
 
-project(glm)
-enable_testing()
 
-add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+file(READ "glm/detail/setup.hpp" GLM_SETUP_FILE)
+string(REGEX MATCH "#define[ ]+GLM_VERSION_MAJOR[ ]+([0-9]+)" _ ${GLM_SETUP_FILE})
+set(GLM_VERSION_MAJOR "${CMAKE_MATCH_1}")
+string(REGEX MATCH "#define[ ]+GLM_VERSION_MINOR[ ]+([0-9]+)" _ ${GLM_SETUP_FILE})
+set(GLM_VERSION_MINOR "${CMAKE_MATCH_1}")
+string(REGEX MATCH "#define[ ]+GLM_VERSION_PATCH[ ]+([0-9]+)" _ ${GLM_SETUP_FILE})
+set(GLM_VERSION_PATCH "${CMAKE_MATCH_1}")
+string(REGEX MATCH "#define[ ]+GLM_VERSION_REVISION[ ]+([0-9]+)" _ ${GLM_SETUP_FILE})
+set(GLM_VERSION_REVISION "${CMAKE_MATCH_1}")
 
-option(GLM_TEST_ENABLE "GLM test" OFF)
-if(NOT GLM_TEST_ENABLE)
-	message(FATAL_ERROR "GLM is a header only library, no need to build it. Set the option GLM_TEST_ENABLE with ON to build and run the test bench")
-endif()
-
-option(GLM_TEST_ENABLE_CXX_11 "Enable C++ 11" OFF)
-if(GLM_TEST_ENABLE_CXX_11)
-	if(CMAKE_COMPILER_IS_GNUCXX)
-		add_definitions(-std=c++0x)
-	endif()
-elseif(NOT GLM_TEST_ENABLE_CXX_11)
-	if(CMAKE_COMPILER_IS_GNUCXX)
-		add_definitions(-std=c++98)
-	endif()
-endif()
-
-option(GLM_TEST_ENABLE_MS_EXTENSIONS "Enable MS extensions" OFF)
-if(GLM_TEST_ENABLE_MS_EXTENSIONS)
-	if(CMAKE_COMPILER_IS_GNUCXX)
-		#Doesn't seem to work...
-		#add_definitions(-fms-extensions)
-		#add_definitions(-D_MSC_EXTENSIONS)
-	endif()
-elseif(NOT GLM_TEST_ENABLE_MS_EXTENSIONS)
-	if(CMAKE_COMPILER_IS_GNUCXX)
-		add_definitions(-std=c++98)
-		add_definitions(-pedantic)
-	endif()
-
-	if(MSVC)
-		add_definitions(/Za)	
-	endif()
-endif()
-
-option(GLM_TEST_ENABLE_SIMD "Enable SIMD optimizations" OFF)
-if(GLM_TEST_ENABLE_SIMD)
-	if(CMAKE_COMPILER_IS_GNUCXX)
-		add_definitions(-msse2)
-	endif()
-
-	if(MSVC)
-		add_definitions(/arch:SSE2)	
-	endif()
-elseif(NOT GLM_TEST_ENABLE_SIMD)
-	
-	add_definitions(-DGLM_FORCE_PURE)
-
-	if(CMAKE_COMPILER_IS_GNUCXX)
-		add_definitions(-mfpmath=387)
-	endif()
-endif()
-
-option(GLM_TEST_ENABLE_FAST_MATH "Enable fast math optimizations" OFF)
-if(GLM_TEST_ENABLE_FAST_MATH)
-	if(CMAKE_COMPILER_IS_GNUCXX)
-		add_definitions(-ffast-math)
-	endif()
-
-	if(MSVC)
-		add_definitions(/fp:fast)	
-	endif()
-elseif(NOT GLM_TEST_ENABLE_FAST_MATH)
-	if(MSVC)
-		add_definitions(/fp:precise)	
-	endif()
-endif()
-
-if(CMAKE_COMPILER_IS_GNUCXX)
-	#add_definitions(-S)
-	#add_definitions(-s)
-	#add_definitions(-m32)
-	#add_definitions(-O3)
-    
-    #add_definitions(-fprofile-arcs -ftest-coverage) gcov
-    #ctest_enable_coverage()
-endif()
-
-include_directories(".")
-include_directories("./test/external")
+set(GLM_VERSION ${GLM_VERSION_MAJOR}.${GLM_VERSION_MINOR}.${GLM_VERSION_PATCH}.${GLM_VERSION_REVISION})
+project(glm VERSION ${GLM_VERSION} LANGUAGES CXX)
+message(STATUS "GLM: Version " ${GLM_VERSION})
 
 add_subdirectory(glm)
-add_subdirectory(test)
-add_subdirectory(bench)
-add_subdirectory(doc)
+add_library(glm::glm ALIAS glm)
 
-install(DIRECTORY glm DESTINATION include)
+if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
+
+	include(CPack)
+	install(DIRECTORY glm DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} PATTERN "CMakeLists.txt" EXCLUDE)
+	install(EXPORT glm FILE glmConfig.cmake DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/glm NAMESPACE glm::)
+	include(CMakePackageConfigHelpers)
+	write_basic_package_version_file("glmConfigVersion.cmake" COMPATIBILITY AnyNewerVersion)
+	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/glmConfigVersion.cmake DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/glm)
+
+	include(CTest)
+	if(BUILD_TESTING)
+		add_subdirectory(test)
+	endif()
+
+endif(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
+
+if (NOT TARGET uninstall)
+configure_file(cmake/cmake_uninstall.cmake.in
+               cmake_uninstall.cmake IMMEDIATE @ONLY)
+
+add_custom_target(uninstall
+                  "${CMAKE_COMMAND}" -P
+                  "${CMAKE_BINARY_DIR}/cmake_uninstall.cmake")
+endif()

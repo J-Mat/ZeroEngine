@@ -4,6 +4,12 @@
 
 namespace Zero
 {
+	FResourceStateTracker::ResourceStateMap FResourceStateTracker::s_GlobalResourceState;
+	bool  FResourceStateTracker::s_bLocked = false;
+	std::mutex FResourceStateTracker::s_GlobalMutex;
+
+	static std::mutex s_GlobalMutex;
+	static bool       s_bLocked;
 	FResourceStateTracker::FResourceStateTracker()
 	{
 	}

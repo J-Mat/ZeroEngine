@@ -2,13 +2,13 @@
 
 #include "Core.h"
 #include "Common/DX12Header.h"
-#include "DX12CommandList.h"
 #include "Core/Base/ThreadSafeQueue.h"
 
 
 namespace Zero
 {
 	class FDX12Device;
+	class FDX12CommandList; 
 	class FDX12CommandQueue
 	{
 	public:

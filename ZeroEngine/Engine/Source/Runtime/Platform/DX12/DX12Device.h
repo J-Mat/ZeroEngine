@@ -8,12 +8,11 @@
 #include "GPUMemory/DescriptorAllocation.h"
 
 
-
 namespace Zero
 {
+	class FDX12CommandQueue;
 	class FDX12SwapChain;
 	class FDescriptorAllocator;
-	class FDX12CommandQueue;
 	class FDX12Device : public IDevice
 	{
 	public:

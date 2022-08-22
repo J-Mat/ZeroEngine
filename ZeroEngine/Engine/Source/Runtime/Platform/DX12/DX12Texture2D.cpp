@@ -1,6 +1,7 @@
 #include "DX12Texture2D.h"
 #include "DX12Device.h"
 #include "DX12CommandQueue.h"
+#include "DX12CommandList.h"
 
 
 namespace Zero
