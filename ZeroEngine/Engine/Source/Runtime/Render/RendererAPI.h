@@ -2,6 +2,7 @@
 #include "Core.h"
 #include "Platform/DX12/DX12VertexBuffer.h"
 #include "Platform/DX12/DX12Texture2D.h"
+#include "Platform/Windows/WinWindow.h"
 
 namespace Zero
 {
@@ -39,6 +40,8 @@ namespace Zero
 	
 	class IGraphicFactroy
 	{
+	public:
+		virtual Ref<FWinWindow> CreatePlatformWindow(const FWindowsConfig& Config) = 0;
 		virtual Ref<IVertexBuffer> CreateVertexBuffer(IDevice* Device, void* data, uint32_t VertexCount, FVertexBufferLayout& Layout, IVertexBuffer::EType Type = IVertexBuffer::EType::Static) = 0;
 		virtual Ref<FTexture2D> CreateTexture2D(IDevice* Device, const std::string Path) = 0;
 	};
@@ -47,6 +50,7 @@ namespace Zero
 
 	class FDX12Factory : public IGraphicFactroy
 	{
+	public:
 		virtual Ref<IVertexBuffer> CreateVertexBuffer(IDevice* Device, void* data, uint32_t VertexCount, FVertexBufferLayout& Layout, IVertexBuffer::EType Type = IVertexBuffer::EType::Static)
 		{
 			return CreateRef<FDX1VertexBuffer>(*((FDX12Device*)Device), data, VertexCount, Layout, Type);
@@ -57,6 +61,10 @@ namespace Zero
 			Ref<FImage> Image = CreateRef<FImage>(Path);
 			FDX12Device* DX12Device = static_cast<FDX12Device*>(Device);
 			return CreateRef<FDX12Texture2D>(*DX12Device, Image);
+		}
+		virtual Ref<FWinWindow> CreatePlatformWindow(const FWindowsConfig& Config)
+		{
+			return CreateRef<FWinWindow>(Config);
 		}
 	};
 }

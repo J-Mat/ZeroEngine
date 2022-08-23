@@ -52,7 +52,7 @@ namespace Zero
 	{
 		Ref<FDX12CommandList> CommandList;
 		
-		if (m_AvailableCommandLists.IsEmpty())
+		if (!m_AvailableCommandLists.IsEmpty())
 		{
 			m_AvailableCommandLists.TryPop(CommandList);
 		}

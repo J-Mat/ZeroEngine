@@ -24,7 +24,7 @@ namespace Zero
 		const FDX12RenderTarget& RenderTarget = SwapChain->GetRenderTarget();
 		Ref<FDX12Texture2D>  Texture = RenderTarget.GetTexture(EAttachmentIndex::Color0);
 		
-		ZMath::vec4 Color(0.4f, 0.6f, 0.9f, 1.0f);	
+		ZMath::vec4 Color(0.4f, 1.0f, 0.9f, 1.0f);	
 		CommandList->ClearTexture(Texture, Color);
 
 		CommandQueue.ExecuteCommandList(CommandList);

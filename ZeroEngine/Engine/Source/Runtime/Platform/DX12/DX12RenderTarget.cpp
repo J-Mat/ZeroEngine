@@ -30,7 +30,10 @@ namespace Zero
 
 	void FDX12RenderTarget::Reset()
 	{
-		m_Textures = FRenderTargetList(EAttachmentIndex::NumAttachmentPoints);
+		for (size_t i = 0; i < EAttachmentIndex::NumAttachmentPoints; ++i)
+		{
+			m_Textures[i] = nullptr;
+		}
 	}
 
 	D3D12_RT_FORMAT_ARRAY FDX12RenderTarget::GetRenderTargetFormats() const

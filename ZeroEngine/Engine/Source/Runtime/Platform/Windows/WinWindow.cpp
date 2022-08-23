@@ -34,7 +34,10 @@ namespace Zero
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		FDX12RenderPipeline::GetInstance().DrawFrame(m_Device);
+		else
+		{
+			FDX12RenderPipeline::GetInstance().DrawFrame(m_Device);
+		}
 	}
 
 	void FWinWindow::SetVSync(bool bEnabled)

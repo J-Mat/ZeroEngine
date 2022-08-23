@@ -5,7 +5,7 @@
 
 namespace Zero
 {
-	class FWinWindow : public FWindows
+	class FWinWindow : public FWindows<FDX12Device>
 	{
 	public:
 		LRESULT CALLBACK MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -49,6 +49,5 @@ namespace Zero
 		};
 		FWindowData m_WindowData;
 		
-		Ref<FDX12Device> m_Device;
 	};
 }

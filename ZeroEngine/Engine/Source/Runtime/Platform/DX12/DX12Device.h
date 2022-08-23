@@ -60,6 +60,8 @@ namespace Zero
 		
 		void CreatSwapChain(HWND hWnd);
 		Ref<FDX12SwapChain> GetSwapChain() { return m_SwapChain; }
+
+		virtual void Resize(uint32_t Width, uint32_t Height) { m_SwapChain->Resize(Width, Height); }
 		
 
 	private:

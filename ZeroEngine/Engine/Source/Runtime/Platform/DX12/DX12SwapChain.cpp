@@ -12,6 +12,7 @@ namespace Zero
 		, m_hWnd(hWnd) 
 		, m_RenderTargetFormat(RenderTargetFormat)
 		, m_bTearingSupported(false)
+		, m_FenceValues {0}
 	{
 		auto D3DComandQueue = m_CommandQueue.GetD3DCommandQueue();
 		

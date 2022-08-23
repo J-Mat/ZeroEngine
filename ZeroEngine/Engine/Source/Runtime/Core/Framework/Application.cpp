@@ -1,5 +1,6 @@
 #include "Application.h"
 #include "Core/Base/Input.h"
+#include "Render/RendererAPI.h"
 
 
 namespace Zero
@@ -12,7 +13,8 @@ namespace Zero
 		s_Instance = this;
 		
 		// Init: Window
-		Window = FWindows::Create(FWindowsConfig(hInst, m_Name));
+		FRenderer::SetRHI(ERHI::DirectX12);
+		m_Window = FRenderer::GraphicFactroy->CreatePlatformWindow(FWindowsConfig(hInst, m_Name));
 		
 		// Init: Input System
 		FInput::Init();
@@ -31,7 +33,7 @@ namespace Zero
 			{
 				Layer->OnUpdate();
 			}
-			Window->OnUpdate();
+			m_Window->OnUpdate();
 		}
 	}
 	
@@ -50,6 +52,10 @@ namespace Zero
 			}
 		}
 	}
+
+	void FApplication::OnAwake()
+	{
+	}
 	
 	void FApplication::OnDraw()
 	{
@@ -57,6 +63,10 @@ namespace Zero
 		{
 			Layer->OnDraw();
 		}
+	}
+
+	void FApplication::OnResourceDestroy()
+	{
 	}
 	
 	void FApplication::PushLayer(FLayer* Layer)
@@ -88,6 +98,7 @@ namespace Zero
 		
 		bMinimized = false;
 		//m_Window->GetGraphicContext()->OnWindowResize(e.GetWidth(), e.GetHeight());
+		m_Window->GetDevice()->Resize(Event.GetWidth(), Event.GetHeight());
 		return false;
 	}
 }

@@ -40,8 +40,7 @@ namespace Zero
 		uint32_t GetHeight() { return m_Height; }
 		
 	protected:
-		using FRenderTargetList = std::vector<Ref<T>>;
-		FRenderTargetList m_Textures;
+		Ref<T> m_Textures[EAttachmentIndex::NumAttachmentPoints];
 		uint32_t m_Width = 0;
 		uint32_t m_Height = 0;
 	};

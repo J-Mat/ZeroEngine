@@ -112,7 +112,7 @@ namespace Zero
 		ComPtr<ID3D12CommandAllocator>	m_CommandAllocator;
 		ComPtr<ID3D12GraphicsCommandList2> m_D3DCommandList;
 		Scope<FUploadBuffer> m_UploadBuffer;
-		Scope<FResourceStateTracker> m_ResourceStateTracker;
+		Scope<FResourceStateTracker> m_ResourceStateTracker = nullptr;
 		ID3D12DescriptorHeap* m_DescriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
 		Scope<FDynamicDescriptorHeap> m_DynamicDescriptorHeap[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
 

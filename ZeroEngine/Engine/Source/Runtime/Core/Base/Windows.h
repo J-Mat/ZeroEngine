@@ -19,6 +19,8 @@ namespace Zero
 		{}
 	};
 	
+	
+	template<typename T>
 	class FWindows
 	{
 	public:
@@ -39,5 +41,11 @@ namespace Zero
 		// virtual std::shared_ptr<GraphicsContext> GetGraphicsContext() const = 0;
 				
 		static Ref<FWindows> Create(const FWindowsConfig& Config);
+
+		
+		Ref<T> GetDevice() { return m_Device; }
+
+	protected:
+		Ref<T> m_Device;
 	};
 }

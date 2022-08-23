@@ -5,10 +5,10 @@
 
 namespace Zero
 {
-	FDynamicDescriptorHeap::FDynamicDescriptorHeap(FDX12Device& Device, D3D12_DESCRIPTOR_HEAP_TYPE HeapType, uint32_t HumDescriptorsPerHeap)
+	FDynamicDescriptorHeap::FDynamicDescriptorHeap(FDX12Device& Device, D3D12_DESCRIPTOR_HEAP_TYPE HeapType, uint32_t NumDescriptorsPerHeap)
 		:m_Device(Device)
 		,m_DescriptorHeapType(HeapType)
-		,m_NumDescriptorsPerHeap(m_NumDescriptorsPerHeap)
+		,m_NumDescriptorsPerHeap(NumDescriptorsPerHeap)
 		,m_DescriptorTableBitMask(0)
 		,m_StaleDescriptorTableBitMask(0)
 		,m_StaleCBVBitMask(0)
