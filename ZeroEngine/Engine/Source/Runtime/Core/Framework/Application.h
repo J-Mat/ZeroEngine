@@ -38,11 +38,11 @@ namespace Zero
 		
 		void PushLayer(FLayer* Layer);
 		void PushOverlay(FLayer* Overlay);
-		FLayerStack& GetLayerStack() { return LayerStack; }
+		FLayerStack& GetLayerStack() { return m_LayerStack; }
 
 		inline FWinWindow& GetWindow() { return *m_Window; }
 		inline static FApplication& Get() { return *s_Instance; }
-		inline FFrameTimer* GetFrameTimer() { return FrameTimer.get(); }
+		inline FFrameTimer* GetFrameTimer() { return m_FrameTimer.get(); }
 	
 	private:
 		bool OnWindowClosed(FWindowCloseEvent& Event);
@@ -50,14 +50,14 @@ namespace Zero
 	
 	private:
 		Ref<FWinWindow> m_Window;
-		Scope<FFrameTimer> FrameTimer;
+		Scope<FFrameTimer> m_FrameTimer;
 		
 		bool bRunning = true;
-		FLayerStack LayerStack;
+		FLayerStack m_LayerStack;
 		
 		static FApplication* s_Instance;
 		
-		bool bMinimized = false;
+		bool m_bMinimized = false;
 	};
 
 	// Defined in client

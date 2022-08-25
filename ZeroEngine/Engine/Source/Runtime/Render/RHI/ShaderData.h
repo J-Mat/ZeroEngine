@@ -21,6 +21,13 @@ namespace Zero
 		RGB,
 		RGBA,
 	};
+	
+	enum class EShaderResourceType
+	{
+		Texture2D,
+		Cubemap,
+		RenderTarget,
+	};
 
 	static uint32_t ShaderDataTypeSize(EShaderDataType Type)
 	{
@@ -91,5 +98,98 @@ namespace Zero
 		{
 			return !(*this == Other);
 		}
+	};
+
+
+	class FConstantBufferLayout
+	{
+	public:
+		FConstantBufferLayout() {}
+		FConstantBufferLayout(const std::initializer_list<FBufferElement>& Elements)
+			: m_Elements(Elements)
+		{
+			CalculateOffsetsAndStride();
+		}
+		inline const std::vector<FBufferElement>& GetElements() const { return m_Elements; }
+		inline const uint32_t GetStide() const { return m_Stride; }
+		std::vector<FBufferElement>::iterator begin() { return m_Elements.begin(); }
+		std::vector<FBufferElement>::iterator end() { return m_Elements.end(); }
+
+		static FConstantBufferLayout PerObjectConstants;
+		static FConstantBufferLayout PerCameraConstants;
+		static FConstantBufferLayout PerFrameConstants;
+	private:
+		void CalculateOffsetsAndStride()
+		{
+			uint32_t Offset = 0;
+			m_Stride = 0;
+			for (auto& Element : m_Elements)
+			{
+				Element.Offset = Offset;
+				Offset += Element.Size;
+				m_Stride += Element.Size;
+			}
+		}
+		std::vector<FBufferElement> m_Elements;
+		uint32_t m_Stride = 0;
+	};
+
+	struct FTextureTableElement
+	{
+		EShaderResourceType Type;
+		std::string Name;
+	};
+	
+	class FShaderResourceLayout
+	{
+	public:
+		FShaderResourceLayout() {}
+		FShaderResourceLayout(const std::initializer_list<FTextureTableElement>& elements)
+			:m_Elements(elements)
+		{
+		}
+
+		size_t SrvCount()
+		{
+			return m_Elements.size();
+		}
+
+		inline const std::vector<FTextureTableElement>& GetElements() const { return m_Elements; }
+
+		std::vector<FTextureTableElement>::iterator begin() { return m_Elements.begin(); }
+		std::vector<FTextureTableElement>::iterator end() { return m_Elements.end(); }
+
+	private:
+		std::vector<FTextureTableElement> m_Elements;
+	};
+
+
+	struct FComputeOutputElement
+	{
+		EShaderResourceType Type;
+		std::string Name;
+	};
+
+	class FComputeOutputLayout
+	{
+	public:
+		FComputeOutputLayout() {}
+		FComputeOutputLayout(const std::initializer_list<FComputeOutputElement>& elements)
+			:m_Elements(elements)
+		{
+		}
+
+		size_t SrvCount()
+		{
+			return m_Elements.size();
+		}
+
+		inline const std::vector<FComputeOutputElement>& GetElements() const { return m_Elements; }
+
+		std::vector<FComputeOutputElement>::iterator begin() { return m_Elements.begin(); }
+		std::vector<FComputeOutputElement>::iterator end() { return m_Elements.end(); }
+
+	private:
+		std::vector<FComputeOutputElement> m_Elements;
 	};
 }

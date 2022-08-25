@@ -19,17 +19,17 @@ namespace Zero
 		// Init: Input System
 		FInput::Init();
 		
-		FrameTimer.reset(FFrameTimer::Create());
-		FrameTimer->Reset();
+		m_FrameTimer.reset(FFrameTimer::Create());
+		m_FrameTimer->Reset();
 	}
 
 	void FApplication::Run()
 	{
 		while (bRunning)
 		{
-			FrameTimer->Tick();
+			m_FrameTimer->Tick();
 
-			for (FLayer* Layer : LayerStack)
+			for (FLayer* Layer : m_LayerStack)
 			{
 				Layer->OnUpdate();
 			}
@@ -43,7 +43,7 @@ namespace Zero
 		Dispatcher.Dispatch<FWindowCloseEvent>(BIND_EVENT_FN(FApplication::OnWindowClosed));
 		Dispatcher.Dispatch<FWindowResizeEvent>(BIND_EVENT_FN(FApplication::OnWindowResized));
 
-		for (auto Iter = LayerStack.end(); Iter != LayerStack.begin();)
+		for (auto Iter = m_LayerStack.end(); Iter != m_LayerStack.begin();)
 		{
 			(*--Iter)->OnEvent(Event);
 			if (Event.bHandled)
@@ -59,7 +59,7 @@ namespace Zero
 	
 	void FApplication::OnDraw()
 	{
-		for (auto Layer : LayerStack)
+		for (auto Layer : m_LayerStack)
 		{
 			Layer->OnDraw();
 		}
@@ -71,13 +71,13 @@ namespace Zero
 	
 	void FApplication::PushLayer(FLayer* Layer)
 	{
-		LayerStack.PushLayer(Layer);
+		m_LayerStack.PushLayer(Layer);
 		Layer->OnAttach();
 	}
 	
 	void FApplication::PushOverlay(FLayer* Overlay)
 	{
-		LayerStack.PushOverlay(Overlay);
+		m_LayerStack.PushOverlay(Overlay);
 		Overlay->OnAttach();
 	}
 	
@@ -92,11 +92,11 @@ namespace Zero
 	{
 		if (Event.GetWidth() == 0 || Event.GetHeight() == 0)
 		{
-			bMinimized = true;
+			m_bMinimized = true;
 			return false;
 		}
 		
-		bMinimized = false;
+		m_bMinimized = false;
 		//m_Window->GetGraphicContext()->OnWindowResize(e.GetWidth(), e.GetHeight());
 		m_Window->GetDevice()->Resize(Event.GetWidth(), Event.GetHeight());
 		return false;
