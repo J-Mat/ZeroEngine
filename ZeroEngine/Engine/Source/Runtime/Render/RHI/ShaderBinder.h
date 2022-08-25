@@ -80,7 +80,7 @@ namespace Zero
 		FConstantsMapper::iterator begin() { return Mapper.begin(); }
 		FConstantsMapper::iterator end() { return Mapper.end(); }
 	};
-	class ShaderBinder;
+	class IShaderBinder;
 	class ShaderConstantsBuffer
 	{
 	public:
@@ -105,7 +105,7 @@ namespace Zero
 		virtual float* PtrMatrix4x4(const std::string& name) = 0;
 
 
-		virtual void UploadDataIfDirty(ShaderBinder* m_ShaderBinder) = 0;
+		virtual void UploadDataIfDirty(IShaderBinder* m_ShaderBinder) = 0;
 		virtual void SetDirty() = 0;
 
 	protected:
@@ -133,16 +133,16 @@ namespace Zero
 		virtual void SetTexture2D(const std::string& name, FRenderTarget* texture) = 0;
 		virtual void SetTextureCubemap(const std::string& name, Ref<FTextureCubemap> texture) = 0;
 
-		virtual void UploadDataIfDirty(ShaderBinder* shaderBinder) = 0;
+		virtual void UploadDataIfDirty(IShaderBinder* shaderBinder) = 0;
 	};
 	
-	class FShaderBinder
+	class IShaderBinder
 	{
 	public:
-		virtual ~FShaderBinder() { delete[] m_ShaderConstantDescs; }
+		virtual ~IShaderBinder() { delete[] m_ShaderConstantDescs; }
 		virtual void BindConstantsBuffer(unsigned int Slot, ShaderConstantsBuffer& buffer) = 0;
-		virtual FShaderConstantsDesc* GetShaderConstantsDesc(unsigned int slot) { return &m_ShaderConstantDescs[slot]; }
-		virtual FShaderResourcesDesc* GetShaderResourcesDesc() { return &m_ShaderResourceDescs; }
+		virtual FShaderConstantsDesc* GetShaderConstantsDesc(unsigned int Slot) { return &m_ShaderConstantDescs[Slot]; }
+		virtual FShaderResourcesDesc* GetShaderResourcesDesc() { return m_ShaderResourceDescs; }
 	protected:
 		void InitMappers(const FShaderBinderDesc& Desc);
 		FConstantsMapper m_ConstantsMapper;
