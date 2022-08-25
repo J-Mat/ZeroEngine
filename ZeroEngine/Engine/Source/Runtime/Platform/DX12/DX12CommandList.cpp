@@ -1,5 +1,7 @@
 #include "DX12CommandList.h"
 #include "DX12Texture2D.h"
+#include "PipelineStateObject.h"
+#include "DX12RenderTarget.h"
 
 namespace Zero
 {
@@ -185,6 +187,53 @@ namespace Zero
 		}
 
 		m_D3DCommandList->SetDescriptorHeaps(NumDescriptorHeaps, DescriptorHeaps);
+	}
+
+	void FDX12CommandList::SetPipelineState(const Ref<FPipelineStateObject>& PipelineState)
+	{
+		auto D3DPipelineStateObj = PipelineState->GetD3D12PipelineState().Get();
+		if (m_PipelineState != D3DPipelineStateObj)
+		{
+			m_PipelineState = D3DPipelineStateObj;
+			m_D3DCommandList->SetPipelineState(D3DPipelineStateObj);
+
+			TrackResource(D3DPipelineStateObj);
+		}
+	}
+
+	void FDX12CommandList::SetRenderTarget(const FDX12RenderTarget& RenderTarget)
+	{
+		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> RenderTargetDescriptors;
+		RenderTargetDescriptors.reserve(EAttachmentIndex::NumAttachmentPoints);
+		
+		const auto& Textures = RenderTarget.GetTextures();
+		
+		for (int i = EAttachmentIndex::Color0; i <= EAttachmentIndex::Color7; ++i)
+		{
+			auto Texture = Textures[i];
+			if (Texture)
+			{
+				TransitionBarrier(Texture, D3D12_RESOURCE_STATE_RENDER_TARGET);
+				RenderTargetDescriptors.push_back(Texture->GetRenderTargetView());
+
+				TrackResource(Texture);
+			}
+		}
+		
+		auto DepthTexture = RenderTarget.GetTexture(EAttachmentIndex::DepthStencil);
+		
+		CD3DX12_CPU_DESCRIPTOR_HANDLE DepthStencilDescriptor(D3D12_DEFAULT);
+		if (DepthTexture)
+		{
+			TransitionBarrier(DepthTexture, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+			DepthStencilDescriptor = DepthTexture->GetDepthStencilView();
+			TrackResource(DepthTexture);
+		}
+
+		D3D12_CPU_DESCRIPTOR_HANDLE* pDSV = DepthStencilDescriptor.ptr != 0 ? &DepthStencilDescriptor : nullptr;
+		
+		m_D3DCommandList->OMSetRenderTargets(static_cast<UINT>(RenderTargetDescriptors.size()),
+			RenderTargetDescriptors.data(), FALSE, pDSV);
 	}
 
 	void FDX12CommandList::TransitionBarrier(const Ref<IResource>& Resource, D3D12_RESOURCE_STATES StateAfter, UINT Subresource, bool bFlushBarriers)

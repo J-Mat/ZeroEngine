@@ -33,14 +33,15 @@ namespace Zero
 		virtual void AttachTexture(EAttachmentIndex AttachmentIndex, Ref<T> Texture2D) = 0;
 
 		virtual void Reset() = 0;
-		virtual Ref<T> GetTexture(EAttachmentIndex AttachmentIndex) const = 0;
+		virtual Ref<T> GetTexture(EAttachmentIndex AttachmentIndex) const { return m_Textures[size_t(AttachmentIndex)]; }
+		virtual const std::vector<Ref<T>>& GetTextures() const { return m_Textures; }
 		
 		virtual void Resize(uint32_t Width, uint32_t Height, uint32_t Depth) = 0;
 		uint32_t GetWidth() { return m_Width; }
 		uint32_t GetHeight() { return m_Height; }
 		
 	protected:
-		Ref<T> m_Textures[EAttachmentIndex::NumAttachmentPoints];
+		std::vector<Ref<T>> m_Textures;
 		uint32_t m_Width = 0;
 		uint32_t m_Height = 0;
 	};

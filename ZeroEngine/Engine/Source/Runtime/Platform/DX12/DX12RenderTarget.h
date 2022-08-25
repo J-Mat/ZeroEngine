@@ -12,7 +12,6 @@ namespace Zero
 	{
 	public:
 		FDX12RenderTarget();
-		virtual Ref<FDX12Texture2D> GetTexture(EAttachmentIndex AttachmentIndex) const { return m_Textures[size_t(AttachmentIndex)]; }
 		virtual void Resize(uint32_t Width, uint32_t Height, uint32_t depth);
 
 		virtual void AttachTexture(EAttachmentIndex AttachmentIndex, Ref<FDX12Texture2D> Texture2D);

@@ -16,6 +16,8 @@ namespace Zero
 	class IResource;
 	class FDX12Texture2D;
 	class FDX12Device;
+	class FPipelineStateObject;
+	class FDX12RenderTarget;
 	class FDX12CommandList : public FCommandList, public std::enable_shared_from_this<FDX12CommandList>
 	{
 	public:
@@ -76,6 +78,15 @@ namespace Zero
 		// Binds the current descriptor heaps to the command list.
 		void BindDescriptorHeaps();
 
+		/**
+		* Set the pipeline state object on the command list.
+		*/
+		void SetPipelineState(const Ref<FPipelineStateObject>& PipelineState);
+
+		/**
+		* Set the render targets for the graphics rendering pipeline.
+		*/
+		void SetRenderTarget(const FDX12RenderTarget& RenderTarget);
 
 		/**
 		* Transition a resource to a particular state.
@@ -126,5 +137,7 @@ namespace Zero
 		// Keep track of the currently bound root signatures to minimize root
 		// signature changes.
 		ID3D12RootSignature* m_RootSignature;
+		// Keep track of the currently bond pipeline state object to minimize PSO changes.
+		ID3D12PipelineState* m_PipelineState;
 	};
 }
