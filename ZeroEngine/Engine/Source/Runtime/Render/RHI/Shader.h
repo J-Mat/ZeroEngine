@@ -18,7 +18,8 @@ namespace Zero
 	
 	class IShader
 	{
-		IShader(std::string FileName, const FShaderDesc& ShaderDesc, const FShaderBinderDesc& BinderDesc);
+	public:
+		IShader() = default;
 		virtual ~IShader() {}
 		virtual void Use() = 0;
 		virtual void CreateBinder() = 0;

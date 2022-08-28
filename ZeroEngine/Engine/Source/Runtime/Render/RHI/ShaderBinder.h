@@ -81,10 +81,10 @@ namespace Zero
 		FConstantsMapper::iterator end() { return Mapper.end(); }
 	};
 	class IShaderBinder;
-	class ShaderConstantsBuffer
+	class IShaderConstantsBuffer
 	{
 	public:
-		virtual ~ShaderConstantsBuffer() = default;
+		virtual ~IShaderConstantsBuffer() = default;
 
 		virtual void SetInt(const std::string& name, const int& value) = 0;
 		virtual void SetFloat(const std::string& name, const float& value) = 0;
@@ -140,7 +140,7 @@ namespace Zero
 	{
 	public:
 		virtual ~IShaderBinder() { delete[] m_ShaderConstantDescs; }
-		virtual void BindConstantsBuffer(unsigned int Slot, ShaderConstantsBuffer& buffer) = 0;
+		virtual void BindConstantsBuffer(unsigned int Slot, IShaderConstantsBuffer& buffer) = 0;
 		virtual FShaderConstantsDesc* GetShaderConstantsDesc(unsigned int Slot) { return &m_ShaderConstantDescs[Slot]; }
 		virtual FShaderResourcesDesc* GetShaderResourcesDesc() { return m_ShaderResourceDescs; }
 	protected:
