@@ -46,7 +46,7 @@ namespace Zero
     {
         return false;
     }
-    void FShaderBinder::InitMappers(const FShaderBinderDesc& Desc)
+    void IShaderBinder::InitMappers(const FShaderBinderDesc& Desc)
     {
         int CBIndex = 0;
         int ParaIndex = 0;
