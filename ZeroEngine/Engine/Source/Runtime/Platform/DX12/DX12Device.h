@@ -5,7 +5,7 @@
 #include "Common/DX12Header.h"
 #include <wrl.h>
 #include "Adapter.h"
-#include "GPUMemory/DescriptorAllocation.h"
+#include "MemoryManage/DescriptorAllocation.h"
 #include "DX12SwapChain.h"
 
 

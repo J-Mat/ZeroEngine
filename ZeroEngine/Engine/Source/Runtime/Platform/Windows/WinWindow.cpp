@@ -4,7 +4,7 @@
 #include "Core/Events/ApplicationEvent.h"
 #include "Utils.h"
 #include "Platform/DX12/DX12RenderPipeline.h"
-
+#include "Platform/DX12/MemoryManage/FrameResource.h"
 
 namespace Zero
 {
@@ -112,6 +112,7 @@ namespace Zero
 		m_Device = CreateRef<FDX12Device>();
 		m_Device->Init();
 		m_Device->CreatSwapChain(m_WindowData.hMainWnd);
+		FFrameResourcesManager::GetInstance().Init(m_Device);
 		
 		ShowWindow(m_WindowData.hMainWnd , SW_SHOW);
 		

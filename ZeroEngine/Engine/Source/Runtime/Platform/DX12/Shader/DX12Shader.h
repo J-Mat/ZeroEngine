@@ -11,6 +11,8 @@ namespace Zero
 	public:
 		FDX12Shader();
 		FDX12Shader(std::string FileName, const FShaderBinderDesc& BinderDesc, const FShaderDesc& Desc);
+		
+		virtual void CreateBinder();
 	private:
 		ComPtr<ID3DBlob> CompileShader(const std::wstring& Filename, const D3D_SHADER_MACRO* Defines, const std::string& Entrypoint, const std::string& Target);
 	private:

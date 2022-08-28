@@ -3,11 +3,11 @@
 #include "Core.h"
 #include "Common/DX12Header.h"
 #include "Render/RHI/CommandList.h"
-#include "GPUMemory/UploadBuffer.h"
-#include "GPUMemory/ResourceStateTracker.h"
+#include "MemoryManage/UploadBuffer.h"
+#include "MemoryManage/ResourceStateTracker.h"
 #include "Render/Moudule/Image/Image.h"
 #include "DX12Device.h"
-#include "GPUMemory/DynamicDescriptorHeap.h"
+#include "MemoryManage/DynamicDescriptorHeap.h"
 
 
 

@@ -1,7 +1,7 @@
 #include "DX12CommandQueue.h"
 #include "DX12Device.h"
 #include "Platform/DX12/DX12SwapChain.h"
-#include "GPUMemory/DescriptorAllocator.h"
+#include "MemoryManage/DescriptorAllocator.h"
 
 
 namespace Zero

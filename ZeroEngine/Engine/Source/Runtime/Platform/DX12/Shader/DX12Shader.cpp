@@ -17,6 +17,10 @@ namespace Zero
 		m_PSBytecode = CompileShader(Utils::String2WString(FileName), nullptr, "PS", "vs_5_1");
 	}
 
+	void FDX12Shader::CreateBinder()
+	{
+	}
+
 	ComPtr<ID3DBlob> FDX12Shader::CompileShader(const std::wstring& Filename, const D3D_SHADER_MACRO* Defines, const std::string& Entrypoint, const std::string& Target)
 	{
 		UINT CompileFlags = 0;
