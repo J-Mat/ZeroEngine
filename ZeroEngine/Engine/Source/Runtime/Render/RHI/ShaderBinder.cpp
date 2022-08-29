@@ -2,7 +2,6 @@
 
 namespace Zero
 {
-
     void FConstantsMapper::InsertConstant(const FBufferElement& Element, int CBIndex)
     {
         const std::string& Name = Element.m_Name;
@@ -46,32 +45,39 @@ namespace Zero
     {
         return false;
     }
-    void IShaderBinder::InitMappers(const FShaderBinderDesc& Desc)
+
+    IShaderBinder::IShaderBinder(FShaderBinderDesc& Desc)
+        : m_Desc(Desc)
+    {
+    }
+    void IShaderBinder::InitMappers()
     {
         int CBIndex = 0;
         int ParaIndex = 0;
-        m_ShaderConstantDescs = new FShaderConstantsDesc[Desc.GetConstantBufferCount()];
-        for (FConstantBufferLayout ConstantLayout : Desc.m_ConstantBufferLayouts)
+        m_ShaderConstantDescs.reserve(m_Desc.GetConstantBufferCount()); 
+        for (FConstantBufferLayout ConstantLayout : m_Desc.m_ConstantBufferLayouts)
         {
-            m_ShaderConstantDescs[CBIndex].Size = ConstantLayout.GetStride();
+            m_ShaderConstantDescs[CBIndex] = CreateRef<FShaderConstantsDesc>();
+            m_ShaderConstantDescs[CBIndex]->Size = ConstantLayout.GetStride();
             for (auto BufferElement : ConstantLayout)
             {
                 m_ConstantsMapper.InsertConstant(BufferElement, CBIndex);
-                m_ShaderConstantDescs[CBIndex].Mapper.InsertConstant(BufferElement, CBIndex);
+                m_ShaderConstantDescs[CBIndex]->Mapper.InsertConstant(BufferElement, CBIndex);
             }
             CBIndex++;
             ParaIndex++;
         }
 
         int ResIndex = 0;
-        m_ShaderResourceDescs = new FShaderResourcesDesc[Desc.GetTextureBufferCount()];
-        for (FShaderResourceLayout ShaderResourceLayout : Desc.m_TextureBufferLayouts)
+        m_ShaderResourceDescs.reserve(m_Desc.GetTextureBufferCount());
+        for (FShaderResourceLayout ShaderResourceLayout : m_Desc.m_TextureBufferLayouts)
         {
             int InnerIndex = 0;
+            m_ShaderResourceDescs[ResIndex] = CreateRef<FShaderResourcesDesc>();
             for (auto BufferElement : ShaderResourceLayout)
             {
-                m_ShaderResourceDescs[ResIndex].Mapper.InsertResource({BufferElement.Name, BufferElement.Type, ParaIndex++, InnerIndex, "PROCEDURE=White" });
-                InnerIndex;
+                m_ShaderResourceDescs[ResIndex]->Mapper.InsertResource({BufferElement.Name, BufferElement.Type, ParaIndex++, InnerIndex, "PROCEDURE=White" });
+                InnerIndex++;
             }
         }
     }

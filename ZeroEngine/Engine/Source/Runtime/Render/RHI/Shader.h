@@ -9,7 +9,7 @@ namespace Zero
 	struct FShaderDesc
 	{
 		bool useAlphaBlending = false;
-		FVertexBufferLayout inputLayout;
+		FVertexBufferLayout VertexBufferLayout;
 		int NumRenderTarget = 1;
 	};
 

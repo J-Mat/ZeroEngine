@@ -8,15 +8,12 @@
 namespace Zero
 {
 	class FDX12Texture2D;
-	class FDX12RenderTarget : public FRenderTarget<FDX12Texture2D>
+	class FDX12RenderTarget : public FRenderTarget
 	{
 	public:
 		FDX12RenderTarget();
 		virtual void Resize(uint32_t Width, uint32_t Height, uint32_t depth);
-
-		virtual void AttachTexture(EAttachmentIndex AttachmentIndex, Ref<FDX12Texture2D> Texture2D);
-
-		virtual void Reset();
+		virtual void AttachTexture(EAttachmentIndex AttachmentIndex, Ref<FTexture2D> Texture2D);
 	private:
 		// Get the render target formats of the textures currently
 		// attached to this render target object.

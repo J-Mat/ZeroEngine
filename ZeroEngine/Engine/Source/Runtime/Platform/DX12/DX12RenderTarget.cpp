@@ -15,22 +15,17 @@ namespace Zero
 		}
 	}
 
-	void FDX12RenderTarget::AttachTexture(EAttachmentIndex AttachmentIndex, Ref<FDX12Texture2D> Texture2D)
+	void FDX12RenderTarget::AttachTexture(EAttachmentIndex AttachmentIndex, Ref<FTexture2D> Texture2D)
 	{
 		size_t Index = size_t(AttachmentIndex);
 		m_Textures[Index] = Texture2D;
 
 		if (m_Textures[Index].get())
 		{
-			auto Desc = m_Textures[Index]->GetD3D12ResourceDesc();
-			m_Width = static_cast<uint32_t>(Desc.Width);
-			m_Height = static_cast<uint32_t>(Desc.Height);
+			ZMath::uvec2 Size = m_Textures[Index]->GetSize();
+			m_Width = Size.x;
+			m_Height = Size.y;
 		}
-	}
-
-	void FDX12RenderTarget::Reset()
-	{
-		m_Textures = std::vector<Ref<FDX12Texture2D>>(EAttachmentIndex::NumAttachmentPoints);
 	}
 
 	D3D12_RT_FORMAT_ARRAY FDX12RenderTarget::GetRenderTargetFormats() const
@@ -39,7 +34,7 @@ namespace Zero
 
 		for (int i = EAttachmentIndex::Color0; i <= EAttachmentIndex::Color7; ++i)
 		{
-			auto Texture = m_Textures[i];
+			auto* Texture = static_cast<FDX12Texture2D*>(m_Textures[i].get());
 			if (Texture)
 			{
 				RtvFormats.RTFormats[RtvFormats.NumRenderTargets++] = Texture->GetD3D12ResourceDesc().Format;
@@ -52,7 +47,7 @@ namespace Zero
 	DXGI_FORMAT FDX12RenderTarget::GetDepthStencilFormat() const
 	{
 		DXGI_FORMAT DsvFormat = DXGI_FORMAT_UNKNOWN;
-		auto DepthStencilTexture = m_Textures[EAttachmentIndex::DepthStencil];
+		auto DepthStencilTexture = static_cast<FDX12Texture2D*>(m_Textures[EAttachmentIndex::DepthStencil].get());
 		if (DepthStencilTexture)
 		{
 			DsvFormat = DepthStencilTexture->GetD3D12ResourceDesc().Format;
@@ -64,7 +59,7 @@ namespace Zero
 		DXGI_SAMPLE_DESC SampleDesc = { 1, 0 };
 		for (int i = EAttachmentIndex::Color0; i <= EAttachmentIndex::Color7; ++i)
 		{
-			auto Texture = m_Textures[i];
+			auto* Texture = static_cast<FDX12Texture2D*>(m_Textures[i].get());
 			if (Texture)
 			{
 				SampleDesc = Texture->GetD3D12ResourceDesc().SampleDesc;

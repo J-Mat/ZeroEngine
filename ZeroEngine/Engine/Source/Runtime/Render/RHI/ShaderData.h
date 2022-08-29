@@ -111,7 +111,7 @@ namespace Zero
 			CalculateOffsetsAndStride();
 		}
 		inline const std::vector<FBufferElement>& GetElements() const { return m_Elements; }
-		inline const uint32_t GetStide() const { return m_Stride; }
+		inline const uint32_t GetStride() const { return m_Stride; }
 		std::vector<FBufferElement>::iterator begin() { return m_Elements.begin(); }
 		std::vector<FBufferElement>::iterator end() { return m_Elements.end(); }
 

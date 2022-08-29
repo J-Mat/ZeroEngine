@@ -4,7 +4,7 @@
 #include "Base/Resource.h"
 #include "Render/RHI/Texture.h"
 #include "Render/Moudule/Image/Image.h"
-#include "./GPUMemory/DescriptorAllocation.h"
+#include "./MemoryManage/DescriptorAllocation.h"
 
 namespace Zero
 {
@@ -16,6 +16,13 @@ namespace Zero
 		FDX12Texture2D(FDX12Device& Device, const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* ClearValue = nullptr);
 		FDX12Texture2D(FDX12Device& Device, Ref<FImage> ImageData);
         FDX12Texture2D(FDX12Device& Device, ComPtr<ID3D12Resource> Resource, const D3D12_CLEAR_VALUE* ClearValue = nullptr);
+
+
+        virtual ZMath::uvec2 GetSize() 
+        {
+            const auto& Desc = GetD3D12ResourceDesc();
+            return ZMath::uvec2(Desc.Width, Desc.Height);
+        };
         
         virtual void Resize(uint32_t Width, uint32_t Height, uint32_t DepthOrArraySize);
 
