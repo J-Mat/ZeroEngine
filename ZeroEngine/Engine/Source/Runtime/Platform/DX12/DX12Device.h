@@ -63,6 +63,11 @@ namespace Zero
 
 		virtual void Resize(uint32_t Width, uint32_t Height) { m_SwapChain->Resize(Width, Height); }
 		
+		static std::array<CD3DX12_STATIC_SAMPLER_DESC, 6> GetStaticSamplers();
+		
+		uint32_t RegisterActiveComandlist(Ref<FDX12CommandList> CommandList);
+		void UnRegisterActiveComandlist(uint32_t ID);
+		Ref<FDX12CommandList> GetActiveCommandList(uint32_t Slot);
 
 	private:
 		void EnableDebugLayer();
@@ -89,5 +94,8 @@ namespace Zero
 		D3D_ROOT_SIGNATURE_VERSION m_HighestRootSignatureVersion;
 		
 		Ref<FDX12SwapChain> m_SwapChain;
+		
+		uint32_t m_CommandListID = 0;
+		std::map<uint32_t, Ref<FDX12CommandList>> m_ActiveCommandListMap;
 	};
 }

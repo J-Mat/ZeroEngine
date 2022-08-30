@@ -87,23 +87,23 @@ namespace Zero
 		IShaderConstantsBuffer(FShaderConstantsDesc& Desc) : m_Desc(Desc) {}
 		virtual ~IShaderConstantsBuffer() = default;
 
-		virtual void SetInt(const std::string& name, const int& value) = 0;
-		virtual void SetFloat(const std::string& name, const float& value) = 0;
-		virtual void SetFloat2(const std::string& name, const ZMath::vec2& value) = 0;
-		virtual void SetFloat3(const std::string& name, const ZMath::vec3& value) = 0;
-		virtual void SetFloat4(const std::string& name, const ZMath::vec4& value) = 0;
-		virtual void SetMatrix4x4(const std::string& name, const ZMath::mat4& value) = 0;
+		virtual void SetInt(const std::string& Name, const int& Value) = 0;
+		virtual void SetFloat(const std::string& Name, const float& Value) = 0;
+		virtual void SetFloat2(const std::string& Name, const ZMath::vec2& Value) = 0;
+		virtual void SetFloat3(const std::string& Name, const ZMath::vec3& Value) = 0;
+		virtual void SetFloat4(const std::string& Name, const ZMath::vec4& Value) = 0;
+		virtual void SetMatrix4x4(const std::string& Name, const ZMath::mat4& Value) = 0;
 
-		virtual void GetInt(const std::string& name, int& value) = 0;
-		virtual void GetFloat(const std::string& name, float& value) = 0;
-		virtual void GetFloat3(const std::string& name, ZMath::vec3& value) = 0;
-		virtual void GetFloat4(const std::string& name, ZMath::vec4& value) = 0;
-		virtual void GetMatrix4x4(const std::string& name, ZMath::mat4& value) = 0;
+		virtual void GetInt(const std::string& Name, int& Value) = 0;
+		virtual void GetFloat(const std::string& Name, float& Value) = 0;
+		virtual void GetFloat3(const std::string& Name, ZMath::vec3& Value) = 0;
+		virtual void GetFloat4(const std::string& Name, ZMath::vec4& Value) = 0;
+		virtual void GetMatrix4x4(const std::string& Name, ZMath::mat4& Value) = 0;
 
-		virtual float* PtrFloat(const std::string& name) = 0;
-		virtual float* PtrFloat3(const std::string& name) = 0;
-		virtual float* PtrFloat4(const std::string& name) = 0;
-		virtual float* PtrMatrix4x4(const std::string& name) = 0;
+		virtual float* PtrFloat(const std::string& Name) = 0;
+		virtual float* PtrFloat3(const std::string& Name) = 0;
+		virtual float* PtrFloat4(const std::string& Name) = 0;
+		virtual float* PtrMatrix4x4(const std::string& Name) = 0;
 
 
 		virtual void UploadDataIfDity(IShaderBinder* m_ShaderBinder) = 0;
@@ -129,8 +129,8 @@ namespace Zero
 	public:
 		virtual ~FShaderResourcesBuffer() = default;
 		virtual FShaderResourcesDesc* GetShaderResourceDesc() = 0;
-		virtual void SetTexture2D(const std::string& name, Ref<FTexture2D> texture) = 0;
-		virtual void SetTextureCubemap(const std::string& name, Ref<FTextureCubemap> texture) = 0;
+		virtual void SetTexture2D(const std::string& Name, Ref<FTexture2D> texture) = 0;
+		virtual void SetTextureCubemap(const std::string& Name, Ref<FTextureCubemap> texture) = 0;
 
 		virtual void UploadDataIfDirty(IShaderBinder* shaderBinder) = 0;
 	};
@@ -143,6 +143,7 @@ namespace Zero
 		virtual void BindConstantsBuffer(unsigned int Slot, IShaderConstantsBuffer& buffer) = 0;
 		virtual Ref<FShaderConstantsDesc> GetShaderConstantsDesc(uint32_t Slot) { return m_ShaderConstantDescs[Slot]; }
 		virtual Ref<FShaderResourcesDesc> GetShaderResourcesDesc(uint32_t Slot) { return m_ShaderResourceDescs[Slot]; }
+		virtual void Bind(uint32_t Slot) = 0;
 	protected:
 		void InitMappers();
 		FConstantsMapper m_ConstantsMapper;

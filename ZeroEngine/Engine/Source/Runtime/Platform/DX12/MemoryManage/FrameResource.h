@@ -4,13 +4,14 @@
 #include "../Common/DX12Header.h"
 #include "Core/Base/PublicSingleton.h"
 #include "UploadBuffer.h"
+#include "FrameResource.h"
 
 
 
 namespace Zero
 {
-	class FDX12Device;
 	class FFrameResourcesManager;
+	class FDX12Device;
 	class FUploadBuffer;
 
 	template<typename T>
@@ -92,19 +93,19 @@ namespace Zero
 	};
 
 
-	class FFrameResourcesManager : public IPublicSingleton<FFrameResourcesManager>
+	class FFrameResourcesManager
 	{
 	public:
+		static FFrameResourcesManager& GetInstance();
 		FFrameResourcesManager(int FrameResourcesCount = 3);
 		void Init(Ref<FDX12Device> Device);
-		virtual ~FFrameResourcesManager();
 		void SetCurrentFence(uint64_t FenceValue);
 		void UseNextFrameResource() { m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_FrameResourcesCount; }
 		uint32_t GetCurrentIndex() { return m_CurrentFrameIndex; }
 		
 
 		template<typename T>
-		oid RegistFrameResource(FDX12FrameResource<T>* FrameResource)
+		void RegistFrameResource(FDX12FrameResource<T>* FrameResource)
 		{
 			FrameResource->m_CPUBuffers.reserve(m_FrameResourcesCount);
 			FrameResource->m_GPUBuffers.reserve(m_FrameResourcesCount);

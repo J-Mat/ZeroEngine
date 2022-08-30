@@ -22,10 +22,11 @@ namespace Zero
 		auto SwapChain = Device->GetSwapChain();
 		
 		const FDX12RenderTarget& RenderTarget = SwapChain->GetRenderTarget();
-		Ref<FDX12Texture2D>  Texture = RenderTarget.GetTexture(EAttachmentIndex::Color0);
+		Ref<FTexture2D>  Texture = RenderTarget.GetTexture(EAttachmentIndex::Color0);
+		FDX12Texture2D* DX12Texture = static_cast<FDX12Texture2D*>(Texture.get());
 		
 		ZMath::vec4 Color(0.4f, 1.0f, 0.9f, 1.0f);	
-		CommandList->ClearTexture(Texture, Color);
+		CommandList->ClearTexture(DX12Texture, Color);
 
 		CommandQueue.ExecuteCommandList(CommandList);
 		

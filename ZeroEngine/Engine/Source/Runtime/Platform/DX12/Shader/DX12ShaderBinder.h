@@ -6,6 +6,8 @@
 namespace Zero
 {
 	class FDX12Device;
+	class FRootSignature;
+	class FDynamicDescriptorHeap;
 	class FDX12ShaderConstantsBuffer : public IShaderConstantsBuffer
 	{
 	public:
@@ -29,6 +31,9 @@ namespace Zero
 		virtual float* PtrFloat4(const std::string& Name);
 		virtual float* PtrMatrix4x4(const std::string& Name);
 
+		virtual void UploadDataIfDity(IShaderBinder* m_ShaderBinder);
+		virtual void SetDirty() { m_bIsDirty = true; }
+
 	private:
 		FConstantsMapper& m_ConstantsMapper;
 		Ref<FFrameResourceBuffer> m_ConstantsTableBuffer = nullptr;
@@ -40,9 +45,15 @@ namespace Zero
 	public:
 		FDX12ShaderBinder(FDX12Device &Device, FShaderBinderDesc& Desc);
 		virtual ~FDX12ShaderBinder();
+		Ref<FRootSignature> GetRootSignature() { return m_RootSignature; };
+		virtual void Bind(uint32_t Slot);
 	private:
 		void BuildRootSignature();
+		void BuildDynamicHeap();
 	private:
 		FDX12Device& m_Device;
+		Ref<FRootSignature> m_RootSignature;
+		Ref<FDynamicDescriptorHeap> m_SrvDynamicDescriptorHeap;
+		Ref<FDynamicDescriptorHeap> m_SamplerDynamicDescriptorHeap;
 	};
 }

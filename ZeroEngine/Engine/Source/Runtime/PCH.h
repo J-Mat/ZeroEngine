@@ -22,6 +22,7 @@
 #include <map>
 #include <set>
 #include <vector>
+#include <array>
 #include <deque>
 #include <queue>
 #include <stdexcept>

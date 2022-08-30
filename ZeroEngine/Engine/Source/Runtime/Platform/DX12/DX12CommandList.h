@@ -7,7 +7,6 @@
 #include "MemoryManage/ResourceStateTracker.h"
 #include "Render/Moudule/Image/Image.h"
 #include "DX12Device.h"
-#include "MemoryManage/DynamicDescriptorHeap.h"
 
 
 
@@ -17,6 +16,7 @@ namespace Zero
 	class FDX12Texture2D;
 	class FDX12Device;
 	class FPipelineStateObject;
+	class FRootSignature;
 	class FDX12RenderTarget;
 	class FDX12CommandList : public FCommandList, public std::enable_shared_from_this<FDX12CommandList>
 	{
@@ -34,7 +34,7 @@ namespace Zero
 		
 		void ResolveSubResource(const Ref<IResource>& DstRes, const Ref<IResource> SrcRes, uint32_t DstSubRes = 0, uint32_t SrcSubRes = 0);
 
-		void ClearTexture(const Ref<FDX12Texture2D>& Texture, const ZMath::vec4 Color);
+		void ClearTexture(FDX12Texture2D* TexturePtr, const ZMath::vec4 Color);
 
 		/**
 		* Copy resources.
@@ -110,6 +110,9 @@ namespace Zero
 			return m_ComputeCommandList;
 		}
 
+
+		void SetGraphicsRootSignature(const Ref<FRootSignature>& rootSignature);
+
 		virtual void Reset();
 		virtual void Execute();
 	private:
@@ -125,7 +128,6 @@ namespace Zero
 		Scope<FUploadBuffer> m_UploadBuffer;
 		Scope<FResourceStateTracker> m_ResourceStateTracker = nullptr;
 		ID3D12DescriptorHeap* m_DescriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
-		Scope<FDynamicDescriptorHeap> m_DynamicDescriptorHeap[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
 
 		// For copy queues, it may be necessary to generate mips while loading textures.
 		// Mips can't be generated on copy queues but must be generated on compute or

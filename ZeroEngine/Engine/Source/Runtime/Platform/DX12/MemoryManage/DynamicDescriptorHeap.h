@@ -56,7 +56,7 @@ namespace Zero
 		* descriptor tables and determine the number of descriptors needed for
 		* each table.
 		*/
-		void ParseRootSignature(const std::shared_ptr<FRootSignature>& RootSignature);
+		void ParseRootSignature(const Ref<FRootSignature>& RootSignature);
 
 		void CommitStagedDescriptorsForDraw(FDX12CommandList& CommandList);
 

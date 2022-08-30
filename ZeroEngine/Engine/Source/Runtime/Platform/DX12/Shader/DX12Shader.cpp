@@ -1,6 +1,10 @@
 #include "DX12Shader.h"
 #include "Utils.h"
 #include "Platform/DX12/DX12Device.h"
+#include "DX12ShaderBinder.h"
+#include "../RootSignature.h"
+#include "../PipelineStateObject.h"
+#include "../DX12CommandList.h"
 
 namespace Zero
 {
@@ -26,10 +30,6 @@ namespace Zero
 		}
 	}
 
-	FDX12Shader::FDX12Shader()
-	: IShader()
-	{
-	}
 	FDX12Shader::FDX12Shader(FDX12Device& Device, std::string FileName, const FShaderBinderDesc& BinderDesc, const FShaderDesc& Desc)
 	: m_Device(Device)
 	, IShader()
@@ -40,15 +40,22 @@ namespace Zero
 		m_VSBytecode = CompileShader(Utils::String2WString(FileName), nullptr, "VS", "vs_5_1");
 		m_PSBytecode = CompileShader(Utils::String2WString(FileName), nullptr, "PS", "vs_5_1");
 		
+		
 		GenerateInputLayout();
+		CreateBinder();
 	}
 
 	void FDX12Shader::CreateBinder()
 	{
+		m_ShaderBinder = CreateRef<FDX12ShaderBinder>(m_Device, m_ShaderBinderDesc);
+		CreatePSO();
 	}
 
-	void FDX12Shader::Use()
+	void FDX12Shader::Use(uint32_t Slot)
 	{
+		Ref<FDX12CommandList> CommandList = m_Device.GetActiveCommandList(Slot);
+		CommandList->GetD3D12CommandList()->SetPipelineState(m_PipelineStateObject->GetD3D12PipelineState().Get());
+		m_ShaderBinder->Bind(Slot);
 	}
 
 	void FDX12Shader::GenerateInputLayout()
@@ -100,5 +107,25 @@ namespace Zero
 
 	void FDX12Shader::CreatePSO()
 	{
+		FDX12ShaderBinder* DX12ShaderBinder = static_cast<FDX12ShaderBinder*>(m_ShaderBinder.get());
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC PsoDesc = {};
+		ZeroMemory(&PsoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
+		PsoDesc.InputLayout = { m_InputLayoutDesc.data(), (UINT)m_InputLayoutDesc.size() };
+		PsoDesc.pRootSignature = DX12ShaderBinder->GetRootSignature()->GetD3D12RootSignature().Get();
+		PsoDesc.VS = { reinterpret_cast<BYTE*>(m_VSBytecode->GetBufferPointer()), m_VSBytecode->GetBufferSize() };
+		PsoDesc.PS = { reinterpret_cast<BYTE*>(m_PSBytecode->GetBufferPointer()), m_PSBytecode->GetBufferSize() };
+		PsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+		PsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+		PsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+		PsoDesc.SampleMask = UINT_MAX;	//0xffffffff, No Sampling Mask
+		PsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		PsoDesc.NumRenderTargets = m_ShaderDesc.NumRenderTarget;
+		for (int i = 0; i < m_ShaderDesc.NumRenderTarget; i++)
+			PsoDesc.RTVFormats[i] = DXGI_FORMAT_R8G8B8A8_UNORM;
+		PsoDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		PsoDesc.SampleDesc.Count = 1;	// No 4XMSAA
+		PsoDesc.SampleDesc.Quality = 0;	////No 4XMSAA
+
+		m_PipelineStateObject = CreateRef<FPipelineStateObject>(m_Device, PsoDesc);
 	}
 }

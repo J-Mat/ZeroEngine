@@ -28,7 +28,7 @@ namespace Zero
 	{
 	}
 
-	void FDynamicDescriptorHeap::ParseRootSignature(const std::shared_ptr<FRootSignature>& RootSignature)
+	void FDynamicDescriptorHeap::ParseRootSignature(const Ref<FRootSignature>& RootSignature)
 	{
 		// If the root signature changes, all descriptors must be (re)bound to the
 		// command list.

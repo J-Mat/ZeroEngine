@@ -149,7 +149,7 @@ namespace Zero
 		{
 		}
 
-		size_t SrvCount()
+		size_t GetSrvCount()
 		{
 			return m_Elements.size();
 		}

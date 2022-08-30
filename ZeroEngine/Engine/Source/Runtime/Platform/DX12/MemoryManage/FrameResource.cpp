@@ -4,7 +4,12 @@
 
 namespace Zero
 {
-
+	FFrameResourcesManager& FFrameResourcesManager::GetInstance()
+	{
+		static FFrameResourcesManager instance;
+		return instance;
+		// TODO: 在此处插入 return 语句
+	}
 	FFrameResourcesManager::FFrameResourcesManager(int FrameResourcesCount)
 		: m_FrameResourcesCount(FrameResourcesCount)
 		, m_CurrentFrameIndex(0)

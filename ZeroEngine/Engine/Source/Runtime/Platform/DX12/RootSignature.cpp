@@ -3,7 +3,7 @@
 
 namespace Zero
 {
-	FRootSignature::FRootSignature(FDX12Device& m_Device, const D3D12_ROOT_SIGNATURE_DESC1& RootSignatureDesc)
+	FRootSignature::FRootSignature(FDX12Device& m_Device, const D3D12_ROOT_SIGNATURE_DESC& RootSignatureDesc)
 		: m_Device(m_Device)
 		, m_RootSignatureDesc{}
 		, m_NumDescriptorsPerTable{ 0 }
@@ -24,7 +24,7 @@ namespace Zero
 	{
 		for (UINT i = 0; i < m_RootSignatureDesc.NumParameters; ++i)
 		{
-			const D3D12_ROOT_PARAMETER1& RootParameter = m_RootSignatureDesc.pParameters[i];
+			const D3D12_ROOT_PARAMETER& RootParameter = m_RootSignatureDesc.pParameters[i];
 			if (RootParameter.ParameterType == D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE)
 			{
 				delete[] RootParameter.DescriptorTable.pDescriptorRanges;
@@ -46,28 +46,28 @@ namespace Zero
 	}
 
 
-	void FRootSignature::SetRootSignatureDesc(const D3D12_ROOT_SIGNATURE_DESC1& RootSignatureDesc)
+	void FRootSignature::SetRootSignatureDesc(const D3D12_ROOT_SIGNATURE_DESC& RootSignatureDesc)
 	{
 		// Make sure any previously allocated root signature description is cleaned
 		// up first.
 		Destroy();
 
 		UINT NumParameters = RootSignatureDesc.NumParameters;
-		D3D12_ROOT_PARAMETER1* pParameters = NumParameters > 0 ? new D3D12_ROOT_PARAMETER1[NumParameters] : nullptr;
+		D3D12_ROOT_PARAMETER* pParameters = NumParameters > 0 ? new D3D12_ROOT_PARAMETER[NumParameters] : nullptr;
 		
 		for (UINT i = 0; i < NumParameters; ++i)
 		{
-			const D3D12_ROOT_PARAMETER1& RootParameter = RootSignatureDesc.pParameters[i];
+			const D3D12_ROOT_PARAMETER& RootParameter = RootSignatureDesc.pParameters[i];
 			pParameters[i] = RootParameter;
 
 			if (RootParameter.ParameterType == D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE)
 			{
 				UINT NumDescriptorRanges = RootParameter.DescriptorTable.NumDescriptorRanges;
-				D3D12_DESCRIPTOR_RANGE1* pDescirptorRanges = 
-					NumDescriptorRanges > 0 ? new D3D12_DESCRIPTOR_RANGE1[NumDescriptorRanges] : nullptr;
+				D3D12_DESCRIPTOR_RANGE* pDescirptorRanges = 
+					NumDescriptorRanges > 0 ? new D3D12_DESCRIPTOR_RANGE[NumDescriptorRanges] : nullptr;
 				
 				memcpy(pDescirptorRanges, RootParameter.DescriptorTable.pDescriptorRanges,
-					sizeof(D3D12_DESCRIPTOR_RANGE1) * NumDescriptorRanges);
+					sizeof(D3D12_DESCRIPTOR_RANGE) * NumDescriptorRanges);
 				
 				pParameters[i].DescriptorTable.NumDescriptorRanges = NumDescriptorRanges;
 				pParameters[i].DescriptorTable.pDescriptorRanges = pDescirptorRanges;
@@ -113,7 +113,7 @@ namespace Zero
 		m_RootSignatureDesc.Flags = Flags;
 		
 		CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC VersionRootSignatureDesc;
-		VersionRootSignatureDesc.Init_1_1(NumParameters, pParameters, NumStaticSamplers, pStaticSamplers, Flags);
+		VersionRootSignatureDesc.Init_1_0(NumParameters, pParameters, NumStaticSamplers, pStaticSamplers, Flags);
 		
 		D3D_ROOT_SIGNATURE_VERSION HighestVersion = m_Device.GetHighestRootSignatureVersion();
 

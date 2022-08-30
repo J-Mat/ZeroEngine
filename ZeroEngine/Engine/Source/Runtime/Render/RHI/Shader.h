@@ -21,9 +21,8 @@ namespace Zero
 	public:
 		IShader() = default;
 		virtual ~IShader() {}
-		virtual void Use() = 0;
+		virtual void Use(uint32_t Slot) = 0;
 		virtual void CreateBinder() = 0;
-		virtual void SetVertexBufferLayout() = 0;
 		virtual void UsePipelineState(const FPipelineStateDesc& Desc) = 0;
 
 		Ref<IShaderBinder> GetBinder() { return m_ShaderBinder; }

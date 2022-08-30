@@ -2,6 +2,7 @@
 #include "DX12Texture2D.h"
 #include "PipelineStateObject.h"
 #include "DX12RenderTarget.h"
+#include "RootSignature.h"
 
 namespace Zero
 {
@@ -22,7 +23,6 @@ namespace Zero
 		for (int i = 0; i < D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES; ++i)
 		{
 			m_DescriptorHeaps[i] = nullptr;
-			m_DynamicDescriptorHeap[i] = CreateScope<FDynamicDescriptorHeap>(m_Device, static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(i));
 		}
 	}
 
@@ -126,13 +126,13 @@ namespace Zero
 		TrackResource(DstRes);
 	}
 
-	void FDX12CommandList::ClearTexture(const Ref<FDX12Texture2D>& Texture, const ZMath::vec4 Color)
+	void FDX12CommandList::ClearTexture(FDX12Texture2D* TexturePtr, const ZMath::vec4 Color)
 	{
-		TransitionBarrier(Texture, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, true);
+		TransitionBarrier(TexturePtr->GetD3DResource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, true);
 		float ClearColor[4] = { Color.r, Color.g, Color.b, Color.a };
-		m_D3DCommandList->ClearRenderTargetView(Texture->GetRenderTargetView(), ClearColor, 0, nullptr);
+		m_D3DCommandList->ClearRenderTargetView(TexturePtr->GetRenderTargetView(), ClearColor, 0, nullptr);
 
-		TrackResource(Texture);
+		TrackResource(TexturePtr->GetD3DResource());
 	}
 
 	void FDX12CommandList::CopyResource(const Ref<IResource>& DstRes, const Ref<IResource>& SrcRes)
@@ -210,24 +210,24 @@ namespace Zero
 		
 		for (int i = EAttachmentIndex::Color0; i <= EAttachmentIndex::Color7; ++i)
 		{
-			auto Texture = Textures[i];
+			auto* Texture = static_cast<FDX12Texture2D*>(Textures[i].get());
 			if (Texture)
 			{
-				TransitionBarrier(Texture, D3D12_RESOURCE_STATE_RENDER_TARGET);
+				TransitionBarrier(Texture->GetD3DResource(), D3D12_RESOURCE_STATE_RENDER_TARGET);
 				RenderTargetDescriptors.push_back(Texture->GetRenderTargetView());
 
-				TrackResource(Texture);
+				TrackResource(Texture->GetD3DResource());
 			}
 		}
 		
-		auto DepthTexture = RenderTarget.GetTexture(EAttachmentIndex::DepthStencil);
+		auto* DepthTexture = static_cast<FDX12Texture2D*>(RenderTarget.GetTexture(EAttachmentIndex::DepthStencil).get());
 		
 		CD3DX12_CPU_DESCRIPTOR_HANDLE DepthStencilDescriptor(D3D12_DEFAULT);
 		if (DepthTexture)
 		{
-			TransitionBarrier(DepthTexture, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+			TransitionBarrier(DepthTexture->GetD3DResource(), D3D12_RESOURCE_STATE_DEPTH_WRITE);
 			DepthStencilDescriptor = DepthTexture->GetDepthStencilView();
-			TrackResource(DepthTexture);
+			TrackResource(DepthTexture->GetD3DResource());
 		}
 
 		D3D12_CPU_DESCRIPTOR_HANDLE* pDSV = DepthStencilDescriptor.ptr != 0 ? &DepthStencilDescriptor : nullptr;
@@ -287,6 +287,17 @@ namespace Zero
 		m_D3DCommandList->Close();
 	}
 
+	void FDX12CommandList::SetGraphicsRootSignature(const Ref<FRootSignature>& RootSignature)
+	{
+		auto D3DRootSignature = RootSignature->GetD3D12RootSignature().Get();
+		if (D3DRootSignature != m_RootSignature)
+		{
+			m_RootSignature = D3DRootSignature;
+			m_D3DCommandList->SetGraphicsRootSignature(m_RootSignature);
+			TrackResource(m_RootSignature);
+		}
+	}
+
 	void FDX12CommandList::Reset()
 	{
 		ThrowIfFailed(m_CommandAllocator->Reset());
@@ -299,7 +310,6 @@ namespace Zero
 		
 		for (int i = 0; i < D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES; ++i)
 		{
-			m_DynamicDescriptorHeap[i]->Reset();
 			m_DescriptorHeaps[i] = nullptr;
 		}
 		
