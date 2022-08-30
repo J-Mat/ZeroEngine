@@ -12,7 +12,7 @@ namespace Zero
 			FShaderConstantItem Item; \
 			if (m_ConstantsMapper.FetchConstant(Name, Item))\
 			{\
-				m_ConstantsTableBuffer->CopyDataToConstantsBuffer(VOID(Value), Item.Offset, ShaderDataTypeSize(Item.Type)); \
+				m_ConstantsTableBuffer->CopyDataToConstantsBuffer(TO_VOIDPTR_FROM_DATA(Value), Item.Offset, ShaderDataTypeSize(Item.Type)); \
 				m_bIsDirty = true; \
 			}\
 		}while(0)
@@ -22,7 +22,7 @@ namespace Zero
 			FShaderConstantItem Item; \
 			if (m_ConstantsMapper.FetchConstant(Name, Item))\
 			{\
-				m_ConstantsTableBuffer->CopyDataFromConstantsBuffer(VOID(Value), Item.Offset, ShaderDataTypeSize(Item.Type)); \
+				m_ConstantsTableBuffer->CopyDataFromConstantsBuffer(TO_VOIDPTR_FROM_DATA(Value), Item.Offset, ShaderDataTypeSize(Item.Type)); \
 			}\
 		}while(0)
 

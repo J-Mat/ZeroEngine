@@ -12,10 +12,10 @@
 
 namespace Zero
 {
+	class FPipelineStateObject;
 	class IResource;
 	class FDX12Texture2D;
 	class FDX12Device;
-	class FPipelineStateObject;
 	class FRootSignature;
 	class FDX12RenderTarget;
 	class FDX12CommandList : public FCommandList, public std::enable_shared_from_this<FDX12CommandList>

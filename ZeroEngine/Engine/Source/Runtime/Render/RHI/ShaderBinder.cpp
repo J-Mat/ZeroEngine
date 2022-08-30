@@ -39,6 +39,7 @@ namespace Zero
             return false;
         }
         Item = m_Mapper[Name];
+        return true;
     }
 
     bool FResourcesMapper::SetTextureID(std::string name, std::string ID, EShaderResourceType type, unsigned int mip)

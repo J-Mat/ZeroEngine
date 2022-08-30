@@ -46,6 +46,7 @@ namespace Zero
 		FDX12ShaderBinder(FDX12Device &Device, FShaderBinderDesc& Desc);
 		virtual ~FDX12ShaderBinder();
 		Ref<FRootSignature> GetRootSignature() { return m_RootSignature; };
+		virtual void BindConstantsBuffer(unsigned int Slot, IShaderConstantsBuffer& buffer) {}
 		virtual void Bind(uint32_t Slot);
 	private:
 		void BuildRootSignature();

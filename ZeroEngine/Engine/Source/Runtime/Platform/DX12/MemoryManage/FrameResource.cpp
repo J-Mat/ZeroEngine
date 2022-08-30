@@ -4,12 +4,29 @@
 
 namespace Zero
 {
-	FFrameResourcesManager& FFrameResourcesManager::GetInstance()
+	FFrameResourceBuffer::FFrameResourceBuffer(uint32_t Size)
+		: m_SizeByte(Size)
 	{
-		static FFrameResourcesManager instance;
-		return instance;
-		// TODO: 在此处插入 return 语句
+		FFrameResourcesManager::GetInstance().RegistFrameResource(this);
 	}
+
+	inline D3D12_GPU_VIRTUAL_ADDRESS FFrameResourceBuffer::GetCurrentGPUAddress()
+	{
+		uint32_t Index = FFrameResourcesManager::GetInstance().GetCurrentIndex();
+		memcpy(m_GPUBuffers[Index].CPU
+			, m_CPUBuffer
+			, m_SizeByte);
+	}
+
+	void FFrameResourceBuffer::UploadCurrentBuffer()
+	{
+		uint32_t Index = FFrameResourcesManager::GetInstance().GetCurrentIndex();
+		memcpy(m_GPUBuffers[Index].CPU
+			, m_CPUBuffer
+			, m_SizeByte);
+	}
+
+
 	FFrameResourcesManager::FFrameResourcesManager(int FrameResourcesCount)
 		: m_FrameResourcesCount(FrameResourcesCount)
 		, m_CurrentFrameIndex(0)

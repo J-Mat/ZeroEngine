@@ -82,9 +82,9 @@ namespace Zero
 		uint32_t Size;
 		uint32_t Offset;
 		bool bNormaliezd;
-		FBufferElement(std::string _Name, EShaderDataType _Type, bool _bNormaliezd = false)
-			: m_Name(_Name)
-			, Type(_Type)
+		FBufferElement(EShaderDataType _Type, std::string _Name, bool _bNormaliezd = false)
+			: Type(_Type)
+			, m_Name(_Name)
 			, Size(ShaderDataTypeSize(Type))
 			, Offset(0)
 			, bNormaliezd(_bNormaliezd)
