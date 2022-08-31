@@ -19,6 +19,8 @@ target_include_directories(${ProjectName}
 target_link_libraries(${ProjectName}
     PUBLIC spdlog
     PUBLIC stb_image
+	PUBLIC assimp
+	PUBLIC headers
 )
 
 if (WIN32)
