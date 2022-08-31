@@ -2,8 +2,8 @@
 
 namespace Zero
 {
-	FDX12IndexBuffer::FDX12IndexBuffer(unsigned int* Indices, uint32_t Count)
-		: FIndexBuffer(Indices, Count)
+	FDX12IndexBuffer::FDX12IndexBuffer(uint32_t* Indices, uint32_t Count)
+		: IIndexBuffer(Indices, Count)
 	{
 	}
 

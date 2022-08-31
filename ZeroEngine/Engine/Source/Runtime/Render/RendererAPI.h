@@ -2,7 +2,9 @@
 #include "Core.h"
 #include "Platform/DX12/DX12VertexBuffer.h"
 #include "Platform/DX12/DX12Texture2D.h"
+#include "Platform/DX12/DX12Mesh.h"
 #include "Platform/Windows/WinWindow.h"
+#include "Moudule/MeshLoader.h"
 
 namespace Zero
 {
@@ -44,6 +46,7 @@ namespace Zero
 		virtual Ref<FWinWindow> CreatePlatformWindow(const FWindowsConfig& Config) = 0;
 		virtual Ref<IVertexBuffer> CreateVertexBuffer(IDevice* Device, void* data, uint32_t VertexCount, FVertexBufferLayout& Layout, IVertexBuffer::EType Type = IVertexBuffer::EType::Static) = 0;
 		virtual Ref<FTexture2D> CreateTexture2D(IDevice* Device, const std::string Path) = 0;
+		virtual Ref<FMesh> CreateMesh(IDevice* Device, const std::vector<FMeshData>& MeshDatas, FVertexBufferLayout Layout) = 0;
 	};
 
 	
@@ -65,6 +68,12 @@ namespace Zero
 		virtual Ref<FWinWindow> CreatePlatformWindow(const FWindowsConfig& Config)
 		{
 			return CreateRef<FWinWindow>(Config);
+		}
+
+		virtual Ref<FMesh> CreateMesh(IDevice* Device, const std::vector<FMeshData>& MeshDatas, FVertexBufferLayout Layout);
+		{
+			FDX12Device* DX12Device = static_cast<FDX12Device*>(Device);
+			return CreateRef<FDX12Mesh>(DX12Device, MeshDatas, Layout)
 		}
 	};
 }

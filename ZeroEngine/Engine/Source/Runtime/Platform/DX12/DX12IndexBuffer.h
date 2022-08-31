@@ -7,10 +7,10 @@
 
 namespace Zero
 {
-	class FDX12IndexBuffer :public FIndexBuffer
+	class FDX12IndexBuffer :public IIndexBuffer
 	{
 	public:
-		FDX12IndexBuffer(unsigned int* Indices, uint32_t Count);
+		FDX12IndexBuffer(uint32_t* Indices, uint32_t Count);
 		void SetData(unsigned int* Indices, UINT32 Count);
 		virtual uint32_t Count() override { return IndexCount; }
 		//const D3D12_INDEX_BUFFER_VIEW& GetIndexBufferView() { return m_IndexBufferView; }

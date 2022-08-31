@@ -3,11 +3,11 @@
 
 namespace Zero
 {
-	class FIndexBuffer
+	class IIndexBuffer
 	{
 	public:
-		FIndexBuffer(unsigned int* indices, uint32_t iCount) {};
-		virtual ~FIndexBuffer() {}
+		IIndexBuffer(unsigned int* indices, uint32_t iCount) {};
+		virtual ~IIndexBuffer() {}
 		virtual uint32_t Count() = 0;
 	};
 }
