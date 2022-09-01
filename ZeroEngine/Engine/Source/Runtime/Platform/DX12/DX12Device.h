@@ -68,7 +68,10 @@ namespace Zero
 		uint32_t RegisterActiveComandlist(Ref<FDX12CommandList> CommandList);
 		void UnRegisterActiveComandlist(uint32_t ID);
 		Ref<FDX12CommandList> GetActiveCommandList(uint32_t Slot);
+		Ref<FDX12CommandList> GetRenderCommandList() { return m_RenderCommandList; }
+		Ref<FDX12CommandList> SetRenderCommandList(Ref<FDX12CommandList> CommandList) { m_RenderCommandList = CommandList; }
 
+		ComPtr<ID3D12Resource> CreateDefaultBuffer(const void* BufferData, size_t BufferSize, D3D12_RESOURCE_FLAGS Flags = D3D12_RESOURCE_FLAG_NONE);
 	private:
 		void EnableDebugLayer();
 		void CreateDevice();
@@ -97,5 +100,6 @@ namespace Zero
 		
 		uint32_t m_CommandListID = 0;
 		std::map<uint32_t, Ref<FDX12CommandList>> m_ActiveCommandListMap;
+		Ref<FDX12CommandList> m_RenderCommandList = nullptr;;
 	};
 }

@@ -4,13 +4,19 @@
 namespace Zero
 {
 	FDX1VertexBuffer::FDX1VertexBuffer(FDX12Device& _Device, void* _Data, uint32_t _VertexCount, FVertexBufferLayout& _Layout, IVertexBuffer::EType _Type)
-		:IVertexBuffer(_Device, _Data, _VertexCount, _Layout, _Type)
+		:IVertexBuffer(_Data, _VertexCount, _Layout, _Type)
 		, IBuffer(_Device)
 		, m_Device(_Device)
 	{
+		SetResource(m_Device.CreateDefaultBuffer(m_Data, m_BufferSize));
 		CreateVertexBufferView();
-		//m_Device.GetCommandQueue().GetCommandList()->CreateDefaultBuffer()
 	}
+	
+	const D3D12_VERTEX_BUFFER_VIEW& FDX1VertexBuffer::GetVertexBufferView()
+	{
+		return m_VertexBufferView;
+	}
+
 	void FDX1VertexBuffer::CreateVertexBufferView()
 	{
 		m_VertexBufferView.BufferLocation = m_D3DResource->GetGPUVirtualAddress();

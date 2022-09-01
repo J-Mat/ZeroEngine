@@ -12,6 +12,7 @@ namespace Zero
 	public:
 		FDX1VertexBuffer(FDX12Device& m_Device, void* _Data, uint32_t _VertexCount, FVertexBufferLayout& _Layout, IVertexBuffer::EType _Type = IVertexBuffer::EType::Static);
 
+		const D3D12_VERTEX_BUFFER_VIEW& GetVertexBufferView();
 	private:
 		FDX12Device& m_Device;
 		void CreateVertexBufferView();

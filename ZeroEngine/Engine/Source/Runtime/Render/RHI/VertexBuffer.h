@@ -55,19 +55,18 @@ namespace Zero
 			Dynamic,
 			Stream,
 		};
-		IVertexBuffer(IDevice& _Device, void* _Data, uint32_t _VertexCount, FVertexBufferLayout& _Layout, IVertexBuffer::EType _Type)
-			: m_Device(_Device),
-			m_Data(_Data),
+		IVertexBuffer(void* _Data, uint32_t _VertexCount, FVertexBufferLayout& _Layout, IVertexBuffer::EType _Type)
+			: m_Data(_Data),
 			m_VertexCount(_VertexCount),
 			m_Layout(_Layout),
-			m_Type(_Type)
+			m_Type(_Type),
+			m_BufferSize(_VertexCount * m_Layout.GetStride())
 		{}
 	protected:
 		void* m_Data = nullptr;
 		uint32_t m_VertexCount = 0;
 		FVertexBufferLayout m_Layout;
 		EType m_Type;
-	private:
-		IDevice& m_Device;
+		size_t m_BufferSize = 0;
 	};
 }

@@ -3,8 +3,6 @@
 namespace Zero
 {
     uint32_t FGUID::HashIndex = 0;
-    {
-    }
 	FGUID::FGUID(GUID Guid)
 		: m_GUID(Guid)
         , m_HashValue(FGUID::HashIndex++)

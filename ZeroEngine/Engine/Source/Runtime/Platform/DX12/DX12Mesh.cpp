@@ -5,6 +5,7 @@
 #include "Render/RHI/IndexBuffer.h"
 #include "DX12VertexBuffer.h"
 #include "DX12IndexBuffer.h"
+#include "DX12CommandList.h"
 
 namespace Zero
 {
@@ -12,8 +13,10 @@ namespace Zero
 		: FMesh()
 		, m_Device(Device)
 	{
-		m_VertexBuffer = CreateRef<FDX1VertexBuffer>(m_Device, Vertices, VertexCount, Layout);
-		m_IndexBuffer = CreateRef<FDX12IndexBuffer>(m_Device, Indices, IndexCount);
+		m_D3DVertexBuffer = CreateRef<FDX1VertexBuffer>(m_Device, Vertices, VertexCount, Layout);
+		m_VertexBuffer = m_D3DVertexBuffer;
+		m_D3DIndexBuffer = CreateRef<FDX12IndexBuffer>(m_Device, Indices, IndexCount);
+		m_IndexBuffer = m_D3DIndexBuffer;
 		FSubMesh SubMesh;
 		SubMesh.IndexNumber = IndexCount;
 		m_SubMeshes.push_back(SubMesh);
@@ -44,8 +47,22 @@ namespace Zero
 		m_VertexBuffer = CreateRef<FDX1VertexBuffer>(m_Device, Vertices.data(), Vertices.size(), Layout);
 		m_IndexBuffer = CreateRef<FDX12IndexBuffer>(m_Device, Indices.data(), Indices.size());
 	}
-	FDX12Mesh::Draw(uint32_t Slot)
+	void FDX12Mesh::Draw()
 	{
-		m_Device.GetActiveCommandList(Slot);
+		Ref<FDX12CommandList> CommandList = m_Device.GetRenderCommandList();
+		auto D3DCommandList = CommandList->GetD3D12CommandList();
+		D3DCommandList->IASetVertexBuffers(0, 1, &(m_D3DVertexBuffer->GetVertexBufferView()));
+		D3DCommandList->IASetIndexBuffer(&(m_D3DIndexBuffer->GetIndexBufferView()));
+		D3DCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		D3DCommandList->DrawIndexedInstanced(m_D3DIndexBuffer->GetIndexCount(), 1, 0, 0, 0);
+	}
+	void FDX12Mesh::DrawSubMesh(FSubMesh& SubMesh)
+	{
+		Ref<FDX12CommandList> CommandList = m_Device.GetRenderCommandList();
+		auto D3DCommandList = CommandList->GetD3D12CommandList();
+		D3DCommandList->IASetVertexBuffers(0, 1, &(m_D3DVertexBuffer->GetVertexBufferView()));
+		D3DCommandList->IASetIndexBuffer(&(m_D3DIndexBuffer->GetIndexBufferView()));
+		D3DCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		D3DCommandList->DrawIndexedInstanced(SubMesh.IndexNumber, 1, SubMesh.IndexLocation, SubMesh.VertexLocation, 0);
 	}
 }

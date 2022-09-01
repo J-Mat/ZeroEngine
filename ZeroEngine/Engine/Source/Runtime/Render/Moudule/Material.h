@@ -15,4 +15,14 @@ namespace Zero
 	{
 		EAlphaState AlphaState;
 	};
+	class IShader;
+	class FMaterial
+	{
+	public:
+		FMaterial();
+		~FMaterial();	
+		void SetShader(Ref<IShader> Shader);
+	private:
+		Ref<IShader> m_Shader;
+	};
 }

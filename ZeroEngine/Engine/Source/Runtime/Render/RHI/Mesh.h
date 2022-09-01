@@ -21,7 +21,8 @@ namespace Zero
 		using Iter = std::vector<FSubMesh>::iterator;
 		Iter begin() { return m_SubMeshes.begin(); }
 		Iter end() { return m_SubMeshes.end(); }
-		virtual Draw(uint32_t Slot) = 0;
+		virtual void Draw() = 0;
+		virtual void DrawSubMesh(FSubMesh& SubMesh) = 0;
 	protected:
 		Ref<IVertexBuffer>	m_VertexBuffer;
 		Ref<IIndexBuffer>	m_IndexBuffer;
