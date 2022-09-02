@@ -1,5 +1,7 @@
 #pragma once
-#include "glm/glm.hpp"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 namespace Zero
 {
@@ -12,6 +14,11 @@ namespace ZMath
     {
         return radians * (180.0f / PI);
     }
+    
+    constexpr glm::vec3 World_Up = { 0.0f, 1.0f, 0.0f };
+    constexpr glm::vec3 World_Right = { 1.0f, 0.0f, 0.0f };
+    constexpr glm::vec3 World_Forward = { 0.0f, 0.0f, 1.0f };
+    
 
     // Convert degrees to radians.
     constexpr float Radians(const float degrees)

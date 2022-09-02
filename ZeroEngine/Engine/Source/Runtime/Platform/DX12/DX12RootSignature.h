@@ -1,18 +1,18 @@
-#pragma once
-
+#pragma once 
 #include "Core.h"
 #include "Common/DX12Header.h"
+#include "Render/RHI/RootSignature.h"
 
 
 namespace Zero
 {
 	class FDX12Device;
-	class FRootSignature
+	class FDX12RootSignature : public IRootSignature
 	{
 	public:
-		FRootSignature(FDX12Device& m_Device, const D3D12_ROOT_SIGNATURE_DESC& RootSignatureDesc);
-		virtual	~FRootSignature();
-		friend class std::default_delete<FRootSignature>;
+		FDX12RootSignature(FDX12Device& Device, const D3D12_ROOT_SIGNATURE_DESC& RootSignatureDesc);
+		virtual	~FDX12RootSignature();
+		friend class std::default_delete<FDX12RootSignature>;
 		uint32_t GetNumDescriptors(uint32_t RootIndex);
 		void SetRootSignatureDesc(const D3D12_ROOT_SIGNATURE_DESC& RootSignatureDesc);
 		uint32_t GetDescriptorTableBitMask(D3D12_DESCRIPTOR_HEAP_TYPE DescriptorHeapType) const;

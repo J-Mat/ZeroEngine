@@ -1,26 +1,26 @@
-#include "RootSignature.h"
+#include "DX12RootSignature.h"
 #include "DX12Device.h"
 
 namespace Zero
 {
-	FRootSignature::FRootSignature(FDX12Device& m_Device, const D3D12_ROOT_SIGNATURE_DESC& RootSignatureDesc)
-		: m_Device(m_Device)
+	FDX12RootSignature::FDX12RootSignature(FDX12Device& Device, const D3D12_ROOT_SIGNATURE_DESC& RootSignatureDesc)
+		: m_Device(Device)
 		, m_RootSignatureDesc{}
 		, m_NumDescriptorsPerTable{ 0 }
 		, m_SamplerTableBitMask(0)
 		, m_DescriptorTableBitMask(0)
 	{
 	}
-	FRootSignature::~FRootSignature()
+	FDX12RootSignature::~FDX12RootSignature()
 	{
 	}
-	uint32_t FRootSignature::GetNumDescriptors(uint32_t RootIndex)
+	uint32_t FDX12RootSignature::GetNumDescriptors(uint32_t RootIndex)
 	{
 		CORE_ASSERT(RootIndex < 32, "RootSignature num can not exceed 32!");
 		return m_NumDescriptorsPerTable[RootIndex];
 	}
 
-	void FRootSignature::Destroy()
+	void FDX12RootSignature::Destroy()
 	{
 		for (UINT i = 0; i < m_RootSignatureDesc.NumParameters; ++i)
 		{
@@ -46,7 +46,7 @@ namespace Zero
 	}
 
 
-	void FRootSignature::SetRootSignatureDesc(const D3D12_ROOT_SIGNATURE_DESC& RootSignatureDesc)
+	void FDX12RootSignature::SetRootSignatureDesc(const D3D12_ROOT_SIGNATURE_DESC& RootSignatureDesc)
 	{
 		// Make sure any previously allocated root signature description is cleaned
 		// up first.
@@ -124,7 +124,7 @@ namespace Zero
 
 		m_Device.GetDevice()->CreateRootSignature(0, RootSignatureBlob->GetBufferPointer(), RootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_RootSignature));
 	}
-	uint32_t FRootSignature::GetDescriptorTableBitMask(D3D12_DESCRIPTOR_HEAP_TYPE DescriptorHeapType) const
+	uint32_t FDX12RootSignature::GetDescriptorTableBitMask(D3D12_DESCRIPTOR_HEAP_TYPE DescriptorHeapType) const
 	{
 		switch (DescriptorHeapType)
 		{

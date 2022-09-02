@@ -15,7 +15,7 @@ namespace Zero
 		FDX12Shader(FDX12Device& Device, std::string FileName, const FShaderBinderDesc& BinderDesc, const FShaderDesc& Desc);
 
 		virtual void CreateBinder();
-		virtual void Use(uint32_t Slot) override;
+		virtual void Use() override;
 	private:
 		void GenerateInputLayout();
 		ComPtr<ID3DBlob> CompileShader(const std::wstring& Filename, const D3D_SHADER_MACRO* Defines, const std::string& Entrypoint, const std::string& Target);

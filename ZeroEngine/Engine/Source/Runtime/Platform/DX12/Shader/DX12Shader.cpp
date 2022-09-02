@@ -51,11 +51,11 @@ namespace Zero
 		CreatePSO();
 	}
 
-	void FDX12Shader::Use(uint32_t Slot)
+	void FDX12Shader::Use()
 	{
-		Ref<FDX12CommandList> CommandList = m_Device.GetActiveCommandList(Slot);
+		Ref<FDX12CommandList> CommandList = m_Device.GetRenderCommandList();
 		CommandList->GetD3D12CommandList()->SetPipelineState(m_PipelineStateObject->GetD3D12PipelineState().Get());
-		m_ShaderBinder->Bind(Slot);
+		m_ShaderBinder->Bind();
 	}
 
 	void FDX12Shader::GenerateInputLayout()

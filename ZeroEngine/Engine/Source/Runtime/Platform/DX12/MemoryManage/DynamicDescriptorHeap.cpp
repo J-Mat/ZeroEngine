@@ -176,7 +176,7 @@ namespace Zero
 		}
 	}
 
-	void FDynamicDescriptorHeap::StageDescriptors(uint32_t rootParameterIndex, uint32_t offset, uint32_t numDescriptors, const D3D12_CPU_DESCRIPTOR_HANDLE srcDescriptors)
+	void FDynamicDescriptorHeap::StageDescriptors(uint32_t RootParameterIndex, uint32_t Offset, uint32_t NumDescriptors, const D3D12_CPU_DESCRIPTOR_HANDLE SrcDescriptors)
 	{
 	}
 

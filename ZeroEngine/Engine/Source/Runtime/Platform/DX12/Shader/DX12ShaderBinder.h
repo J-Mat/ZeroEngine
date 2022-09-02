@@ -2,11 +2,12 @@
 #include "Core.h"
 #include "Render/RHI/ShaderBinder.h"
 #include "Platform/DX12/MemoryManage/FrameResource.h"
+#include "Render/RHI/RootSignature.h"
+#include "Platform/DX12/DX12RootSignature.h"
 
 namespace Zero
 {
 	class FDX12Device;
-	class FRootSignature;
 	class FDynamicDescriptorHeap;
 	class FDX12ShaderConstantsBuffer : public IShaderConstantsBuffer
 	{
@@ -31,12 +32,30 @@ namespace Zero
 		virtual float* PtrFloat4(const std::string& Name);
 		virtual float* PtrMatrix4x4(const std::string& Name);
 
-		virtual void UploadDataIfDity(IShaderBinder* m_ShaderBinder);
+		virtual void UploadDataIfDity();
 		virtual void SetDirty() { m_bIsDirty = true; }
+		
+		Ref<FFrameResourceBuffer> GetFrameResourceBuffer() { return m_ConstantsTableBuffer; }
 
 	private:
 		FConstantsMapper& m_ConstantsMapper;
 		Ref<FFrameResourceBuffer> m_ConstantsTableBuffer = nullptr;
+		bool m_bIsDirty = true;
+	};
+
+	class FDX12ShaderResourcesBuffer : public IShaderResourcesBuffer
+	{
+	public:
+		FDX12ShaderResourcesBuffer(FDX12Device& Device, FShaderResourcesDesc& Desc, FDX12RootSignature* RootSignature);
+		virtual FShaderResourcesDesc* GetShaderResourceDesc();
+		virtual void SetTexture2D(const std::string& Name, Ref<FTexture2D> Texture);
+		virtual void SetTextureCubemap(const std::string& Name, Ref<FTextureCubemap> Texture);
+
+		virtual void UploadDataIfDirty();
+	private:
+		FDX12Device& m_Device;
+		Ref<FDynamicDescriptorHeap> m_SrvDynamicDescriptorHeap;
+		Ref<FDynamicDescriptorHeap> m_SamplerDynamicDescriptorHeap;
 		bool m_bIsDirty = true;
 	};
 
@@ -45,15 +64,15 @@ namespace Zero
 	public:
 		FDX12ShaderBinder(FDX12Device &Device, FShaderBinderDesc& Desc);
 		virtual ~FDX12ShaderBinder();
-		Ref<FRootSignature> GetRootSignature() { return m_RootSignature; };
-		virtual void BindConstantsBuffer(unsigned int Slot, IShaderConstantsBuffer& buffer) {}
-		virtual void Bind(uint32_t Slot);
+		virtual IRootSignature* GetRootSignature() { return m_RootSignature.get(); }
+		virtual void BindConstantsBuffer(uint32_t Slot, IShaderConstantsBuffer* Buffer);
+		virtual void Bind();
 	private:
 		void BuildRootSignature();
 		void BuildDynamicHeap();
 	private:
 		FDX12Device& m_Device;
-		Ref<FRootSignature> m_RootSignature;
+		Ref<FDX12RootSignature> m_RootSignature;
 		Ref<FDynamicDescriptorHeap> m_SrvDynamicDescriptorHeap;
 		Ref<FDynamicDescriptorHeap> m_SamplerDynamicDescriptorHeap;
 	};

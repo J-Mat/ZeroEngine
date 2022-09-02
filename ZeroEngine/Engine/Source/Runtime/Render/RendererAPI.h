@@ -5,6 +5,12 @@
 #include "Platform/DX12/DX12Mesh.h"
 #include "Platform/Windows/WinWindow.h"
 #include "Moudule/MeshLoader.h"
+#include "Render/RHI/ShaderBinder.h"
+#include "Render/RHI/Shader.h"
+#include "Render/RHI/RootSignature.h"
+#include "Platform/DX12/Shader/DX12Shader.h"
+#include "Platform/DX12/Shader/DX12ShaderBinder.h"
+#include "Platform/DX12/DX12RootSignature.h"
 
 namespace Zero
 {
@@ -47,6 +53,8 @@ namespace Zero
 		virtual Ref<IVertexBuffer> CreateVertexBuffer(IDevice* Device, void* data, uint32_t VertexCount, FVertexBufferLayout& Layout, IVertexBuffer::EType Type = IVertexBuffer::EType::Static) = 0;
 		virtual Ref<FTexture2D> CreateTexture2D(IDevice* Device, const std::string Path) = 0;
 		virtual Ref<FMesh> CreateMesh(IDevice* Device, const std::vector<FMeshData>& MeshDatas, FVertexBufferLayout Layout) = 0;
+		virtual Ref<IShaderConstantsBuffer> CreateShaderConstantBuffer(IDevice* Device, FShaderConstantsDesc& Desc) = 0;
+		virtual Ref<IShaderResourcesBuffer> CreateShaderResourceBuffer(IDevice* Device, FShaderResourcesDesc& Desc, IRootSignature* RootSignature) = 0;
 	};
 
 	
@@ -70,10 +78,22 @@ namespace Zero
 			return CreateRef<FWinWindow>(Config);
 		}
 
-		virtual Ref<FMesh> CreateMesh(IDevice* Device, const std::vector<FMeshData>& MeshDatas, FVertexBufferLayout Layout);
+		virtual Ref<FMesh> CreateMesh(IDevice* Device, const std::vector<FMeshData>& MeshDatas, FVertexBufferLayout Layout)
 		{
 			FDX12Device* DX12Device = static_cast<FDX12Device*>(Device);
-			return CreateRef<FDX12Mesh>(DX12Device, MeshDatas, Layout)
+			return CreateRef<FDX12Mesh>(DX12Device, MeshDatas, Layout);
+		}
+
+		virtual Ref<IShaderConstantsBuffer> CreateShaderConstantBuffer(IDevice* Device, FShaderConstantsDesc& Desc)
+		{
+			FDX12Device* DX12Device = static_cast<FDX12Device*>(Device);
+			return CreateRef<FDX12ShaderConstantsBuffer>(DX12Device, Desc);
+		}
+
+		virtual Ref<IShaderResourcesBuffer> CreateShaderResourceBuffer(IDevice* Device, FShaderResourcesDesc& Desc, IRootSignature* RootSignature)
+		{
+			FDX12Device* DX12Device = static_cast<FDX12Device*>(Device);
+			return CreateRef<FDX12ShaderResourcesBuffer>(DX12Device, Desc,RootSignature);
 		}
 	};
 }

@@ -32,23 +32,23 @@ namespace Zero
 		* Descriptors are not copied to the GPU visible descriptor heap until
 		* the CommitStagedDescriptors function is called.
 		*/
-		void StageDescriptors(uint32_t rootParameterIndex, uint32_t offset, uint32_t numDescriptors,
-			const D3D12_CPU_DESCRIPTOR_HANDLE srcDescriptors);
+		void StageDescriptors(uint32_t RootParameterIndex, uint32_t Offset, uint32_t NumDescriptors,
+			const D3D12_CPU_DESCRIPTOR_HANDLE SrcDescriptors);
 
 		/**
 		 * Stage an inline CBV descriptor.
 		 */
-		void StageInlineCBV(uint32_t rootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS bufferLocation);
+		void StageInlineCBV(uint32_t RootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS BufferLocation);
 
 		/**
 		 * Stage an inline SRV descriptor.
 		 */
-		void StageInlineSRV(uint32_t rootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS bufferLocation);
+		void StageInlineSRV(uint32_t RootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS BufferLocation);
 
 		/**
 		 * Stage an inline UAV descriptor.
 		 */
-		void StageInlineUAV(uint32_t rootParamterIndex, D3D12_GPU_VIRTUAL_ADDRESS bufferLocation);
+		void StageInlineUAV(uint32_t RootParamterIndex, D3D12_GPU_VIRTUAL_ADDRESS BufferLocation);
 
 
 		/**

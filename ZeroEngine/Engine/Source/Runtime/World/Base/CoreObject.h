@@ -2,6 +2,7 @@
 
 #include "Core.h"
 #include "GUIDInterface.h"
+#include "World/Construction/ObjectConstruction.h"
 
 namespace Zero
 {

@@ -144,8 +144,8 @@ namespace Zero
 	{
 	public:
 		FShaderResourceLayout() {}
-		FShaderResourceLayout(const std::initializer_list<FTextureTableElement>& elements)
-			:m_Elements(elements)
+		FShaderResourceLayout(const std::initializer_list<FTextureTableElement>& Elements)
+			:m_Elements(Elements)
 		{
 		}
 
