@@ -7,6 +7,7 @@ namespace Zero
 	Scope<IGraphicFactroy> FRenderer::GraphicFactroy = nullptr;
 	ERHI FRenderer::RHI = ERHI::DirectX12;
 	ERayTracerAPI FRenderer::RayTracer = ERayTracerAPI::DXR;
+	std::vector<Ref<IDevice>> FRenderer::Devices;
 
 	void FRenderer::InitAPI()
 	{

@@ -5,6 +5,7 @@
 #include "Utils.h"
 #include "Platform/DX12/DX12RenderPipeline.h"
 #include "Platform/DX12/MemoryManage/FrameResource.h"
+#include "Render/RendererAPI.h"
 
 namespace Zero
 {
@@ -111,6 +112,8 @@ namespace Zero
 		
 		m_Device = CreateRef<FDX12Device>();
 		m_Device->Init();
+			
+		m_DeviceIndex = FRenderer::PushDevice(m_Device);
 		m_Device->CreatSwapChain(m_WindowData.hMainWnd);
 		FFrameResourcesManager::GetInstance().Init(m_Device);
 		

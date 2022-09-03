@@ -115,9 +115,9 @@ namespace Zero
 		std::vector<FBufferElement>::iterator begin() { return m_Elements.begin(); }
 		std::vector<FBufferElement>::iterator end() { return m_Elements.end(); }
 
-		static FConstantBufferLayout PerObjectConstants;
-		static FConstantBufferLayout PerCameraConstants;
-		static FConstantBufferLayout PerFrameConstants;
+		static FConstantBufferLayout s_PerObjectConstants;
+		static FConstantBufferLayout s_PerCameraConstants;
+		static FConstantBufferLayout s_PerFrameConstants;
 	private:
 		void CalculateOffsetsAndStride()
 		{

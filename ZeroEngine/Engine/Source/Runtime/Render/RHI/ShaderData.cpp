@@ -2,12 +2,12 @@
 
 namespace Zero
 {
-	FConstantBufferLayout FConstantBufferLayout::PerObjectConstants =
+	FConstantBufferLayout FConstantBufferLayout::s_PerObjectConstants =
 	{
 		{EShaderDataType::Mat4, "Model"},
 	};
 
-	FConstantBufferLayout FConstantBufferLayout::PerCameraConstants =
+	FConstantBufferLayout FConstantBufferLayout::s_PerCameraConstants =
 	{
 		{EShaderDataType::Mat4, "View"},
 		{EShaderDataType::Mat4, "Projection" },
@@ -18,7 +18,7 @@ namespace Zero
 		{EShaderDataType::Float4, "ZNearFar" },
 	};
 
-	FConstantBufferLayout FConstantBufferLayout::PerFrameConstants =
+	FConstantBufferLayout FConstantBufferLayout::s_PerFrameConstants =
 	{
 		{EShaderDataType::Int, "DirectionalLightNum"},
 		{EShaderDataType::Int, "PointLightNum"},

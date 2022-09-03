@@ -12,6 +12,7 @@ namespace Zero
 	// to use these as root indices in the root signature.
 	enum ERootParameters
 	{
+		PerObjCB,         // ConstantBuffer<Mat> MatCB : register(b0);
 		CameraCB,         // ConstantBuffer<Mat> MatCB : register(b0);
 		MaterialCB,         // ConstantBuffer<Material> MaterialCB : register( b0, space1 );
 		LightPropertiesCB,  // ConstantBuffer<LightProperties> LightPropertiesCB : register( b1 );

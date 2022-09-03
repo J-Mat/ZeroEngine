@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core.h"
-#include "CoreObject.h"
+#include "../Base/CoreObject.h"
 
 namespace Zero
 {

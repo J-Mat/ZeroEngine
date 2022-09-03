@@ -46,6 +46,7 @@ namespace Zero
 		Ref<T> GetDevice() { return m_Device; }
 
 	protected:
+		uint32_t m_DeviceIndex = -1;
 		Ref<T> m_Device;
 	};
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "World/Base/Component.h"
+#include "Component.h"
 
 
 namespace Zero

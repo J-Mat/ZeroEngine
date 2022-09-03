@@ -2,9 +2,9 @@
 
 namespace Zero
 {
-	class FRootSignature
+	class IRootSignature
 	{
 	public:
-		virtual ~FRootSignature() = default;
+		virtual ~IRootSignature() = default;
 	};
 }

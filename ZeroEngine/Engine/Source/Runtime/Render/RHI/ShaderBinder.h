@@ -139,6 +139,7 @@ namespace Zero
 		FShaderResourcesDesc& m_Desc;
 	};
 	
+	class IRootSignature;
 	class IShaderBinder
 	{
 	public:

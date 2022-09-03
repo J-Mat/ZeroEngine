@@ -42,8 +42,25 @@ namespace Zero
 		static Scope<IGraphicFactroy> GraphicFactroy;
 	
 		static ERHI RHI;
+
+		static Ref<IDevice> GetDevice(uint32_t Slot) 
+		{
+			CORE_ASSERT(Slot < Devices.size(), "Slot is out of range!")
+			return Devices[Slot]; 
+		}
+		static uint32_t PushDevice(Ref<IDevice> Device) 
+		{
+			Devices.push_back(Device);
+			return Devices.size() - 1;
+		}
+		static Ref<IDevice> RemoveDevice(uint32_t Slot) 
+		{ 
+			CORE_ASSERT(Slot < Devices.size(), "Slot is out of range!")
+			Devices.erase(Devices.begin() + Slot); 
+		}
 	private:
 		static ERayTracerAPI RayTracer;
+		static std::vector<Ref<IDevice>> Devices;
 	};
 	
 	class IGraphicFactroy
