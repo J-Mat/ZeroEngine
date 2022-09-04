@@ -12,6 +12,8 @@ namespace Zero
 		UWorld()
 		{
 		}
+		Ref<IDevice> GetDevice() { return m_Device; }
+		void SetDevice(Ref<IDevice> Device) { m_Device = Device; }
 	private:
 		Ref<IDevice> m_Device;
 	};

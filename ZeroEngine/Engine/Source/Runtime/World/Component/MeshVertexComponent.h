@@ -11,7 +11,7 @@ namespace Zero
 	class FPerObjectConstantsBufferPool : public IPublicSingleton<FPerObjectConstantsBufferPool>
 	{
 	public:
-		Ref<IShaderConstantsBuffer> GetPerObjectConstantsBuffer(uint32_t DeviceIndex = 0);
+		Ref<IShaderConstantsBuffer> GetPerObjectConstantsBuffer(UCoreObject* Obj);
 		void PushToPool(Ref<IShaderConstantsBuffer> Buffer);
 	private:
 		std::queue<Ref<IShaderConstantsBuffer>> m_IdleConstantsBuffer;
@@ -20,7 +20,7 @@ namespace Zero
 	class UMeshVertexComponent : public UComponent
 	{
 	public:
-		UMeshVertexComponent(uint32_t DeviceIndex);
+		UMeshVertexComponent();
 		virtual ~UMeshVertexComponent();
 	private:
 		Ref<IShaderConstantsBuffer> m_ShaderConstantsBuffer = nullptr;

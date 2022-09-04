@@ -21,13 +21,13 @@ namespace Zero
 		return PerObtConstantsDesc;
 	}
 
-	Ref<IShaderConstantsBuffer> FPerObjectConstantsBufferPool::GetPerObjectConstantsBuffer(uint32_t DeviceIndex)
+	Ref<IShaderConstantsBuffer> FPerObjectConstantsBufferPool::GetPerObjectConstantsBuffer(UCoreObject* Obj)
 	{
 		Ref<IShaderConstantsBuffer> Result;
 		if (m_IdleConstantsBuffer.empty())
 		{
 
-			auto Device = FRenderer::GetDevice(DeviceIndex);
+			auto Device = Obj->GetWorld()->GetDevice();
 			Result = FRenderer::GraphicFactroy->CreateShaderConstantBuffer(Device.get(), GetPerObjectConstantsDesc());
 		}
 		else
@@ -45,9 +45,9 @@ namespace Zero
 	}
 
 
-	UMeshVertexComponent::UMeshVertexComponent(uint32_t DeviceIndex)
-		: UComponent(DeviceIndex)
-		, m_ShaderConstantsBuffer(FPerObjectConstantsBufferPool::GetInstance().GetPerObjectConstantsBuffer(m_DeviceIndex))
+	UMeshVertexComponent::UMeshVertexComponent()
+		: UComponent()
+		, m_ShaderConstantsBuffer(FPerObjectConstantsBufferPool::GetInstance().GetPerObjectConstantsBuffer(this))
 	{
 	}
 
