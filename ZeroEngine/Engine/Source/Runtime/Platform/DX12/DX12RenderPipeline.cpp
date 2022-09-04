@@ -7,11 +7,13 @@
 #include "Platform/DX12/DX12Texture2D.h"
 #include <type_traits>
 #include <memory>
+#include "Render/RenderLayer/OpaqueLayer.h"
 
 namespace Zero
 { 
 	FDX12RenderPipeline::FDX12RenderPipeline()
-	{
+	{	
+		m_RenderLayerStack.PushLayer(new FOpaqueLayer())
 	}
 
 	void FDX12RenderPipeline::DrawFrame(Ref<FDX12Device> Device)

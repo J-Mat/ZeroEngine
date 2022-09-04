@@ -1,18 +1,15 @@
 #pragma once
+#include "World/World.h"
 
 namespace Zero
 {
 	class UCoreObject;
 
-	template<class T>
-	T* CreateObject(UCoreObject* NewObject)
-	{
-		return dynamic_cast<T*>(NewObject);
-	}
-
 	template<class T, typename ...ParamTypes>
-	T* ConstructionObject(ParamTypes &&...Params)
+	T* CreateObject(UWorld *World, ParamTypes &&...Params)
 	{
-		return CreateObject<T>(new T(Params...));
+		T* Obj = new T(Params...));
+		Obj->SetWorld(World);
+		return Obj;
 	}
 }

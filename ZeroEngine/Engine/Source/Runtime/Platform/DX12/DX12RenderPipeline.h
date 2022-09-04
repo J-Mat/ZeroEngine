@@ -4,6 +4,7 @@
 #include "Common/DX12Header.h"
 #include "Core/Base/PublicSingleton.h"
 #include "DX12Device.h"
+#include "Core/Framework/LayerStack.h"
 
 
 
@@ -16,5 +17,7 @@ namespace Zero
 		FDX12RenderPipeline();
 
 		void DrawFrame(Ref<FDX12Device> Device);
+	private:
+		FLayerStack m_RenderLayerStack;
 	};
 }

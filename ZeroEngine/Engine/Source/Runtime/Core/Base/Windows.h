@@ -41,12 +41,13 @@ namespace Zero
 		// virtual std::shared_ptr<GraphicsContext> GetGraphicsContext() const = 0;
 				
 		static Ref<FWindows> Create(const FWindowsConfig& Config);
-
+		
 		
 		Ref<T> GetDevice() { return m_Device; }
 
 	protected:
 		uint32_t m_DeviceIndex = -1;
 		Ref<T> m_Device;
+		
 	};
 }

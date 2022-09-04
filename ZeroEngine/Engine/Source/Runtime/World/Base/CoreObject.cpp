@@ -4,7 +4,8 @@
 namespace Zero
 {
 	std::vector<UCoreObject*> UCoreObject::s_ObjectsCollection = {};
-	UCoreObject::UCoreObject()
+	UCoreObject::UCoreObject(uint32_t DeviceIndex)
+		:m_DeviceIndex(DeviceIndex)
 	{
 		s_ObjectsCollection.push_back(this);
 	}

@@ -14,6 +14,15 @@
 
 namespace Zero
 {
+	enum class EMeshRenderLayerType
+	{
+		RenderLayer_Opaque = 0,
+		RenderLayer_Transparent,
+		RenderLayer_Alphatest,
+		RenderLayer_Background,
+		RenderLayer_Shawodow,
+	};
+
 	enum class ERHI
 	{
 		DirectX12,

@@ -6,10 +6,11 @@
 namespace Zero
 {
 	class UTransformationComponent;
+	class UTagComponent;
 	class UActor : public UCoreObject
 	{
 	public:
-		UActor();
+		UActor(const std::string Tag = "Actor");
 		UTransformationComponent* GetTransformationComponent() { return TransformationComponent; }
 		virtual void SetPosition(const ZMath::vec3& Position);
 		virtual void SetRotation(const ZMath::vec3& Rotation);
@@ -24,7 +25,8 @@ namespace Zero
 		ZMath::vec3& GetForwardVector();
 		ZMath::vec3& GetRightVector();
 		ZMath::vec3& GetUPVector();
-	private:
-		UTransformationComponent* TransformationComponent;
+	protected:
+		UTransformationComponent* m_TransformationComponent;
+		UTagComponent* m_Tagcomponent;
 	};
 }

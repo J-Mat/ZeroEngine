@@ -8,7 +8,7 @@ namespace Zero
 	class UTransformationComponent : public UComponent
 	{
 	public:
-		UTransformationComponent() = default;
+		UTransformationComponent(uint32_t DeviceIndex);
 		virtual void SetPosition(const ZMath::vec3& Position) { m_Position = Position; };
 		virtual void SetRotation(const ZMath::vec3& Rotation);
 		virtual void SetScale(const ZMath::vec3& Scale) { m_Scale = Scale; };

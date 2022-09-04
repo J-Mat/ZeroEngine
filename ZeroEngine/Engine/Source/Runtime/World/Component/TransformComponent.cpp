@@ -3,7 +3,10 @@
 
 namespace Zero
 {
-
+	UTransformationComponent::UTransformationComponent(uint32_t DeviceIndex)
+		: UComponent(DeviceIndex)
+	{
+	}
 	void UTransformationComponent::SetRotation(const ZMath::vec3& Rotation)
 	{
 		m_Rotation = {

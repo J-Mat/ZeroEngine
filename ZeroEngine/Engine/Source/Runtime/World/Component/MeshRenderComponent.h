@@ -1,33 +1,22 @@
 #pragma once
 
+#include "Render/RendererAPI.h"
 #include "Component.h"
-#include "Render/RHI/Mesh.h"
-#include "Core/Base/PublicSingleton.h"
-#include "Render/RHI/ShaderBinder.h"
 
 
 namespace Zero
 {
-	class FPerObjectConstantsBufferPool : public IPublicSingleton<FPerObjectConstantsBufferPool>
-	{
-	public:
-		Ref<IShaderConstantsBuffer> GetPerObjectConstantsBuffer(uint32_t DeviceIndex = 0);
-		void PushToPool(Ref<IShaderConstantsBuffer> Buffer);
-	private:
-		std::queue<Ref<IShaderConstantsBuffer>> m_IdleConstantsBuffer;
-	};
-
 	class FMaterial;
 	class UMeshRenderComponent : public UComponent
 	{
 	public:
-		UMeshRenderComponent();
+		UMeshRenderComponent(uint32_t DeviceIndex);
 		virtual ~UMeshRenderComponent();
 
-		std::vector<Ref<FMaterial>>& GetPassMaterials(const std::string& PassName);
+		std::vector<Ref<FMaterial>>& GetPassMaterials(const EMeshRenderLayerType& LayerType);
+		void SetSubmeshNum(uint32_t Num) { m_SubmeshNum = Num; }
 	private:
-		Ref<FMesh> m_Mesh;
-		Ref<IShaderConstantsBuffer> m_ShaderConstantsBuffer = nullptr;
-		std::unordered_map<std::string, std::vector<Ref<FMaterial>>> Materials;
+		std::unordered_map<EMeshRenderLayerType, std::vector<Ref<FMaterial>>> Materials;
+		uint32_t m_SubmeshNum = 0;
 	};
 }
