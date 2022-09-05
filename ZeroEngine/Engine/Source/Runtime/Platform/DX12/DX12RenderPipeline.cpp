@@ -8,16 +8,22 @@
 #include <type_traits>
 #include <memory>
 #include "Render/RenderLayer/OpaqueLayer.h"
+#include "World/World.h"
 
 namespace Zero
 { 
 	FDX12RenderPipeline::FDX12RenderPipeline()
 	{	
-		m_RenderLayerStack.PushLayer(new FOpaqueLayer())
+	//	m_RenderLayerStack.PushLayer(new FOpaqueLayer())
+		
 	}
 
-	void FDX12RenderPipeline::DrawFrame(Ref<FDX12Device> Device)
+	void FDX12RenderPipeline::DrawFrame()
 	{
+		UWorld* World = UWorld::GetCurrentWorld();
+		Ref<IDevice>  Device = World->GetDevice();
+		FRenderItemPool&  RenderItemsPool = World->GetRenderItemPool();
+		
 		auto& CommandQueue = Device->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
 		auto CommandList = CommandQueue.GetCommandList();
 		

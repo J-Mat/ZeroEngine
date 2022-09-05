@@ -16,7 +16,7 @@ namespace Zero
 	public:
 		FDX12RenderPipeline();
 
-		void DrawFrame(Ref<FDX12Device> Device);
+		void DrawFrame();
 	private:
 		FLayerStack m_RenderLayerStack;
 	};

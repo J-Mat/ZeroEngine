@@ -17,5 +17,6 @@ namespace Zero
 
 		void OnUpdate() override;
 		void OnDraw() override;
+	private:
 	};
 }

@@ -6,9 +6,41 @@
 
 namespace Zero
 {
+	void FRenderItemPool::Reset()
+	{
+		m_AvailableRenderItems.insert(
+			m_AvailableRenderItems.end(),
+			m_RenderItems.begin(),
+			m_RenderItems.end()
+		);
+		
+		m_RenderItems.clear();
+	}
+	Ref<FRenderItem> FRenderItemPool::Request()
+	{
+		Ref<FRenderItem> Item = nullptr;
+		if (m_AvailableRenderItems.size() != 0)
+		{
+			Item = m_AvailableRenderItems.back();
+			m_AvailableRenderItems.pop_back();
+		}
+		else
+		{
+			Item = CreateRef<FRenderItem>();
+		}
+		return Item;
+	}
+
+	void FRenderItemPool::Push(Ref<FRenderItem> Item)
+	{
+		m_RenderItems.push_back(Item);
+	}
+
 	FRenderItem::FRenderItem(Ref<FMesh> Mesh)
 	{
+
 	}
+
 	FRenderItem::FRenderItem(Ref<FMesh> Mesh, Ref<FSubMesh> SubMesh)
 	:m_Mesh(Mesh)
 	,m_SubMesh(SubMesh)

@@ -11,7 +11,7 @@ namespace Zero
 	{
 	public:
 		UActor(const std::string Tag = "Actor");
-		UTransformationComponent* GetTransformationComponent() { return TransformationComponent; }
+		UTransformationComponent* GetTransformationComponent() { return m_TransformationComponent; }
 		virtual void SetPosition(const ZMath::vec3& Position);
 		virtual void SetRotation(const ZMath::vec3& Rotation);
 		virtual void SetScale(const ZMath::vec3& Scale);

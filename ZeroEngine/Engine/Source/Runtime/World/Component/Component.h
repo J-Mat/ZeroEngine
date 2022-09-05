@@ -7,8 +7,9 @@ namespace Zero
 {
 	class UComponent : public UCoreObject
 	{
-		UComponent(uint32_t DeviceIndex) 
-			: UCoreObject(DeviceIndex)
+	public:
+		UComponent()
+			: UCoreObject()
 		{
 		}
 	};

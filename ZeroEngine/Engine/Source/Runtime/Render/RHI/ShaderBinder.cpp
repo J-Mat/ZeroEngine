@@ -64,8 +64,8 @@ namespace Zero
 
     void IShaderBinder::InitMappers()
     {
-        int CBIndex = 0;
-        int ParaIndex = 0;
+        uint32_t CBIndex = 0;
+        uint32_t ParaIndex = 0;
         m_ShaderConstantDescs.reserve(m_Desc.GetConstantBufferCount()); 
         for (FConstantBufferLayout ConstantLayout : m_Desc.m_ConstantBufferLayouts)
         {
@@ -80,7 +80,7 @@ namespace Zero
             ParaIndex++;
         }
 
-        int ResIndex = 0;
+        uint32_t ResIndex = 0;
         
         if (m_Desc.m_TextureBufferLayouts.size() >= 1)
         {

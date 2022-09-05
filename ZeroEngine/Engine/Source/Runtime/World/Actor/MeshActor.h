@@ -7,10 +7,13 @@ namespace Zero
 {
 	class UMeshVertexComponent;
 	class UMeshRenderComponent;
+	class FRenderItemPool;
 	class UMeshActor : public UActor
 	{
 	public:
-		UMeshActor(uint32_t DeviceIndex, const std::string& Tag);
+		UMeshActor(const std::string& Tag);
+		virtual void PostInit();
+		virtual void CommitToPipieline(FRenderItemPool& RenderItemPool);
 	protected:
 		UMeshVertexComponent* m_MeshVertexComponent = nullptr;
 		UMeshRenderComponent* m_MeshRenderComponent = nullptr;

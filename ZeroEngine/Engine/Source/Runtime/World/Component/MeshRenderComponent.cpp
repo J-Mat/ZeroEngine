@@ -3,8 +3,8 @@
 
 namespace Zero
 {
-	UMeshRenderComponent::UMeshRenderComponent(uint32_t DeviceIndex)
-		: UComponent(DeviceIndex)
+	UMeshRenderComponent::UMeshRenderComponent()
+		: UComponent()
 	{
 	}
 	UMeshRenderComponent::~UMeshRenderComponent()
@@ -12,14 +12,14 @@ namespace Zero
 	}
 	std::vector<Ref<FMaterial>>& UMeshRenderComponent::GetPassMaterials(const EMeshRenderLayerType& LayerType)
 	{
-		auto& iter = Materials.find(LayerType);
-		if (iter == Materials.end() || Materials[LayerType].size() != m_SubmeshNum)
+		auto& iter = m_Materials.find(LayerType);
+		if (iter == m_Materials.end() || m_Materials[LayerType].size() != m_SubmeshNum)
 		{
-			for (int i = Materials[LayerType].size(); i < m_SubmeshNum; i++)
+			for (int i = m_Materials[LayerType].size(); i < m_SubmeshNum; i++)
 			{
-				Materials[LayerType].emplace_back(nullptr);
+				m_Materials[LayerType].emplace_back(nullptr);
 			}
 		}
-		return Materials[LayerType];
+		return m_Materials[LayerType];
 	}
 }

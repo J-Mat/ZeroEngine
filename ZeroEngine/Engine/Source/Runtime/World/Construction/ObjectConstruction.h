@@ -1,15 +1,15 @@
 #pragma once
-#include "World/World.h"
-
 namespace Zero
 {
 	class UCoreObject;
 
+	class UWorld;
 	template<class T, typename ...ParamTypes>
 	T* CreateObject(UWorld *World, ParamTypes &&...Params)
 	{
 		T* Obj = new T(Params...));
 		Obj->SetWorld(World);
+		virtual void PostInit() {}
 		return Obj;
 	}
 }

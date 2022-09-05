@@ -9,9 +9,8 @@ namespace Zero
 	class FLayer
 	{
 	public:
-		FLayer(const std::string& Iname = "Layer", uint32_t DeviceIndex = 0)
+		FLayer(const std::string& Iname = "Layer")
 			: m_Name(Iname)
-			, m_DeviceIndex(DeviceIndex)
 		{}
 		virtual ~FLayer() = default;
 
@@ -22,7 +21,6 @@ namespace Zero
 		virtual void OnImGuiRender() {}
 		virtual void OnEvent(FEvent& event) {}
 	protected:
-		uint32_t m_DeviceIndex = 0;
 		std::string m_Name;
 	};
 }

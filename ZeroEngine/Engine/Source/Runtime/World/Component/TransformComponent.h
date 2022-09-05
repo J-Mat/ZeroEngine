@@ -8,7 +8,7 @@ namespace Zero
 	class UTransformationComponent : public UComponent
 	{
 	public:
-		UTransformationComponent(uint32_t DeviceIndex);
+		UTransformationComponent();
 		virtual void SetPosition(const ZMath::vec3& Position) { m_Position = Position; };
 		virtual void SetRotation(const ZMath::vec3& Rotation);
 		virtual void SetScale(const ZMath::vec3& Scale) { m_Scale = Scale; };
@@ -22,7 +22,7 @@ namespace Zero
 		ZMath::vec3& GetForwardVector() { return m_ForwardVector; }
 		ZMath::vec3& GetRightVector() { return m_RightVector; }
 		ZMath::vec3& GetUPVector() { return m_UpVector; }
-	private:
+	protected:
 		ZMath::vec3 m_Position = {0.0f, 0.0f, 0.0f};
 		ZMath::vec3 m_Rotation = { 0.0f, 0.0f, 0.0f };
 		ZMath::vec3 m_Scale = { 1.0f, 1.0f, 1.0f };

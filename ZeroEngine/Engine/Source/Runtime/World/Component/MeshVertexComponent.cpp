@@ -1,5 +1,6 @@
 #include "MeshVertexComponent.h"
 #include "Render/RendererAPI.h"
+#include "World/World.h"
 
 namespace Zero
 { 
@@ -14,7 +15,7 @@ namespace Zero
 			PerObtConstantsDesc.Size = Layout.GetStride();
 			for (auto Element : Layout)
 			{
-				PerObtConstantsDesc.Mapper.InsertConstant(Element, 1);
+				PerObtConstantsDesc.Mapper.InsertConstant(Element, ERootParameters::PerObjCB);
 			}
 		}
 

@@ -11,7 +11,7 @@ namespace Zero
 	{
 		{EShaderDataType::Mat4, "View"},
 		{EShaderDataType::Mat4, "Projection" },
-		{EShaderDataType::Mat4, "ProjectionDither" },
+		{EShaderDataType::Mat4, "ProjectionView" },
 		{EShaderDataType::Mat4, "PreviousPV" },
 		{EShaderDataType::Mat4, "CurrentPV" },
 		{EShaderDataType::Float4, "ViewPos" },

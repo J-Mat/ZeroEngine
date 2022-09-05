@@ -20,6 +20,7 @@ namespace Zero
 	class UMeshVertexComponent : public UComponent
 	{
 	public:
+		friend class UMeshActor;
 		UMeshVertexComponent();
 		virtual ~UMeshVertexComponent();
 	private:

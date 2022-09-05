@@ -1,14 +1,15 @@
 #include "CoreObject.h"
+#include "World/World.h"
 
 
 namespace Zero
 {
 	std::vector<UCoreObject*> UCoreObject::s_ObjectsCollection = {};
-	UCoreObject::UCoreObject(uint32_t DeviceIndex)
-		:m_DeviceIndex(DeviceIndex)
+	UCoreObject::UCoreObject()
 	{
 		s_ObjectsCollection.push_back(this);
 	}
+
 
 	UCoreObject::~UCoreObject()
 	{
@@ -20,5 +21,13 @@ namespace Zero
 				break;
 			}
 		}
+	}
+	void UCoreObject::SetWorld(UWorld* World)
+	{
+		m_World = World;
+	}
+	UWorld* UCoreObject::GetWorld()
+	{
+		return m_World;
 	}
 }

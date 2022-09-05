@@ -3,7 +3,7 @@
 
 namespace Zero
 {
-	struct FSubMesh
+	struct FSubMesh : public std::enable_shared_from_this<FSubMesh>
 	{
 		FSubMesh() = default;
 		uint32_t Index = 0;
