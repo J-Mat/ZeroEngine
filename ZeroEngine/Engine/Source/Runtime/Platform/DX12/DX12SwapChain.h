@@ -28,7 +28,7 @@ namespace Zero
 		virtual void Resize(uint32_t Width, uint32_t Height);
 		void SetFullScreen(bool bFullScreen);
 		void WaitForSwapChain();
-		const FDX12RenderTarget& GetRenderTarget() const;
+		const Ref<FDX12RenderTarget> GetRenderTarget() const;
 		UINT Present(const Ref<FDX12Texture2D>& Texture = nullptr);
 		
 	private:
@@ -39,7 +39,7 @@ namespace Zero
 		FDX12CommandQueue& m_CommandQueue;
 		ComPtr<IDXGISwapChain4> m_DxgiSwapChain;
 		Ref<FDX12Texture2D> m_BackBufferTextures[s_BufferCount];
-		mutable FDX12RenderTarget  m_RenderTarget;
+		mutable Ref<FDX12RenderTarget>  m_RenderTarget;
 
 		// The current backbuffer index of the swap chain.	
 		UINT m_CurrentBackBufferIndex;

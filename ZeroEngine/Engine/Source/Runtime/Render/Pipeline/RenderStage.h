@@ -1,20 +1,25 @@
 #pragma onces
 #include "Core.h"
+//#include "Render/RHI/RenderTarget.h"
 
 namespace Zero
 {
-	class FPipelineStage
+	class FRenderTarget;
+	class FRenderStage
 	{
 	public:
-		FPipelineStage(const std::string& Iname = "Stage")
+		FRenderStage(const std::string& Iname = "Stage")
 			: m_Name(Iname)
 		{}
-		virtual ~FPipelineStage() = default;
+		virtual ~FRenderStage() = default;
 
 		virtual void OnAttach() {}
 		virtual void OnDetach() {}
 		virtual void OnDraw() {}
+		Ref<FRenderTarget> GetOutput() { return m_RenderTarget; }
+		void SetInput(Ref<FRenderTarget> RenderTarget) { m_RenderTarget = RenderTarget; };
 	protected:
-		std::string m_Name;
+		Ref<FRenderTarget> m_RenderTarget;
+		std::string m_Name = "";
 	};
 }

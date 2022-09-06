@@ -12,12 +12,12 @@ namespace Zero
 		FRenderPipeline() = default;
 		~FRenderPipeline() = default;
 
-		void PushLayer(FPipelineStage* Layer);
+		void PushLayer(FRenderStage* Layer);
 
-		std::vector<FPipelineStage*>::iterator begin() { return m_Stages.begin(); }
-		std::vector<FPipelineStage*>::iterator end() { return m_Stages.end(); }
+		std::vector<FRenderStage*>::iterator begin() { return m_Stages.begin(); }
+		std::vector<FRenderStage*>::iterator end() { return m_Stages.end(); }
 
 	private:
-		std::vector<FPipelineStage*> m_Stages;
+		std::vector<FRenderStage*> m_Stages;
 	};
 }

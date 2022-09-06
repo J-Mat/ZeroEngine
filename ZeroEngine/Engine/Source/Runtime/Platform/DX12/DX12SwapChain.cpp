@@ -78,6 +78,8 @@ namespace Zero
 		m_hFrameLatencyWaitableObject = m_DxgiSwapChain->GetFrameLatencyWaitableObject();
 		
 		UpdateRenderTargetViews();
+
+		m_RenderTarget = CreateRef<FDX12RenderTarget>(m_Device);
 	}
 
 	FDX12SwapChain::~FDX12SwapChain()
@@ -93,7 +95,7 @@ namespace Zero
 
 			m_Device.Flush();
 			
-			m_RenderTarget.Reset();
+			m_RenderTarget->Reset();
 			for (UINT i = 0; i < s_BufferCount; ++i)
 			{
 				m_BackBufferTextures[i].reset();
@@ -122,9 +124,9 @@ namespace Zero
 		DWORD result = ::WaitForSingleObjectEx(m_hFrameLatencyWaitableObject, 1000, TRUE);  // Wait for 1 second (should never have to wait that long...)
 	}
 
-	const FDX12RenderTarget& FDX12SwapChain::GetRenderTarget() const
+	const Ref<FDX12RenderTarget> FDX12SwapChain::GetRenderTarget() const
 	{
-		m_RenderTarget.AttachTexture(EAttachmentIndex::Color0, m_BackBufferTextures[m_CurrentBackBufferIndex]);
+		m_RenderTarget->AttachTexture(EAttachmentIndex::Color0, m_BackBufferTextures[m_CurrentBackBufferIndex]);
 		return m_RenderTarget;
 	}
 

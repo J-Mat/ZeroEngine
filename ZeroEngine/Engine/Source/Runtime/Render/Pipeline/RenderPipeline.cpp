@@ -2,7 +2,7 @@
 
 namespace Zero
 {
-	void FRenderPipeline::PushLayer(FPipelineStage* Layer)
+	void FRenderPipeline::PushLayer(FRenderStage* Layer)
 	{
 	}
 }

@@ -1,13 +1,12 @@
 #pragma once
 
 #include "Core.h"
-#include "Core/Framework/Layer.h"
-#include "ForwardStage.h"
+#include "RenderStage.h"
 
 
 namespace Zero
 {
-	class FForwardStage : public FLayer
+	class FForwardStage : public FRenderStage
 	{
 	public:
 		FForwardStage() = default;
@@ -16,6 +15,5 @@ namespace Zero
 		virtual void OnAttach() override;
 		virtual void OnDetach() override;
 		virtual void OnDraw() override;
-	private:
 	};
 }
