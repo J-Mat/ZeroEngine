@@ -2,6 +2,7 @@
 #include "World/Base/CoreObject.h"
 #include "World/Component/TransformComponent.h"
 #include "World/Component/TagComponent.h"
+#include "World/Construction/ObjectConstruction.h"
 
 namespace Zero
 {

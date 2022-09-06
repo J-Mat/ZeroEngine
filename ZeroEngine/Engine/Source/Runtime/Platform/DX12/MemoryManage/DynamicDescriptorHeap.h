@@ -14,7 +14,7 @@
 
 #include "Core.h"
 #include "../Common/DX12Header.h"
-#include "../RootSignature.h"
+#include "../DX12RootSignature.h"
 
 namespace Zero
 {
@@ -56,7 +56,7 @@ namespace Zero
 		* descriptor tables and determine the number of descriptors needed for
 		* each table.
 		*/
-		void ParseRootSignature(const Ref<FRootSignature>& RootSignature);
+		void ParseRootSignature(const Ref<FDX12RootSignature>& RootSignature);
 
 		void CommitStagedDescriptorsForDraw(FDX12CommandList& CommandList);
 

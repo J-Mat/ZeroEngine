@@ -7,7 +7,6 @@
 #include "Platform/DX12/DX12Texture2D.h"
 #include <type_traits>
 #include <memory>
-#include "Render/RenderLayer/OpaqueLayer.h"
 #include "World/World.h"
 
 namespace Zero
@@ -20,6 +19,7 @@ namespace Zero
 
 	void FDX12RenderPipeline::DrawFrame()
 	{
+		/*
 		UWorld* World = UWorld::GetCurrentWorld();
 		Ref<IDevice>  Device = World->GetDevice();
 		FRenderItemPool&  RenderItemsPool = World->GetRenderItemPool();
@@ -39,5 +39,6 @@ namespace Zero
 		CommandQueue.ExecuteCommandList(CommandList);
 		
 		SwapChain->Present();
+		*/
 	}
 }

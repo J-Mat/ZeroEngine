@@ -2,7 +2,7 @@
 #include "DX12Texture2D.h"
 #include "PipelineStateObject.h"
 #include "DX12RenderTarget.h"
-#include "RootSignature.h"
+#include "DX12RootSignature.h"
 
 namespace Zero
 {
@@ -252,9 +252,11 @@ namespace Zero
 		m_D3DCommandList->Close();
 	}
 
-	void FDX12CommandList::SetGraphicsRootSignature(const Ref<FRootSignature>& RootSignature)
+	void FDX12CommandList::SetGraphicsRootSignature(const Ref<IRootSignature>& RootSignature)
 	{
-		auto D3DRootSignature = RootSignature->GetD3D12RootSignature().Get();
+		
+		FDX12RootSignature* DX12RootSignature = static_cast<FDX12RootSignature*>(RootSignature.get());
+		auto* D3DRootSignature = DX12RootSignature->GetD3D12RootSignature().Get();
 		if (D3DRootSignature != m_RootSignature)
 		{
 			m_RootSignature = D3DRootSignature;

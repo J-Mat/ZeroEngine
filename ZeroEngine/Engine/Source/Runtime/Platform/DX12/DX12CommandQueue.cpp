@@ -40,7 +40,7 @@ namespace Zero
 		}
 
 		m_ProcessInFlightCommandListsThread = std::thread(&FDX12CommandQueue::ProcessInFlightCommandLists, this);
-		Utils::SetThreadName(m_ProcessInFlightCommandListsThread, ThreadName);
+		//Utils::SetThreadName(m_ProcessInFlightCommandListsThread, ThreadName);
 	}
 	FDX12CommandQueue::~FDX12CommandQueue()
 	{

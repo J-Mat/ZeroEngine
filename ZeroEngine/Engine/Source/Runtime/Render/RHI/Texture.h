@@ -29,4 +29,19 @@ namespace Zero
 		virtual void Resize(uint32_t Width, uint32_t Height, uint32_t DepthOrArraySize = 1) = 0;
 		virtual ZMath::uvec2 GetSize() = 0;
 	};
+
+	class FTextureCubemap : ITexture
+	{
+	public:
+		enum class Format
+		{
+			R8G8B8,
+			R8G8B8A8,
+			R32G32B32A32,
+			R24G8,
+		};
+		virtual ~FTextureCubemap() = default;
+		virtual void Resize(uint32_t Width, uint32_t Height, uint32_t DepthOrArraySize = 1) = 0;
+		virtual ZMath::uvec2 GetSize() = 0;
+	};
 }

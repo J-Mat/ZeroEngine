@@ -18,7 +18,7 @@ namespace Zero
     std::string FGUID::ToString() const
     {
         char Buffer[GUID_LEN] = { 0 };
-		_snprintf(Buffer, sizeof(Buffer),
+		snprintf(Buffer, sizeof(Buffer),
 			"%08X-%04X-%04x-%02X%02X-%02X%02X%02X%02X%02X%02X",
             m_GUID.Data1, m_GUID.Data2, m_GUID.Data3,
             m_GUID.Data4[0], m_GUID.Data4[1], m_GUID.Data4[2],

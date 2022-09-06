@@ -37,7 +37,7 @@ namespace Zero
 		}
 		else
 		{
-			FDX12RenderPipeline::GetInstance().DrawFrame(m_Device);
+			FDX12RenderPipeline::GetInstance().DrawFrame();
 		}
 	}
 

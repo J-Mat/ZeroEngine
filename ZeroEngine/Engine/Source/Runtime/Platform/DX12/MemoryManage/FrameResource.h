@@ -96,7 +96,7 @@ namespace Zero
 		{
 			FrameResourceBuffer->m_CPUBuffer = new byte[FrameResourceBuffer->m_SizeByte];
 			FrameResourceBuffer->m_GPUBuffers.reserve(m_FrameResourcesCount);
-			for (int i = 0; i < m_FrameResourcesCount; ++i)
+			for (uint32_t i = 0; i < m_FrameResourcesCount; ++i)
 			{
 
 				FrameResourceBuffer->m_GPUBuffers[i] = m_UploadBuffers[i]->Allocate(FrameResourceBuffer->m_SizeByte, true);

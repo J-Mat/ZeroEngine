@@ -193,7 +193,8 @@ namespace Zero
 	{
 		m_SrvDynamicDescriptorHeap = CreateRef<FDynamicDescriptorHeap>(m_Device, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 		m_SamplerDynamicDescriptorHeap = CreateRef<FDynamicDescriptorHeap>(m_Device, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
-		m_SrvDynamicDescriptorHeap->ParseRootSignature(m_RootSignature.get());
+		FDX12RootSignature* D3DRootSignature = static_cast<FDX12RootSignature*>(m_RootSignature.get());
+		m_SrvDynamicDescriptorHeap->ParseRootSignature(D3DRootSignature->shared_from_this());
 	}
 
 
@@ -201,10 +202,9 @@ namespace Zero
 		: IShaderResourcesBuffer(Desc)
 		, m_Device(Device)
 	{
-		m_SrvDynamicDescriptorHeap = CreateRef<FDynamicDescriptorHeap>(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-		m_SamplerDynamicDescriptorHeap = CreateRef<FDynamicDescriptorHeap>(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
-		
-		m_SrvDynamicDescriptorHeap->ParseRootSignature(RootSignature);
+		m_SrvDynamicDescriptorHeap = CreateRef<FDynamicDescriptorHeap>(m_Device, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		m_SamplerDynamicDescriptorHeap = CreateRef<FDynamicDescriptorHeap>(m_Device, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+		m_SrvDynamicDescriptorHeap->ParseRootSignature(RootSignature->shared_from_this());
 	}
 
 	FShaderResourcesDesc* FDX12ShaderResourcesBuffer::GetShaderResourceDesc()

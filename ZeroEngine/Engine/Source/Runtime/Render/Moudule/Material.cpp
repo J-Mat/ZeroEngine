@@ -1,8 +1,9 @@
 #include "Material.h"
+#include "Render/RHI/ShaderBinder.h"
 #include "Render/RendererAPI.h"
 #include "Render/RHI/Shader.h"
-#include "Render/RHI/ShaderBinder.h"
 #include "Render/RHI/GraphicDevice.h"
+#include "Render/RHI/Texture.h"
 
 namespace Zero
 {

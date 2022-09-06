@@ -38,14 +38,19 @@ namespace Zero
 
 		static inline std::string WString2String(const std::wstring& Input)
 		{
-			std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-			return converter.to_bytes(Input);
+			_bstr_t t = Input.c_str();
+			char* pchar = (char*)t;
+			std::string result = pchar;
+			return result;
+
 		}
 
 		static inline std::wstring String2WString(const std::string& Input)
 		{
-			std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-			return converter.from_bytes(Input);
+			_bstr_t t = Input.c_str();
+			wchar_t* pwchar = (wchar_t*)t;
+			std::wstring result = pwchar;
+			return result;
 		}
 	};
 }

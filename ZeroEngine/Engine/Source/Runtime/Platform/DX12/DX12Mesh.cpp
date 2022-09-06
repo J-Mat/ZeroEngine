@@ -9,7 +9,7 @@
 
 namespace Zero
 {
-	FDX12Mesh::FDX12Mesh(FDX12Device& Device, float* Vertices, uint32_t VertexCount, uint32_t* Indices, uint32_t IndexCount, FVertexBufferLayout Layout)
+	FDX12Mesh::FDX12Mesh(FDX12Device& Device, float* Vertices, uint32_t VertexCount, uint32_t* Indices, uint32_t IndexCount, FVertexBufferLayout& Layout)
 		: FMesh()
 		, m_Device(Device)
 	{
@@ -21,7 +21,7 @@ namespace Zero
 		SubMesh.IndexNumber = IndexCount;
 		m_SubMeshes.push_back(SubMesh);
 	}
-	FDX12Mesh::FDX12Mesh(FDX12Device& Device, const std::vector<FMeshData>& MeshDatas, FVertexBufferLayout Layout)
+	FDX12Mesh::FDX12Mesh(FDX12Device& Device, std::vector<FMeshData> MeshDatas, FVertexBufferLayout& Layout)
 	: FMesh()
 		, m_Device(Device)
 	{
@@ -30,22 +30,22 @@ namespace Zero
 		uint32_t VertexCount = 0;
 		uint32_t IndiceCount = 0;
 		
-		for (size_t Index = 0; Index < MeshDatas.size(); ++Index)
+		for (uint32_t Index = 0; Index < MeshDatas.size(); ++Index)
 		{
 			const FMeshData& MeshData = MeshDatas[Index];
 			FSubMesh SubMesh;
 			SubMesh.Index = Index;
-			SubMesh.VertexLocation = Vertices.size() * sizeof(float) / Layout.GetStride();
-			SubMesh.IndexLocation = Indices.size();
-			SubMesh.IndexNumber = MeshData.m_Indices.size();
+			SubMesh.VertexLocation = uint32_t(Vertices.size()) * sizeof(float) / Layout.GetStride();
+			SubMesh.IndexLocation = uint32_t(Indices.size());
+			SubMesh.IndexNumber = uint32_t(MeshData.m_Indices.size());
 			m_SubMeshes.push_back(SubMesh);
 			
 			Vertices.insert(Vertices.end(), std::begin(MeshData.m_Vertices), std::end(MeshData.m_Vertices));
 			Indices.insert(Indices.end(), std::begin(MeshData.m_Indices), std::end(MeshData.m_Indices));
 		}
 		
-		m_VertexBuffer = CreateRef<FDX1VertexBuffer>(m_Device, Vertices.data(), Vertices.size(), Layout);
-		m_IndexBuffer = CreateRef<FDX12IndexBuffer>(m_Device, Indices.data(), Indices.size());
+		m_VertexBuffer = CreateRef<FDX1VertexBuffer>(m_Device, Vertices.data(), uint32_t(Vertices.size()), Layout);
+		m_IndexBuffer = CreateRef<FDX12IndexBuffer>(m_Device, Indices.data(), uint32_t(Indices.size()));
 	}
 	void FDX12Mesh::Draw()
 	{

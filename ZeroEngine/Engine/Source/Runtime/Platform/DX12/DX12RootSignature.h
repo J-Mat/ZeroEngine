@@ -7,12 +7,11 @@
 namespace Zero
 {
 	class FDX12Device;
-	class FDX12RootSignature : public IRootSignature
+	class FDX12RootSignature : public IRootSignature, public std::enable_shared_from_this<FDX12RootSignature>
 	{
 	public:
 		FDX12RootSignature(FDX12Device& Device, const D3D12_ROOT_SIGNATURE_DESC& RootSignatureDesc);
 		virtual	~FDX12RootSignature();
-		friend class std::default_delete<FDX12RootSignature>;
 		uint32_t GetNumDescriptors(uint32_t RootIndex);
 		void SetRootSignatureDesc(const D3D12_ROOT_SIGNATURE_DESC& RootSignatureDesc);
 		uint32_t GetDescriptorTableBitMask(D3D12_DESCRIPTOR_HEAP_TYPE DescriptorHeapType) const;

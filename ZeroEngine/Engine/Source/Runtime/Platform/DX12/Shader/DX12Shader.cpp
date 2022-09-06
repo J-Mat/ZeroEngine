@@ -2,7 +2,7 @@
 #include "Utils.h"
 #include "Platform/DX12/DX12Device.h"
 #include "DX12ShaderBinder.h"
-#include "../RootSignature.h"
+#include "../DX12RootSignature.h"
 #include "../PipelineStateObject.h"
 #include "../DX12CommandList.h"
 
@@ -111,7 +111,8 @@ namespace Zero
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC PsoDesc = {};
 		ZeroMemory(&PsoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
 		PsoDesc.InputLayout = { m_InputLayoutDesc.data(), (UINT)m_InputLayoutDesc.size() };
-		PsoDesc.pRootSignature = DX12ShaderBinder->GetRootSignature()->GetD3D12RootSignature().Get();
+		FDX12RootSignature* D3DRootSignature = static_cast<FDX12RootSignature*>(DX12ShaderBinder->GetRootSignature());
+		PsoDesc.pRootSignature = D3DRootSignature->GetD3D12RootSignature().Get();
 		PsoDesc.VS = { reinterpret_cast<BYTE*>(m_VSBytecode->GetBufferPointer()), m_VSBytecode->GetBufferSize() };
 		PsoDesc.PS = { reinterpret_cast<BYTE*>(m_PSBytecode->GetBufferPointer()), m_PSBytecode->GetBufferSize() };
 		PsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);

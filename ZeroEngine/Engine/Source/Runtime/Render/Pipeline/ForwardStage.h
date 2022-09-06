@@ -2,21 +2,20 @@
 
 #include "Core.h"
 #include "Core/Framework/Layer.h"
+#include "ForwardStage.h"
 
 
 namespace Zero
 {
-	class FOpaqueLayer : public FLayer
+	class FForwardStage : public FLayer
 	{
 	public:
-		FOpaqueLayer() = default;
-		virtual ~FOpaqueLayer() = default;
+		FForwardStage() = default;
+		virtual ~FForwardStage() = default;
 
 		virtual void OnAttach() override;
 		virtual void OnDetach() override;
-
-		void OnUpdate() override;
-		void OnDraw() override;
+		virtual void OnDraw() override;
 	private:
 	};
 }

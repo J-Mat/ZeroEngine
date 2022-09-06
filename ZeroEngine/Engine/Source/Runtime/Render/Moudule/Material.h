@@ -1,7 +1,5 @@
 #pragma once
 #include "Core.h"
-
-
 namespace Zero
 {
 	enum class EAlphaState
@@ -16,9 +14,13 @@ namespace Zero
 		EAlphaState AlphaState;
 	};
 	class IShader;
-	class FShaderConstantsDesc;
-	class FShaderResourcesDesc;
+	struct FShaderConstantsDesc;
+	struct FShaderResourcesDesc;
 	class IDevice;
+	class FTexture2D;
+	class FTextureCubemap;
+	class IShaderConstantsBuffer;
+	class IShaderResourcesBuffer;
 	class FMaterial
 	{
 	public:
@@ -51,7 +53,7 @@ namespace Zero
 		Ref<FShaderConstantsDesc> m_ConstantsDesc;
 		Ref<FShaderResourcesDesc> m_ResourcesDesc;
 
-		Ref<IShaderConstantsBuffer> m_ConstantsBuffer = nullptr;
-		Ref<IShaderResourcesBuffer> m_ResourcesBuffer = nullptr;
+		Ref<IShaderConstantsBuffer> m_ConstantsBuffer;
+		Ref<IShaderResourcesBuffer> m_ResourcesBuffer;
 	};
 }

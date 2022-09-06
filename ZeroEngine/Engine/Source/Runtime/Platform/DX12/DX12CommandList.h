@@ -16,7 +16,7 @@ namespace Zero
 	class IResource;
 	class FDX12Texture2D;
 	class FDX12Device;
-	class FRootSignature;
+	class IRootSignature;
 	class FDX12RenderTarget;
 	class FDX12CommandList : public FCommandList, public std::enable_shared_from_this<FDX12CommandList>
 	{
@@ -111,7 +111,7 @@ namespace Zero
 		}
 
 
-		void SetGraphicsRootSignature(const Ref<FRootSignature>& rootSignature);
+		void SetGraphicsRootSignature(const Ref<IRootSignature>& rootSignature);
 
 		virtual void Reset();
 		virtual void Execute();

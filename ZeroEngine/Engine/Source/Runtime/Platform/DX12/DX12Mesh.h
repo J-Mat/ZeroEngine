@@ -15,8 +15,8 @@ namespace Zero
 	class FDX12Mesh : public FMesh
 	{
 	public:
-		FDX12Mesh(FDX12Device& Device, float* Vertices, uint32_t VertexCount, uint32_t* indices, uint32_t IndexCount, FVertexBufferLayout Layout);
-		FDX12Mesh(FDX12Device& Device, const std::vector<FMeshData>& meshDatas, FVertexBufferLayout Layout);
+		FDX12Mesh(FDX12Device& Device, float* Vertices, uint32_t VertexCount, uint32_t* indices, uint32_t IndexCount, FVertexBufferLayout& Layout);
+		FDX12Mesh(FDX12Device& Device, std::vector<FMeshData> meshDatas, FVertexBufferLayout& Layout);
 		virtual void Draw();
 		virtual void DrawSubMesh(FSubMesh& SubMesh);
 	private:

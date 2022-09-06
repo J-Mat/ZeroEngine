@@ -50,7 +50,7 @@ namespace Zero
 	}
 	FFrameResourcesManager::~FFrameResourcesManager()
 	{
-		for (int i = 0; i < m_FrameResourcesCount; i++)
+		for (uint32_t i = 0; i < m_FrameResourcesCount; i++)
 		{
 			m_UploadBuffers[i] = nullptr;
 			m_CommandAllocators[i] = nullptr;

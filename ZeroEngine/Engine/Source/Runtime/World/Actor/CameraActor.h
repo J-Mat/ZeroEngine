@@ -10,7 +10,8 @@ namespace Zero
 	{
 	public:
 		UCameraActor(const std::string& Tag);
+		virtual void PostInit();
 	protected:
-		UCameraComponent* CaemraComponent = nullptr;
+		UCameraComponent* m_CameraComponent = nullptr;
 	};
 }
