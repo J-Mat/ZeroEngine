@@ -21,7 +21,7 @@ namespace Zero
 	class FRenderTarget
 	{
 	public:
-		FRenderTarget() = default;
+		FRenderTarget();
 
 		FRenderTarget(const FRenderTarget& copy) = default;
 		FRenderTarget(FRenderTarget&& copy) = default;
@@ -29,6 +29,7 @@ namespace Zero
 		FRenderTarget& operator=(const FRenderTarget& other) = default;
 		FRenderTarget& operator=(FRenderTarget&& other) = default;
 
+		virtual void ClearBuffer() = 0;
 		virtual void Bind() = 0;;
 		virtual void UnBind() = 0;;
 		virtual void AttachTexture(EAttachmentIndex AttachmentIndex, Ref<FTexture2D> Texture2D) = 0;

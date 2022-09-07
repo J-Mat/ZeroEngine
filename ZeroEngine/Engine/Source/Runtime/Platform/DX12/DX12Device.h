@@ -59,7 +59,7 @@ namespace Zero
 		void Flush();
 		
 		void CreatSwapChain(HWND hWnd);
-		Ref<FDX12SwapChain> GetSwapChain() { return m_SwapChain; }
+		virtual Ref<FSwapChain>  GetSwapChain() { return m_SwapChain; }
 
 		virtual void Resize(uint32_t Width, uint32_t Height) { m_SwapChain->Resize(Width, Height); }
 		
@@ -69,7 +69,7 @@ namespace Zero
 		void UnRegisterActiveComandlist(uint32_t ID);
 		Ref<FDX12CommandList> GetActiveCommandList(uint32_t Slot);
 		Ref<FDX12CommandList> GetRenderCommandList() { return m_RenderCommandList; }
-		Ref<FDX12CommandList> SetRenderCommandList(Ref<FDX12CommandList> CommandList) { m_RenderCommandList = CommandList; }
+		void SetRenderCommandList(Ref<FDX12CommandList> CommandList) { m_RenderCommandList = CommandList; }
 
 		ComPtr<ID3D12Resource> CreateDefaultBuffer(const void* BufferData, size_t BufferSize, D3D12_RESOURCE_FLAGS Flags = D3D12_RESOURCE_FLAG_NONE);
 	private:

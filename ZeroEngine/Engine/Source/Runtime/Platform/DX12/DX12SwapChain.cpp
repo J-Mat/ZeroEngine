@@ -100,6 +100,7 @@ namespace Zero
 			{
 				m_BackBufferTextures[i].reset();
 			}
+			m_DepthStencilTexture.reset();
 		
 			DXGI_SWAP_CHAIN_DESC SwapChainDesc = {};
 			ThrowIfFailed(m_DxgiSwapChain->GetDesc(&SwapChainDesc));
@@ -124,11 +125,13 @@ namespace Zero
 		DWORD result = ::WaitForSingleObjectEx(m_hFrameLatencyWaitableObject, 1000, TRUE);  // Wait for 1 second (should never have to wait that long...)
 	}
 
-	const Ref<FDX12RenderTarget> FDX12SwapChain::GetRenderTarget() const
+	const Ref<FRenderTarget> FDX12SwapChain::GetRenderTarget()
 	{
 		m_RenderTarget->AttachTexture(EAttachmentIndex::Color0, m_BackBufferTextures[m_CurrentBackBufferIndex]);
+		m_RenderTarget->AttachTexture(EAttachmentIndex::DepthStencil, m_DepthStencilTexture);
 		return m_RenderTarget;
 	}
+
 
 	UINT FDX12SwapChain::Present(const Ref<FDX12Texture2D>& Texture)
 	{
@@ -179,7 +182,16 @@ namespace Zero
 			// Set the names for the backbuffer textures.
 			// Useful for debugging.
 			m_BackBufferTextures[i]->SetName(L"Backbuffer[" + std::to_wstring(i) + L"]");
-
 		}
+		
+		auto DepthTextureDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, m_Width, m_Height);
+		// Must be set on textures that will be used as a depth-stencil buffer.
+		DepthTextureDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
+		// Specify optimized clear values for the depth buffer.
+		D3D12_CLEAR_VALUE OptimizedClearValue = {};
+		OptimizedClearValue.Format = DXGI_FORMAT_D32_FLOAT;
+		OptimizedClearValue.DepthStencil = { 1.0F, 0 };
+		m_DepthStencilTexture = CreateRef<FDX12Texture2D>(m_Device, DepthTextureDesc, &OptimizedClearValue);
 	}
 }

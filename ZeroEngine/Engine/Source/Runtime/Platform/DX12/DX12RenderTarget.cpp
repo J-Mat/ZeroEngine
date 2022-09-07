@@ -11,6 +11,22 @@ namespace Zero
 	{
 	}
 
+	void FDX12RenderTarget::ClearBuffer()
+	{
+		auto CommandList = m_Device.GetRenderCommandList();
+		for (int i = EAttachmentIndex::Color0; i <= EAttachmentIndex::Color7; ++i)
+		{
+			auto* Texture = static_cast<FDX12Texture2D*>(m_Textures[i].get());
+			if (Texture != nullptr)
+			{
+				CommandList->ClearTexture(Texture, ZMath::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+			}
+			
+		}
+		auto* DepthStencilTexture = static_cast<FDX12Texture2D*>(m_Textures[EAttachmentIndex::DepthStencil].get());
+		CommandList->ClearDepthStencilTexture(DepthStencilTexture, D3D12_CLEAR_FLAG_DEPTH);
+	}
+
 	void FDX12RenderTarget::Resize(uint32_t Width, uint32_t Height, uint32_t Depth)
 	{
 		m_Width = Width;
@@ -29,11 +45,12 @@ namespace Zero
 		size_t Index = size_t(AttachmentIndex);
 		m_Textures[Index] = Texture2D;
 
-		if (m_Textures[Index].get())
+		if (m_Textures[Index].get() != nullptr)
 		{
 			ZMath::uvec2 Size = m_Textures[Index]->GetSize();
 			m_Width = Size.x;
 			m_Height = Size.y;
+			SetViewportRect();
 		}
 	}
 
@@ -52,13 +69,25 @@ namespace Zero
 				Handles.push_back(Texture->GetRenderTargetView());
 			}
 		}
-		auto* DsvTexture = static_cast<FDX12Texture2D*>(m_Textures[EAttachmentIndex::DepthStencil].get());
-		CommandList->GetD3D12CommandList()->OMSetRenderTargets(
-			Handles.size(),
-			Handles.data(),
-			true,
-			&DsvTexture->GetDepthStencilView()
-		);
+		if (m_Textures[EAttachmentIndex::DepthStencil].get() != nullptr)
+		{
+			auto* DsvTexture = static_cast<FDX12Texture2D*>(m_Textures[EAttachmentIndex::DepthStencil].get());
+			CommandList->GetD3D12CommandList()->OMSetRenderTargets(
+				UINT(Handles.size()),
+				Handles.data(),
+				true,
+				&DsvTexture->GetDepthStencilView()
+			);
+		}
+		else
+		{
+			CommandList->GetD3D12CommandList()->OMSetRenderTargets(
+				UINT(Handles.size()),
+				Handles.data(),
+				true,
+				nullptr
+			);
+		}
 	}
 
 	void FDX12RenderTarget::UnBind()

@@ -35,6 +35,7 @@ namespace Zero
 		void ResolveSubResource(const Ref<IResource>& DstRes, const Ref<IResource> SrcRes, uint32_t DstSubRes = 0, uint32_t SrcSubRes = 0);
 
 		void ClearTexture(FDX12Texture2D* TexturePtr, const ZMath::vec4 Color);
+		void ClearDepthStencilTexture(FDX12Texture2D* TexturePtr, D3D12_CLEAR_FLAGS ClearFlags, float Depth = 1.0f, uint8_t Stencil = 0);
 
 		/**
 		* Copy resources.
@@ -123,8 +124,8 @@ namespace Zero
 		std::vector<ComPtr<ID3D12Object>> m_TrackedObjects;
 		FDX12Device& m_Device;
 		D3D12_COMMAND_LIST_TYPE  m_CommandListType;
-		ComPtr<ID3D12CommandAllocator>	m_CommandAllocator;
-		ComPtr<ID3D12GraphicsCommandList2> m_D3DCommandList;
+		ComPtr<ID3D12CommandAllocator>	m_CommandAllocator = nullptr;
+		ComPtr<ID3D12GraphicsCommandList2> m_D3DCommandList = nullptr;
 		Scope<FUploadBuffer> m_UploadBuffer;
 		Scope<FResourceStateTracker> m_ResourceStateTracker = nullptr;
 		ID3D12DescriptorHeap* m_DescriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];

@@ -25,10 +25,10 @@ namespace Zero
 		* @see https://docs.microsoft.com/en-us/windows/win32/direct3ddxgi/variable-refresh-rate-displays
 		*/
         bool IsTearingSupported() const { return m_bTearingSupported; }
-		virtual void Resize(uint32_t Width, uint32_t Height);
+		virtual void Resize(uint32_t Width, uint32_t Height) override;
 		void SetFullScreen(bool bFullScreen);
 		void WaitForSwapChain();
-		const Ref<FDX12RenderTarget> GetRenderTarget() const;
+		virtual const Ref<FRenderTarget> GetRenderTarget() override;
 		UINT Present(const Ref<FDX12Texture2D>& Texture = nullptr);
 		
 	private:
@@ -39,6 +39,7 @@ namespace Zero
 		FDX12CommandQueue& m_CommandQueue;
 		ComPtr<IDXGISwapChain4> m_DxgiSwapChain;
 		Ref<FDX12Texture2D> m_BackBufferTextures[s_BufferCount];
+		Ref<FDX12Texture2D> m_DepthStencilTexture;
 		mutable Ref<FDX12RenderTarget>  m_RenderTarget;
 
 		// The current backbuffer index of the swap chain.	

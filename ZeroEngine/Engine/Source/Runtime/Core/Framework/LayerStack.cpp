@@ -19,11 +19,13 @@ namespace Zero
 	{
 		m_Layers.emplace(m_Layers.begin() + m_LayerInsertIndex, Layer);
 		m_LayerInsertIndex++;
+		Layer->OnAttach();
 	}
 
 	void FLayerStack::PushOverlay(FLayer* Overlay)
 	{
 		m_Layers.emplace_back(Overlay);
+		Overlay->OnAttach();
 	}
 
 	void FLayerStack::PopLayer(FLayer* Layer)

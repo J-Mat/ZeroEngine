@@ -9,6 +9,7 @@ namespace Zero
 	class FForwardStage : public FRenderStage
 	{
 	public:
+		PipeStageCreate(FForwardStage)
 		FForwardStage() = default;
 		virtual ~FForwardStage() = default;
 

@@ -10,12 +10,13 @@ namespace Zero
 		FFrameResourcesManager::GetInstance().RegistFrameResource(this);
 	}
 
-	inline D3D12_GPU_VIRTUAL_ADDRESS FFrameResourceBuffer::GetCurrentGPUAddress()
+	D3D12_GPU_VIRTUAL_ADDRESS FFrameResourceBuffer::GetCurrentGPUAddress()
 	{
 		uint32_t Index = FFrameResourcesManager::GetInstance().GetCurrentIndex();
 		memcpy(m_GPUBuffers[Index].CPU
 			, m_CPUBuffer
 			, m_SizeByte);
+		return m_GPUBuffers[Index].GPU;
 	}
 
 	void FFrameResourceBuffer::UploadCurrentBuffer()
@@ -35,9 +36,9 @@ namespace Zero
 	void FFrameResourcesManager::Init(Ref<FDX12Device> Device)
 	{
 		m_Device = Device;
-		m_Fences.reserve(m_FrameResourcesCount);
-		m_CommandAllocators.reserve(m_FrameResourcesCount);
-		m_UploadBuffers.reserve(m_FrameResourcesCount);
+		m_Fences.resize(m_FrameResourcesCount);
+		m_CommandAllocators.resize(m_FrameResourcesCount);
+		m_UploadBuffers.resize(m_FrameResourcesCount);
 		
 		for (size_t i = 0; i < m_FrameResourcesCount; ++i)
 		{

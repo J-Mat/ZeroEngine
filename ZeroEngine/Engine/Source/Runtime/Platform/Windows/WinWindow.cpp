@@ -115,6 +115,7 @@ namespace Zero
 			
 		m_DeviceIndex = FRenderer::PushDevice(m_Device);
 		m_Device->CreatSwapChain(m_WindowData.hMainWnd);
+		FDX12RenderPipeline::GetInstance().SetDevice(m_Device);
 		FFrameResourcesManager::GetInstance().Init(m_Device);
 		
 		ShowWindow(m_WindowData.hMainWnd , SW_SHOW);

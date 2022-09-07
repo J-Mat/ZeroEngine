@@ -100,6 +100,14 @@ namespace Zero
 		TrackResource(TexturePtr->GetD3DResource());
 	}
 
+	void FDX12CommandList::ClearDepthStencilTexture(FDX12Texture2D* TexturePtr, D3D12_CLEAR_FLAGS ClearFlags, float Depth, uint8_t Stencil)
+	{
+		TransitionBarrier(TexturePtr->GetD3DResource(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, true);
+		m_D3DCommandList->ClearDepthStencilView(TexturePtr->GetDepthStencilView(), ClearFlags, Depth, Stencil, 0, nullptr);
+
+		TrackResource(TexturePtr->GetD3DResource());
+	}
+
 	void FDX12CommandList::CopyResource(const Ref<IResource>& DstRes, const Ref<IResource>& SrcRes)
 	{
 		CopyResource(DstRes->GetD3DResource(), SrcRes->GetD3DResource());

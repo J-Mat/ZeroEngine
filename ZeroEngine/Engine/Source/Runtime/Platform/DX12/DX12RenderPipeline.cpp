@@ -8,6 +8,7 @@
 #include <type_traits>
 #include <memory>
 #include "World/World.h"
+#include "Core/Framework/Application.h"
 
 namespace Zero
 { 
@@ -16,29 +17,28 @@ namespace Zero
 	//	m_RenderLayerStack.PushLayer(new FOpaqueLayer())
 		
 	}
+	
 
 	void FDX12RenderPipeline::DrawFrame()
 	{
-		/*
+		auto& CommandQueue = m_Device->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
+		CommandQueue.GetCommandList();
 		UWorld* World = UWorld::GetCurrentWorld();
 		Ref<IDevice>  Device = World->GetDevice();
 		FRenderItemPool&  RenderItemsPool = World->GetRenderItemPool();
-		
-		auto& CommandQueue = Device->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
-		auto CommandList = CommandQueue.GetCommandList();
-		
-		auto SwapChain = Device->GetSwapChain();
-		
-		const FDX12RenderTarget& RenderTarget = SwapChain->GetRenderTarget();
-		Ref<FTexture2D>  Texture = RenderTarget.GetTexture(EAttachmentIndex::Color0);
-		FDX12Texture2D* DX12Texture = static_cast<FDX12Texture2D*>(Texture.get());
-		
-		ZMath::vec4 Color(0.4f, 1.0f, 0.9f, 1.0f);	
-		CommandList->ClearTexture(DX12Texture, Color);
+		auto SwapChain = m_Device->GetSwapChain();
 
-		CommandQueue.ExecuteCommandList(CommandList);
+		FApplication::Get().OnDraw();
+		
+		CommandQueue.ExecuteCommandList(m_Device->GetRenderCommandList());
 		
 		SwapChain->Present();
-		*/
 	}
+	void FDX12RenderPipeline::SetDevice(Ref<FDX12Device> Device)
+	{
+		m_Device = Device;
+		auto& CommandQueue = m_Device->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
+		m_Device->SetRenderCommandList(CommandQueue.GetCommandList());
+	}
+	
 }

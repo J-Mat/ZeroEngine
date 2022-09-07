@@ -1,4 +1,4 @@
-#pragma onces
+#pragma once
 #include "Core.h"
 //#include "Render/RHI/RenderTarget.h"
 
@@ -22,4 +22,11 @@ namespace Zero
 		Ref<FRenderTarget> m_RenderTarget;
 		std::string m_Name = "";
 	};
+	
+#define PipeStageCreate(Type)    static Ref<FRenderStage> Create()\
+							{\
+								Ref<FRenderStage> pipe;\
+								pipe.reset(new Type());\
+								return pipe;\
+							}
 }

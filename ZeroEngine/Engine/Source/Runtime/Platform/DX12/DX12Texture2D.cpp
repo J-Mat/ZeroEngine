@@ -7,9 +7,10 @@
 namespace Zero
 {
 	FDX12Texture2D::FDX12Texture2D(FDX12Device& Device, const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* clearValue)
-		: IResource(Device)
+		: IResource(Device, ResourceDesc, clearValue)
 		, m_Device(Device)
 	{
+		CreateViews();
 	}
 
 	FDX12Texture2D::FDX12Texture2D(FDX12Device& Device, Ref<FImage> ImageData)

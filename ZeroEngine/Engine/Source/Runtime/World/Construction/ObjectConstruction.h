@@ -8,7 +8,7 @@ namespace Zero
 	T* CreateObject(UWorld *World, ParamTypes &&...Params)
 	{
 		T* Obj = new T(Params...);
-		Obj->SetWorld(World);
+		//Obj->SetWorld(World);
 		Obj->PostInit();
 		return Obj;
 	}

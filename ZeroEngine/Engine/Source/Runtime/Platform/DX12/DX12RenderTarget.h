@@ -13,6 +13,7 @@ namespace Zero
 	{
 	public:
 		FDX12RenderTarget(FDX12Device& Device);
+		virtual void ClearBuffer() override;
 		virtual void Resize(uint32_t Width, uint32_t Height, uint32_t depth);
 		virtual void AttachTexture(EAttachmentIndex AttachmentIndex, Ref<FTexture2D> Texture2D);
 		virtual void Bind();

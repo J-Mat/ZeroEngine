@@ -179,7 +179,7 @@ namespace Zero
 		CD3DX12_ROOT_SIGNATURE_DESC RoogSig(
 			ParamterCount,
 			SlotRootParameter.data(),
-			StaticSamplers.size(),
+			UINT(StaticSamplers.size()),
 			StaticSamplers.data(),
 			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
 		);

@@ -13,7 +13,11 @@ namespace Zero
 		virtual void OnAttach() override;
 		virtual void OnDetach() override;
 
-		void OnUpdate() override;
+		virtual void OnUpdate() override;
+		virtual void OnDraw() override;
 		void OnEvent(FEvent& e) override;
+	private: 
+		Ref<FRenderPipeline> m_ScriptablePipeline;
+		UWorld* m_World = nullptr;
 	};
 }
