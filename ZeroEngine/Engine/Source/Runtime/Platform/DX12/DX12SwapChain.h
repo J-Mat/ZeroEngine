@@ -14,7 +14,7 @@ namespace Zero
 	class FDX12SwapChain : public FSwapChain
 	{
 	public:	 
-		static const UINT s_BufferCount = 3;
+		static const UINT s_BufferCount = 2;
 		
 		FDX12SwapChain(FDX12Device& Device, HWND hWnd, DXGI_FORMAT RenderTargetFormat = DXGI_FORMAT_R10G10B10A2_UNORM);
 		virtual ~FDX12SwapChain();
@@ -38,7 +38,7 @@ namespace Zero
 	private:
 		FDX12Device& m_Device;
 		FDX12CommandQueue& m_CommandQueue;
-		ComPtr<IDXGISwapChain4> m_DxgiSwapChain;
+		ComPtr<IDXGISwapChain> m_DxgiSwapChain;
 		Ref<FDX12Texture2D> m_BackBufferTextures[s_BufferCount];
 		Ref<FDX12Texture2D> m_DepthStencilTexture;
 		mutable Ref<FDX12RenderTarget>  m_RenderTarget;

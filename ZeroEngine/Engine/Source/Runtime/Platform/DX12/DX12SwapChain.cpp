@@ -22,18 +22,8 @@ namespace Zero
 		
 
 		// Get the factory that was used to create the adapter.
-		ComPtr<IDXGIFactory>  DxgiFactory;
-		ComPtr<IDXGIFactory5> DxgiFactory5;
-		ThrowIfFailed(DxgiAdapter->GetParent(IID_PPV_ARGS(&DxgiFactory)));
-		// Now get the DXGIFactory5 so I can use the IDXGIFactory5::CheckFeatureSupport method.
-		ThrowIfFailed(DxgiFactory.As(&DxgiFactory5));
-		
-		// Check for tearing support.
-		BOOL AllowTearing = FALSE;
-		if (SUCCEEDED(DxgiFactory5->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &AllowTearing, sizeof(BOOL))))
-		{
-			m_bTearingSupported = (AllowTearing == TRUE);
-		}
+		ComPtr<IDXGIFactory4>  DxgiFactory;
+		ThrowIfFailed(CreateDXGIFactory1(IID_PPV_ARGS(&DxgiFactory)));
 		
 		// Query the windows client width and height.
 		RECT WindowRect;
@@ -42,40 +32,31 @@ namespace Zero
 		m_Width = WindowRect.right - WindowRect.left;
 		m_Height = WindowRect.bottom - WindowRect.top;
 		
-		DXGI_SWAP_CHAIN_DESC1 SwapChainDesc = {};
-		SwapChainDesc.Width = m_Width;
-		SwapChainDesc.Height = m_Height;
-		SwapChainDesc.Format = m_RenderTargetFormat;
-		SwapChainDesc.Stereo = FALSE;
-		SwapChainDesc.SampleDesc = { 1, 0 };
+		DXGI_SWAP_CHAIN_DESC SwapChainDesc;
+		SwapChainDesc.BufferDesc.Width = m_Width;
+		SwapChainDesc.BufferDesc.Height = m_Height;
+		SwapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
+		SwapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
+		SwapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		SwapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+		SwapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+
+		SwapChainDesc.SampleDesc.Count = 1;
+		SwapChainDesc.SampleDesc.Quality = 0;
 		SwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		SwapChainDesc.BufferCount = s_BufferCount;
-		SwapChainDesc.Scaling = DXGI_SCALING_STRETCH;
+		SwapChainDesc.OutputWindow = m_hWnd;
+		SwapChainDesc.Windowed = true;
 		SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-		SwapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
-		// It is recommended to always allow tearing if tearing support is available.
-		SwapChainDesc.Flags = m_bTearingSupported ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
-		SwapChainDesc.Flags |= DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
+		SwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 		
-		// Now create the swap chain.
-		ComPtr<IDXGISwapChain1> DxgiSwapChain1;
-		ThrowIfFailed(DxgiFactory5->CreateSwapChainForHwnd(D3DComandQueue.Get(), m_hWnd, &SwapChainDesc, nullptr, nullptr, &DxgiSwapChain1));
-
-		// Cast to swapchain4
-		ThrowIfFailed(DxgiSwapChain1.As(&m_DxgiSwapChain));
-		
-		// Disable the Alt+Enter fullscreen toggle feature. Switching to fullscreen
-		// will be handled manually.
-		ThrowIfFailed(DxgiFactory5->MakeWindowAssociation(m_hWnd, DXGI_MWA_NO_ALT_ENTER));
-		
-		// Initialize the current back buffer index.
-		m_CurrentBackBufferIndex = m_DxgiSwapChain->GetCurrentBackBufferIndex();
-
-		// Set maximum frame latency to reduce input latency.
-		m_DxgiSwapChain->SetMaximumFrameLatency(s_BufferCount - 1);
-
-		// Get the SwapChain's waitable object.
-		m_hFrameLatencyWaitableObject = m_DxgiSwapChain->GetFrameLatencyWaitableObject();
+		ThrowIfFailed(
+			DxgiFactory->CreateSwapChain(
+				D3DComandQueue.Get(),
+				&SwapChainDesc,
+				m_DxgiSwapChain.GetAddressOf()
+			)
+		);
 		
 		UpdateRenderTargetViews();
 
@@ -106,9 +87,11 @@ namespace Zero
 			ThrowIfFailed(m_DxgiSwapChain->GetDesc(&SwapChainDesc));
 			ThrowIfFailed(m_DxgiSwapChain->ResizeBuffers(s_BufferCount, m_Width, m_Height, SwapChainDesc.BufferDesc.Format, SwapChainDesc.Flags));
 			
-			m_CurrentBackBufferIndex = m_DxgiSwapChain->GetCurrentBackBufferIndex();
+			m_CurrentBackBufferIndex = 0;
 			
 			UpdateRenderTargetViews();
+			
+			m_RenderTarget = CreateRef<FDX12RenderTarget>(m_Device);
 		}
 	}
 
@@ -128,7 +111,7 @@ namespace Zero
 	const Ref<FRenderTarget> FDX12SwapChain::GetRenderTarget()
 	{
 		m_RenderTarget->AttachTexture(EAttachmentIndex::Color0, m_BackBufferTextures[m_CurrentBackBufferIndex]);
-		m_RenderTarget->AttachTexture(EAttachmentIndex::DepthStencil, m_DepthStencilTexture);
+		//m_RenderTarget->AttachTexture(EAttachmentIndex::DepthStencil, m_DepthStencilTexture);
 		return m_RenderTarget;
 	}
 
@@ -155,13 +138,11 @@ namespace Zero
 		CommandList->TransitionBarrier(BufferBuffer, D3D12_RESOURCE_STATE_PRESENT);
 		m_CommandQueue.ExecuteCommandList(CommandList);
 
-		UINT SyncInterval = 0;// m_bVSync ? 1 : 0;
-		UINT PresentFlags = 0;// m_bTearingSupported && !m_bFullScreen && !m_bVSync ? DXGI_PRESENT_ALLOW_TEARING : 0;
-		ThrowIfFailed(m_DxgiSwapChain->Present(SyncInterval, PresentFlags));
+		ThrowIfFailed(m_DxgiSwapChain->Present(0, 0));
 
 		m_FenceValues[m_CurrentBackBufferIndex] = m_CommandQueue.Signal();
 
-		m_CurrentBackBufferIndex = m_DxgiSwapChain->GetCurrentBackBufferIndex();
+		m_CurrentBackBufferIndex = (m_CurrentBackBufferIndex + 1) % s_BufferCount;
 
 		auto FenceValue = m_FenceValues[m_CurrentBackBufferIndex];
 		m_CommandQueue.WaitForFenceValue(FenceValue);
@@ -185,6 +166,7 @@ namespace Zero
 			m_BackBufferTextures[i]->SetName(L"Backbuffer[" + std::to_wstring(i) + L"]");
 		}
 		
+		return;
 		auto DepthTextureDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, m_Width, m_Height);
 		// Must be set on textures that will be used as a depth-stencil buffer.
 		DepthTextureDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;

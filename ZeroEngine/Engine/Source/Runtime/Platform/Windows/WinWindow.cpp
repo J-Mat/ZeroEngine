@@ -122,7 +122,7 @@ namespace Zero
 		
 		UpdateWindow(m_WindowData.hMainWnd);
 		
-		SetVSync(true);
+		SetVSync(false);
 	}
 
 	void FWinWindow::Shutdown()
