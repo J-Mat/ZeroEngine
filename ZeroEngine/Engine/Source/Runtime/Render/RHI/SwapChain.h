@@ -4,6 +4,7 @@
 namespace Zero
 {
 	class FRenderTarget;
+	class FTexture2D;
 	class FSwapChain
 	{
 	public:
@@ -16,7 +17,7 @@ namespace Zero
 		virtual void BindRenderTarget() {}
 		virtual void SetRenderTarget() {}
 		virtual void PreparePresent() {}
-		virtual void Present() {}
+		virtual UINT Present(Ref<FTexture2D> Texture = nullptr) = 0;
 
 		/**
 		* Check to see if the swap chain is in full-screen exclusive mode.

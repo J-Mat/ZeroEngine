@@ -13,6 +13,7 @@ namespace Zero
 
 	void FDX12RenderTarget::ClearBuffer()
 	{
+		return;
 		auto CommandList = m_Device.GetRenderCommandList();
 		for (int i = EAttachmentIndex::Color0; i <= EAttachmentIndex::Color7; ++i)
 		{
@@ -24,7 +25,7 @@ namespace Zero
 			
 		}
 		auto* DepthStencilTexture = static_cast<FDX12Texture2D*>(m_Textures[EAttachmentIndex::DepthStencil].get());
-		CommandList->ClearDepthStencilTexture(DepthStencilTexture, D3D12_CLEAR_FLAG_DEPTH);
+		CommandList->ClearDepthStencilTexture(DepthStencilTexture, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL);
 	}
 
 	void FDX12RenderTarget::Resize(uint32_t Width, uint32_t Height, uint32_t Depth)
@@ -98,7 +99,7 @@ namespace Zero
 			auto* Texture = static_cast<FDX12Texture2D*>(m_Textures[i].get());
 			if (Texture)
 			{
-				CommandList->TransitionBarrier(Texture->GetD3DResource(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+				CommandList->TransitionBarrier(Texture->GetD3DResource(), D3D12_RESOURCE_STATE_COMMON);
 			}
 		}
 	}

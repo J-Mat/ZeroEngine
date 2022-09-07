@@ -29,7 +29,8 @@ namespace Zero
 		void SetFullScreen(bool bFullScreen);
 		void WaitForSwapChain();
 		virtual const Ref<FRenderTarget> GetRenderTarget() override;
-		UINT Present(const Ref<FDX12Texture2D>& Texture = nullptr);
+		virtual UINT Present(Ref<FTexture2D> Texture = nullptr) override;
+	
 		
 	private:
 		void UpdateRenderTargetViews();

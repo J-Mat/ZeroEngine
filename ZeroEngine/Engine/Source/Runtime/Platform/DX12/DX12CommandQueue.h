@@ -15,6 +15,7 @@ namespace Zero
 		FDX12CommandQueue(FDX12Device& InDevice, D3D12_COMMAND_LIST_TYPE Type);
 		virtual ~FDX12CommandQueue();
 
+		Ref<FDX12CommandList> CreateNewCommandList();
 		Ref<FDX12CommandList> GetCommandList();
 	
 		ComPtr<ID3D12CommandQueue> GetD3DCommandQueue() { return m_D3DCommandQueue; }

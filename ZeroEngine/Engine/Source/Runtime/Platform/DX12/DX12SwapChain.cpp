@@ -132,13 +132,13 @@ namespace Zero
 		return m_RenderTarget;
 	}
 
-
-	UINT FDX12SwapChain::Present(const Ref<FDX12Texture2D>& Texture)
+	UINT FDX12SwapChain::Present(Ref<FTexture2D> Texture)
 	{
 		auto CommandList = m_CommandQueue.GetCommandList();
 		
 		Ref<FDX12Texture2D> BufferBuffer = m_BackBufferTextures[m_CurrentBackBufferIndex];
 		
+		/*
 		if (Texture)
 		{
 			if (Texture->GetD3D12ResourceDesc().SampleDesc.Count > 1)
@@ -150,12 +150,13 @@ namespace Zero
 				CommandList->CopyResource(BufferBuffer, Texture);
 			}
 		}
+		*/
 	
 		CommandList->TransitionBarrier(BufferBuffer, D3D12_RESOURCE_STATE_PRESENT);
 		m_CommandQueue.ExecuteCommandList(CommandList);
 
-		UINT SyncInterval = m_bVSync ? 1 : 0;
-		UINT PresentFlags = m_bTearingSupported && !m_bFullScreen && !m_bVSync ? DXGI_PRESENT_ALLOW_TEARING : 0;
+		UINT SyncInterval = 0;// m_bVSync ? 1 : 0;
+		UINT PresentFlags = 0;// m_bTearingSupported && !m_bFullScreen && !m_bVSync ? DXGI_PRESENT_ALLOW_TEARING : 0;
 		ThrowIfFailed(m_DxgiSwapChain->Present(SyncInterval, PresentFlags));
 
 		m_FenceValues[m_CurrentBackBufferIndex] = m_CommandQueue.Signal();

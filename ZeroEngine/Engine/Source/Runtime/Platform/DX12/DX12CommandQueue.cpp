@@ -48,6 +48,11 @@ namespace Zero
 		m_ProcessInFlightCommandListsThread.join();
 	}
 
+	Ref<FDX12CommandList> FDX12CommandQueue::CreateNewCommandList()
+	{
+		return CreateRef<FDX12CommandList>(m_Device, m_CommandListType);
+	}
+
 	Ref<FDX12CommandList> FDX12CommandQueue::GetCommandList()
 	{
 		Ref<FDX12CommandList> CommandList;
@@ -58,7 +63,7 @@ namespace Zero
 		}
 		else
 		{
-			CommandList = CreateRef<FDX12CommandList>(m_Device, m_CommandListType);
+			CommandList = CreateNewCommandList();
 		}
 		
 		return CommandList;

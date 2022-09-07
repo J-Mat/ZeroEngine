@@ -72,7 +72,6 @@ namespace Zero
 	void FApplication::PushLayer(FLayer* Layer)
 	{
 		m_LayerStack.PushLayer(Layer);
-		Layer->OnAttach();
 	}
 	
 	void FApplication::PushOverlay(FLayer* Overlay)
