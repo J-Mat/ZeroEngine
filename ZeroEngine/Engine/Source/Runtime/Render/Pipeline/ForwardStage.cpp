@@ -9,9 +9,6 @@ namespace Zero
 {
 	void FForwardStage::OnAttach()
 	{
-		Ref<IDevice> Device = UWorld::GetCurrentWorld()->GetDevice();
-		m_RenderTarget =  Device->GetSwapChain()->GetRenderTarget();
-		m_RenderTarget->ClearBuffer();
 	}
 
 	void FForwardStage::OnDetach()
@@ -20,8 +17,10 @@ namespace Zero
 
 	void FForwardStage::OnDraw()
 	{
+		Ref<IDevice> Device = UWorld::GetCurrentWorld()->GetDevice();
+		m_RenderTarget =  Device->GetSwapChain()->GetRenderTarget();
 		m_RenderTarget->Bind();
-		
+		m_RenderTarget->ClearBuffer();
 		FRenderItemPool& RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool();
 		for (Ref<FRenderItem> RenderItem : RenderItemPool)
 		{

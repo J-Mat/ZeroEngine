@@ -111,7 +111,7 @@ namespace Zero
 	const Ref<FRenderTarget> FDX12SwapChain::GetRenderTarget()
 	{
 		m_RenderTarget->AttachTexture(EAttachmentIndex::Color0, m_BackBufferTextures[m_CurrentBackBufferIndex]);
-		//m_RenderTarget->AttachTexture(EAttachmentIndex::DepthStencil, m_DepthStencilTexture);
+		m_RenderTarget->AttachTexture(EAttachmentIndex::DepthStencil, m_DepthStencilTexture);
 		return m_RenderTarget;
 	}
 
@@ -166,7 +166,6 @@ namespace Zero
 			m_BackBufferTextures[i]->SetName(L"Backbuffer[" + std::to_wstring(i) + L"]");
 		}
 		
-		return;
 		auto DepthTextureDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, m_Width, m_Height);
 		// Must be set on textures that will be used as a depth-stencil buffer.
 		DepthTextureDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;

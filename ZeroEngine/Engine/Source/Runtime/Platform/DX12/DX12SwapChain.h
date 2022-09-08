@@ -44,7 +44,7 @@ namespace Zero
 		mutable Ref<FDX12RenderTarget>  m_RenderTarget;
 
 		// The current backbuffer index of the swap chain.	
-		UINT m_CurrentBackBufferIndex;
+		UINT m_CurrentBackBufferIndex = 0;
 		UINT64 m_FenceValues[s_BufferCount];  // The fence values to wait for before leaving the Present method.
 		
 		// A handle to a waitable object. Used to wait for the swapchain before presenting.

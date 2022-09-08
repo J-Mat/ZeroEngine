@@ -13,7 +13,6 @@ namespace Zero
 
 	void FDX12RenderTarget::ClearBuffer()
 	{
-		return;
 		auto CommandList = m_Device.GetRenderCommandList();
 		for (int i = EAttachmentIndex::Color0; i <= EAttachmentIndex::Color7; ++i)
 		{

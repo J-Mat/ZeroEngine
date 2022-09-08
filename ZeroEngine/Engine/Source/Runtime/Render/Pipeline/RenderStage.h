@@ -15,7 +15,7 @@ namespace Zero
 
 		virtual void OnAttach() {}
 		virtual void OnDetach() {}
-		virtual void OnDraw() {}
+		virtual void OnDraw() = 0;
 		Ref<FRenderTarget> GetOutput() { return m_RenderTarget; }
 		void SetInput(Ref<FRenderTarget> RenderTarget) { m_RenderTarget = RenderTarget; };
 	protected:

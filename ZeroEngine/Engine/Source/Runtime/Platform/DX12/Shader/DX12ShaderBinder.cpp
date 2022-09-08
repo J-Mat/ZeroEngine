@@ -177,7 +177,7 @@ namespace Zero
 		}
 		auto StaticSamplers = FDX12Device::GetStaticSamplers();
 		CD3DX12_ROOT_SIGNATURE_DESC RoogSig(
-			ParamterCount,
+			UINT(ParamterCount),
 			SlotRootParameter.data(),
 			UINT(StaticSamplers.size()),
 			StaticSamplers.data(),

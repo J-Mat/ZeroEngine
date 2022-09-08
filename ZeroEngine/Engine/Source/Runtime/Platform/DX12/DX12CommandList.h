@@ -25,7 +25,7 @@ namespace Zero
 		virtual ~FDX12CommandList() = default;
 
 		void FlushResourceBarriers();
-		ComPtr<ID3D12GraphicsCommandList2> GetD3D12CommandList() const { return m_D3DCommandList;}
+		ComPtr<ID3D12GraphicsCommandList> GetD3D12CommandList() { return m_D3DCommandList;}
 
 		ComPtr<ID3D12Resource> CreateDefaultBuffer(const void* BufferData, size_t BufferSize, D3D12_RESOURCE_FLAGS Flags = D3D12_RESOURCE_FLAG_NONE);
 		
@@ -125,7 +125,7 @@ namespace Zero
 		FDX12Device& m_Device;
 		D3D12_COMMAND_LIST_TYPE  m_CommandListType;
 		ComPtr<ID3D12CommandAllocator>	m_CommandAllocator = nullptr;
-		ComPtr<ID3D12GraphicsCommandList2> m_D3DCommandList = nullptr;
+		ComPtr<ID3D12GraphicsCommandList> m_D3DCommandList = nullptr;
 		Scope<FUploadBuffer> m_UploadBuffer;
 		Scope<FResourceStateTracker> m_ResourceStateTracker = nullptr;
 		ID3D12DescriptorHeap* m_DescriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
