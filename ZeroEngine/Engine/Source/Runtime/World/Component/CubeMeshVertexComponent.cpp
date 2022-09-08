@@ -1,59 +1,50 @@
 #include "MeshVertexComponent.h"
 #include "Render/RendererAPI.h"
 #include "World/World.h"
+#include "CubeMeshVertexComponent.h"
 
 namespace Zero
 { 
-	static FShaderConstantsDesc PerObtConstantsDesc;
-	static FShaderConstantsDesc& GetPerObjectConstantsDesc()
+	UCubeMeshVertexComponent::UCubeMeshVertexComponent()
+		:UMeshVertexComponent()
 	{
-		if (PerObtConstantsDesc.Size == -1)
+		
+		std::vector<float> Vertices = 
 		{
-			FConstantBufferLayout& Layout = FConstantBufferLayout::s_PerObjectConstants;
-			int paraIndex = 0;
-
-			PerObtConstantsDesc.Size = Layout.GetStride();
-			for (auto Element : Layout)
-			{
-				PerObtConstantsDesc.Mapper.InsertConstant(Element, ERootParameters::PerObjCB);
-			}
+			-1.0f, -1.0f, -1.0f,     1.0f, 1.0f, 1.0f,
+			-1.0f, +1.0f, -1.0f,   DirectX::Colors::Black[0],   DirectX::Colors::Black[1],  DirectX::Colors::Black[2],
+			+1.0f, +1.0f, -1.0f,   DirectX::Colors::Red[0,],
+			+1.0f, -1.0f, -1.0f,   DirectX::Colors::Green) }),
+			-1.0f, -1.0f, +1.0f,   DirectX::Colors::Blue) }),
+			-1.0f, +1.0f, +1.0f,   DirectX::Colors::Yellow) }),
+			+1.0f, +1.0f, +1.0f,   DirectX::Colors::Cyan) }),
+			+1.0f, -1.0f, +1.0f,   DirectX::Colors::Magenta) })
 		}
-
-		return PerObtConstantsDesc;
-	}
-
-	Ref<IShaderConstantsBuffer> FPerObjectConstantsBufferPool::GetPerObjectConstantsBuffer(UCoreObject* Obj)
-	{
-		Ref<IShaderConstantsBuffer> Result;
-		if (m_IdleConstantsBuffer.empty())
+		std::vector<uint32_t> Indices =
 		{
+			// front face
+			0, 1, 2,
+			0, 2, 3,
 
-			auto Device = Obj->GetWorld()->GetDevice();
-			Result = FRenderer::GraphicFactroy->CreateShaderConstantBuffer(Device.get(), GetPerObjectConstantsDesc());
-		}
-		else
-		{
-			Result = m_IdleConstantsBuffer.front();
-			m_IdleConstantsBuffer.pop();
-		}
+			// back face
+			4, 6, 5,
+			4, 7, 6,
 
-		return Result;
-	}
+			// left face
+			4, 5, 1,
+			4, 1, 0,
 
-	void FPerObjectConstantsBufferPool::PushToPool(Ref<IShaderConstantsBuffer> Buffer)
-	{
-		m_IdleConstantsBuffer.push(Buffer);
-	}
+			// right face
+			3, 2, 6,
+			3, 6, 7,
 
+			// top face
+			1, 5, 6,
+			1, 6, 2,
 
-	UMeshVertexComponent::UMeshVertexComponent()
-		: UComponent()
-		, m_ShaderConstantsBuffer(FPerObjectConstantsBufferPool::GetInstance().GetPerObjectConstantsBuffer(this))
-	{
-	}
-
-	UMeshVertexComponent::~UMeshVertexComponent()
-	{
-		FPerObjectConstantsBufferPool::GetInstance().PushToPool(m_ShaderConstantsBuffer);
+			// bottom face
+			4, 0, 3,
+			4, 3, 7
+		};
 	}
 }
