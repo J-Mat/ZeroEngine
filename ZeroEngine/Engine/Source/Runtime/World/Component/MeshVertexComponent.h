@@ -4,6 +4,7 @@
 #include "Render/RHI/Mesh.h"
 #include "Core/Base/PublicSingleton.h"
 #include "Render/RHI/ShaderBinder.h"
+#include "Render/Moudule/MeshLoader.h"
 
 
 namespace Zero
@@ -21,10 +22,12 @@ namespace Zero
 	{
 	public:
 		friend class UMeshActor;
-		UMeshVertexComponent();
+		UMeshVertexComponent(FMeshType& MeshType);
 		virtual ~UMeshVertexComponent();
 	protected:
 		Ref<IShaderConstantsBuffer> m_ShaderConstantsBuffer = nullptr;
 		Ref<FMesh> m_Mesh;
+		FMeshType m_MeshType;
+		FMeshData m_MeshData;
 	};
 }

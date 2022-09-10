@@ -2,6 +2,7 @@
 
 #include "Core.h"
 #include "Actor.h"
+#include "Render/Moudule/MeshLoader.h"
 
 namespace Zero
 {
@@ -11,11 +12,13 @@ namespace Zero
 	class UMeshActor : public UActor
 	{
 	public:
-		UMeshActor(const std::string& Tag);
+		UMeshActor(const std::string& Tag, FMeshType& MeshType);
 		virtual void PostInit();
 		virtual void CommitToPipieline(FRenderItemPool& RenderItemPool);
+		virtual void Tick();
 	protected:
 		UMeshVertexComponent* m_MeshVertexComponent = nullptr;
 		UMeshRenderComponent* m_MeshRenderComponent = nullptr;
+		FMeshType m_MeshType;
 	};
 }

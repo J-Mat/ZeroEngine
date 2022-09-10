@@ -16,7 +16,7 @@ namespace Zero
 		inline void SetWorld(UWorld* World);
 		inline UWorld* GetWorld();
 		virtual void PostInit() {}
-		virtual void OnUpdate() {}
+		virtual void Tick() {}
 	protected:
 		bool m_bTick = true;
 		UWorld* m_World;

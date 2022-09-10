@@ -8,19 +8,27 @@ namespace Zero
 	UWorld::UWorld()
 	{
 		SetCurrentWorld(this);
+		m_MainCamera = new UCameraActor();
 	}
-	void UWorld::OnUpdate()
+	void UWorld::Tick()
 	{
 		if (!m_bTick)
 		{
 			return;
 		}
 		
+		m_MainCamera->Tick();
+		
 		m_RenderItemPool.Reset();
 		for (UMeshActor* MeshActor : m_MeshActors)
 		{
-			MeshActor->OnUpdate();
+			MeshActor->Tick();
 			MeshActor->CommitToPipieline(m_RenderItemPool);
 		}
+		
+	}
+	void UWorld::PushActor(UActor* Actor)
+	{
+		m_Actors.push_back(Actor);
 	}
 }

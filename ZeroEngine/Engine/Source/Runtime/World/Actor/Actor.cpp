@@ -9,9 +9,14 @@ namespace Zero
 	UActor::UActor(const std::string Tag)
 		: UCoreObject()
 	{
+		m_Tag = Tag;
+	}
+	void UActor::PostInit()
+	{
 		m_TransformationComponent = CreateObject<UTransformationComponent>(GetWorld());
-		m_Tagcomponent = CreateObject<UTagComponent>(GetWorld(), Tag);
-		
+		m_Tagcomponent = CreateObject<UTagComponent>(GetWorld(), m_Tag);
+		AddComponent(m_TransformationComponent);
+		AddComponent(m_Tagcomponent);
 	}
 	void UActor::SetPosition(const ZMath::vec3& Position)
 	{
@@ -24,6 +29,13 @@ namespace Zero
 	void UActor::SetScale(const ZMath::vec3& Scale)
 	{
 		m_TransformationComponent->SetScale(Scale);
+	}
+	void UActor::Tick()
+	{
+		for (UComponent* Component : m_Components)
+		{
+			Component->Tick();
+		}
 	}
 	ZMath::quat UActor::GetOrientation()
 	{

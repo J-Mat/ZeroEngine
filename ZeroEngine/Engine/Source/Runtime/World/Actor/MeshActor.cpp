@@ -8,15 +8,18 @@
 
 namespace Zero
 {
-	UMeshActor::UMeshActor(const std::string& Tag)
+	UMeshActor::UMeshActor(const std::string& Tag, FMeshType& MeshType)
 		: UActor(Tag)
+		, m_MeshType(MeshType)
 	{
 	}
 
 	void UMeshActor::PostInit()
 	{
-		m_MeshVertexComponent = CreateObject<UMeshVertexComponent>(GetWorld());
+		m_MeshVertexComponent = CreateObject<UMeshVertexComponent>(GetWorld(), m_MeshType);
 		m_MeshRenderComponent = CreateObject<UMeshRenderComponent>(GetWorld());
+		AddComponent(m_MeshVertexComponent);
+		AddComponent(m_MeshRenderComponent);
 	}
 
 	void UMeshActor::CommitToPipieline(FRenderItemPool& RenderItemPool)
@@ -33,6 +36,10 @@ namespace Zero
 
 			RenderItemPool.Push(Item);
 		}
+	}
+
+	void UMeshActor::Tick()
+	{
 	}
 
 }

@@ -79,6 +79,7 @@ namespace Zero
 		virtual Ref<IVertexBuffer> CreateVertexBuffer(IDevice* Device, void* data, uint32_t VertexCount, FVertexBufferLayout& Layout, IVertexBuffer::EType Type = IVertexBuffer::EType::Static) = 0;
 		virtual Ref<FTexture2D> CreateTexture2D(IDevice* Device, const std::string Path) = 0;
 		virtual Ref<FMesh> CreateMesh(IDevice* Device, const std::vector<FMeshData>& MeshDatas, FVertexBufferLayout& Layout) = 0;
+		virtual Ref<FMesh> CreateMesh(IDevice* Device, float* Vertices, uint32_t VertexCount, uint32_t* Indices, uint32_t IndexCount, FVertexBufferLayout& Layout) = 0;
 		virtual Ref<IShaderConstantsBuffer> CreateShaderConstantBuffer(IDevice* Device, FShaderConstantsDesc& Desc) = 0;
 		virtual Ref<IShaderResourcesBuffer> CreateShaderResourceBuffer(IDevice* Device, FShaderResourcesDesc& Desc, IRootSignature* RootSignature) = 0;
 	};
@@ -108,6 +109,12 @@ namespace Zero
 		{
 			FDX12Device* DX12Device = static_cast<FDX12Device*>(Device);
 			return CreateRef<FDX12Mesh>(*DX12Device, MeshDatas, Layout);
+		}
+
+		virtual Ref<FMesh> CreateMesh(IDevice* Device, float* Vertices, uint32_t VertexCount, uint32_t* Indices, uint32_t IndexCount, FVertexBufferLayout& Layout)
+		{
+			FDX12Device* DX12Device = static_cast<FDX12Device*>(Device);
+			return CreateRef<FDX12Mesh>(*DX12Device, Vertices, VertexCount, Indices, IndexCount, Layout);
 		}
 
 		virtual Ref<IShaderConstantsBuffer> CreateShaderConstantBuffer(IDevice* Device, FShaderConstantsDesc& Desc)

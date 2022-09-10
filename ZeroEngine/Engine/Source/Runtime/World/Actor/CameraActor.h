@@ -9,8 +9,9 @@ namespace Zero
 	class UCameraActor : public UActor
 	{
 	public:
-		UCameraActor(const std::string& Tag);
+		UCameraActor(const std::string& Tag = "Camera");
 		virtual void PostInit();
+		virtual void Tick();
 	protected:
 		UCameraComponent* m_CameraComponent = nullptr;
 	};

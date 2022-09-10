@@ -37,8 +37,9 @@ namespace Zero
 		void SetCameraSettings(FCameraSettings& Setting);
 		void UpdateMat();
 		void UploadBuffer();
-		virtual void OnUpdate();
+		virtual void Tick();
 	private:
+		ZMath::vec3 m_LookAt = {0, 0, 0};
 		ZMath::mat4 m_Projection;
 		ZMath::mat4 m_ProjectionDither;
 		ZMath::mat4 m_View;

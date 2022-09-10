@@ -6,6 +6,7 @@ namespace Zero
 		:UComponent()
 		,m_Tag(Tag)
 	{
+		m_bTick = false;
 	}
 
 	UTagComponent::~UTagComponent()

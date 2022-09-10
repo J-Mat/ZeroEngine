@@ -57,7 +57,7 @@ namespace Zero
 
 	void UCameraComponent::UpdateMat()
 	{
-		m_View = ZMath::lookAtLH(m_Position, m_Position + m_ForwardVector, m_UpVector);
+		m_View = ZMath::lookAtLH(m_Position, m_LookAt, m_UpVector);
 		m_ProjectionView = m_Projection * m_View;
 	}
 
@@ -73,7 +73,7 @@ namespace Zero
 		m_ShaderConstantsBuffer->UploadDataIfDity();
 	}
 
-	void UCameraComponent::OnUpdate()
+	void UCameraComponent::Tick()
 	{
 		UpdateMat();
 		UploadBuffer();

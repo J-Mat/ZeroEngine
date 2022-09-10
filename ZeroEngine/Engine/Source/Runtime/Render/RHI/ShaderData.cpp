@@ -2,6 +2,9 @@
 
 namespace Zero
 {
+	FBufferElement FBufferElement::s_Pos = { EShaderDataType::Float3, "PosH" };
+	FBufferElement FBufferElement::s_Color = { EShaderDataType::Float4, "Color" };
+
 	FConstantBufferLayout FConstantBufferLayout::s_PerObjectConstants =
 	{
 		{EShaderDataType::Mat4, "Model"},

@@ -98,6 +98,9 @@ namespace Zero
 		{
 			return !(*this == Other);
 		}
+
+		static FBufferElement s_Pos;
+		static FBufferElement s_Color;
 	};
 
 
