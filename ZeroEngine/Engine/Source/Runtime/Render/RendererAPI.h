@@ -11,6 +11,7 @@
 #include "Platform/DX12/Shader/DX12Shader.h"
 #include "Platform/DX12/Shader/DX12ShaderBinder.h"
 #include "Platform/DX12/DX12RootSignature.h"
+#include "Core/Framework/Library.h"
 
 namespace Zero
 {
@@ -52,11 +53,12 @@ namespace Zero
 	
 		static ERHI RHI;
 
-		static Ref<IDevice> GetDevice(uint32_t Slot) 
+		static Ref<IDevice> GetDevice(uint32_t Slot = 0) 
 		{
 			CORE_ASSERT(Slot < Devices.size(), "Slot is out of range!")
 			return Devices[Slot]; 
 		}
+		
 		static uint32_t PushDevice(Ref<IDevice> Device) 
 		{
 			Devices.push_back(Device);
@@ -75,6 +77,7 @@ namespace Zero
 	class IGraphicFactroy
 	{
 	public:
+		virtual Ref<IDevice> CreateDevice() = 0;
 		virtual Ref<FWinWindow> CreatePlatformWindow(const FWindowsConfig& Config) = 0;
 		virtual Ref<IVertexBuffer> CreateVertexBuffer(IDevice* Device, void* data, uint32_t VertexCount, FVertexBufferLayout& Layout, IVertexBuffer::EType Type = IVertexBuffer::EType::Static) = 0;
 		virtual Ref<FTexture2D> CreateTexture2D(IDevice* Device, const std::string Path) = 0;
@@ -82,13 +85,22 @@ namespace Zero
 		virtual Ref<FMesh> CreateMesh(IDevice* Device, float* Vertices, uint32_t VertexCount, uint32_t* Indices, uint32_t IndexCount, FVertexBufferLayout& Layout) = 0;
 		virtual Ref<IShaderConstantsBuffer> CreateShaderConstantBuffer(IDevice* Device, FShaderConstantsDesc& Desc) = 0;
 		virtual Ref<IShaderResourcesBuffer> CreateShaderResourceBuffer(IDevice* Device, FShaderResourcesDesc& Desc, IRootSignature* RootSignature) = 0;
+		virtual Ref<IShader> CreateShader(IDevice* Device, const std::string& FileName, const FShaderBinderDesc& BinderDesc, const FShaderDesc& ShaderDesc) = 0;
 	};
+	
 
 	
 
 	class FDX12Factory : public IGraphicFactroy
 	{
 	public:
+		virtual Ref<IDevice> CreateDevice()
+		{
+			auto Device = CreateRef<FDX12Device>();
+			Device->Init();
+			FRenderer::PushDevice(Device);
+			return Device;
+		}
 		virtual Ref<IVertexBuffer> CreateVertexBuffer(IDevice* Device, void* data, uint32_t VertexCount, FVertexBufferLayout& Layout, IVertexBuffer::EType Type = IVertexBuffer::EType::Static)
 		{
 			return CreateRef<FDX1VertexBuffer>(*((FDX12Device*)Device), data, VertexCount, Layout, Type);
@@ -100,6 +112,7 @@ namespace Zero
 			FDX12Device* DX12Device = static_cast<FDX12Device*>(Device);
 			return CreateRef<FDX12Texture2D>(*DX12Device, Image);
 		}
+
 		virtual Ref<FWinWindow> CreatePlatformWindow(const FWindowsConfig& Config)
 		{
 			return CreateRef<FWinWindow>(Config);
@@ -128,6 +141,18 @@ namespace Zero
 			FDX12Device* DX12Device = static_cast<FDX12Device*>(Device);
 			FDX12RootSignature* D3DRootSignature = static_cast<FDX12RootSignature*>(RootSignature);
 			return CreateRef<FDX12ShaderResourcesBuffer>(*DX12Device, Desc, D3DRootSignature);
+		}
+
+		virtual Ref<IShader> CreateShader(IDevice* Device, const std::string& FileName, const FShaderBinderDesc& BinderDesc, const FShaderDesc& ShaderDesc)
+		{
+			FDX12Device* DX12Device = static_cast<FDX12Device*>(Device);
+			Ref<IShader> Shader = Library<IShader>::Fetch(FileName);
+			if (Shader == nullptr)
+			{
+				Shader = CreateRef<FDX12Shader>(*DX12Device, Utils::GetShaderPath(FileName), BinderDesc, ShaderDesc);
+				Library<IShader>::Push(FileName, Shader);
+			}
+			return Shader;
 		}
 	};
 }

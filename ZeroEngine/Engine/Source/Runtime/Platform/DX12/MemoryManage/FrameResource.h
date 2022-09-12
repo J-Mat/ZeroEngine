@@ -82,8 +82,8 @@ namespace Zero
 		template<typename T>
 		void RegistFrameResource(FDX12FrameResource<T>* FrameResource)
 		{
-			FrameResource->m_CPUBuffers.reserve(m_FrameResourcesCount);
-			FrameResource->m_GPUBuffers.reserve(m_FrameResourcesCount);
+			FrameResource->m_CPUBuffers.resize(m_FrameResourcesCount);
+			FrameResource->m_GPUBuffers.resize(m_FrameResourcesCount);
 			for (int i = 0; i < m_FrameResourcesCount; ++i)
 			{
 				FrameResource->m_CPUBuffers[i].reset(new T);
@@ -95,7 +95,7 @@ namespace Zero
 		void RegistFrameResource(FFrameResourceBuffer* FrameResourceBuffer)
 		{
 			FrameResourceBuffer->m_CPUBuffer = new byte[FrameResourceBuffer->m_SizeByte];
-			FrameResourceBuffer->m_GPUBuffers.reserve(m_FrameResourcesCount);
+			FrameResourceBuffer->m_GPUBuffers.resize(m_FrameResourcesCount);
 			for (uint32_t i = 0; i < m_FrameResourcesCount; ++i)
 			{
 

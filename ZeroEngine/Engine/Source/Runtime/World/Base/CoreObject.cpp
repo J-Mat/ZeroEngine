@@ -1,5 +1,4 @@
 #include "CoreObject.h"
-#include "World/World.h"
 
 
 namespace Zero
@@ -21,10 +20,6 @@ namespace Zero
 				break;
 			}
 		}
-	}
-	void UCoreObject::SetWorld(UWorld* World)
-	{
-		m_World = World;
 	}
 	UWorld* UCoreObject::GetWorld()
 	{

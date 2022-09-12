@@ -156,7 +156,7 @@ namespace Zero
 	{
 		size_t ParamterCount = m_Desc.m_ConstantBufferLayouts.size() + m_Desc.m_TextureBufferLayouts.size();
 		std::vector<CD3DX12_ROOT_PARAMETER> SlotRootParameter;
-		SlotRootParameter.reserve(ParamterCount);
+		SlotRootParameter.resize(ParamterCount);
 		
 		UINT ParameterIndex = 0;
 		for (FConstantBufferLayout& Layout : m_Desc.m_ConstantBufferLayouts)
@@ -194,7 +194,7 @@ namespace Zero
 		m_SrvDynamicDescriptorHeap = CreateRef<FDynamicDescriptorHeap>(m_Device, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 		m_SamplerDynamicDescriptorHeap = CreateRef<FDynamicDescriptorHeap>(m_Device, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
 		FDX12RootSignature* D3DRootSignature = static_cast<FDX12RootSignature*>(m_RootSignature.get());
-		m_SrvDynamicDescriptorHeap->ParseRootSignature(D3DRootSignature->shared_from_this());
+		m_SrvDynamicDescriptorHeap->ParseRootSignature(D3DRootSignature->AsShared());
 	}
 
 
@@ -204,7 +204,7 @@ namespace Zero
 	{
 		m_SrvDynamicDescriptorHeap = CreateRef<FDynamicDescriptorHeap>(m_Device, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 		m_SamplerDynamicDescriptorHeap = CreateRef<FDynamicDescriptorHeap>(m_Device, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
-		m_SrvDynamicDescriptorHeap->ParseRootSignature(RootSignature->shared_from_this());
+		m_SrvDynamicDescriptorHeap->ParseRootSignature(RootSignature->AsShared());
 	}
 
 	FShaderResourcesDesc* FDX12ShaderResourcesBuffer::GetShaderResourceDesc()

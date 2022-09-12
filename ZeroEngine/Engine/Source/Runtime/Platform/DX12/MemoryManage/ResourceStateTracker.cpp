@@ -42,7 +42,7 @@ namespace Zero
 							D3D12_RESOURCE_BARRIER NewBarrier = Barrier;
 							NewBarrier.Transition.Subresource = SubResourceState.first;
 							NewBarrier.Transition.StateBefore = SubResourceState.second;
-							ResourceBarriersList.push_back(NewBarrier);
+							m_ResourceBarriersList.push_back(NewBarrier);
 						}
 					}
 				}
@@ -53,7 +53,7 @@ namespace Zero
 					{
 						D3D12_RESOURCE_BARRIER NewBarrier = Barrier;
 						NewBarrier.Transition.StateBefore = FinalState;
-						ResourceBarriersList.push_back(NewBarrier);
+						m_ResourceBarriersList.push_back(NewBarrier);
 					}
 				}
 			}
@@ -61,7 +61,7 @@ namespace Zero
 			{
 				// Add a pending barrier. The pending barriers will be resolved
 				// before the command list is executed on the command queue.
-				PendingResourceBarriersList.push_back(Barrier);
+				m_PendingResourceBarriersList.push_back(Barrier);
 			}
 
 			// Push the final known state (possibly replacing the previously known state for the subresource).
@@ -70,7 +70,7 @@ namespace Zero
 		else
 		{
 			// Just push non-transition barriers to the resource barriers array
-			ResourceBarriersList.push_back(Barrier);
+			m_ResourceBarriersList.push_back(Barrier);
 		}
 	}
 
@@ -103,8 +103,8 @@ namespace Zero
 		CORE_ASSERT(s_bLocked, "Barrier is unlocked!");
 		
 		FResourceBarriers ToExcuteBarriers;
-		ToExcuteBarriers.reserve(PendingResourceBarriersList.size());
-		for (auto PendingBarrier : PendingResourceBarriersList)
+		ToExcuteBarriers.reserve(m_PendingResourceBarriersList.size());
+		for (auto PendingBarrier : m_PendingResourceBarriersList)
 		{
 			if (PendingBarrier.Type == D3D12_RESOURCE_BARRIER_TYPE_TRANSITION)
 			{
@@ -152,19 +152,19 @@ namespace Zero
 			CommandList->GetD3D12CommandList()->ResourceBarrier(NumBarriers, ToExcuteBarriers.data());
 		}
 
-		PendingResourceBarriersList.clear();
+		m_PendingResourceBarriersList.clear();
 
 		return NumBarriers;
 	}
 
 	void FResourceStateTracker::FlushResourceBarriers(const Ref<FDX12CommandList>& CommandList)
 	{
-		UINT NumBarriers = static_cast<UINT> (ResourceBarriersList.size());
+		UINT NumBarriers = static_cast<UINT> (m_ResourceBarriersList.size());
 		if (NumBarriers > 0)
 		{
 			CORE_ASSERT(CommandList->GetD3D12CommandList() != nullptr, "lalla");
-			CommandList->GetD3D12CommandList()->ResourceBarrier(NumBarriers, ResourceBarriersList.data());
-			ResourceBarriersList.clear();
+			CommandList->GetD3D12CommandList()->ResourceBarrier(NumBarriers, m_ResourceBarriersList.data());
+			m_ResourceBarriersList.clear();
 		}
 	}
 
@@ -183,8 +183,8 @@ namespace Zero
 
 	void FResourceStateTracker::Reset()
 	{
-		PendingResourceBarriersList.clear();
-		ResourceBarriersList.clear();
+		m_PendingResourceBarriersList.clear();
+		m_ResourceBarriersList.clear();
 		m_FinalResourceState.clear();
 	}
 

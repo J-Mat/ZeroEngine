@@ -11,7 +11,7 @@ namespace Zero
 		FShaderBinderDesc() = default;
 		FShaderBinderDesc(
 			const std::vector<FConstantBufferLayout>& ConstantBufferLayouts,
-			const std::vector<FShaderResourceLayout>& ShaderResourceLayouts,
+			const std::vector<FShaderResourceLayout>& ShaderResourceLayouts = std::vector<FShaderResourceLayout>(),
 			const std::vector<FComputeOutputLayout>& ComputeOutputLayouts = std::vector<FComputeOutputLayout>())
 			: m_ConstantBufferLayouts(ConstantBufferLayouts)
 			, m_TextureBufferLayouts(ShaderResourceLayouts)

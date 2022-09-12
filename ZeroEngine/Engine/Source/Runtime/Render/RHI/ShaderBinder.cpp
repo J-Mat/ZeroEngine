@@ -66,7 +66,7 @@ namespace Zero
     {
         uint32_t CBIndex = 0;
         uint32_t ParaIndex = 0;
-        m_ShaderConstantDescs.reserve(m_Desc.GetConstantBufferCount()); 
+        m_ShaderConstantDescs.resize(m_Desc.GetConstantBufferCount()); 
         for (FConstantBufferLayout ConstantLayout : m_Desc.m_ConstantBufferLayouts)
         {
             m_ShaderConstantDescs[CBIndex] = CreateRef<FShaderConstantsDesc>();

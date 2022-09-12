@@ -14,11 +14,13 @@ namespace Zero
 	//class FDX12SwapChain;
 	class FDX12CommandQueue;
 	class FDescriptorAllocator;
-	class FDX12Device : public IDevice
+	class FDX12Device : public IDevice, public std::enable_shared_from_this<FDX12Device>
 	{
 	public:
 		FDX12Device() = default;
 		virtual void Init();
+		
+		Ref<FDX12Device> AsShared() { return shared_from_this(); }
 
 		ID3D12Device* GetDevice() { return m_D3DDevice.Get(); }
 		FDX12CommandQueue& GetCommandQueue(D3D12_COMMAND_LIST_TYPE Type = D3D12_COMMAND_LIST_TYPE_DIRECT);

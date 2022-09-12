@@ -9,8 +9,7 @@ namespace Zero
 	}
 	void UCameraActor::PostInit()
 	{
-		m_CameraComponent = CreateObject<UCameraComponent>(GetWorld());
-		AddComponent(m_CameraComponent);
+		m_CameraComponent = UComponent::CreateComponent<UCameraComponent>(this);
 	}
 
 	void UCameraActor::Tick()

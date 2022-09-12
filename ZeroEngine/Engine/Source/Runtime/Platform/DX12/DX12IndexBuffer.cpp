@@ -7,7 +7,8 @@ namespace Zero
 		, IBuffer(Device)
 		, m_Device(Device)
 	{	
-		SetResource(m_Device.CreateDefaultBuffer(m_Data, m_BufferSize));
+		ComPtr<ID3D12Resource> Resource = m_Device.CreateDefaultBuffer(m_Data, m_BufferSize);
+		SetResource(Resource);
 		CreateIndexBufferView();
 	}
 

@@ -37,6 +37,7 @@ namespace Zero
 		void SetCameraSettings(FCameraSettings& Setting);
 		void UpdateMat();
 		void UploadBuffer();
+		Ref<IShaderConstantsBuffer> GetConstantBuffer() { return m_ShaderConstantsBuffer; }
 		virtual void Tick();
 	private:
 		ZMath::vec3 m_LookAt = {0, 0, 0};

@@ -17,7 +17,7 @@ namespace Zero
 		virtual void OnAttach() {}
 		virtual void OnDetach() {}
 		virtual void OnUpdate() {}
-		virtual void OnDraw() {}
+		virtual void OnDraw() = 0;
 		virtual void OnImGuiRender() {}
 		virtual void OnEvent(FEvent& event) {}
 	protected:

@@ -10,6 +10,7 @@ namespace Zero
 		, m_SamplerTableBitMask(0)
 		, m_DescriptorTableBitMask(0)
 	{
+		SetRootSignatureDesc(RootSignatureDesc);
 	}
 	FDX12RootSignature::~FDX12RootSignature()
 	{
@@ -44,7 +45,6 @@ namespace Zero
 
 		memset(m_NumDescriptorsPerTable, 0, sizeof(m_NumDescriptorsPerTable));
 	}
-
 
 	void FDX12RootSignature::SetRootSignatureDesc(const D3D12_ROOT_SIGNATURE_DESC& RootSignatureDesc)
 	{
@@ -124,6 +124,7 @@ namespace Zero
 
 		m_Device.GetDevice()->CreateRootSignature(0, RootSignatureBlob->GetBufferPointer(), RootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_RootSignature));
 	}
+
 	uint32_t FDX12RootSignature::GetDescriptorTableBitMask(D3D12_DESCRIPTOR_HEAP_TYPE DescriptorHeapType) const
 	{
 		switch (DescriptorHeapType)

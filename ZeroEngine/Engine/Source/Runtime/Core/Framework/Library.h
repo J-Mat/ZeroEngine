@@ -60,4 +60,7 @@ namespace Zero
 	{
 		Mapper.clear();
 	}
+
+	template<class T>
+	std::unordered_map<std::string, Ref<T>> Library<T>::Mapper;
 }

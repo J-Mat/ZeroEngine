@@ -108,12 +108,10 @@ namespace Zero
 		if (!m_WindowData.hMainWnd)
 		{
 			CORE_LOG_ERROR("reateWindow Failed.");
+			return;
 		}
 		
-		m_Device = CreateRef<FDX12Device>();
-		m_Device->Init();
-			
-		m_DeviceIndex = FRenderer::PushDevice(m_Device);
+		m_Device = static_cast<FDX12Device*>(FRenderer::GraphicFactroy->CreateDevice().get())->shared_from_this();
 		m_Device->CreatSwapChain(m_WindowData.hMainWnd);
 		FDX12RenderPipeline::GetInstance().SetDevice(m_Device);
 		FFrameResourcesManager::GetInstance().Init(m_Device);

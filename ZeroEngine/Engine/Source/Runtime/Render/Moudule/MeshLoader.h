@@ -13,11 +13,16 @@ namespace Zero
 
 	struct FMeshType
 	{
-		EMeshShapeType MeshShapeType;
-		std::string  Path;
+		FMeshType(EMeshShapeType Type, std::string _Path) 
+			: MeshShapeType(Type)
+			, Path(_Path)
+		{}
+		EMeshShapeType MeshShapeType = EMeshShapeType::Custom;
+		std::string  Path = "";
+		static FMeshType s_CubeMeshType; 
 	};
 
-	class FMeshData;
+	struct FMeshData;
 	class FMeshCreator : public IPublicSingleton<FMeshCreator>
 	{
 	public:
@@ -31,12 +36,10 @@ namespace Zero
 		std::vector<float> m_Vertices;
 		std::vector<uint32_t> m_Indices;
 
-		uint32_t m_VertexNum;
-		uint32_t m_IndexNum;
-
 		FMeshData() = default;
-		FMeshData(const std::vector<float>& Vertices,
-			const std::vector<uint32_t>& Indices)
-			:m_Vertices(Vertices), m_Indices(Indices), m_VertexNum(m_Vertices.size()), m_IndexNum(m_Indices.size()) {}
+		FMeshData(const std::vector<float>& Vertices, const std::vector<uint32_t>& Indices)
+			:m_Vertices(Vertices), 
+			m_Indices(Indices)
+		{}
 	};
 }

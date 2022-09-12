@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core.h"
+#include "Render/RendererAPI.h"
 #include "Base/CoreObject.h"
 #include "Render/RHI/GraphicDevice.h"
 #include "Actor/Actor.h"
@@ -13,6 +14,12 @@ namespace Zero
 	class UWorld : public UCoreObject
 	{
 	public:
+		static UWorld* CreateWorld(uint32_t DeviceSlot = 0)
+		{
+			auto* World = new UWorld();
+			World->SetDevice(FRenderer::GetDevice(DeviceSlot));
+			return World;
+		}
 		UWorld();
 		Ref<IDevice> GetDevice() { return m_Device; }
 		void SetDevice(Ref<IDevice> Device) { m_Device = Device; }
@@ -21,7 +28,20 @@ namespace Zero
 		static  UWorld* GetCurrentWorld() { return s_CurrentWorld; }
 		static void  SetCurrentWorld(UWorld* World) { s_CurrentWorld = World; }
 		void SetCamera(UCameraActor* Camera) { m_MainCamera = Camera; }
-		void PushActor(UActor* Actor);
+		UCameraActor* GetCameraActor() { return m_MainCamera; }
+
+		template<class T>
+		void AddActor(T* Actor)
+		{
+			m_Actors.push_back(Actor);
+		}
+
+		template<>
+		void AddActor<UMeshActor>(UMeshActor* Actor)
+		{
+			m_Actors.push_back((UActor*)Actor);
+			m_MeshActors.push_back(Actor);
+		}
 	private:
 		static UWorld* s_CurrentWorld;
 		UCameraActor* m_MainCamera;

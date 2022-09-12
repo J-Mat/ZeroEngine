@@ -9,6 +9,7 @@ namespace Zero
 	{
 		SetCurrentWorld(this);
 		m_MainCamera = new UCameraActor();
+		AddActor(m_MainCamera);
 	}
 	void UWorld::Tick()
 	{
@@ -26,9 +27,5 @@ namespace Zero
 			MeshActor->CommitToPipieline(m_RenderItemPool);
 		}
 		
-	}
-	void UWorld::PushActor(UActor* Actor)
-	{
-		m_Actors.push_back(Actor);
 	}
 }

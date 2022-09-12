@@ -13,10 +13,8 @@ namespace Zero
 	}
 	void UActor::PostInit()
 	{
-		m_TransformationComponent = CreateObject<UTransformationComponent>(GetWorld());
-		m_Tagcomponent = CreateObject<UTagComponent>(GetWorld(), m_Tag);
-		AddComponent(m_TransformationComponent);
-		AddComponent(m_Tagcomponent);
+		m_TransformationComponent = UComponent::CreateComponent<UTransformationComponent>(this);
+		m_Tagcomponent = UComponent::CreateComponent<UTagComponent>(this, m_Tag);
 	}
 	void UActor::SetPosition(const ZMath::vec3& Position)
 	{

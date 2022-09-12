@@ -25,7 +25,7 @@ namespace Zero
 
 	struct FShaderDesc
 	{
-		bool useAlphaBlending = false;
+		bool bUseAlphaBlending = false;
 		FVertexBufferLayout VertexBufferLayout;
 		int NumRenderTarget = 1;
 	};
@@ -36,11 +36,10 @@ namespace Zero
 	class IShader
 	{
 	public:
-		IShader() = default;
+		IShader(const FShaderBinderDesc& BinderDesc, const FShaderDesc& Desc);
 		virtual ~IShader() {}
 		virtual void Use() = 0;
 		virtual void CreateBinder() = 0;
-		virtual void UsePipelineState(const FPipelineStateDesc& Desc) = 0;
 
 		Ref<IShaderBinder> GetBinder() { return m_ShaderBinder; }
 		std::string ShaderID;

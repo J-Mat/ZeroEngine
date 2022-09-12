@@ -7,3 +7,5 @@
 #include "Render/Pipeline/RenderPipeline.h"
 #include "World/Construction/ObjectConstruction.h"
 #include "World/World.h"
+#include "World/Actor/CameraActor.h"
+#include "World/Actor/MeshActor.h"

@@ -4,6 +4,8 @@
 
 namespace Zero
 {
+	FMeshType FMeshType::s_CubeMeshType = { EMeshShapeType::Cube, "" };
+
 	void FMeshCreator::CreatMesh(const FMeshType& MeshType, FMeshData& MeshData)
 	{
 		switch (MeshType.MeshShapeType)
@@ -21,19 +23,18 @@ namespace Zero
 	{
 		Meshata.m_Vertices =
 		{
-			-1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 1.0f,
-			-1.0f, +1.0f, -1.0f,   Utils::Colors::Black[0], Utils::Colors::Black[1], Utils::Colors::Black[2],
-			+1.0f, +1.0f, -1.0f,   Utils::Colors::Red[0],  Utils::Colors::Red[1], Utils::Colors::Red[2],
-			+1.0f, -1.0f, -1.0f,   Utils::Colors::Green[0], Utils::Colors::Green[1], Utils::Colors::Green[2],
-			-1.0f, -1.0f, +1.0f,   Utils::Colors::Blue[0], Utils::Colors::Blue[1], Utils::Colors::Blue[2],
-			-1.0f, +1.0f, +1.0f,   Utils::Colors::Yellow[0], Utils::Colors::Yellow[1], Utils::Colors::Yellow[2]
-			+ 1.0f, +1.0f, +1.0f,  Utils::Colors::Cyan[0], Utils::Colors::Cyan[1], Utils::Colors::Cyan[2],
-			+1.0f, -1.0f, +1.0f,   Utils::Colors::Magenta[0], Utils::Colors::Magenta[1], Utils::Colors::Magenta[2]
+			-1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 1.0f, 1.0f,
+			-1.0f, +1.0f, -1.0f,   Utils::Colors::Black[0], Utils::Colors::Black[1], Utils::Colors::Black[2], Utils::Colors::Black[3],
+			+1.0f, +1.0f, -1.0f,   Utils::Colors::Red[0],  Utils::Colors::Red[1], Utils::Colors::Red[2],Utils::Colors::Red[3],
+			+1.0f, -1.0f, -1.0f,   Utils::Colors::Green[0], Utils::Colors::Green[1], Utils::Colors::Green[2],Utils::Colors::Green[3],
+			-1.0f, -1.0f, +1.0f,   Utils::Colors::Blue[0], Utils::Colors::Blue[1], Utils::Colors::Green[2],Utils::Colors::Green[3],
+			-1.0f, +1.0f, +1.0f,   Utils::Colors::Yellow[0], Utils::Colors::Yellow[1], Utils::Colors::Yellow[2], Utils::Colors::Yellow[3],
+			+1.0f, +1.0f, +1.0f,   Utils::Colors::Cyan[0], Utils::Colors::Cyan[1], Utils::Colors::Cyan[2], Utils::Colors::Cyan[3],
+			+1.0f, -1.0f, +1.0f,   Utils::Colors::Magenta[0], Utils::Colors::Magenta[1], Utils::Colors::Magenta[2], Utils::Colors::Magenta[3],
 		};
 		
-		Meshata.m_VertexNum = Meshata.m_Vertices.size();
 
-		std::vector<uint32_t> Indices =
+		Meshata.m_Indices =
 		{
 			// front face
 			0, 1, 2,
@@ -60,6 +61,5 @@ namespace Zero
 			4, 3, 7
 		};
 		
-		Meshata.m_IndexNum = Meshata.m_Indices.size();
 	}
 }

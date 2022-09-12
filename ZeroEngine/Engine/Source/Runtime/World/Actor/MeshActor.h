@@ -12,7 +12,7 @@ namespace Zero
 	class UMeshActor : public UActor
 	{
 	public:
-		UMeshActor(const std::string& Tag, FMeshType& MeshType);
+		UMeshActor(const std::string& Tag = "Mesh", FMeshType& MeshType = FMeshType::s_CubeMeshType);
 		virtual void PostInit();
 		virtual void CommitToPipieline(FRenderItemPool& RenderItemPool);
 		virtual void Tick();

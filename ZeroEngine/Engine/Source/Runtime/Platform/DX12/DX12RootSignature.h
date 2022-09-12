@@ -24,6 +24,7 @@ namespace Zero
 		{
 			return m_RootSignature;
 		}
+		Ref<FDX12RootSignature> AsShared() { return shared_from_this(); }
 	private:
 		void Destroy();
 

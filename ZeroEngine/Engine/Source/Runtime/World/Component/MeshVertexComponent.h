@@ -23,6 +23,7 @@ namespace Zero
 	public:
 		friend class UMeshActor;
 		UMeshVertexComponent(FMeshType& MeshType);
+		virtual void PostInit();
 		virtual ~UMeshVertexComponent();
 	protected:
 		Ref<IShaderConstantsBuffer> m_ShaderConstantsBuffer = nullptr;

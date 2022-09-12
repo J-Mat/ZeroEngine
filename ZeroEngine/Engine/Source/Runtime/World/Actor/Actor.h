@@ -7,9 +7,22 @@ namespace Zero
 {
 	class UTransformationComponent;
 	class UTagComponent;
+	class UComponent;
+	class UWorld;
 	class UActor : public UCoreObject
 	{
 	public:
+		template<class T, typename ...ParamTypes>
+		static T* CreateActor(UWorld *World, ParamTypes &&...Params)
+		{
+			T* Obj = new T(Params...);
+			Obj->SetWorld(World);
+			Obj->PostInit();
+			World->AddActor(Obj);
+			return Obj;
+		}
+
+
 		UActor(const std::string Tag = "Actor");
 		virtual void PostInit();
 		UTransformationComponent* GetTransformationComponent() { return m_TransformationComponent; }

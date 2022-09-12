@@ -32,14 +32,10 @@ namespace Zero
 
 	FDX12Shader::FDX12Shader(FDX12Device& Device, std::string FileName, const FShaderBinderDesc& BinderDesc, const FShaderDesc& Desc)
 	: m_Device(Device)
-	, IShader()
+	, IShader(BinderDesc, Desc)
 	{
-		m_ShaderDesc = Desc;
-		m_ShaderBinderDesc = BinderDesc;
-		
 		m_VSBytecode = CompileShader(Utils::String2WString(FileName), nullptr, "VS", "vs_5_1");
 		m_PSBytecode = CompileShader(Utils::String2WString(FileName), nullptr, "PS", "vs_5_1");
-		
 		
 		GenerateInputLayout();
 		CreateBinder();

@@ -28,7 +28,13 @@ namespace Zero
 		
 		auto SwapChain = m_Device->GetSwapChain();
 
-		FApplication::Get().OnDraw();
+		auto RenderTarget = m_Device->GetSwapChain()->GetRenderTarget();
+		RenderTarget->Bind();
+		RenderTarget->ClearBuffer();
+		Ref<FTexture2D> Texuture =  RenderTarget->GetTexture(EAttachmentIndex::Color0);
+		RenderTarget->UnBind();
+
+		//FApplication::Get().OnDraw();
 		
 
 		CommandQueue.ExecuteCommandList(CommandList);

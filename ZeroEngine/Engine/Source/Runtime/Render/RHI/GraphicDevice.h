@@ -4,7 +4,7 @@
 namespace Zero
 {
 	class FSwapChain;
-	class IDevice
+	class IDevice 
 	{
 	public:
 		virtual void Init() = 0;

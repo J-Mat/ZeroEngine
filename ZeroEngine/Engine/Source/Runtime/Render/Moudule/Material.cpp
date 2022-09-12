@@ -4,6 +4,8 @@
 #include "Render/RHI/Shader.h"
 #include "Render/RHI/GraphicDevice.h"
 #include "Render/RHI/Texture.h"
+#include "World/World.h"
+#include "World/Actor/CameraActor.h"
 
 namespace Zero
 {
@@ -19,8 +21,11 @@ namespace Zero
 	void FMaterial::SetPass()
 	{
 		m_Shader->GetBinder()->BindConstantsBuffer(ERootParameters::MaterialCB, m_ConstantsBuffer.get());
+		UCameraActor* Camera = UWorld::GetCurrentWorld()->GetCameraActor();
+		m_Shader->GetBinder()->BindConstantsBuffer(ERootParameters::CameraCB, Camera->GetConstantBuffer().get());
 		m_Shader->Use();
 	}
+
 	void FMaterial::OnDrawCall()
 	{
 		m_ConstantsBuffer->UploadDataIfDity();

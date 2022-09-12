@@ -127,9 +127,9 @@ namespace Zero
 	private:
 		using FResourceBarriers = std::vector<D3D12_RESOURCE_BARRIER>;
 
-		FResourceBarriers PendingResourceBarriersList;
+		FResourceBarriers m_PendingResourceBarriersList;
 
-		FResourceBarriers ResourceBarriersList;
+		FResourceBarriers m_ResourceBarriersList;
 
 		struct FResourcestate
 		{

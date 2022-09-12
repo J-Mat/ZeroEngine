@@ -13,10 +13,7 @@ namespace Zero
 		GetDescriptorSize();
 		CreateCommandQueue();
 		CreateDescriptors();
-
 		CheckFeatures();
-		
-		
 	}
 	
 	FDescriptorAllocation FDX12Device::AllocateDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE Type, uint32_t NumDescriptors)
@@ -168,32 +165,31 @@ namespace Zero
 		CORE_ASSERT(BufferSize != 0 && BufferData != nullptr, "InValid Buffer!")
 		ComPtr<ID3D12Resource> D3DResource;
 
-
 		ThrowIfFailed(m_D3DDevice->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
 			&CD3DX12_RESOURCE_DESC::Buffer(BufferSize, Flags), D3D12_RESOURCE_STATE_COMMON, nullptr,
-			IID_PPV_ARGS(&D3DResource))
+			IID_PPV_ARGS(D3DResource.GetAddressOf()))
 		);
 
 		ComPtr<ID3D12Resource> UploadResource;
 		ThrowIfFailed(m_D3DDevice->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
 			&CD3DX12_RESOURCE_DESC::Buffer(BufferSize), D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
-			IID_PPV_ARGS(&UploadResource))
+			IID_PPV_ARGS(UploadResource.GetAddressOf()))
 		);
 		D3D12_SUBRESOURCE_DATA SubresourceData = {};
 		SubresourceData.pData = BufferData;
 		SubresourceData.RowPitch = BufferSize;
 		SubresourceData.SlicePitch = SubresourceData.RowPitch;
 
-
 		CommandList->TransitionBarrier(D3DResource.Get(), D3D12_RESOURCE_STATE_COPY_DEST);
 		CommandList->FlushResourceBarriers();
 
-		UpdateSubresources(CommandList->GetD3D12CommandList().Get(), D3DResource.Get(), UploadResource.Get(), 0, 0, 1, &SubresourceData);
+		UpdateSubresources<1>(CommandList->GetD3D12CommandList().Get(), D3DResource.Get(), UploadResource.Get(), 0, 0, 1, &SubresourceData);
+
+		CommandList->TransitionBarrier(D3DResource.Get(), D3D12_RESOURCE_STATE_GENERIC_READ);
 
 		m_DirectCommandQueue->ExecuteCommandList(CommandList);
-
 		return D3DResource;
 	}
 

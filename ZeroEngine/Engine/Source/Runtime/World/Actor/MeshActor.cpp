@@ -16,10 +16,8 @@ namespace Zero
 
 	void UMeshActor::PostInit()
 	{
-		m_MeshVertexComponent = CreateObject<UMeshVertexComponent>(GetWorld(), m_MeshType);
-		m_MeshRenderComponent = CreateObject<UMeshRenderComponent>(GetWorld());
-		AddComponent(m_MeshVertexComponent);
-		AddComponent(m_MeshRenderComponent);
+		m_MeshVertexComponent = UComponent::CreateComponent<UMeshVertexComponent>(this, m_MeshType);
+		m_MeshRenderComponent =  UComponent::CreateComponent<UMeshRenderComponent>(this);
 	}
 
 	void UMeshActor::CommitToPipieline(FRenderItemPool& RenderItemPool)

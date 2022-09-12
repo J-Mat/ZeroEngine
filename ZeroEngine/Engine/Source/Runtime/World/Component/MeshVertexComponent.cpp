@@ -27,7 +27,6 @@ namespace Zero
 		Ref<IShaderConstantsBuffer> Result;
 		if (m_IdleConstantsBuffer.empty())
 		{
-
 			auto Device = Obj->GetWorld()->GetDevice();
 			Result = FRenderer::GraphicFactroy->CreateShaderConstantBuffer(Device.get(), GetPerObjectConstantsDesc());
 		}
@@ -48,20 +47,22 @@ namespace Zero
 
 	UMeshVertexComponent::UMeshVertexComponent(FMeshType& MeshType)
 		: UComponent()
-		, m_ShaderConstantsBuffer(FPerObjectConstantsBufferPool::GetInstance().GetPerObjectConstantsBuffer(this))
 		, m_MeshType(MeshType)
 	{
-		m_Mesh = CreateRef<FMesh>();
+	}
+
+	void UMeshVertexComponent::PostInit()
+	{
+		m_ShaderConstantsBuffer = FPerObjectConstantsBufferPool::GetInstance().GetPerObjectConstantsBuffer(this);
+			
 		FMeshCreator::GetInstance().CreatMesh(m_MeshType, m_MeshData);
-		FVertexBufferLayout VertexBufferLayout;
-		VertexBufferLayout = { FBufferElement::s_Pos, FBufferElement::s_Color};
 		m_Mesh = FRenderer::GraphicFactroy->CreateMesh(
 			GetWorld()->GetDevice().get(),
 			m_MeshData.m_Vertices.data(),
-			m_MeshData.m_VertexNum,
+			uint32_t(m_MeshData.m_Vertices.size()),
 			m_MeshData.m_Indices.data(),
-			m_MeshData.m_IndexNum,
-			VertexBufferLayout
+			uint32_t(m_MeshData.m_Indices.size()) ,
+			FVertexBufferLayout::s_TestVertexLayout
 		);
 	}
 
