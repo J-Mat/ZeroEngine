@@ -16,6 +16,9 @@ namespace Zero
 		virtual void OnUpdate() override;
 		virtual void OnDraw() override;
 		void OnEvent(FEvent& e) override;
+		
+		void BuildWorld();
+		
 	private: 
 		Ref<FRenderPipeline> m_ScriptablePipeline;
 		UWorld* m_World = nullptr;

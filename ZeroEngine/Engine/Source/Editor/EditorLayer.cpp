@@ -1,6 +1,8 @@
 #include "EditorLayer.h"
 #include "Render/Pipeline/ForwardStage.h"
 #include "Platform/Windows/WinWindow.h"
+#include "Render/Moudule/ShaderRegister.h"
+#include "Render/RendererAPI.h"
 
 namespace Zero
 {
@@ -8,9 +10,19 @@ namespace Zero
 		FLayer("EditorLayer")
 	{
 		m_ScriptablePipeline = CreateRef<FRenderPipeline>();
-		m_World = CreateObject<UWorld>(nullptr);
+		BuildWorld();
+	}
+
+	void FEditorLayer::BuildWorld()
+	{
+		m_World = UWorld::CreateWorld();
+		m_World->SetDevice(FRenderer::GetDevice());
 		UWorld::SetCurrentWorld(m_World);
-		m_World->SetDevice(FApplication::Get().GetWindow().GetDevice());
+
+		
+		//UMeshActor* MeshActor = UActor::CreateActor<UMeshActor>(m_World);
+
+		//FShaderRegister::GetInstance().RegisterDefaultShader(m_World->GetDevice().get());
 	}
 	
 	void FEditorLayer::OnAttach()
