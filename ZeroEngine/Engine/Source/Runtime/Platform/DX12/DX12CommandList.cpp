@@ -260,6 +260,42 @@ namespace Zero
 		m_D3DCommandList->Close();
 	}
 
+	ComPtr<ID3D12Resource> FDX12CommandList::CreateDefaultBuffer(const void* BufferData, size_t BufferSize, D3D12_RESOURCE_FLAGS Flags)
+	{
+		CORE_ASSERT(BufferSize != 0 && BufferData != nullptr, "InValid Buffer!")
+		ComPtr<ID3D12Resource> D3DResource;
+		
+		auto  D3DDevice = m_Device.GetDevice();
+
+		ThrowIfFailed(D3DDevice->CreateCommittedResource(
+			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
+			&CD3DX12_RESOURCE_DESC::Buffer(BufferSize, Flags), D3D12_RESOURCE_STATE_COMMON, nullptr,
+			IID_PPV_ARGS(D3DResource.GetAddressOf()))
+		);
+
+		ComPtr<ID3D12Resource> UploadResource;
+		ThrowIfFailed(D3DDevice->CreateCommittedResource(
+			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
+			&CD3DX12_RESOURCE_DESC::Buffer(BufferSize), D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+			IID_PPV_ARGS(UploadResource.GetAddressOf()))
+		);
+
+		D3D12_SUBRESOURCE_DATA SubresourceData = {};
+		SubresourceData.pData = BufferData;
+		SubresourceData.RowPitch = BufferSize;
+		SubresourceData.SlicePitch = SubresourceData.RowPitch;
+
+		m_ResourceStateTracker->TransitionResource(D3DResource.Get(), D3D12_RESOURCE_STATE_COPY_DEST);
+		FlushResourceBarriers();
+
+		UpdateSubresources<1>(m_D3DCommandList.Get(), D3DResource.Get(), UploadResource.Get(), 0, 0, 1, &SubresourceData);
+
+		TrackResource(UploadResource);
+		TrackResource(D3DResource);
+
+		return D3DResource;
+	}
+
 	void FDX12CommandList::SetGraphicsRootSignature(const Ref<IRootSignature>& RootSignature)
 	{
 		

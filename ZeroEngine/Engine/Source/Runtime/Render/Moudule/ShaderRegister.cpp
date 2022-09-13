@@ -10,15 +10,15 @@ namespace Zero
 		std::vector<FConstantBufferLayout> CBLayouts =
 		{
 			FConstantBufferLayout::s_PerObjectConstants,
+			FConstantBufferLayout::s_PerCameraConstants,
 			// Material
 			{
 				{EShaderDataType::RGBA, "Color"},
 			},
-			FConstantBufferLayout::s_PerCameraConstants,
-			FConstantBufferLayout::s_PerFrameConstants,
 		};
 		
 		FShaderDesc ShaderDessc = { false, FVertexBufferLayout::s_TestVertexLayout, 1 };
-		FRenderer::GraphicFactroy->CreateShader(Device, "Color.hlsl", { CBLayouts }, ShaderDessc);
+		
+		FRenderer::GraphicFactroy->CreateShader(Device, "Color.hlsl", {CBLayouts}, ShaderDessc);
 	}
 }

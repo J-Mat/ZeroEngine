@@ -18,6 +18,8 @@ namespace Zero
 	{
 		m_MeshVertexComponent = UComponent::CreateComponent<UMeshVertexComponent>(this, m_MeshType);
 		m_MeshRenderComponent =  UComponent::CreateComponent<UMeshRenderComponent>(this);
+		uint32_t tt = m_MeshVertexComponent->m_Mesh->GetSubMeshNum();
+		m_MeshRenderComponent->SetSubmeshNum(tt);
 	}
 
 	void UMeshActor::CommitToPipieline(FRenderItemPool& RenderItemPool)
@@ -27,9 +29,9 @@ namespace Zero
 		{
 			Ref<FRenderItem> Item = RenderItemPool.Request();
 			Item->m_Mesh = m_MeshVertexComponent->m_Mesh;
-			Item->m_SubMesh = SubMesh.shared_from_this();
+			Item->m_SubMesh = SubMesh;
 			Item->m_ConstantsBuffer = m_MeshVertexComponent->m_ShaderConstantsBuffer;
-			Item->m_Material = m_MeshRenderComponent->m_Materials[EMeshRenderLayerType::RenderLayer_Opaque][MaterialIndex];
+			Item->m_Material = m_MeshRenderComponent->GetPassMaterials(EMeshRenderLayerType::RenderLayer_Opaque)[MaterialIndex];
 			MaterialIndex++;
 
 			RenderItemPool.Push(Item);

@@ -3,13 +3,14 @@
 
 namespace Zero
 {
-	struct FSubMesh : public std::enable_shared_from_this<FSubMesh>
+	struct FSubMesh
 	{
 		FSubMesh() = default;
-		uint32_t Index = 0;
+		uint32_t Index = -1;
 		uint32_t VertexLocation = 0;
 		uint32_t IndexLocation = 0;
 		uint32_t IndexNumber = 0;
+		bool IsNull() { return Index == -1; }
 	};
 	
 	class IVertexBuffer;
@@ -23,6 +24,7 @@ namespace Zero
 		Iter end() { return m_SubMeshes.end(); }
 		virtual void Draw() = 0;
 		virtual void DrawSubMesh(FSubMesh& SubMesh) = 0;
+		uint32_t GetSubMeshNum() { return uint32_t(m_SubMeshes.size()); }
 	protected:
 		Ref<IVertexBuffer>	m_VertexBuffer;
 		Ref<IIndexBuffer>	m_IndexBuffer;

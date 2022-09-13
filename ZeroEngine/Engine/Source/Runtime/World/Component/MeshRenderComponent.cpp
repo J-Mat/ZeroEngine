@@ -1,5 +1,8 @@
 #include "MeshRenderComponent.h"
 #include "Render/RHI/ShaderData.h"
+#include "World/World.h"
+#include "Render/RHI/GraphicDevice.h"
+#include "Render/Moudule/Material.h"
 
 namespace Zero
 {
@@ -17,7 +20,9 @@ namespace Zero
 		{
 			for (size_t i = m_Materials[LayerType].size(); i < m_SubmeshNum; i++)
 			{
-				m_Materials[LayerType].emplace_back(nullptr);
+				IDevice* Device = GetWorld()->GetDevice().get();
+				Ref<FMaterial> Material = CreateRef<FMaterial>(Device);
+				m_Materials[LayerType].emplace_back(Material);
 			}
 		}
 		return m_Materials[LayerType];

@@ -111,7 +111,6 @@ namespace Zero
 			return m_ComputeCommandList;
 		}
 
-
 		void SetGraphicsRootSignature(const Ref<IRootSignature>& rootSignature);
 
 		virtual void Reset();

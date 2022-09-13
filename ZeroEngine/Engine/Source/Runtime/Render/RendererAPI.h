@@ -12,6 +12,8 @@
 #include "Platform/DX12/Shader/DX12ShaderBinder.h"
 #include "Platform/DX12/DX12RootSignature.h"
 #include "Core/Framework/Library.h"
+#include "Core/Config.h"
+#include "Render/Moudule/ShaderRegister.h"
 
 namespace Zero
 {
@@ -99,6 +101,7 @@ namespace Zero
 			auto Device = CreateRef<FDX12Device>();
 			Device->Init();
 			FRenderer::PushDevice(Device);
+			FShaderRegister::GetInstance().RegisterDefaultShader(Device.get());
 			return Device;
 		}
 		virtual Ref<IVertexBuffer> CreateVertexBuffer(IDevice* Device, void* data, uint32_t VertexCount, FVertexBufferLayout& Layout, IVertexBuffer::EType Type = IVertexBuffer::EType::Static)
@@ -149,7 +152,8 @@ namespace Zero
 			Ref<IShader> Shader = Library<IShader>::Fetch(FileName);
 			if (Shader == nullptr)
 			{
-				Shader = CreateRef<FDX12Shader>(*DX12Device, Utils::GetShaderPath(FileName), BinderDesc, ShaderDesc);
+				std::filesystem::path ShaderPath = FConfig::GetInstance().GetShaderFullPath(FileName);
+				Shader = CreateRef<FDX12Shader>(*DX12Device, ShaderPath.string(), BinderDesc, ShaderDesc);
 				Library<IShader>::Push(FileName, Shader);
 			}
 			return Shader;

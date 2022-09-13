@@ -34,8 +34,8 @@ namespace Zero
 	: m_Device(Device)
 	, IShader(BinderDesc, Desc)
 	{
-		m_VSBytecode = CompileShader(Utils::String2WString(FileName), nullptr, "VS", "vs_5_1");
-		m_PSBytecode = CompileShader(Utils::String2WString(FileName), nullptr, "PS", "vs_5_1");
+		m_VSBytecode = CompileShader(Utils::String2WString(FileName), nullptr, "VS", "vs_5_0");
+		m_PSBytecode = CompileShader(Utils::String2WString(FileName), nullptr, "PS", "ps_5_0");
 		
 		GenerateInputLayout();
 		CreateBinder();
@@ -56,6 +56,7 @@ namespace Zero
 
 	void FDX12Shader::GenerateInputLayout()
 	{
+		m_InputLayoutDesc.clear();
 		for (const auto& Element : m_ShaderDesc.VertexBufferLayout)
 		{
 			m_InputLayoutDesc.push_back({

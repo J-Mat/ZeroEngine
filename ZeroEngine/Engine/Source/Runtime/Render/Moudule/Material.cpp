@@ -6,6 +6,7 @@
 #include "Render/RHI/Texture.h"
 #include "World/World.h"
 #include "World/Actor/CameraActor.h"
+#include "Core/Framework/Library.h"
 
 namespace Zero
 {
@@ -13,6 +14,7 @@ namespace Zero
 	FMaterial::FMaterial(IDevice* Device)
 		: m_Device(Device)
 	{
+		SetShader(Library<IShader>::Fetch("Color.hlsl"));
 	}
 
 	FMaterial::~FMaterial()
@@ -20,9 +22,11 @@ namespace Zero
 	}
 	void FMaterial::SetPass()
 	{
-		m_Shader->GetBinder()->BindConstantsBuffer(ERootParameters::MaterialCB, m_ConstantsBuffer.get());
+		Ref<IShaderBinder> ShaderBinder = m_Shader->GetBinder();
+		ShaderBinder->Bind();
+		ShaderBinder->BindConstantsBuffer(ERootParameters::MaterialCB, m_ConstantsBuffer.get());
 		UCameraActor* Camera = UWorld::GetCurrentWorld()->GetCameraActor();
-		m_Shader->GetBinder()->BindConstantsBuffer(ERootParameters::CameraCB, Camera->GetConstantBuffer().get());
+		ShaderBinder->BindConstantsBuffer(ERootParameters::CameraCB, Camera->GetConstantBuffer().get());
 		m_Shader->Use();
 	}
 

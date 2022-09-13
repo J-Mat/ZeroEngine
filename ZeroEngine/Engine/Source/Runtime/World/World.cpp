@@ -8,7 +8,7 @@ namespace Zero
 	UWorld::UWorld()
 	{
 		SetCurrentWorld(this);
-		m_MainCamera = new UCameraActor();
+		m_MainCamera = UActor::Create<UCameraActor>(this);
 		AddActor(m_MainCamera);
 	}
 	void UWorld::Tick()

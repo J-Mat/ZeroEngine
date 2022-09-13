@@ -1,7 +1,6 @@
 #include "EditorLayer.h"
 #include "Render/Pipeline/ForwardStage.h"
 #include "Platform/Windows/WinWindow.h"
-#include "Render/Moudule/ShaderRegister.h"
 #include "Render/RendererAPI.h"
 
 namespace Zero
@@ -15,14 +14,13 @@ namespace Zero
 
 	void FEditorLayer::BuildWorld()
 	{
+		FRenderer::GetDevice()->PreInitWorld();
 		m_World = UWorld::CreateWorld();
 		m_World->SetDevice(FRenderer::GetDevice());
 		UWorld::SetCurrentWorld(m_World);
-
 		
-		//UMeshActor* MeshActor = UActor::CreateActor<UMeshActor>(m_World);
-
-		//FShaderRegister::GetInstance().RegisterDefaultShader(m_World->GetDevice().get());
+		UMeshActor* MeshActor = UActor::Create<UMeshActor>(m_World);
+		FRenderer::GetDevice()->FlushInitCommandList();
 	}
 	
 	void FEditorLayer::OnAttach()
@@ -38,6 +36,7 @@ namespace Zero
 	
 	void FEditorLayer::OnUpdate()
 	{
+		UWorld::GetCurrentWorld()->Tick();
 	}
 
 	void FEditorLayer::OnDraw()

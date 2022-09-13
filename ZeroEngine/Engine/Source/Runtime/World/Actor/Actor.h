@@ -13,7 +13,7 @@ namespace Zero
 	{
 	public:
 		template<class T, typename ...ParamTypes>
-		static T* CreateActor(UWorld *World, ParamTypes &&...Params)
+		static T* Create(UWorld *World, ParamTypes &&...Params)
 		{
 			T* Obj = new T(Params...);
 			Obj->SetWorld(World);

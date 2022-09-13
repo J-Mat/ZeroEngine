@@ -19,12 +19,12 @@ namespace Zero
 			auto* Texture = static_cast<FDX12Texture2D*>(m_Textures[i].get());
 			if (Texture != nullptr)
 			{
-				CommandList->ClearTexture(Texture, ZMath::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+				CommandList->ClearTexture(Texture, ZMath::vec4(0.0f, 0.0f, 0.0f, 0.0f));
 			}
 			
 		}
-		//auto* DepthStencilTexture = static_cast<FDX12Texture2D*>(m_Textures[EAttachmentIndex::DepthStencil].get());
-		//CommandList->ClearDepthStencilTexture(DepthStencilTexture, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL);
+		auto* DepthStencilTexture = static_cast<FDX12Texture2D*>(m_Textures[EAttachmentIndex::DepthStencil].get());
+		CommandList->ClearDepthStencilTexture(DepthStencilTexture, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL);
 	}
 
 	void FDX12RenderTarget::Resize(uint32_t Width, uint32_t Height, uint32_t Depth)

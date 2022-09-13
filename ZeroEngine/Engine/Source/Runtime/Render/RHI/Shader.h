@@ -41,7 +41,7 @@ namespace Zero
 		virtual void Use() = 0;
 		virtual void CreateBinder() = 0;
 
-		Ref<IShaderBinder> GetBinder() { return m_ShaderBinder; }
+		virtual Ref<IShaderBinder> GetBinder() { return m_ShaderBinder; }
 		std::string ShaderID;
 
 	protected:

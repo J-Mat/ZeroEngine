@@ -117,7 +117,7 @@ namespace Zero
 
 	UINT FDX12SwapChain::Present(Ref<FTexture2D> Texture)
 	{
-		auto CommandList = m_CommandQueue.GetCommandList();
+		auto CommandList = m_Device.GetRenderCommandList();
 		
 		Ref<FDX12Texture2D> BufferBuffer = m_BackBufferTextures[m_CurrentBackBufferIndex];
 		

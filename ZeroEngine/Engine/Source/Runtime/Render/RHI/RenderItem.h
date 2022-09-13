@@ -1,14 +1,13 @@
 #pragma once
 #include "Core.h"
+#include "Render/RHI/Mesh.h"
 
 namespace Zero
 {
-	struct FSubMesh;
-	class FMesh;
 	class FMaterial;
 	class IShaderConstantsBuffer;
 	class FRenderItem;
-	
+
 	class FRenderItemPool
 	{
 	public:
@@ -29,13 +28,13 @@ namespace Zero
 	public:
 		FRenderItem() = default;
 		FRenderItem(Ref<FMesh> Mesh);
-		FRenderItem(Ref<FMesh> Mesh, Ref<FSubMesh> SubMesh);
+		FRenderItem(Ref<FMesh> Mesh, const FSubMesh& SubMesh);
 		~FRenderItem();
 		void SetModelMatrix(const ZMath::mat4& Transform);
 		void OnDrawCall();
 		Ref<FMaterial> m_Material = nullptr;
 		Ref<FMesh> m_Mesh = nullptr;
-		Ref<FSubMesh> m_SubMesh = nullptr;
+		FSubMesh m_SubMesh;
 		Ref<IShaderConstantsBuffer> m_ConstantsBuffer = nullptr;
 
 	};

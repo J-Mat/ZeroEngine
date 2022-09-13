@@ -24,20 +24,19 @@ namespace Zero
 		auto& CommandQueue = m_Device->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
 		auto CommandList = CommandQueue.GetCommandList();
 		m_Device->SetRenderCommandList(CommandList);
+		auto SwapChain = m_Device->GetSwapChain();
 
 		
-		auto SwapChain = m_Device->GetSwapChain();
+		/*
 
 		auto RenderTarget = m_Device->GetSwapChain()->GetRenderTarget();
 		RenderTarget->Bind();
 		RenderTarget->ClearBuffer();
 		Ref<FTexture2D> Texuture =  RenderTarget->GetTexture(EAttachmentIndex::Color0);
 		RenderTarget->UnBind();
+		*/
 
-		//FApplication::Get().OnDraw();
-		
-
-		CommandQueue.ExecuteCommandList(CommandList);
+		FApplication::Get().OnDraw();
 
 		SwapChain->Present();
 	}

@@ -2,7 +2,6 @@
 #include "Shader.h"
 #include "ShaderBinder.h"
 #include "Render/Moudule/Material.h"
-#include "Render/RHI/Mesh.h"
 
 namespace Zero
 {
@@ -41,11 +40,12 @@ namespace Zero
 
 	}
 
-	FRenderItem::FRenderItem(Ref<FMesh> Mesh, Ref<FSubMesh> SubMesh)
+	FRenderItem::FRenderItem(Ref<FMesh> Mesh, const FSubMesh& SubMesh)
 	:m_Mesh(Mesh)
 	,m_SubMesh(SubMesh)
 	{
 	}
+
 	FRenderItem::~FRenderItem()
 	{
 	}
@@ -56,13 +56,13 @@ namespace Zero
 	void FRenderItem::OnDrawCall()
 	{
 		m_Material->GetShader()->GetBinder()->BindConstantsBuffer(ERootParameters::PerObjCB, m_ConstantsBuffer.get());
-		if (m_SubMesh == nullptr)
+		if (m_SubMesh.IsNull())
 		{
 			m_Mesh->Draw();
 		}
 		else
 		{
-			m_Mesh->DrawSubMesh(*m_SubMesh.get());
+			m_Mesh->DrawSubMesh(m_SubMesh);
 		}
 	}
 }
