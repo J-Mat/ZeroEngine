@@ -269,7 +269,7 @@ namespace Zero
 
 		ThrowIfFailed(D3DDevice->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
-			&CD3DX12_RESOURCE_DESC::Buffer(BufferSize, Flags), D3D12_RESOURCE_STATE_COMMON, nullptr,
+			&CD3DX12_RESOURCE_DESC::Buffer(BufferSize), D3D12_RESOURCE_STATE_COMMON, nullptr,
 			IID_PPV_ARGS(D3DResource.GetAddressOf()))
 		);
 
@@ -289,6 +289,7 @@ namespace Zero
 		FlushResourceBarriers();
 
 		UpdateSubresources<1>(m_D3DCommandList.Get(), D3DResource.Get(), UploadResource.Get(), 0, 0, 1, &SubresourceData);
+		m_ResourceStateTracker->TransitionResource(D3DResource.Get(), D3D12_RESOURCE_STATE_COMMON);
 
 		TrackResource(UploadResource);
 		TrackResource(D3DResource);

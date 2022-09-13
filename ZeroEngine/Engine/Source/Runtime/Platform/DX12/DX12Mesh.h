@@ -11,7 +11,7 @@ namespace Zero
 	struct FMeshData;
 	class FVertexBufferLayout;
 	class FDX12IndexBuffer;
-	class FDX1VertexBuffer;
+	class FDX12VertexBuffer;
 	class FDX12Mesh : public FMesh
 	{
 	public:
@@ -20,7 +20,7 @@ namespace Zero
 		virtual void Draw();
 		virtual void DrawSubMesh(FSubMesh& SubMesh);
 	private:
-		Ref<FDX1VertexBuffer> m_D3DVertexBuffer;
+		Ref<FDX12VertexBuffer> m_D3DVertexBuffer;
 		Ref<FDX12IndexBuffer> m_D3DIndexBuffer;
 		FDX12Device& m_Device;
 	};

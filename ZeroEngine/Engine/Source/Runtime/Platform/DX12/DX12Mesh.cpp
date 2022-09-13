@@ -13,11 +13,12 @@ namespace Zero
 		: FMesh()
 		, m_Device(Device)
 	{
-		m_D3DVertexBuffer = CreateRef<FDX1VertexBuffer>(m_Device, Vertices, VertexCount, Layout);
+		m_D3DVertexBuffer = CreateRef<FDX12VertexBuffer>(m_Device, Vertices, VertexCount, Layout);
 		m_VertexBuffer = m_D3DVertexBuffer;
 		m_D3DIndexBuffer = CreateRef<FDX12IndexBuffer>(m_Device, Indices, IndexCount);
 		m_IndexBuffer = m_D3DIndexBuffer;
 		FSubMesh SubMesh;
+		SubMesh.Index = 0;
 		SubMesh.IndexNumber = IndexCount;
 		m_SubMeshes.push_back(SubMesh);
 	}
@@ -44,7 +45,7 @@ namespace Zero
 			Indices.insert(Indices.end(), std::begin(MeshData.m_Indices), std::end(MeshData.m_Indices));
 		}
 		
-		m_VertexBuffer = CreateRef<FDX1VertexBuffer>(m_Device, Vertices.data(), uint32_t(Vertices.size()), Layout);
+		m_VertexBuffer = CreateRef<FDX12VertexBuffer>(m_Device, Vertices.data(), uint32_t(Vertices.size()), Layout);
 		m_IndexBuffer = CreateRef<FDX12IndexBuffer>(m_Device, Indices.data(), uint32_t(Indices.size()));
 	}
 	void FDX12Mesh::Draw()
@@ -64,5 +65,6 @@ namespace Zero
 		D3DCommandList->IASetIndexBuffer(&(m_D3DIndexBuffer->GetIndexBufferView()));
 		D3DCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		D3DCommandList->DrawIndexedInstanced(SubMesh.IndexNumber, 1, SubMesh.IndexLocation, SubMesh.VertexLocation, 0);
+		//D3DCommandList->DrawInstanced(m_D3DVertexBuffer->m_VertexCount, 1, 0, 0);
 	}
 }

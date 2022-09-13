@@ -63,9 +63,9 @@ namespace Zero
 			m_VertexCount(_VertexCount),
 			m_Layout(_Layout),
 			m_Type(_Type),
-			m_BufferSize(_VertexCount * m_Layout.GetStride())
+			m_BufferSize(_VertexCount * sizeof(float))
 		{}
-	protected:
+	public:
 		void* m_Data = nullptr;
 		uint32_t m_VertexCount = 0;
 		FVertexBufferLayout m_Layout;

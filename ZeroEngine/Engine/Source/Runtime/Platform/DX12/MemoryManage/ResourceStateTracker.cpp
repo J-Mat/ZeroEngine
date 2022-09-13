@@ -162,7 +162,6 @@ namespace Zero
 		UINT NumBarriers = static_cast<UINT> (m_ResourceBarriersList.size());
 		if (NumBarriers > 0)
 		{
-			CORE_ASSERT(CommandList->GetD3D12CommandList() != nullptr, "lalla");
 			CommandList->GetD3D12CommandList()->ResourceBarrier(NumBarriers, m_ResourceBarriersList.data());
 			m_ResourceBarriersList.clear();
 		}

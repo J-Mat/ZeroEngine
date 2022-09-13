@@ -4,7 +4,7 @@
 
 namespace Zero
 {
-	FDX1VertexBuffer::FDX1VertexBuffer(FDX12Device& _Device, void* _Data, uint32_t _VertexCount, FVertexBufferLayout& _Layout, IVertexBuffer::EType _Type)
+	FDX12VertexBuffer::FDX12VertexBuffer(FDX12Device& _Device, void* _Data, uint32_t _VertexCount, FVertexBufferLayout& _Layout, IVertexBuffer::EType _Type)
 		:IVertexBuffer(_Data, _VertexCount, _Layout, _Type)
 		, IBuffer(_Device)
 		, m_Device(_Device)
@@ -13,15 +13,15 @@ namespace Zero
 		CreateVertexBufferView();
 	}
 	
-	const D3D12_VERTEX_BUFFER_VIEW& FDX1VertexBuffer::GetVertexBufferView()
+	const D3D12_VERTEX_BUFFER_VIEW& FDX12VertexBuffer::GetVertexBufferView()
 	{
 		return m_VertexBufferView;
 	}
 
-	void FDX1VertexBuffer::CreateVertexBufferView()
+	void FDX12VertexBuffer::CreateVertexBufferView()
 	{
 		m_VertexBufferView.BufferLocation = m_D3DResource->GetGPUVirtualAddress();
-		m_VertexBufferView.SizeInBytes = static_cast<UINT>(m_VertexCount * m_Layout.GetStride());
+		m_VertexBufferView.SizeInBytes = static_cast<UINT>(m_BufferSize);
 		m_VertexBufferView.StrideInBytes = static_cast<UINT>(m_Layout.GetStride());
 	}
 }

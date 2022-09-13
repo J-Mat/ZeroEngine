@@ -106,7 +106,7 @@ namespace Zero
 		}
 		virtual Ref<IVertexBuffer> CreateVertexBuffer(IDevice* Device, void* data, uint32_t VertexCount, FVertexBufferLayout& Layout, IVertexBuffer::EType Type = IVertexBuffer::EType::Static)
 		{
-			return CreateRef<FDX1VertexBuffer>(*((FDX12Device*)Device), data, VertexCount, Layout, Type);
+			return CreateRef<FDX12VertexBuffer>(*((FDX12Device*)Device), data, VertexCount, Layout, Type);
 		}
 
 		virtual Ref<FTexture2D> CreateTexture2D(IDevice* Device, const std::string Path)
