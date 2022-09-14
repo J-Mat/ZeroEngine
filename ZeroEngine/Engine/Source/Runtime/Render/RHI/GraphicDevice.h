@@ -12,5 +12,6 @@ namespace Zero
 		virtual void FlushInitCommandList() = 0;
 		virtual void PreInitWorld() = 0;
 		virtual Ref<FSwapChain>  GetSwapChain() { return nullptr; }
+		virtual void CreateSwapChain(HWND hWnd) = 0;
 	};
 }

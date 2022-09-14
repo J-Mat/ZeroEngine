@@ -2,6 +2,7 @@
 #include "Render/Pipeline/ForwardStage.h"
 #include "Platform/Windows/WinWindow.h"
 #include "Render/RendererAPI.h"
+#include "EditorCameraController.h"
 
 namespace Zero
 {
@@ -21,6 +22,9 @@ namespace Zero
 		
 		UMeshActor* MeshActor = UActor::Create<UMeshActor>(m_World);
 		FRenderer::GetDevice()->FlushInitCommandList();
+
+		m_CameraController = CreateRef<FEditorCameraController>(m_World->GetCameraActor());
+
 	}
 	
 	void FEditorLayer::OnAttach()
@@ -37,6 +41,7 @@ namespace Zero
 	void FEditorLayer::OnUpdate()
 	{
 		UWorld::GetCurrentWorld()->Tick();
+		m_CameraController->Tick();
 	}
 
 	void FEditorLayer::OnDraw()

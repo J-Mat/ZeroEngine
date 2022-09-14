@@ -68,12 +68,13 @@ namespace Zero
 	};
 
 
+	class IDevice;
 	class FFrameResourcesManager : public IPublicSingleton<FFrameResourcesManager>
 	{
 	public:
 		FFrameResourcesManager(int FrameResourcesCount = 3);
 		virtual ~FFrameResourcesManager();
-		void Init(Ref<FDX12Device> Device);
+		void Init(Ref<IDevice> Device);
 		void SetCurrentFence(uint64_t FenceValue);
 		void UseNextFrameResource() { m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_FrameResourcesCount; }
 		uint32_t GetCurrentIndex() { return m_CurrentFrameIndex; }

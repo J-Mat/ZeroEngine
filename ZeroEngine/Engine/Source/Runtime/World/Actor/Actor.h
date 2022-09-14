@@ -26,6 +26,7 @@ namespace Zero
 		UActor(const std::string Tag = "Actor");
 		virtual void PostInit();
 		UTransformationComponent* GetTransformationComponent() { return m_TransformationComponent; }
+		virtual void MoveForward(const ZMath::vec3& Offset);
 		virtual void SetPosition(const ZMath::vec3& Position);
 		virtual void SetRotation(const ZMath::vec3& Rotation);
 		virtual void SetScale(const ZMath::vec3& Scale);
@@ -44,8 +45,8 @@ namespace Zero
 		void AddComponent(UComponent* Component) { m_Components.push_back(Component); }
 	protected:
 		std::string m_Tag;
-		UTransformationComponent* m_TransformationComponent;
-		UTagComponent* m_Tagcomponent;
+		UTransformationComponent* m_TransformationComponent = nullptr;
+		UTagComponent* m_Tagcomponent = nullptr;
 		std::vector<UComponent*> m_Components;
 	};
 }

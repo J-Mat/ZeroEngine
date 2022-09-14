@@ -15,7 +15,7 @@ namespace Zero
 		PerObjCB,         // ConstantBuffer<Mat> MatCB : register(b0);
 		CameraCB,         // ConstantBuffer<Mat> MatCB : register(b0);
 		MaterialCB,         // ConstantBuffer<Material> MaterialCB : register( b0, space1 );
-		LightPropertiesCB,  // ConstantBuffer<LightProperties> LightPropertiesCB : register( b1 );
+		FrameConstantCB,  // ConstantBuffer<LightProperties> LightPropertiesCB : register( b1 );
 		PointLights,        // StructuredBuffer<PointLight> PointLights : register( t0 );
 		SpotLights,         // StructuredBuffer<SpotLight> SpotLights : register( t1 );
 		Texture2Ds,         // Texture2D DiffuseTexture : register( t2 );

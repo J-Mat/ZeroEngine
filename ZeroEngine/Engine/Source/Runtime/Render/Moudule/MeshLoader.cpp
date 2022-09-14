@@ -21,7 +21,6 @@ namespace Zero
 	}
 	void FMeshCreator::CreateCube(FMeshData& Meshata)
 	{
-		/*
 		Meshata.m_Vertices =
 		{
 			-1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 1.0f, 1.0f,
@@ -61,17 +60,18 @@ namespace Zero
 			4, 0, 3,
 			4, 3, 7
 		};
-		*/
+		/*
 		Meshata.m_Vertices =
 		{
 			 0.0f,  0.5f,  0.0f,   Utils::Colors::Red[0],  Utils::Colors::Red[1], Utils::Colors::Red[2],Utils::Colors::Red[3],
-			-0.5f, -0.5f,  0.0f,   Utils::Colors::Green[0], Utils::Colors::Green[1], Utils::Colors::Green[2],Utils::Colors::Green[3],
 			 0.5f, -0.5f,  0.0f,   Utils::Colors::Blue[0], Utils::Colors::Blue[1], Utils::Colors::Blue[2], Utils::Colors::Blue[3],
+			-0.5f, -0.5f,  0.0f,   Utils::Colors::Green[0], Utils::Colors::Green[1], Utils::Colors::Green[2],Utils::Colors::Green[3],
 		};
 		Meshata.m_Indices =
 		{
 			// front face
-			2, 1, 0,
+			0, 1, 2
 		};
+		*/
 	}
 }

@@ -10,11 +10,12 @@ namespace Zero
 	void UCameraActor::PostInit()
 	{
 		m_CameraComponent = UComponent::CreateComponent<UCameraComponent>(this);
+		m_TransformationComponent = m_CameraComponent;
 	}
 
 	void UCameraActor::Tick()
 	{
-		
+		UActor::Tick();
 	}
 
 }

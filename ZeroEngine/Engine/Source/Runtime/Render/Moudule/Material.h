@@ -21,11 +21,13 @@ namespace Zero
 	class FTextureCubemap;
 	class IShaderConstantsBuffer;
 	class IShaderResourcesBuffer;
+	class FFrameConstants;
 	class FMaterial
 	{
 	public:
 		FMaterial(IDevice* Device);
 		~FMaterial();	
+		void Tick();
 		void SetPass();
 		void OnDrawCall();
 		void SetShader(Ref<IShader> Shader);
@@ -55,5 +57,8 @@ namespace Zero
 
 		Ref<IShaderConstantsBuffer> m_ConstantsBuffer;
 		Ref<IShaderResourcesBuffer> m_ResourcesBuffer;
+
+		Ref<FFrameConstants> m_FrameConstants;
+		Ref<IShaderConstantsBuffer> m_FrameResourceBuffer;
 	};
 }

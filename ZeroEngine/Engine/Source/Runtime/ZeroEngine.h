@@ -9,3 +9,7 @@
 #include "World/World.h"
 #include "World/Actor/CameraActor.h"
 #include "World/Actor/MeshActor.h"
+#include "Core/Base/Input.h"
+#include "Core/Events/Event.h"
+#include "Core/Events/KeyEvent.h"
+#include "Core/Events/MouseEvent.h"

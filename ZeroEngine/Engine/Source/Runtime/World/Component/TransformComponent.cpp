@@ -7,6 +7,12 @@ namespace Zero
 		: UComponent()
 	{
 	}
+	void UTransformationComponent::MoveForward(const ZMath::vec3& Offset)
+	{
+		m_Position += m_RightVector * Offset.x + m_UpVector * Offset.y + m_ForwardVector * Offset.z;
+		//std::cout << Offset.x << " " << Offset.y << " " << Offset.z << std::endl;
+		std::cout << m_Position.x << " " << m_Position.y << " " << m_Position.z << std::endl;
+	}
 	void UTransformationComponent::SetRotation(const ZMath::vec3& Rotation)
 	{
 		m_Rotation = {

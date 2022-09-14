@@ -32,7 +32,7 @@ namespace Zero
 		virtual float* PtrFloat4(const std::string& Name);
 		virtual float* PtrMatrix4x4(const std::string& Name);
 
-		virtual void UploadDataIfDity();
+		virtual void UploadDataIfDirty();
 		virtual void SetDirty() { m_bIsDirty = true; }
 		
 		Ref<FFrameResourceBuffer> GetFrameResourceBuffer() { return m_ConstantsTableBuffer; }

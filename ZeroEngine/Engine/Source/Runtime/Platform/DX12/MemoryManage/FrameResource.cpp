@@ -33,9 +33,9 @@ namespace Zero
 		, m_CurrentFrameIndex(0)
 	{
 	}
-	void FFrameResourcesManager::Init(Ref<FDX12Device> Device)
+	void FFrameResourcesManager::Init(Ref<IDevice> Device)
 	{
-		m_Device = Device;
+		m_Device = static_cast<FDX12Device*>(Device.get())->AsShared();
 		m_Fences.resize(m_FrameResourcesCount);
 		m_CommandAllocators.resize(m_FrameResourcesCount);
 		m_UploadBuffers.resize(m_FrameResourcesCount);

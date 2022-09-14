@@ -19,14 +19,13 @@ namespace Zero
 		{}
 	};
 	
-	
-	template<typename T>
-	class FWindows
+	class IDevice;
+	class FWindow
 	{
 	public:
 		using EventCallBackFn = std::function<void(FEvent&)>;
 
-		virtual ~FWindows() {}
+		virtual ~FWindow() {}
 
 		virtual void OnUpdate() = 0;
 
@@ -39,15 +38,12 @@ namespace Zero
 		
 		virtual void* GetNativeWindow() const = 0;
 		// virtual std::shared_ptr<GraphicsContext> GetGraphicsContext() const = 0;
-				
-		static Ref<FWindows> Create(const FWindowsConfig& Config);
 		
-		
-		Ref<T> GetDevice() { return m_Device; }
+		Ref<IDevice> GetDevice() { return m_Device; }
 
 	protected:
 		uint32_t m_DeviceIndex = -1;
-		Ref<T> m_Device;
+		Ref<IDevice> m_Device;
 		
 	};
 }

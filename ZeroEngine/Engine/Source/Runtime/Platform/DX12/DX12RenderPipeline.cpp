@@ -40,9 +40,9 @@ namespace Zero
 
 		SwapChain->Present();
 	}
-	void FDX12RenderPipeline::SetDevice(Ref<FDX12Device> Device)
+	void FDX12RenderPipeline::SetDevice(Ref<IDevice> Device)
 	{
-		m_Device = Device;
+		m_Device = static_cast<FDX12Device*>(Device.get())->AsShared();
 		auto& CommandQueue = m_Device->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
 	}
 	

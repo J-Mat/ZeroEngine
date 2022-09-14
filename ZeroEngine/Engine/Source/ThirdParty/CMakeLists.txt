@@ -106,8 +106,8 @@ if(NOT TARGET glm)
     option(BUILD_TESTING "" OFF)
     option(GLM_TEST_ENABLE "" OFF)
     add_subdirectory(glm)
-    set_target_properties(glm PROPERTIES FOLDER ${ThirdPartyFolder})
-    NoWarningInterface(glm)
+    set_target_properties(glm_static PROPERTIES FOLDER ${ThirdPartyFolder})
+    NoWarningInterface(glm_static)
 endif()
 
 

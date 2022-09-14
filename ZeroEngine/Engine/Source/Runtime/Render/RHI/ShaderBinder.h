@@ -106,7 +106,7 @@ namespace Zero
 		virtual float* PtrMatrix4x4(const std::string& Name) = 0;
 
 
-		virtual void UploadDataIfDity() = 0;
+		virtual void UploadDataIfDirty() = 0;
 		virtual void SetDirty() = 0;
 		virtual void Test() {};
 

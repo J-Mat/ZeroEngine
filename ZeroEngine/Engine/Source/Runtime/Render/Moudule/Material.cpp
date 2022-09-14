@@ -7,6 +7,10 @@
 #include "World/World.h"
 #include "World/Actor/CameraActor.h"
 #include "Core/Framework/Library.h"
+#include "Render/Moudule/FrameConstants.h"
+#include "Core/Framework/Application.h"
+#include "Core/Base/FrameTimer.h"
+#include "Render/Moudule/FrameConstants.h"
 
 namespace Zero
 {
@@ -14,11 +18,19 @@ namespace Zero
 	FMaterial::FMaterial(IDevice* Device)
 		: m_Device(Device)
 	{
+		m_FrameConstants = CreateRef<FFrameConstants>(Device);
+		m_FrameResourceBuffer = m_FrameConstants->GetShaderConstantBuffer();
 		SetShader(Library<IShader>::Fetch("Color.hlsl"));
 	}
 
 	FMaterial::~FMaterial()
 	{
+	}
+	void FMaterial::Tick()
+	{
+		float TotalTime = FApplication::Get().GetFrameTimer()->GetTotalTime();
+		ZMath::vec4 Color = { 1.0 * ZMath::sin(TotalTime), 0.0f, 1.0f, 1.0f};
+		m_FrameResourceBuffer->SetFloat4("Color", Color);
 	}
 	void FMaterial::SetPass()
 	{
@@ -27,13 +39,15 @@ namespace Zero
 		ShaderBinder->BindConstantsBuffer(ERootParameters::MaterialCB, m_ConstantsBuffer.get());
 		UCameraActor* Camera = UWorld::GetCurrentWorld()->GetCameraActor();
 		ShaderBinder->BindConstantsBuffer(ERootParameters::CameraCB, Camera->GetConstantBuffer().get());
+		ShaderBinder->BindConstantsBuffer(ERootParameters::FrameConstantCB, m_FrameResourceBuffer.get());
 		m_Shader->Use();
 	}
 
 	void FMaterial::OnDrawCall()
 	{
-		m_ConstantsBuffer->UploadDataIfDity();
+		m_ConstantsBuffer->UploadDataIfDirty();
 		m_ResourcesBuffer->UploadDataIfDirty();
+		m_FrameResourceBuffer->UploadDataIfDirty();
 	}
 	void FMaterial::SetShader(Ref<IShader> Shader)
 	{

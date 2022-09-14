@@ -2,8 +2,10 @@
 
 #include <ZeroEngine.h>
 
+
 namespace Zero
 {
+	class FEditorCameraController;
 	class FEditorLayer : public FLayer
 	{
 	public:
@@ -22,5 +24,6 @@ namespace Zero
 	private: 
 		Ref<FRenderPipeline> m_ScriptablePipeline;
 		UWorld* m_World = nullptr;
+		Ref<FEditorCameraController> m_CameraController;
 	};
 }

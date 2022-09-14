@@ -10,14 +10,14 @@
 
 namespace Zero
 {
-	class FDX12Device;
+	class IDevice;
 	class FDX12RenderPipeline : public IPublicSingleton<FDX12RenderPipeline>
 	{
 	public:
 		FDX12RenderPipeline();
 
 		void DrawFrame();
-		void SetDevice(Ref<FDX12Device> Device);
+		void SetDevice(Ref<IDevice> Device);
 	private:
 		FLayerStack m_RenderLayerStack;
 		Ref<FDX12Device> m_Device;

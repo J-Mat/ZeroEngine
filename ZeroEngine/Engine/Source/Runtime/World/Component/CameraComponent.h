@@ -15,13 +15,13 @@ namespace Zero
 	struct FCameraSettings
 	{
 		FCameraSettings() = default;
-		float Fov = 60.0f;
+		float Fov = 90.0f;
 		float Aspect = 4.0f / 3.0f;
 		ZMath::vec3 WorldUp = { 0.0f, 1.0f, 0.0f };
 		ECameraType Cameratype = ECameraType::CT_PERSPECT;
 
-		float Near = 0.1f;
-		float Far = 10000.0f;
+		float Near = 0.01f;
+		float Far = 1000.0f;
 		float Left = 0.0f;
 		float Right = 0.0f;
 		float Bottom = 0.0f;

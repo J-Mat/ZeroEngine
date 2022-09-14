@@ -36,7 +36,7 @@ namespace Zero
 		m_CopyCommandQueue->Flush();
 	}
 
-	void FDX12Device::CreatSwapChain(HWND hWnd)
+	void FDX12Device::CreateSwapChain(HWND hWnd)
 	{
 		m_SwapChain = CreateRef<FDX12SwapChain>(*this, hWnd);
 		m_SwapChain->SetVSync(false);

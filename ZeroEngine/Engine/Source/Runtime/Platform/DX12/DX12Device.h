@@ -60,7 +60,7 @@ namespace Zero
 		
 		void Flush();
 		
-		void CreatSwapChain(HWND hWnd);
+		virtual void CreateSwapChain(HWND hWnd) override;
 		virtual Ref<FSwapChain>  GetSwapChain() { return m_SwapChain; }
 
 		virtual void Resize(uint32_t Width, uint32_t Height) { m_SwapChain->Resize(Width, Height); }

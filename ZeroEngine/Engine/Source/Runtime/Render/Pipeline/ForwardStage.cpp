@@ -24,10 +24,10 @@ namespace Zero
 		FRenderItemPool& RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool();
 		for (Ref<FRenderItem> RenderItem : RenderItemPool)
 		{
+			RenderItem->m_Material->Tick();
 			RenderItem->m_Material->SetPass();
 			RenderItem->m_Material->OnDrawCall();
 			RenderItem->OnDrawCall();
-
 		}
 		m_RenderTarget->UnBind();
 	}

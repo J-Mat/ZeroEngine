@@ -13,8 +13,9 @@ namespace Zero
 			FConstantBufferLayout::s_PerCameraConstants,
 			// Material
 			{
-				{EShaderDataType::RGBA, "Color"},
+				{EShaderDataType::RGBA, "Base"},
 			},
+			FConstantBufferLayout::s_PerFrameConstants
 		};
 		
 		FShaderDesc ShaderDessc = { false, FVertexBufferLayout::s_TestVertexLayout, 1 };

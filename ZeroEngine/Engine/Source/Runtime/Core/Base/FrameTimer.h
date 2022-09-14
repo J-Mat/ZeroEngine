@@ -9,34 +9,34 @@ namespace Zero
 		FFrameTimer();
 
 		float GetTotalTime()const;
-		float GetDeltaTime()const { return (float)DeltaTime; }
-		bool IsStoped() { return bIsStoped; }
+		float GetDeltaTime()const { return (float)m_DeltaTime; }
+		bool IsStoped() { return m_bIsStoped; }
 
 		virtual void Reset() = 0;
 		virtual void Start() = 0;
 		virtual void Stop() = 0;
 		virtual void Tick() = 0;
 
-		inline const float& GetFPS() const { return FPS; }
-		inline const float& GetMsPF() const { return MsPF; }
+		inline const float& GetFPS() const { return m_FPS; }
+		inline const float& GetMsPF() const { return m_MsPF; }
 
 	protected:
 		void	RefreshFPS();
-		__int64 FrameCount = 0;
-		int		FramePerSecond = 0;
-		float	FPS = 0;
-		float	MsPF = 0;
+		__int64 m_FrameCount = 0;
+		int		m_FramePerSecond = 0;
+		float	m_FPS = 0;
+		float	m_MsPF = 0;
 
 	protected:
-		double SencondsPerCount;
-		double DeltaTime;
+		double m_SencondsPerCount;
+		double m_DeltaTime;
 
-		__int64 BaseTime;
-		__int64 PauseTime;	
-		__int64 StopTime;
-		__int64 PrevTime;
-		__int64 CurrentTime;
+		__int64 m_BaseTime;
+		__int64 m_PauseTime;	
+		__int64 m_StopTime;
+		__int64 m_PrevTime;
+		__int64 m_CurrentTime;
 
-		bool bIsStoped;
+		bool m_bIsStoped;
 	};
 }

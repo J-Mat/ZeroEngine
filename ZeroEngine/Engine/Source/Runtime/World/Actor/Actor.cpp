@@ -16,6 +16,12 @@ namespace Zero
 		m_TransformationComponent = UComponent::CreateComponent<UTransformationComponent>(this);
 		m_Tagcomponent = UComponent::CreateComponent<UTagComponent>(this, m_Tag);
 	}
+
+	void UActor::MoveForward(const ZMath::vec3& Offset)
+	{
+		m_TransformationComponent->MoveForward(Offset);
+	}
+
 	void UActor::SetPosition(const ZMath::vec3& Position)
 	{
 		m_TransformationComponent->SetPosition(Position);

@@ -14,7 +14,6 @@ namespace Zero
 		virtual void PostInit();
 		virtual void Tick();
 		Ref<IShaderConstantsBuffer> GetConstantBuffer() { return m_CameraComponent->GetConstantBuffer(); }
-	protected:
 		UCameraComponent* m_CameraComponent = nullptr;
 	};
 }

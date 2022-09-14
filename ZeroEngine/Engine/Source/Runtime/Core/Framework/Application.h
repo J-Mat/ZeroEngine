@@ -40,7 +40,7 @@ namespace Zero
 		void PushOverlay(FLayer* Overlay);
 		FLayerStack& GetLayerStack() { return m_LayerStack; }
 
-		inline FWinWindow& GetWindow() { return *m_Window; }
+		inline FWindow& GetWindow() { return *m_Window.get(); }
 		inline static FApplication& Get() { return *s_Instance; }
 		inline FFrameTimer* GetFrameTimer() { return m_FrameTimer.get(); }
 	
@@ -49,7 +49,7 @@ namespace Zero
 		bool OnWindowResized(FWindowResizeEvent& Event);
 	
 	private:
-		Ref<FWinWindow> m_Window;
+		Ref<FWindow> m_Window;
 		Scope<FFrameTimer> m_FrameTimer;
 		
 		bool bRunning = true;

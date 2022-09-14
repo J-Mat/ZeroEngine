@@ -53,10 +53,14 @@ namespace Zero
 		case ECameraType::CT_ORI:
 			break;
 		}
+		m_ForwardVector = ZMath::normalize(m_LookAt - m_Position);
+		m_RightVector = ZMath::cross(m_ForwardVector, m_UpVector);
+		m_UpVector = ZMath::cross(m_RightVector, m_ForwardVector);
 	}
 
 	void UCameraComponent::UpdateMat()
 	{
+		m_LookAt = m_Position + m_ForwardVector;
 		m_View = ZMath::lookAtLH(m_Position, m_LookAt, m_UpVector);
 		m_ProjectionView = m_Projection * m_View;
 	}
@@ -70,12 +74,12 @@ namespace Zero
 			m_ShaderConstantsBuffer->SetMatrix4x4("ProjectionView", m_ProjectionView);
 			m_ShaderConstantsBuffer->SetFloat3("ViewPos", m_Position);
 		}
-		m_ShaderConstantsBuffer->UploadDataIfDity();
+		m_ShaderConstantsBuffer->UploadDataIfDirty();
 	}
 
 	void UCameraComponent::Tick()
 	{
-		UpdateMat();
+		UpdateMat(); 
 		UploadBuffer();
 	}
 }

@@ -96,7 +96,6 @@ namespace Zero
 		}
 		
 		m_bMinimized = false;
-		//m_Window->GetGraphicContext()->OnWindowResize(e.GetWidth(), e.GetHeight());
 		m_Window->GetDevice()->Resize(Event.GetWidth(), Event.GetHeight());
 		return false;
 	}

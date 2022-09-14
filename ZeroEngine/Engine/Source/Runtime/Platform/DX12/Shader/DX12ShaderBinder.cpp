@@ -116,7 +116,7 @@ namespace Zero
 		COPY_PTR_FROM_CONSTBUFFER(Name, Value, float)
 	}
 
-	void FDX12ShaderConstantsBuffer::UploadDataIfDity()
+	void FDX12ShaderConstantsBuffer::UploadDataIfDirty()
 	{
 		if (m_bIsDirty)
 		{

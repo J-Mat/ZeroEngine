@@ -15,10 +15,11 @@ namespace Zero
 		{EShaderDataType::Mat4, "View"},
 		{EShaderDataType::Mat4, "Projection" },
 		{EShaderDataType::Mat4, "ProjectionView" },
+		{EShaderDataType::Float3, "ViewPos" },
 	};
 
 	FConstantBufferLayout FConstantBufferLayout::s_PerFrameConstants =
 	{
-		{EShaderDataType::Float, "Test"},
+		{EShaderDataType::RGBA, "Color"},
 	};
 }
