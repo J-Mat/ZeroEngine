@@ -17,7 +17,6 @@ cbuffer cbCameraObject : register(b1)
 	float4x4 View;
 	float4x4 Projection;
 	float4x4 ProjectionView;
-	float3 ViewPos;
 }
 
 cbuffer cbMaterial : register(b2)
@@ -47,10 +46,9 @@ VertexOut VS(VertexIn vin)
 {
 	VertexOut vout;
 	
-	vout.PosH = mul(View, float4(vin.PosL, 1.0f));
-	vout.PosH = mul(Projection, vout.PosH);
+	vout.PosH = float4(vin.PosL, 1.0f);
 	
-	vout.Color = vin.Color;
+	vout.Color = Color;
 
 	return vout;
 };
