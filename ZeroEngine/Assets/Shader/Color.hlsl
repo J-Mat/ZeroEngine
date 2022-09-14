@@ -40,8 +40,7 @@ VertexOut VS(VertexIn vin)
 {
 	VertexOut vout;
 	
-	vout.PosH = mul(View, float4(vin.PosL, 1.0f));
-	vout.PosH = mul(Projection, vout.PosH);
+	vout.PosH = float4(vin.PosL, 1.0f);
 	
 	vout.Color = vin.Color;
 

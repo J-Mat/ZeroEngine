@@ -19,8 +19,8 @@ namespace Zero
 	{
 		Ref<IDevice> Device = UWorld::GetCurrentWorld()->GetDevice();
 		m_RenderTarget =  Device->GetSwapChain()->GetRenderTarget();
-		m_RenderTarget->Bind();
 		m_RenderTarget->ClearBuffer();
+		m_RenderTarget->Bind();
 		FRenderItemPool& RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool();
 		for (Ref<FRenderItem> RenderItem : RenderItemPool)
 		{

@@ -166,14 +166,15 @@ namespace Zero
 			m_BackBufferTextures[i]->SetName(L"Backbuffer[" + std::to_wstring(i) + L"]");
 		}
 		
-		auto DepthTextureDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, m_Width, m_Height);
+		// Resize the depth texture.
+		auto DepthStencilDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D24_UNORM_S8_UINT, m_Width, m_Height);
 		// Must be set on textures that will be used as a depth-stencil buffer.
-		DepthTextureDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+		DepthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
 		// Specify optimized clear values for the depth buffer.
-		D3D12_CLEAR_VALUE OptimizedClearValue = {};
-		OptimizedClearValue.Format = DXGI_FORMAT_D32_FLOAT;
-		OptimizedClearValue.DepthStencil = { 1.0F, 0 };
-		m_DepthStencilTexture = CreateRef<FDX12Texture2D>(m_Device, DepthTextureDesc, &OptimizedClearValue);
+		D3D12_CLEAR_VALUE OptClear = {};
+		OptClear.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		OptClear.DepthStencil = { 1.0F, 0 };
+		m_DepthStencilTexture = CreateRef<FDX12Texture2D>(m_Device, DepthStencilDesc, &OptClear);
 	}
 }

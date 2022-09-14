@@ -19,9 +19,8 @@ namespace Zero
 			auto* Texture = static_cast<FDX12Texture2D*>(m_Textures[i].get());
 			if (Texture != nullptr)
 			{
-				CommandList->ClearTexture(Texture, ZMath::vec4(0.0f, 0.0f, 0.0f, 0.0f));
+				CommandList->ClearTexture(Texture, Utils::Colors::Black);
 			}
-			
 		}
 		auto* DepthStencilTexture = static_cast<FDX12Texture2D*>(m_Textures[EAttachmentIndex::DepthStencil].get());
 		CommandList->ClearDepthStencilTexture(DepthStencilTexture, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL);
