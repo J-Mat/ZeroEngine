@@ -166,7 +166,7 @@ namespace Zero
 			if (Texture == nullptr)
 			{
 				std::filesystem::path TexturePath = FConfig::GetInstance().GetTextureFullPath(FileName);
-				FImage Image(TexturePath.string());
+				Ref<FImage> Image = CreateRef<FImage>(TexturePath.string());
 				Texture = CreateRef<FDX12Texture2D>(*DX12Device, Image);
 				Library<FTexture2D>::Push(FileName,Texture);
 			}

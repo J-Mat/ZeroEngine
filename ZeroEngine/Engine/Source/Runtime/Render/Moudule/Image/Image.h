@@ -22,7 +22,7 @@ namespace Zero
 		}
 	};
 	
-	class FImage
+	class FImage  
 	{
 	public:
 		enum class EImgeType
