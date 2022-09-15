@@ -25,45 +25,48 @@ namespace Zero
 
         return false;
     }
-    float FWinInput::GetMouseXImpl()
+
+    int32_t FWinInput::GetMouseXImpl()
     {
-        POINT pt;
-        BOOL bReturn = GetCursorPos(&pt);
+        POINT Point;
+        BOOL bReturn = GetCursorPos(&Point);
         if (bReturn != 0)
         {
-            if (ScreenToClient((HWND)FApplication::Get().GetWindow().GetNativeWindow(), &pt))
+            if (ScreenToClient((HWND)FApplication::Get().GetWindow().GetNativeWindow(), &Point))
             {
-                return pt.x;
+                return Point.x;
             }
         }
 
-        return 0.0f;
+        return 0;
     }
-    float FWinInput::GetMouseYImpl()
+
+    int32_t FWinInput::GetMouseYImpl()
     {
-        POINT pt;
-        BOOL bReturn = GetCursorPos(&pt);
+        POINT Point;
+        BOOL bReturn = GetCursorPos(&Point);
         if (bReturn != 0)
         {
-            if (ScreenToClient((HWND)FApplication::Get().GetWindow().GetNativeWindow(), &pt))
+            if (ScreenToClient((HWND)FApplication::Get().GetWindow().GetNativeWindow(), &Point))
             {
-                return pt.y;
+                return Point.y;
             }
         }
 
-        return 0.0f;
+        return 0;
     }
-    std::pair<float, float> FWinInput::GetMousePositionImpl()
+
+    std::pair<int32_t, int32_t> FWinInput::GetMousePositionImpl()
     {
-        POINT pt;
-        BOOL bReturn = GetCursorPos(&pt);
+        POINT Point;
+        BOOL bReturn = GetCursorPos(&Point);
         if (bReturn != 0)
         {
-            if (ScreenToClient((HWND)FApplication::Get().GetWindow().GetNativeWindow(), &pt))
+            if (ScreenToClient((HWND)FApplication::Get().GetWindow().GetNativeWindow(), &Point))
             {
-                return { pt.x ,pt.y };
+                return { Point.x ,Point.y };
             }
         }
-        return { 0.0f, 0.0f };
+        return { 0, 0 };
     }
 }

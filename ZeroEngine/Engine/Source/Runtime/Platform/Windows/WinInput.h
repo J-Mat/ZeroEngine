@@ -10,8 +10,8 @@ namespace Zero
 	protected:
 		virtual bool IsKeyPressedImpl(int keycode) override;
 		virtual bool IsMouseButtonPressedImpl(int button) override;
-		virtual float GetMouseXImpl() override;
-		virtual float GetMouseYImpl() override;
-		virtual std::pair<float, float> GetMousePositionImpl() override;
+		virtual int32_t GetMouseXImpl() override;
+		virtual int32_t GetMouseYImpl() override;
+		virtual std::pair<int32_t, int32_t> GetMousePositionImpl() override;
 	};
 }

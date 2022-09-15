@@ -8,11 +8,20 @@ namespace Zero
 namespace ZMath
 {
     using namespace glm;
+    
+    struct FEulerAngle
+    {
+        FEulerAngle() = default;
+        float Pitch = 0.0f;
+        float Yaw = 0.0f;
+        float Roll = 0.0f;
+    };
+    
     constexpr float PI = 3.1415926535897932384626433832795f;
     constexpr float _2PI = 2.0f * PI;
-    constexpr float Degrees(const float radians)
+    constexpr vec3 DegreeVec(vec3 Rotation)
     {
-        return radians * (180.0f / PI);
+        return vec3(degrees(Rotation.x), degrees(Rotation.y), degrees(Rotation.z));
     }
     
     constexpr glm::vec3 World_Up = { 0.0f, 1.0f, 0.0f };

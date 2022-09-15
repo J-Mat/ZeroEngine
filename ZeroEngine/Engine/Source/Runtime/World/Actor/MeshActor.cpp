@@ -18,8 +18,8 @@ namespace Zero
 	{
 		m_MeshVertexComponent = UComponent::CreateComponent<UMeshVertexComponent>(this, m_MeshType);
 		m_MeshRenderComponent =  UComponent::CreateComponent<UMeshRenderComponent>(this);
-		uint32_t tt = m_MeshVertexComponent->m_Mesh->GetSubMeshNum();
-		m_MeshRenderComponent->SetSubmeshNum(tt);
+		uint32_t SubMeshNum = m_MeshVertexComponent->m_Mesh->GetSubMeshNum();
+		m_MeshRenderComponent->SetSubmeshNum(SubMeshNum);
 	}
 
 	void UMeshActor::CommitToPipieline(FRenderItemPool& RenderItemPool)

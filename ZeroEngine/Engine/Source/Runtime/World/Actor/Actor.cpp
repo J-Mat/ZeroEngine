@@ -17,9 +17,13 @@ namespace Zero
 		m_Tagcomponent = UComponent::CreateComponent<UTagComponent>(this, m_Tag);
 	}
 
-	void UActor::MoveForward(const ZMath::vec3& Offset)
+	void UActor::MoveLocal(const ZMath::vec3& Offset)
 	{
-		m_TransformationComponent->MoveForward(Offset);
+		m_TransformationComponent->MoveLocal(Offset);
+	}
+	void  UActor::RotateLocal(const ZMath::FEulerAngle& Offset)
+	{
+		m_TransformationComponent->RotateLocal(Offset);
 	}
 
 	void UActor::SetPosition(const ZMath::vec3& Position)

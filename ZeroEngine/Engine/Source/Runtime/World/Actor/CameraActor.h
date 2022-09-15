@@ -13,6 +13,7 @@ namespace Zero
 		UCameraActor(const std::string& Tag = "Camera");
 		virtual void PostInit();
 		virtual void Tick();
+		virtual void SetRotation(const ZMath::vec3& Rotation);
 		Ref<IShaderConstantsBuffer> GetConstantBuffer() { return m_CameraComponent->GetConstantBuffer(); }
 		UCameraComponent* m_CameraComponent = nullptr;
 	};

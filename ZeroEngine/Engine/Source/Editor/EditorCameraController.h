@@ -15,6 +15,8 @@ namespace Zero
 	private:
 		UCameraActor* m_CameraActor = nullptr;
 		void OnEvent(FEvent& e);
-
+		float m_Speed = 10.0f;
+		float m_MouseSensitivity = 0.1f;
+		ZMath::FEulerAngle  m_CameraEulerAngle;
 	};
 }

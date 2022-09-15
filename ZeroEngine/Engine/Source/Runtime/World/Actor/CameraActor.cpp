@@ -18,4 +18,12 @@ namespace Zero
 		UActor::Tick();
 	}
 
+	void UCameraActor::SetRotation(const ZMath::vec3& Rotation)
+	{
+		ZMath::vec3 Tmp = Rotation;
+		Tmp.x = ZMath::clamp(Rotation.x, -70.0f, +70.0f);
+		Tmp.z = ZMath::clamp(Rotation.z, -89.0f, +89.0f);
+		m_TransformationComponent->SetRotation(Tmp);
+	}
+
 }

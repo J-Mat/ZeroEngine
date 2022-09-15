@@ -53,9 +53,6 @@ namespace Zero
 		case ECameraType::CT_ORI:
 			break;
 		}
-		m_ForwardVector = ZMath::normalize(m_LookAt - m_Position);
-		m_RightVector = ZMath::cross(m_ForwardVector, m_UpVector);
-		m_UpVector = ZMath::cross(m_RightVector, m_ForwardVector);
 	}
 
 	void UCameraComponent::UpdateMat()
