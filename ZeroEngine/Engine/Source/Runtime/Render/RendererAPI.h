@@ -88,6 +88,7 @@ namespace Zero
 		virtual Ref<IShaderConstantsBuffer> CreateShaderConstantBuffer(IDevice* Device, FShaderConstantsDesc& Desc) = 0;
 		virtual Ref<IShaderResourcesBuffer> CreateShaderResourceBuffer(IDevice* Device, FShaderResourcesDesc& Desc, IRootSignature* RootSignature) = 0;
 		virtual Ref<IShader> CreateShader(IDevice* Device, const std::string& FileName, const FShaderBinderDesc& BinderDesc, const FShaderDesc& ShaderDesc) = 0;
+		virtual Ref<FTexture2D> CreateTexture2D(IDevice* Device, const std::string& FileName) = 0;
 	};
 	
 
@@ -157,6 +158,19 @@ namespace Zero
 				Library<IShader>::Push(FileName, Shader);
 			}
 			return Shader;
+		}
+		virtual Ref<FTexture2D> CreateTexture2D(IDevice* Device, const std::string& FileName)
+		{
+			FDX12Device* DX12Device = static_cast<FDX12Device*>(Device);
+			Ref<FTexture2D> Texture = Library<FTexture2D>::Fetch(FileName);
+			if (Texture == nullptr)
+			{
+				std::filesystem::path TexturePath = FConfig::GetInstance().GetTextureFullPath(FileName);
+				FImage Image(TexturePath.string());
+				Texture = CreateRef<FDX12Texture2D>(*DX12Device, Image);
+				Library<FTexture2D>::Push(FileName,Texture);
+			}
+			return Texture;
 		}
 	};
 }
