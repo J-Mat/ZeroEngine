@@ -18,6 +18,9 @@ namespace Zero
 	{
 		m_MeshVertexComponent = UComponent::CreateComponent<UMeshVertexComponent>(this, m_MeshType);
 		m_MeshRenderComponent =  UComponent::CreateComponent<UMeshRenderComponent>(this);
+		
+		BuildMesh();
+
 		uint32_t SubMeshNum = m_MeshVertexComponent->m_Mesh->GetSubMeshNum();
 		m_MeshRenderComponent->SetSubmeshNum(SubMeshNum);
 	}

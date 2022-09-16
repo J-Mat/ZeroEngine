@@ -1,6 +1,6 @@
 #include "DX12Mesh.h"
 #include "Render/RHI/Shader.h"
-#include "Render/Moudule/MeshLoader.h"
+#include "Render/Moudule/MeshGenerator.h"
 #include "Render/RHI/VertexBuffer.h"
 #include "Render/RHI/IndexBuffer.h"
 #include "DX12VertexBuffer.h"
@@ -38,11 +38,11 @@ namespace Zero
 			SubMesh.Index = Index;
 			SubMesh.VertexLocation = uint32_t(Vertices.size()) * sizeof(float) / Layout.GetStride();
 			SubMesh.IndexLocation = uint32_t(Indices.size());
-			SubMesh.IndexNumber = uint32_t(MeshData.m_Indices.size());
+			SubMesh.IndexNumber = uint32_t(MeshData.Indices.size());
 			m_SubMeshes.push_back(SubMesh);
 			
-			Vertices.insert(Vertices.end(), std::begin(MeshData.m_Vertices), std::end(MeshData.m_Vertices));
-			Indices.insert(Indices.end(), std::begin(MeshData.m_Indices), std::end(MeshData.m_Indices));
+			Vertices.insert(Vertices.end(), std::begin(MeshData.Vertices), std::end(MeshData.Vertices));
+			Indices.insert(Indices.end(), std::begin(MeshData.Indices), std::end(MeshData.Indices));
 		}
 		
 		m_VertexBuffer = CreateRef<FDX12VertexBuffer>(m_Device, Vertices.data(), uint32_t(Vertices.size()), Layout);

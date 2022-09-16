@@ -2,7 +2,7 @@
 
 #include "Core.h"
 #include "Actor.h"
-#include "Render/Moudule/MeshLoader.h"
+#include "Render/Moudule/MeshGenerator.h"
 
 namespace Zero
 {
@@ -14,6 +14,7 @@ namespace Zero
 	public:
 		UMeshActor(const std::string& Tag = "Mesh", FMeshType& MeshType = FMeshType::s_CubeMeshType);
 		virtual void PostInit();
+		virtual void BuildMesh() = 0;
 		virtual void CommitToPipieline(FRenderItemPool& RenderItemPool);
 		virtual void Tick();
 	protected:

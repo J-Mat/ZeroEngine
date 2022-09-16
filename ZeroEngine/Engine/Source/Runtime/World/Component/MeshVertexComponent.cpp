@@ -55,14 +55,14 @@ namespace Zero
 	{
 		m_ShaderConstantsBuffer = FPerObjectConstantsBufferPool::GetInstance().GetPerObjectConstantsBuffer(this);
 			
-		FMeshCreator::GetInstance().CreatMesh(m_MeshType, m_MeshData);
+		FMeshCreator::GetInstance().CreatMesh(m_MeshType, m_MeshData, 2, 2.0f, 2.0f);
 		m_Mesh = FRenderer::GraphicFactroy->CreateMesh(
 			GetWorld()->GetDevice().get(),
 			m_MeshData.m_Vertices.data(),
 			uint32_t(m_MeshData.m_Vertices.size()),
 			m_MeshData.m_Indices.data(),
 			uint32_t(m_MeshData.m_Indices.size()) ,
-			FVertexBufferLayout::s_TestVertexLayout
+			FVertexBufferLayout::s_DefaultVertexLayout
 		);
 	}
 

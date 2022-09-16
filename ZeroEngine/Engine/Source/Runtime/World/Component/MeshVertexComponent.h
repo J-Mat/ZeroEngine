@@ -4,7 +4,7 @@
 #include "Render/RHI/Mesh.h"
 #include "Core/Base/PublicSingleton.h"
 #include "Render/RHI/ShaderBinder.h"
-#include "Render/Moudule/MeshLoader.h"
+#include "Render/Moudule/MeshGenerator.h"
 
 
 namespace Zero
