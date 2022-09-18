@@ -145,18 +145,17 @@ namespace Zero
 		IShaderBinder(FShaderBinderDesc& Desc);
 		virtual ~IShaderBinder() { m_ShaderConstantDescs.clear(); }
 		virtual void BindConstantsBuffer(uint32_t Slot, IShaderConstantsBuffer* Buffer) = 0;
-		virtual void BindResourceBuffer(IShaderResourcesBuffer* Buffer) = 0;
 		virtual Ref<FShaderConstantsDesc> GetShaderConstantsDesc(uint32_t Slot) { return m_ShaderConstantDescs[Slot]; }
-		//virtual Ref<FShaderResourcesDesc> GetShaderResourcesDesc(uint32_t Slot) { return m_ShaderResourceDesc[Slot]; }
+		virtual Ref<FShaderResourcesDesc> GetShaderResourcesDesc() { return m_ShaderResourceDesc; }
 		virtual IRootSignature* GetRootSignature() { return nullptr; }
 		virtual void Bind() = 0;
-		virtual void SetTexture2D(const std::string& name, Ref<FTexture2D> Texture) = 0;
 	protected:
 		void InitMappers();
 		FConstantsMapper m_ConstantsMapper;
 		FResourcesMapper m_ResourcesMapper;
 
 		std::vector<Ref<FShaderConstantsDesc>> m_ShaderConstantDescs;
+		Ref<FShaderResourcesDesc> m_ShaderResourceDesc;
 		FShaderBinderDesc& m_Desc;
 	};
 }

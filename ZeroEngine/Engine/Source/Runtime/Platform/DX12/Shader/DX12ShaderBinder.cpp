@@ -146,11 +146,6 @@ namespace Zero
 		CommandList->GetD3D12CommandList()->SetGraphicsRootConstantBufferView(Slot, GPUAddress);
 	}
 
-	void FDX12ShaderBinder::BindResourceBuffer(IShaderResourcesBuffer* Buffer)
-	{
-	
-	}
-
 	void FDX12ShaderBinder::Bind()
 	{
 		Ref<FDX12CommandList> CommandList = m_Device.GetRenderCommandList();
@@ -239,7 +234,7 @@ namespace Zero
 		}
 		else
 		{
-			//#todo
+			m_SrvDynamicDescriptorHeap->SetAsShaderResourceHeap();
 		}
 	}
 }

@@ -60,6 +60,8 @@ namespace Zero
 			*m_ResourcesDesc.get(), 
 			m_Shader->GetBinder()->GetRootSignature()
 		);
+		Ref<FTexture2D> Texture =  Library<FTexture2D>::Fetch("container");
+		m_ResourcesBuffer->SetTexture2D("gDiffuseMap", Texture);
 	}
 
 	void FMaterial::SetFloat(const std::string& Name, const float& Value)

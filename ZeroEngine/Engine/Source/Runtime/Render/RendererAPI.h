@@ -161,8 +161,8 @@ namespace Zero
 		virtual Ref<FTexture2D> CreateTexture2D(IDevice* Device, const std::string& FileName)
 		{
 			FDX12Device* DX12Device = static_cast<FDX12Device*>(Device);
-			Ref<FTexture2D> Texture = Library<FTexture2D>::Fetch(FileName);
 			std::filesystem::path TextureFileName = FileName;
+			Ref<FTexture2D> Texture = Library<FTexture2D>::Fetch(TextureFileName.stem().string());
 			if (Texture == nullptr)
 			{
 				std::filesystem::path TexturePath = FConfig::GetInstance().GetTextureFullPath(FileName);

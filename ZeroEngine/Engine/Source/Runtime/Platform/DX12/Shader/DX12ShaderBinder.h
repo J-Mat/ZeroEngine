@@ -48,10 +48,10 @@ namespace Zero
 	public:
 		FDX12ShaderResourcesBuffer(FDX12Device& Device, FShaderResourcesDesc& Desc, FDX12RootSignature* RootSignature);
 		virtual FShaderResourcesDesc* GetShaderResourceDesc();
-		virtual void SetTexture2D(const std::string& Name, Ref<FTexture2D> Texture);
-		virtual void SetTextureCubemap(const std::string& Name, Ref<FTextureCubemap> Texture);
+		virtual void SetTexture2D(const std::string& Name, Ref<FTexture2D> Texture) override;
+		virtual void SetTextureCubemap(const std::string& Name, Ref<FTextureCubemap> Texture) override;
 
-		virtual void UploadDataIfDirty();
+		virtual void UploadDataIfDirty() override;
 	private:
 		FDX12Device& m_Device;
 		Ref<FDynamicDescriptorHeap> m_SrvDynamicDescriptorHeap;
@@ -66,8 +66,7 @@ namespace Zero
 		virtual ~FDX12ShaderBinder();
 		virtual IRootSignature* GetRootSignature() { return m_RootSignature.get(); }
 		virtual void BindConstantsBuffer(uint32_t Slot, IShaderConstantsBuffer* Buffer) override;
-		virtual void BindResourceBuffer(IShaderResourcesBuffer* Buffer) override;
-		virtual void Bind();
+		virtual void Bind() override;
 	private:
 		void BuildRootSignature();
 		void BuildDynamicHeap();

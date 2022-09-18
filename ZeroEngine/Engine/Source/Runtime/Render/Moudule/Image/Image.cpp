@@ -6,7 +6,7 @@ namespace Zero
 	FImage::FImage(std::string Path)
 	{
 		stbi_set_flip_vertically_on_load(1);
-		m_Data = stbi_load(Path.c_str(), &m_Width, &m_Width, &m_Channels, 0);
+		m_Data = stbi_load(Path.c_str(), &m_Width, &m_Height, &m_Channels, 0);
 		CORE_ASSERT(m_Data, "Image Loaded from Path Falied!");
 		if (m_Channels == 3)
 		{
