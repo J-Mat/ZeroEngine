@@ -52,6 +52,7 @@ namespace Zero
 		EShaderResourceType Type;
 		uint32_t SRTIndex;
 		uint32_t Offset;
+		uint32_t ResNum = 1;
 		std::string TextureID = "";
 		uint32_t SelectedMip = 0;
 	};
