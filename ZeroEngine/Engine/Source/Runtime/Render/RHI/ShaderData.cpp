@@ -3,7 +3,9 @@
 namespace Zero
 {
 	FBufferElement FBufferElement::s_Pos = { EShaderDataType::Float3, "POSITION" };
-	FBufferElement FBufferElement::s_Color = { EShaderDataType::RGBA, "COLOR" };
+	FBufferElement FBufferElement::s_Normal = { EShaderDataType::Float3, "NORMAL", true };
+	FBufferElement FBufferElement::s_Tangent = { EShaderDataType::Float3, "TANGENT", true }; 
+	FBufferElement FBufferElement::s_Tex = { EShaderDataType::Float2, "TEXCOORD" }; 
 
 	FConstantBufferLayout FConstantBufferLayout::s_PerObjectConstants =
 	{

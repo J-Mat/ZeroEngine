@@ -22,7 +22,7 @@ namespace Zero
 			float Depth = va_arg(VaList, float);
 			uint32_t NumSubdivisions = va_arg(VaList, uint32_t);
 			va_end(VaList);
-			CreateCube(MeshData, Width, Height, );
+			CreateCube(MeshData, Width, Height, Depth, NumSubdivisions);
 			break;
 		}
 		default:
@@ -31,7 +31,7 @@ namespace Zero
 	}
 	void FMeshCreator::CreateCube(FMeshData& MeshData, float Width, float Height, float Depth, uint32_t NumSubdivisions)
 	{
-		FVertex Vertex[24];
+		std::vector<FVertex> Vertex(24);
 		
 		float W2 = 0.5f * Width;
 		float H2 = 0.5f * Height;
@@ -72,9 +72,8 @@ namespace Zero
 		Vertex[22] = FVertex(+W2, +H2, +D2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
 		Vertex[23] = FVertex(+W2, -H2, +D2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
 		
-		MeshData.Vertices.assign(&Vertex[0], &Vertex[24]);
 
-		uint32_t Indexs[36];
+		std::vector<uint32_t> Indexs(36);
 
 		// Fill in the front face index data
 		Indexs[0] = 0; Indexs[1] = 1; Indexs[2] = 2;
@@ -100,21 +99,125 @@ namespace Zero
 		Indexs[30] = 20; Indexs[31] = 21; Indexs[32] = 22;
 		Indexs[33] = 20; Indexs[34] = 22; Indexs[35] = 23;
 
-		MeshData.Indices.assign(&Indexs[0], &Indexs[24]);
 
 		NumSubdivisions = std::min(NumSubdivisions, 6u);
 		
 		while (NumSubdivisions--)
 		{
-			SubDivide(MeshData);
+			SubDivide(Vertex, Indexs);
 		}
-	}
-	void FMeshCreator::SubDivide(FMeshData& MeshData)
-	{
-		FMeshData InputCopy = MeshData;
 
-		MeshData.Vertices.resize(0);
-		MeshData.Indices.resize(0);
+		AttachToMeshData(MeshData, Vertex, Indexs);
+	}
+
+	void FMeshCreator::CreateSphere(FMeshData& MeshData, float Radius, uint32_t NumSubdivisions)
+	{
+		// Put a cap on the number of subdivisions.
+		NumSubdivisions = std::min(NumSubdivisions, 6u);
+
+		// Approximate a sphere by tessellating an icosahedron.
+
+		const float X = 0.525731f;
+		const float Z = 0.850651f;
+
+		ZMath::vec3 pos[12] =
+		{
+			ZMath::vec3 (-X, 0.0f, Z),  ZMath::vec3 (X, 0.0f, Z),
+			ZMath::vec3 (-X, 0.0f, -Z), ZMath::vec3 (X, 0.0f, -Z),
+			ZMath::vec3 (0.0f, Z, X),   ZMath::vec3 (0.0f, Z, -X),
+			ZMath::vec3 (0.0f, -Z, X),  ZMath::vec3 (0.0f, -Z, -X),
+			ZMath::vec3 (Z, X, 0.0f),   ZMath::vec3 (-Z, X, 0.0f),
+			ZMath::vec3 (Z, -X, 0.0f),  ZMath::vec3 (-Z, -X, 0.0f)
+		};
+
+		std::vector<uint32_t> Indexs = 
+		{
+			1,4,0,  4,9,0,  4,5,9,  8,5,4,  1,8,4,
+			1,10,8, 10,3,8, 8,3,5,  3,2,5,  3,7,2,
+			3,10,7, 10,6,7, 6,11,7, 6,0,11, 6,1,0,
+			10,1,6, 11,0,9, 2,11,9, 5,2,9,  11,2,7
+		};
+
+		std::vector<FVertex> Vertices(12);
+
+		for (uint32_t i = 0; i < 12; ++i)
+			Vertices[i].Position = pos[i];
+
+		while (NumSubdivisions--)
+		{
+			SubDivide(Vertices, Indexs);
+		}
+
+		// Project vertices onto sphere and scale.
+		for (uint32_t i = 0; i < Vertices.size(); ++i)
+		{
+			// Project onto unit sphere.
+			ZMath::vec3 n = ZMath::normalize(Vertices[i].Position);
+
+			// Project onto sphere.
+			ZMath::vec3 p = Radius * n;
+
+			Vertices[i].Position = p;
+			Vertices[i].Normal =  n;
+
+			// Derive texture coordinates from spherical coordinates.
+			float theta = atan2f(Vertices[i].Position.z,Vertices[i].Position.x);
+
+			// Put in [0, 2pi].
+			if (theta < 0.0f)
+			{
+				theta += ZMath::pi<float>() * 2;
+			}
+
+			float phi = acosf(Vertices[i].Position.y / Radius);
+
+			Vertices[i].TexC.x = theta / (ZMath::pi<float>() * 2);
+			Vertices[i].TexC.y = phi / ZMath::pi<float>();
+
+			// Partial derivative of P with respect to theta
+			Vertices[i].TangentU.x = -Radius * sinf(phi) * sinf(theta);
+			Vertices[i].TangentU.y = 0.0f;
+			Vertices[i].TangentU.z = +Radius * sinf(phi) * cosf(theta);
+		}
+
+		AttachToMeshData(MeshData, Vertices, Indexs);
+	}
+
+	FVertex FMeshCreator::MidPoint(const FVertex& v0, const FVertex& v1)
+	{
+		ZMath::vec3 p0 = v0.Position;
+		ZMath::vec3 p1 = v1.Position;
+
+		ZMath::vec3 n0 = v0.Normal;
+		ZMath::vec3 n1 = v1.Normal;
+
+		ZMath::vec3 tan0 = v0.TangentU;
+		ZMath::vec3 tan1 = v1.TangentU;
+
+		ZMath::vec2 tex0 = v0.TexC;
+		ZMath::vec2 tex1 = v1.TexC;
+
+		ZMath::vec3 pos = 0.5f * (p0 + p1);
+		ZMath::vec3 normal = ZMath::normalize(n0 + n1);
+		ZMath::vec3 tangent = ZMath::normalize(tan0 + tan1);
+		ZMath::vec2 tex = 0.5f * (tex0 + tex1);
+
+		FVertex v;
+		v.Position = pos;
+		v.Normal = normal;
+		v.TangentU = tangent;
+		v.TexC = tex;
+
+		return v;
+	}
+
+	void FMeshCreator::SubDivide(std::vector<FVertex>& Vertices, std::vector<uint32_t>& Indices)
+	{
+		std::vector<FVertex> InputVertex = Vertices;
+		std::vector<uint32_t> InputIndice = Indices;
+
+		Vertices.resize(0);
+		Indices.resize(0);
 
 		//       v1
 		//       *
@@ -126,12 +229,12 @@ namespace Zero
 		// *-----*-----*
 		// v0    m2     v2
 
-		uint32_t numTris = (uint32_t)InputCopy.Indices.size() / 3;
-		for (uint32_t i = 0; i < numTris; ++i)
+		uint32_t NumTris = (uint32_t)InputIndice.size() / 3;
+		for (uint32_t i = 0; i < NumTris; ++i)
 		{
-			FVertex v0 = InputCopy.Vertices[InputCopy.Indices[i * 3 + 0]];
-			FVertex v1 = InputCopy.Vertices[InputCopy.Indices[i * 3 + 1]];
-			FVertex v2 = InputCopy.Vertices[InputCopy.Indices[i * 3 + 2]];
+			FVertex v0 = InputVertex[InputIndice[i * 3 + 0]];
+			FVertex v1 = InputVertex[InputIndice[i * 3 + 1]];
+			FVertex v2 = InputVertex[InputIndice[i * 3 + 2]];
 
 			//
 			// Generate the midpoints.
@@ -145,28 +248,50 @@ namespace Zero
 			// Add new geometry.
 			//
 
-			MeshData.Vertices.push_back(v0); // 0
-			MeshData.Vertices.push_back(v1); // 1
-			MeshData.Vertices.push_back(v2); // 2
-			MeshData.Vertices.push_back(m0); // 3
-			MeshData.Vertices.push_back(m1); // 4
-			MeshData.Vertices.push_back(m2); // 5
+			Vertices.push_back(v0); // 0
+			Vertices.push_back(v1); // 1
+			Vertices.push_back(v2); // 2
+			Vertices.push_back(m0); // 3
+			Vertices.push_back(m1); // 4
+			Vertices.push_back(m2); // 5
 
-			MeshData.Indices.push_back(i * 6 + 0);
-			MeshData.Indices.push_back(i * 6 + 3);
-			MeshData.Indices.push_back(i * 6 + 5);
+			Indices.push_back(i * 6 + 0);
+			Indices.push_back(i * 6 + 3);
+			Indices.push_back(i * 6 + 5);
 
-			MeshData.Indices.push_back(i * 6 + 3);
-			MeshData.Indices.push_back(i * 6 + 4);
-			MeshData.Indices.push_back(i * 6 + 5);
+			Indices.push_back(i * 6 + 3);
+			Indices.push_back(i * 6 + 4);
+			Indices.push_back(i * 6 + 5);
 
-			MeshData.Indices.push_back(i * 6 + 5);
-			MeshData.Indices.push_back(i * 6 + 4);
-			MeshData.Indices.push_back(i * 6 + 2);
+			Indices.push_back(i * 6 + 5);
+			Indices.push_back(i * 6 + 4);
+			Indices.push_back(i * 6 + 2);
 
-			MeshData.Indices.push_back(i * 6 + 3);
-			MeshData.Indices.push_back(i * 6 + 1);
-			MeshData.Indices.push_back(i * 6 + 4);
+			Indices.push_back(i * 6 + 3);
+			Indices.push_back(i * 6 + 1);
+			Indices.push_back(i * 6 + 4);
 		}
+	}
+	void FMeshCreator::AttachToMeshData(FMeshData& MeshData, std::vector<FVertex>& Vertexes, std::vector<uint32_t>& Indices)
+	{
+		for(FVertex& Vertex : Vertexes)
+		{
+			MeshData.Vertices.push_back(Vertex.Position.x);
+			MeshData.Vertices.push_back(Vertex.Position.y);
+			MeshData.Vertices.push_back(Vertex.Position.z);
+			
+			MeshData.Vertices.push_back(Vertex.Normal.x);
+			MeshData.Vertices.push_back(Vertex.Normal.y);
+			MeshData.Vertices.push_back(Vertex.Normal.z);
+
+			MeshData.Vertices.push_back(Vertex.TangentU.x);
+			MeshData.Vertices.push_back(Vertex.TangentU.y);
+			MeshData.Vertices.push_back(Vertex.TangentU.z);
+			
+			MeshData.Vertices.push_back(Vertex.TexC.x);
+			MeshData.Vertices.push_back(Vertex.TexC.y);
+		}
+		
+		MeshData.Indices.assign(Indices.begin(), Indices.end());
 	}
 }

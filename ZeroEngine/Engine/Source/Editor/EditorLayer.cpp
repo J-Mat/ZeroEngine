@@ -3,6 +3,8 @@
 #include "Platform/Windows/WinWindow.h"
 #include "Render/RendererAPI.h"
 #include "EditorCameraController.h"
+#include "World/Actor/SphereMeshActor.h"
+#include "World/Actor/CubeMeshActor.h"
 
 namespace Zero
 {
@@ -20,7 +22,9 @@ namespace Zero
 		m_World->SetDevice(FRenderer::GetDevice());
 		UWorld::SetCurrentWorld(m_World);
 		
-		UMeshActor* MeshActor = UActor::Create<UMeshActor>(m_World);
+		FRenderer::GraphicFactroy->CreateTexture2D(FRenderer::GetDevice().get(), "container.jpg");
+		
+		UCubeMeshActor* MeshActor = UActor::Create<UCubeMeshActor>(m_World);
 		FRenderer::GetDevice()->FlushInitCommandList();
 
 		m_CameraController = CreateRef<FEditorCameraController>(m_World->GetCameraActor());

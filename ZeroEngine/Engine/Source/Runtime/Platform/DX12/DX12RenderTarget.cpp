@@ -56,8 +56,6 @@ namespace Zero
 	void FDX12RenderTarget::Bind()
 	{
 		auto  CommandList = m_Device.GetRenderCommandList();
-		CommandList->GetD3D12CommandList()->RSSetViewports(1, &m_ViewPort);
-		CommandList->GetD3D12CommandList()->RSSetScissorRects(1, &m_ScissorRect);
 		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> Handles;
 		for (int i = EAttachmentIndex::Color0; i <= EAttachmentIndex::Color7; ++i)
 		{
@@ -68,6 +66,8 @@ namespace Zero
 				Handles.push_back(Texture->GetRenderTargetView());
 			}
 		}
+		CommandList->GetD3D12CommandList()->RSSetViewports(1, &m_ViewPort);
+		CommandList->GetD3D12CommandList()->RSSetScissorRects(1, &m_ScissorRect);
 		if (m_Textures[EAttachmentIndex::DepthStencil].get() != nullptr)
 		{
 			auto* DsvTexture = static_cast<FDX12Texture2D*>(m_Textures[EAttachmentIndex::DepthStencil].get());

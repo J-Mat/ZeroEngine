@@ -65,7 +65,8 @@ namespace Zero
 		FDX12ShaderBinder(FDX12Device &Device, FShaderBinderDesc& Desc);
 		virtual ~FDX12ShaderBinder();
 		virtual IRootSignature* GetRootSignature() { return m_RootSignature.get(); }
-		virtual void BindConstantsBuffer(uint32_t Slot, IShaderConstantsBuffer* Buffer);
+		virtual void BindConstantsBuffer(uint32_t Slot, IShaderConstantsBuffer* Buffer) override;
+		virtual void BindResourceBuffer(IShaderResourcesBuffer* Buffer) override;
 		virtual void Bind();
 	private:
 		void BuildRootSignature();
@@ -73,7 +74,5 @@ namespace Zero
 	private:
 		FDX12Device& m_Device;
 		Ref<FDX12RootSignature> m_RootSignature;
-		Ref<FDynamicDescriptorHeap> m_SrvDynamicDescriptorHeap;
-		Ref<FDynamicDescriptorHeap> m_SamplerDynamicDescriptorHeap;
 	};
 }

@@ -82,7 +82,6 @@ namespace Zero
 		virtual Ref<IDevice> CreateDevice() = 0;
 		virtual Ref<FWinWindow> CreatePlatformWindow(const FWindowsConfig& Config) = 0;
 		virtual Ref<IVertexBuffer> CreateVertexBuffer(IDevice* Device, void* data, uint32_t VertexCount, FVertexBufferLayout& Layout, IVertexBuffer::EType Type = IVertexBuffer::EType::Static) = 0;
-		virtual Ref<FTexture2D> CreateTexture2D(IDevice* Device, const std::string Path) = 0;
 		virtual Ref<FMesh> CreateMesh(IDevice* Device, const std::vector<FMeshData>& MeshDatas, FVertexBufferLayout& Layout) = 0;
 		virtual Ref<FMesh> CreateMesh(IDevice* Device, float* Vertices, uint32_t VertexCount, uint32_t* Indices, uint32_t IndexCount, FVertexBufferLayout& Layout) = 0;
 		virtual Ref<IShaderConstantsBuffer> CreateShaderConstantBuffer(IDevice* Device, FShaderConstantsDesc& Desc) = 0;
@@ -163,12 +162,13 @@ namespace Zero
 		{
 			FDX12Device* DX12Device = static_cast<FDX12Device*>(Device);
 			Ref<FTexture2D> Texture = Library<FTexture2D>::Fetch(FileName);
+			std::filesystem::path TextureFileName = FileName;
 			if (Texture == nullptr)
 			{
 				std::filesystem::path TexturePath = FConfig::GetInstance().GetTextureFullPath(FileName);
 				Ref<FImage> Image = CreateRef<FImage>(TexturePath.string());
 				Texture = CreateRef<FDX12Texture2D>(*DX12Device, Image);
-				Library<FTexture2D>::Push(FileName,Texture);
+				Library<FTexture2D>::Push(TextureFileName.stem().string(), Texture);
 			}
 			return Texture;
 		}

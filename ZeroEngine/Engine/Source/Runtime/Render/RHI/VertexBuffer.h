@@ -42,7 +42,6 @@ namespace Zero
 			}
 		}
 
-		static FVertexBufferLayout s_TestVertexLayout;
 		static FVertexBufferLayout s_DefaultVertexLayout;
 	private:
 		std::vector<FBufferElement> ElementsList;

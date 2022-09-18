@@ -53,7 +53,6 @@ namespace Zero
 	{
 		m_Shader = Shader;
 		m_ConstantsDesc = m_Shader->GetBinder()->GetShaderConstantsDesc(ERootParameters::MaterialCB);
-		m_ResourcesDesc = m_Shader->GetBinder()->GetShaderResourcesDesc();
 		
 		m_ConstantsBuffer = FRenderer::GraphicFactroy->CreateShaderConstantBuffer(m_Device, *m_ConstantsDesc.get());
 		m_ResourcesBuffer = FRenderer::GraphicFactroy->CreateShaderResourceBuffer(

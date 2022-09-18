@@ -100,7 +100,9 @@ namespace Zero
 		}
 
 		static FBufferElement s_Pos;
-		static FBufferElement s_Color;
+		static FBufferElement s_Normal;
+		static FBufferElement s_Tangent;
+		static FBufferElement s_Tex;
 	};
 
 
@@ -141,6 +143,7 @@ namespace Zero
 	{
 		EShaderResourceType Type;
 		std::string Name;
+		uint32_t TextureNum = 1;
 	};
 	
 	class FShaderResourceLayout

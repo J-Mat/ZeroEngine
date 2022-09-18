@@ -146,6 +146,11 @@ namespace Zero
 		CommandList->GetD3D12CommandList()->SetGraphicsRootConstantBufferView(Slot, GPUAddress);
 	}
 
+	void FDX12ShaderBinder::BindResourceBuffer(IShaderResourcesBuffer* Buffer)
+	{
+	
+	}
+
 	void FDX12ShaderBinder::Bind()
 	{
 		Ref<FDX12CommandList> CommandList = m_Device.GetRenderCommandList();
@@ -154,7 +159,7 @@ namespace Zero
 
 	void FDX12ShaderBinder::BuildRootSignature()
 	{
-		size_t ParamterCount = m_Desc.m_ConstantBufferLayouts.size() + m_Desc.m_TextureBufferLayouts.size();
+		size_t ParamterCount = m_Desc.m_ConstantBufferLayouts.size() + m_Desc.m_TextureBufferLayout.GetSrvCount();
 		std::vector<CD3DX12_ROOT_PARAMETER> SlotRootParameter;
 		SlotRootParameter.resize(ParamterCount);
 		
@@ -166,11 +171,11 @@ namespace Zero
 		}
 		
 		UINT SrvIndex = 0;
-		std::vector<CD3DX12_DESCRIPTOR_RANGE> SrvTable;
-		SrvTable.reserve(m_Desc.GetTextureBufferCount());
-		for (FShaderResourceLayout& Layout : m_Desc.m_TextureBufferLayouts)
+		std::vector<CD3DX12_DESCRIPTOR_RANGE> SrvTable(m_Desc.m_TextureBufferLayout.GetSrvCount());
+		SrvTable.reserve(m_Desc.m_TextureBufferLayout.GetSrvCount());
+		for (FTextureTableElement& Element : m_Desc.m_TextureBufferLayout)
 		{
-			SrvTable[SrvIndex].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (UINT)Layout.GetSrvCount(), SrvIndex);
+			SrvTable[SrvIndex].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (UINT)Element.TextureNum, SrvIndex);
 			SlotRootParameter[ParameterIndex].InitAsDescriptorTable(1, &SrvTable[SrvIndex], D3D12_SHADER_VISIBILITY_PIXEL);
 			++ParameterIndex;
 			++SrvIndex;
@@ -191,10 +196,7 @@ namespace Zero
 	}
 	void FDX12ShaderBinder::BuildDynamicHeap()
 	{
-		m_SrvDynamicDescriptorHeap = CreateRef<FDynamicDescriptorHeap>(m_Device, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-		m_SamplerDynamicDescriptorHeap = CreateRef<FDynamicDescriptorHeap>(m_Device, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
 		FDX12RootSignature* D3DRootSignature = static_cast<FDX12RootSignature*>(m_RootSignature.get());
-		m_SrvDynamicDescriptorHeap->ParseRootSignature(D3DRootSignature->AsShared());
 	}
 
 

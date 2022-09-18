@@ -67,7 +67,7 @@ namespace Zero
         uint32_t CBIndex = 0;
         uint32_t ParaIndex = 0;
         m_ShaderConstantDescs.resize(m_Desc.GetConstantBufferCount()); 
-        for (FConstantBufferLayout ConstantLayout : m_Desc.m_ConstantBufferLayouts)
+        for (FConstantBufferLayout& ConstantLayout : m_Desc.m_ConstantBufferLayouts)
         {
             m_ShaderConstantDescs[CBIndex] = CreateRef<FShaderConstantsDesc>();
             m_ShaderConstantDescs[CBIndex]->Size = ConstantLayout.GetStride();
@@ -81,15 +81,12 @@ namespace Zero
         }
 
         uint32_t ResIndex = 0;
-        
-        if (m_Desc.m_TextureBufferLayouts.size() >= 1)
+        for (FTextureTableElement& Element : m_Desc.m_TextureBufferLayout)
         {
-            m_ShaderResourceDesc = CreateRef<FShaderResourcesDesc>();
-            FShaderResourceLayout& Layout = m_Desc.m_TextureBufferLayouts[0];
-            for (FTextureTableElement& Element : Layout)
-            {
-               m_ShaderResourceDesc->Mapper.InsertResource({ Element.Name, Element.Type, ParaIndex++, ResIndex++, "PROCEDURE=White" });
-            }
+            FShaderResourceItem ShaderResourceItem = { Element.Name, Element.Type, ParaIndex, ResIndex };
+            m_ResourcesMapper.InsertResource(ShaderResourceItem);
+            ResIndex++;
+            ParaIndex++;
         }
     }
 }

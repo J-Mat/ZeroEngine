@@ -39,6 +39,15 @@ namespace Zero
 		CheckFeatureSupport();
 	}
 
+	void IResource::SetName(const std::wstring& Name)
+	{
+		m_ResourceName = Name;
+		if (m_D3DResource && !m_ResourceName.empty())
+		{
+			m_D3DResource->SetName(m_ResourceName.c_str());
+		}
+	}
+
 	void IResource::SetResource(ComPtr<ID3D12Resource> Resource)
 	{
 		m_D3DResource = Resource;

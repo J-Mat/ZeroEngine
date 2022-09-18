@@ -16,7 +16,7 @@ namespace Zero
 	{
 		FCameraSettings() = default;
 		float Fov = 90.0f;
-		float Aspect = 4.0f / 3.0f;
+		float Aspect = 16.0f / 9.0f;
 		ZMath::vec3 WorldUp = { 0.0f, 1.0f, 0.0f };
 		ECameraType Cameratype = ECameraType::CT_PERSPECT;
 

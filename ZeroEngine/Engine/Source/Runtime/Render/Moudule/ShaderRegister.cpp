@@ -18,8 +18,15 @@ namespace Zero
 			FConstantBufferLayout::s_PerFrameConstants
 		};
 		
-		FShaderDesc ShaderDessc = { false, FVertexBufferLayout::s_TestVertexLayout, 1 };
+		std::vector<FShaderResourceLayout> ResourceLayouts =
+		{
+			{
+				{EShaderResourceType::Texture2D, "gDiffuseMap"}
+			},
+		};
+
+		FShaderDesc ShaderDessc = { false, FVertexBufferLayout::s_DefaultVertexLayout, 1 };
 		
-		FRenderer::GraphicFactroy->CreateShader(Device, "Color.hlsl", {CBLayouts}, ShaderDessc);
+		FRenderer::GraphicFactroy->CreateShader(Device, "Color.hlsl", {CBLayouts, ResourceLayouts}, ShaderDessc);
 	}
 }

@@ -62,9 +62,6 @@ namespace Zero
 	void FDynamicDescriptorHeap::CommitStagedDescriptorsForDraw(FDX12CommandList& CommandList)
 	{
 		CommitDescriptorTables(CommandList, &ID3D12GraphicsCommandList::SetGraphicsRootDescriptorTable);
-		CommitInlineDescriptors(CommandList, m_InlineCBV, m_StaleCBVBitMask, &ID3D12GraphicsCommandList::SetGraphicsRootConstantBufferView);
-		CommitInlineDescriptors(CommandList, m_InlineSRV, m_StaleSRVBitMask, &ID3D12GraphicsCommandList::SetGraphicsRootShaderResourceView);
-		CommitInlineDescriptors(CommandList, m_InlineUAV, m_StaleUAVBitMask, &ID3D12GraphicsCommandList::SetGraphicsRootUnorderedAccessView);
 	}
 
 	ComPtr<ID3D12DescriptorHeap> FDynamicDescriptorHeap::RequestDescriptorHeap()
@@ -176,8 +173,45 @@ namespace Zero
 		}
 	}
 
-	void FDynamicDescriptorHeap::StageDescriptors(uint32_t RootParameterIndex, uint32_t Offset, uint32_t NumDescriptors, const D3D12_CPU_DESCRIPTOR_HANDLE SrcDescriptors)
+	void FDynamicDescriptorHeap::StageDescriptors(uint32_t RootParameterIndex, uint32_t Offset, uint32_t NumDescriptors, const D3D12_CPU_DESCRIPTOR_HANDLE SrcDescriptors) { if (NumDescriptors > m_NumDescriptorsPerHeap || RootParameterIndex > s_MaxDescriptorTables)
+		{
+			throw std::bad_alloc();
+		}
+
+		FDescriptorTableCache& DescriptorTableCache = m_DescriptorTableCache[RootParameterIndex];
+
+		if ((Offset + NumDescriptors) > DescriptorTableCache.NumDescriptors)
+		{
+			throw std::length_error("Number of descriptors exceeds the number of descriptors in the descriptor table.");
+		}
+		D3D12_CPU_DESCRIPTOR_HANDLE* DstDescriptor = (DescriptorTableCache.BaseDescriptor + Offset);
+		for (uint32_t i = 0; i < NumDescriptors; ++i)
+		{
+			DstDescriptor[i] = CD3DX12_CPU_DESCRIPTOR_HANDLE(SrcDescriptors, i, m_DescriptorHandleIncrementSize);
+		}
+		
+		m_StaleDescriptorTableBitMask |= (1 << RootParameterIndex);
+	}
+
+	void FDynamicDescriptorHeap::SetAsShaderResourceHeap()
 	{
+		uint32_t TableBitMask = m_DescriptorTableBitMask;
+		DWORD RootIndex;
+		
+		auto CommandList = m_Device.GetRenderCommandList();
+		CommandList->SetDescriptorHeap(m_DescriptorHeapType,  m_CurrentDescriptorHeap.Get());
+
+
+		m_CurrentGPUDescriptorHandle = m_CurrentDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+
+		// Scan from LSB to MSB for a bit set in staleDescriptorsBitMask
+		while (_BitScanForward(&RootIndex, TableBitMask))
+		{
+			UINT NumSrcDescriptors = m_DescriptorTableCache[RootIndex].NumDescriptors;
+			CommandList->GetD3D12CommandList()->SetGraphicsRootDescriptorTable(RootIndex, m_CurrentGPUDescriptorHandle);
+			m_CurrentGPUDescriptorHandle.Offset(NumSrcDescriptors, m_DescriptorHandleIncrementSize);
+			TableBitMask ^= (1 << RootIndex);
+		}
 	}
 
 	void FDynamicDescriptorHeap::StageInlineCBV(uint32_t RootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)

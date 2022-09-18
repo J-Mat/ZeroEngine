@@ -25,6 +25,8 @@ namespace Zero
 		UMeshVertexComponent(FMeshType& MeshType);
 		virtual void PostInit();
 		virtual ~UMeshVertexComponent();
+		FMeshData& GetMeshData() { return m_MeshData; }
+		void CreateMesh();
 	protected:
 		Ref<IShaderConstantsBuffer> m_ShaderConstantsBuffer = nullptr;
 		Ref<FMesh> m_Mesh;

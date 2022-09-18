@@ -15,6 +15,7 @@ namespace Zero
 		// Init: Window
 		FRenderer::SetRHI(ERHI::DirectX12);
 		m_Window = FRenderer::GraphicFactroy->CreatePlatformWindow(FWindowsConfig(hInst, m_Name));
+		m_Window->SetEventCallback(BIND_EVENT_FN(FApplication::OnEvent));
 		
 		// Init: Input System
 		FInput::Init();

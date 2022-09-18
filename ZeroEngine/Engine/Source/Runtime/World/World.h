@@ -36,12 +36,6 @@ namespace Zero
 			m_Actors.push_back(Actor);
 		}
 
-		template<>
-		void AddActor<UMeshActor>(UMeshActor* Actor)
-		{
-			m_Actors.push_back((UActor*)Actor);
-			m_MeshActors.push_back(Actor);
-		}
 	private:
 		static UWorld* s_CurrentWorld;
 		UCameraActor* m_MainCamera;

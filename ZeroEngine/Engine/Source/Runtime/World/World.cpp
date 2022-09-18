@@ -18,14 +18,9 @@ namespace Zero
 			return;
 		}
 		
-		m_MainCamera->Tick();
-		
-		m_RenderItemPool.Reset();
-		for (UMeshActor* MeshActor : m_MeshActors)
+		for (UActor* Actor : m_Actors)
 		{
-			MeshActor->Tick();
-			MeshActor->CommitToPipieline(m_RenderItemPool);
+			Actor->Tick();
 		}
-		
 	}
 }

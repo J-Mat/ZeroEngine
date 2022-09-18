@@ -14,7 +14,7 @@ namespace Zero
 		IResource(FDX12Device& Device, ComPtr<ID3D12Resource> Resource,
 			const D3D12_CLEAR_VALUE* ClearValue = nullptr);
 
-		void SetName(const std::wstring& Name) { m_ResourceName = Name; };
+		void SetName(const std::wstring& Name);
 		const std::wstring& GetName() const { return m_ResourceName; }
 		virtual void SetResource(ComPtr<ID3D12Resource> Resource);
 

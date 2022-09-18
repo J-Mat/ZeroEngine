@@ -53,21 +53,22 @@ namespace Zero
 
 	void UMeshVertexComponent::PostInit()
 	{
-		m_ShaderConstantsBuffer = FPerObjectConstantsBufferPool::GetInstance().GetPerObjectConstantsBuffer(this);
-			
-		FMeshCreator::GetInstance().CreatMesh(m_MeshType, m_MeshData, 2, 2.0f, 2.0f);
-		m_Mesh = FRenderer::GraphicFactroy->CreateMesh(
-			GetWorld()->GetDevice().get(),
-			m_MeshData.m_Vertices.data(),
-			uint32_t(m_MeshData.m_Vertices.size()),
-			m_MeshData.m_Indices.data(),
-			uint32_t(m_MeshData.m_Indices.size()) ,
-			FVertexBufferLayout::s_DefaultVertexLayout
-		);
+		m_ShaderConstantsBuffer = FPerObjectConstantsBufferPool::GetInstance().GetPerObjectConstantsBuffer(this);		
 	}
 
 	UMeshVertexComponent::~UMeshVertexComponent()
 	{
 		FPerObjectConstantsBufferPool::GetInstance().PushToPool(m_ShaderConstantsBuffer);
+	}
+	void UMeshVertexComponent::CreateMesh()
+	{
+		m_Mesh = FRenderer::GraphicFactroy->CreateMesh(
+			GetWorld()->GetDevice().get(),
+			m_MeshData.Vertices.data(),
+			uint32_t(m_MeshData.Vertices.size()),
+			m_MeshData.Indices.data(),
+			uint32_t(m_MeshData.Indices.size()) ,
+			FVertexBufferLayout::s_DefaultVertexLayout
+		);
 	}
 }

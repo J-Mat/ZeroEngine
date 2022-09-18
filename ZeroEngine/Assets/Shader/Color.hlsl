@@ -33,8 +33,10 @@ cbuffer cbConstBuffer : register(b3)
 
 struct VertexIn
 {
-	 float3 PosL : POSITION;
-	 float4 Color : COLOR;
+	float3 PosL    : POSITION;
+    float3 Normal  : NORMAL;
+	float3 Tangent : TANGENT;
+	float2 TexC    : TEXCOORD;
 };
 
 struct VertexOut
@@ -50,7 +52,7 @@ VertexOut VS(VertexIn vin)
 	vout.PosH = mul(View, float4(vin.PosL, 1.0f));
 	vout.PosH = mul(Projection, vout.PosH);
 	
-	vout.Color = vin.Color;
+	vout.Color = float4(vin.Normal * 0.5 + 0.5, 1.0f);
 
 	return vout;
 };

@@ -8,12 +8,13 @@ namespace Zero
 	enum  EMeshShapeType
 	{
 		Custom,
-		Cube
+		Cube,
+		Sphere,
 	};
 
 	struct FVertex
 	{
-		FVertex() {}
+		FVertex() = default;
 		FVertex(
 			const ZMath::vec3& _Pos,
 			const ZMath::vec3& _N,
@@ -66,10 +67,13 @@ namespace Zero
 	{
 	public:
 		void CreatMesh(const FMeshType& MeshType, FMeshData& MeshData, int ParaNum, ...);
-	private: 
 		void CreateCube(FMeshData& Meshata, float Width, float Height, float Depth, uint32_t NumSubdivisions);
+		void CreateSphere(FMeshData& MeshData, float Radius, uint32_t NumSubdivisions);
+	private: 
 
-		void SubDivide(FMeshData& MeshData);
+		FVertex MidPoint(const FVertex& V0, const FVertex& V1);
+		void SubDivide(std::vector<FVertex>& Vertexes, std::vector<uint32_t>& Indices);
+		void AttachToMeshData(FMeshData& Meshata, std::vector<FVertex>& Vertexes, std::vector<uint32_t>& Indices);
 	};
 
 

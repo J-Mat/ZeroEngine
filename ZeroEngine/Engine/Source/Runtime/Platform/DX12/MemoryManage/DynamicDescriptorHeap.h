@@ -35,6 +35,10 @@ namespace Zero
 		void StageDescriptors(uint32_t RootParameterIndex, uint32_t Offset, uint32_t NumDescriptors,
 			const D3D12_CPU_DESCRIPTOR_HANDLE SrcDescriptors);
 
+
+		void SetAsShaderResourceHeap();
+
+
 		/**
 		 * Stage an inline CBV descriptor.
 		 */

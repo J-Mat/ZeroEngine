@@ -135,7 +135,7 @@ namespace Zero
 		}
 		*/
 	
-		CommandList->TransitionBarrier(BufferBuffer, D3D12_RESOURCE_STATE_PRESENT);
+		CommandList->TransitionBarrier(BufferBuffer->GetD3DResource(), D3D12_RESOURCE_STATE_PRESENT);
 		m_CommandQueue.ExecuteCommandList(CommandList);
 
 		ThrowIfFailed(m_DxgiSwapChain->Present(0, 0));
@@ -176,5 +176,6 @@ namespace Zero
 		OptClear.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 		OptClear.DepthStencil = { 1.0F, 0 };
 		m_DepthStencilTexture = CreateRef<FDX12Texture2D>(m_Device, DepthStencilDesc, &OptClear);
+		m_DepthStencilTexture->SetName(L"DepthStencilTexture");
 	}
 }

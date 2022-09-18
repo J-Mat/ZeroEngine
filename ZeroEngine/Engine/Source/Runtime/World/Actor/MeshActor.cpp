@@ -5,6 +5,7 @@
 #include "../Construction/ObjectConstruction.h"
 #include "Render/RHI/RenderItem.h"
 #include "Render/RHI/Mesh.h"
+#include "World/World.h"
 
 namespace Zero
 {
@@ -25,8 +26,9 @@ namespace Zero
 		m_MeshRenderComponent->SetSubmeshNum(SubMeshNum);
 	}
 
-	void UMeshActor::CommitToPipieline(FRenderItemPool& RenderItemPool)
+	void UMeshActor::CommitToPipieline()
 	{
+		FRenderItemPool& RenderItemPool = m_World->GetRenderItemPool();
 		uint32_t MaterialIndex = 0;
 		for (FSubMesh& SubMesh : *m_MeshVertexComponent->m_Mesh.get())
 		{
@@ -43,6 +45,7 @@ namespace Zero
 
 	void UMeshActor::Tick()
 	{
+		CommitToPipieline();
 	}
 
 }

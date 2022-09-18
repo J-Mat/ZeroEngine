@@ -12,9 +12,11 @@ namespace Zero
 	{
 		SetRootSignatureDesc(RootSignatureDesc);
 	}
+
 	FDX12RootSignature::~FDX12RootSignature()
 	{
 	}
+
 	uint32_t FDX12RootSignature::GetNumDescriptors(uint32_t RootIndex)
 	{
 		CORE_ASSERT(RootIndex < 32, "RootSignature num can not exceed 32!");

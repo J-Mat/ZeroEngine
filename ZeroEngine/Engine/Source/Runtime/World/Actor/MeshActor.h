@@ -15,7 +15,7 @@ namespace Zero
 		UMeshActor(const std::string& Tag = "Mesh", FMeshType& MeshType = FMeshType::s_CubeMeshType);
 		virtual void PostInit();
 		virtual void BuildMesh() = 0;
-		virtual void CommitToPipieline(FRenderItemPool& RenderItemPool);
+		virtual void CommitToPipieline();
 		virtual void Tick();
 	protected:
 		UMeshVertexComponent* m_MeshVertexComponent = nullptr;
