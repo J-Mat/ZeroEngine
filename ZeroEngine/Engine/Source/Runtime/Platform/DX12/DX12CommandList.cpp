@@ -53,24 +53,39 @@ namespace Zero
 			D3DDevice->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &TextureDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&TextureResource))
 		);
 
+		D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint;
+		UINT64  TotalBytes = 0;
+		m_Device.GetDevice()->GetCopyableFootprints(&TextureDesc, 0, 1, 0, &footprint, nullptr, nullptr, &TotalBytes);
+
+		D3D12_RESOURCE_DESC UploadTexDesc;
+		memset(&UploadTexDesc, 0, sizeof(UploadTexDesc));
+		UploadTexDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+		UploadTexDesc.Width = TotalBytes;
+		UploadTexDesc.Height = 1;
+		UploadTexDesc.DepthOrArraySize = 1;
+		UploadTexDesc.MipLevels = 1;
+		UploadTexDesc.SampleDesc.Count = 1;
+		UploadTexDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+
+		ComPtr<ID3D12Resource> UploadResource;
+		ThrowIfFailed(D3DDevice->CreateCommittedResource(
+			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
+			&UploadTexDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+			IID_PPV_ARGS(&UploadResource))
+		);
+
 		TransitionBarrier(TextureResource, D3D12_RESOURCE_STATE_COPY_DEST);
 		FlushResourceBarriers();
 
-		ComPtr<ID3D12Resource> IntermediateResource;
-		ThrowIfFailed(D3DDevice->CreateCommittedResource(
-			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
-			&CD3DX12_RESOURCE_DESC::Buffer(Image->GetBufferSize()), D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
-			IID_PPV_ARGS(&IntermediateResource))
-		);
-
 		D3D12_SUBRESOURCE_DATA SubResourceData = {};
 		SubResourceData.pData = Image->GetData();
-		SubResourceData.RowPitch = Image->GetWidth() * 4;
-		SubResourceData.SlicePitch = Image->GetBufferSize();
+		SubResourceData.RowPitch = Image->GetWidth() * Image->GetChannel();
+		SubResourceData.SlicePitch = TotalBytes;
 
-		UpdateSubresources<1>(m_D3DCommandList.Get(), TextureResource.Get(), IntermediateResource.Get(), 0, 0, 1, & SubResourceData);
+		UpdateSubresources<1>(m_D3DCommandList.Get(), TextureResource.Get(), UploadResource.Get(), 0, 0, 1, &SubResourceData);
 
-		TrackResource(IntermediateResource);
+		TransitionBarrier(TextureResource.Get(), D3D12_RESOURCE_STATE_GENERIC_READ);
+		TrackResource(UploadResource);
 		TrackResource(TextureResource);
 
 		return TextureResource;

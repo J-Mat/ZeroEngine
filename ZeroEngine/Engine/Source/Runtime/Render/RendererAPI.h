@@ -168,6 +168,7 @@ namespace Zero
 				std::filesystem::path TexturePath = FConfig::GetInstance().GetTextureFullPath(FileName);
 				Ref<FImage> Image = CreateRef<FImage>(TexturePath.string());
 				Texture = CreateRef<FDX12Texture2D>(*DX12Device, Image);
+				std::cout << TextureFileName.stem().string() << std::endl;
 				Library<FTexture2D>::Push(TextureFileName.stem().string(), Texture);
 			}
 			return Texture;

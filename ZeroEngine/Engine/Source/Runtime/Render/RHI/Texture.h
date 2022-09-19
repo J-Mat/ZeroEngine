@@ -15,7 +15,7 @@ namespace Zero
 		uint32_t m_Height;
 	}; 
 
-	class FTexture2D : ITexture
+	class FTexture2D : public ITexture
 	{
 	public:
 		enum class Format
@@ -30,7 +30,7 @@ namespace Zero
 		virtual ZMath::uvec2 GetSize() = 0;
 	};
 
-	class FTextureCubemap : ITexture
+	class FTextureCubemap : public ITexture
 	{
 	public:
 		enum class Format

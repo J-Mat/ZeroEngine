@@ -84,7 +84,7 @@ namespace Zero
         uint32_t ResIndex = 0;
         for (FTextureTableElement& Element : m_Desc.m_TextureBufferLayout)
         {
-            FShaderResourceItem ShaderResourceItem = { Element.Name, Element.Type, ParaIndex, ResIndex };
+            FShaderResourceItem ShaderResourceItem = { Element.Name, Element.Type, ParaIndex, ResIndex, Element.TextureNum};
             m_ResourcesMapper.InsertResource(ShaderResourceItem);
             m_ShaderResourceDesc->Mapper.InsertResource(ShaderResourceItem);
             ResIndex++;

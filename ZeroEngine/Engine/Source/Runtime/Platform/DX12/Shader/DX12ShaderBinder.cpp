@@ -167,10 +167,9 @@ namespace Zero
 		
 		UINT SrvIndex = 0;
 		std::vector<CD3DX12_DESCRIPTOR_RANGE> SrvTable(m_Desc.m_TextureBufferLayout.GetSrvCount());
-		SrvTable.reserve(m_Desc.m_TextureBufferLayout.GetSrvCount());
 		for (FTextureTableElement& Element : m_Desc.m_TextureBufferLayout)
 		{
-			SrvTable[SrvIndex].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (UINT)Element.TextureNum, SrvIndex);
+			SrvTable[SrvIndex].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (UINT)Element.TextureNum, SrvIndex, 0);
 			SlotRootParameter[ParameterIndex].InitAsDescriptorTable(1, &SrvTable[SrvIndex], D3D12_SHADER_VISIBILITY_PIXEL);
 			++ParameterIndex;
 			++SrvIndex;

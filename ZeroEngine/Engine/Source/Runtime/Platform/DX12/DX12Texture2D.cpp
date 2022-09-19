@@ -14,10 +14,12 @@ namespace Zero
 	}
 
 	FDX12Texture2D::FDX12Texture2D(FDX12Device& Device, Ref<FImage> ImageData)
-		: IResource(Device)
+		:  IResource(Device)
 		, m_Device(Device)
 	{
-		auto Resource = m_Device.GetCommandQueue().GetCommandList()->CreateTextureResource(ImageData);
+		m_Width = ImageData->GetWidth();
+		m_Height = ImageData->GetHeight();
+		auto Resource = m_Device.GetInitWorldCommandList()->CreateTextureResource(ImageData);
 		SetResource(Resource);
 		CreateViews();
 	}
@@ -134,7 +136,14 @@ namespace Zero
 			if ((Desc.Flags & D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE) == 0 && CheckSRVSupport())
 			{
 				m_ShaderResourceView = m_Device.AllocateDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-				D3DDevice->CreateShaderResourceView(m_D3DResource.Get(), nullptr,
+				D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc = {};
+				SrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+				SrvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+				SrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+				SrvDesc.Texture2D.MostDetailedMip = 0;
+				SrvDesc.Texture2D.MipLevels = 1;
+				SrvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+				D3DDevice->CreateShaderResourceView(m_D3DResource.Get(), &SrvDesc,
 					m_ShaderResourceView.GetDescriptorHandle());
 			}
 			// Create UAV for each mip (only supported for 1D and 2D textures).

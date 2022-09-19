@@ -131,6 +131,7 @@ namespace Zero
 				m_StaleDescriptorTableBitMask = m_DescriptorTableBitMask;
 			}
 		}
+		CommandList.SetDescriptorHeap(m_DescriptorHeapType, m_CurrentDescriptorHeap.Get());
 
 		DWORD RootIndex;
 		// Scan from LSB to MSB for a bit set in staleDescriptorsBitMask
@@ -152,6 +153,7 @@ namespace Zero
 			// Offset current CPU and GPU descriptor handles.
 			m_CurrentCPUDescriptorHandle.Offset(NumSrcDescriptors, m_DescriptorHandleIncrementSize);
 			m_CurrentGPUDescriptorHandle.Offset(NumSrcDescriptors, m_DescriptorHandleIncrementSize);
+			m_NumFreeHandles -= NumSrcDescriptors;
 
 			// Flip the stale bit so the descriptor table is not recopied again unless it is updated with a new
 			// descriptor.
@@ -173,7 +175,9 @@ namespace Zero
 		}
 	}
 
-	void FDynamicDescriptorHeap::StageDescriptors(uint32_t RootParameterIndex, uint32_t Offset, uint32_t NumDescriptors, const D3D12_CPU_DESCRIPTOR_HANDLE SrcDescriptors) { if (NumDescriptors > m_NumDescriptorsPerHeap || RootParameterIndex > s_MaxDescriptorTables)
+	void FDynamicDescriptorHeap::StageDescriptors(uint32_t RootParameterIndex, uint32_t Offset, uint32_t NumDescriptors, const D3D12_CPU_DESCRIPTOR_HANDLE SrcDescriptors) 
+	{ 
+		if (NumDescriptors > m_NumDescriptorsPerHeap || RootParameterIndex > s_MaxDescriptorTables)
 		{
 			throw std::bad_alloc();
 		}

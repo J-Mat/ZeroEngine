@@ -53,6 +53,7 @@ namespace Zero
 	{
 		m_Shader = Shader;
 		m_ConstantsDesc = m_Shader->GetBinder()->GetShaderConstantsDesc(ERootParameters::MaterialCB);
+		m_ResourcesDesc = m_Shader->GetBinder()->GetShaderResourcesDesc();
 		
 		m_ConstantsBuffer = FRenderer::GraphicFactroy->CreateShaderConstantBuffer(m_Device, *m_ConstantsDesc.get());
 		m_ResourcesBuffer = FRenderer::GraphicFactroy->CreateShaderResourceBuffer(
@@ -61,7 +62,7 @@ namespace Zero
 			m_Shader->GetBinder()->GetRootSignature()
 		);
 		Ref<FTexture2D> Texture =  Library<FTexture2D>::Fetch("container");
-		m_ResourcesBuffer->SetTexture2D("gDiffuseMap", Texture);
+		SetTexture2D("gDiffuseMap", Texture);
 	}
 
 	void FMaterial::SetFloat(const std::string& Name, const float& Value)
