@@ -25,12 +25,12 @@ namespace Zero
 		UMeshVertexComponent(FMeshType& MeshType);
 		virtual void PostInit();
 		virtual ~UMeshVertexComponent();
-		FMeshData& GetMeshData() { return m_MeshData; }
+		std::vector<FMeshData>& GetMeshData() { return m_MeshDatas; }
 		void CreateMesh();
 	protected:
 		Ref<IShaderConstantsBuffer> m_ShaderConstantsBuffer = nullptr;
 		Ref<FMesh> m_Mesh;
 		FMeshType m_MeshType;
-		FMeshData m_MeshData;
+		std::vector<FMeshData> m_MeshDatas;
 	};
 }

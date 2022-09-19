@@ -77,14 +77,14 @@ namespace Zero
 	
 	struct FBufferElement
 	{
-		std::string m_Name;
+		std::string Name;
 		EShaderDataType Type;
 		uint32_t Size;
 		uint32_t Offset;
 		bool bNormaliezd;
 		FBufferElement(EShaderDataType _Type, std::string _Name, bool _bNormaliezd = false)
 			: Type(_Type)
-			, m_Name(_Name)
+			, Name(_Name)
 			, Size(ShaderDataTypeSize(Type))
 			, Offset(0)
 			, bNormaliezd(_bNormaliezd)
@@ -92,7 +92,7 @@ namespace Zero
 
 		bool operator==(const FBufferElement& Other) const
 		{
-			return (m_Name == Other.m_Name) && (Type == Other.Type);
+			return (Name == Other.Name) && (Type == Other.Type);
 		}
 		bool operator!=(const FBufferElement& Other) const
 		{

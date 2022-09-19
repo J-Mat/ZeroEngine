@@ -1,7 +1,8 @@
 #include "Core.h"
 #include "MeshGenerator.h"
-#include  "Platform/DX12/Common/DX12Header.h"
+#include "Platform/DX12/Common/DX12Header.h"
 #include <stdarg.h>
+#include "Render/RHI/VertexBuffer.h"
 
 namespace Zero
 {
@@ -181,6 +182,46 @@ namespace Zero
 		}
 
 		AttachToMeshData(MeshData, Vertices, Indexs);
+	}
+
+	void FMeshCreator::CreateCustomModel(std::vector<FMeshData>& MeshDatas, const std::string& Path, FVertexBufferLayout& Layout)
+	{
+		Assimp::Importer Importer;
+		unsigned int Flag = aiProcess_Triangulate;
+		for (const FBufferElement& Element : Layout)
+		{
+			if (Element.Name == "NORMAL")
+				Flag |= aiProcess_GenNormals;
+			if (Element.Name == "TANGENT")
+				Flag |= aiProcess_CalcTangentSpace;
+		}
+		const aiScene* Scene = Importer.ReadFile(Path, Flag);
+
+		if (!Scene || Scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !Scene->mRootNode)
+		{
+			CORE_LOG_ERROR("Mesh Load Error");
+			return;
+		}
+		ProcessNode(MeshDatas, Scene->mRootNode, Scene);
+	}
+
+	void FMeshCreator::ProcessNode(std::vector<FMeshData>& MeshDatas, aiNode* Node, const aiScene* Scene)
+	{
+		for (unsigned int i = 0; i < Node->mNumMeshes; i++)
+		{
+			aiMesh* Mesh = Scene->mMeshes[Node->mMeshes[i]];
+			MeshDatas.push_back(ProcessMesh(Mesh, Scene));
+		}
+		// Iteratorly Process Child Node
+		for (unsigned int i = 0; i < Node->mNumChildren; i++)
+		{
+			ProcessNode(MeshDatas, Node->mChildren[i], Scene);
+		}
+	}
+
+	FMeshData FMeshCreator::ProcessMesh(aiMesh* Mesh, const aiScene* Scene)
+	{
+		return FMeshData();
 	}
 
 	FVertex FMeshCreator::MidPoint(const FVertex& v0, const FVertex& v1)

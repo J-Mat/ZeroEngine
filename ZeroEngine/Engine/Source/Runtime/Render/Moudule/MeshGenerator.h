@@ -2,6 +2,9 @@
 
 #include "Core.h"
 #include "Core/Base/PublicSingleton.h"
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 namespace Zero
 {
@@ -69,8 +72,11 @@ namespace Zero
 		void CreatMesh(const FMeshType& MeshType, FMeshData& MeshData, int ParaNum, ...);
 		void CreateCube(FMeshData& Meshata, float Width, float Height, float Depth, uint32_t NumSubdivisions);
 		void CreateSphere(FMeshData& MeshData, float Radius, uint32_t NumSubdivisions);
+		void CreateCustomModel(std::vector<FMeshData>& MeshDatas, const std::string& Path, FVertexBufferLayout& Layout);
 	private: 
 
+		void ProcessNode(std::vector<FMeshData>& MeshDatas, aiNode* Node, const aiScene* Scene);
+		FMeshData ProcessMesh(aiMesh* Mesh, const aiScene* Scene);
 		FVertex MidPoint(const FVertex& V0, const FVertex& V1);
 		void SubDivide(std::vector<FVertex>& Vertexes, std::vector<uint32_t>& Indices);
 		void AttachToMeshData(FMeshData& Meshata, std::vector<FVertex>& Vertexes, std::vector<uint32_t>& Indices);
