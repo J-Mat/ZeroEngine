@@ -43,6 +43,7 @@ struct VertexOut
 {
 	float4 PosH : SV_Position;
 	float2 TexC    : TEXCOORD;
+    float3 Normal  : NORMAL;
 };
 
 VertexOut VS(VertexIn vin)
@@ -53,6 +54,7 @@ VertexOut VS(VertexIn vin)
 	vout.PosH = mul(Projection, vout.PosH);
 	
 	vout.TexC = vin.TexC;
+	vout.Normal = vin.Normal;
 
 	return vout;
 };
@@ -60,5 +62,5 @@ VertexOut VS(VertexIn vin)
 float4 PS(VertexOut pin) : SV_Target
 {
 	float3 diffuseAlbedo = gDiffuseMap.Sample(gSamAnisotropicWarp, pin.TexC);
-	return float4(diffuseAlbedo, 1.0f);
+	return float4(pin.Normal, 1.0f);
 }
