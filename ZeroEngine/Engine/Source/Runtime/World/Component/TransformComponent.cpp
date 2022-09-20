@@ -37,9 +37,6 @@ namespace Zero
 		m_RightVector.z = ZMath::cos(m_Rotation.z) * ZMath::sin(-m_Rotation.y);
 		
 		m_UpVector = ZMath::cross(m_ForwardVector, m_RightVector);
-
-		//std::cout << "F     : " << m_ForwardVector.x << " " << m_ForwardVector.y << " " << m_ForwardVector.z << std::endl;
-		std::cout << "F: " << m_ForwardVector.x << " " << m_ForwardVector.y << " " << m_ForwardVector.z << std::endl;
 	}
 
 	ZMath::quat UTransformationComponent::GetOrientation()

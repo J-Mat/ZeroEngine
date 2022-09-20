@@ -15,7 +15,7 @@ namespace Zero
 		template<class T, typename ...ParamTypes>
 		static T* Create(UWorld *World, ParamTypes &&...Params)
 		{
-			T* Obj = new T(Params...);
+			T* Obj = new T(std::forward<ParamTypes>(Params)...);
 			Obj->SetWorld(World);
 			Obj->PostInit();
 			World->AddActor(Obj);

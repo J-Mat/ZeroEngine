@@ -13,6 +13,8 @@ namespace Zero
 	}
 	void UWorld::Tick()
 	{
+		m_RenderItemPool.Reset();
+		
 		if (!m_bTick)
 		{
 			return;

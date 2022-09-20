@@ -4,7 +4,7 @@ namespace Zero
 {
     void FConstantsMapper::InsertConstant(const FBufferElement& Element, int CBIndex)
     {
-        const std::string& Name = Element.m_Name;
+        const std::string& Name = Element.Name;
         if (m_Mapper.find(Name) != m_Mapper.end())
         {
             CORE_LOG_ERROR("Duplicated Shader Constant Name!");

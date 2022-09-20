@@ -101,7 +101,6 @@ namespace Zero
 			auto Device = CreateRef<FDX12Device>();
 			Device->Init();
 			FRenderer::PushDevice(Device);
-			FShaderRegister::GetInstance().RegisterDefaultShader(Device.get());
 			return Device;
 		}
 		virtual Ref<IVertexBuffer> CreateVertexBuffer(IDevice* Device, void* data, uint32_t VertexCount, FVertexBufferLayout& Layout, IVertexBuffer::EType Type = IVertexBuffer::EType::Static)

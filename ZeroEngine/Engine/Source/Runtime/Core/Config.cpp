@@ -9,6 +9,7 @@ namespace Zero
         m_AssetsFolder = m_RootFolder / "Assets";
         m_ShadersFolder = m_AssetsFolder / "Shader";
         m_TexturesFolder = m_AssetsFolder / "Textures";
+        m_ObjFolder = m_AssetsFolder / "Obj";
     }
 
     void FConfig::Clear()
@@ -32,6 +33,10 @@ namespace Zero
     { 
         return m_ShadersFolder;
     }
+    const std::filesystem::path& FConfig::GetObjFolder() const
+    {
+        return m_ObjFolder;
+    }
     const std::filesystem::path FConfig::GetShaderFullPath(const std::string& RelativePath) const
     {
         return m_ShadersFolder / RelativePath;
@@ -39,5 +44,9 @@ namespace Zero
     const std::filesystem::path FConfig::GetTextureFullPath(const std::string& RelativePath) const
     {
         return m_TexturesFolder / RelativePath;
+    }
+    const std::filesystem::path FConfig::GetObjFullPath(const std::string& RelativePath) const
+    {
+        return m_ObjFolder / RelativePath;
     }
 }

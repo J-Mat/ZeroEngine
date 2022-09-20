@@ -45,8 +45,10 @@ namespace Zero
 			Indices.insert(Indices.end(), std::begin(MeshData.Indices), std::end(MeshData.Indices));
 		}
 		
-		m_VertexBuffer = CreateRef<FDX12VertexBuffer>(m_Device, Vertices.data(), uint32_t(Vertices.size()), Layout);
-		m_IndexBuffer = CreateRef<FDX12IndexBuffer>(m_Device, Indices.data(), uint32_t(Indices.size()));
+		m_D3DVertexBuffer = CreateRef<FDX12VertexBuffer>(m_Device, Vertices.data(), uint32_t(Vertices.size()), Layout);
+		m_VertexBuffer = m_D3DVertexBuffer;
+		m_D3DIndexBuffer = CreateRef<FDX12IndexBuffer>(m_Device, Indices.data(), uint32_t(Indices.size()));
+		m_IndexBuffer = m_D3DIndexBuffer;
 	}
 	void FDX12Mesh::Draw()
 	{

@@ -8,7 +8,7 @@ namespace Zero
 {
 	FMeshType FMeshType::s_CubeMeshType = { EMeshShapeType::Cube, "" };
 
-	void FMeshCreator::CreatMesh(const FMeshType& MeshType, FMeshData& MeshData, int ParaNum, ...)
+	void FMeshGenerator::CreatMesh(const FMeshType& MeshType, FMeshData& MeshData, int ParaNum, ...)
 	{
 		switch (MeshType.MeshShapeType)
 		{
@@ -30,7 +30,7 @@ namespace Zero
 			break;
 		}
 	}
-	void FMeshCreator::CreateCube(FMeshData& MeshData, float Width, float Height, float Depth, uint32_t NumSubdivisions)
+	void FMeshGenerator::CreateCube(FMeshData& MeshData, float Width, float Height, float Depth, uint32_t NumSubdivisions)
 	{
 		std::vector<FVertex> Vertex(24);
 		
@@ -111,7 +111,7 @@ namespace Zero
 		AttachToMeshData(MeshData, Vertex, Indexs);
 	}
 
-	void FMeshCreator::CreateSphere(FMeshData& MeshData, float Radius, uint32_t NumSubdivisions)
+	void FMeshGenerator::CreateSphere(FMeshData& MeshData, float Radius, uint32_t NumSubdivisions)
 	{
 		// Put a cap on the number of subdivisions.
 		NumSubdivisions = std::min(NumSubdivisions, 6u);
@@ -184,10 +184,10 @@ namespace Zero
 		AttachToMeshData(MeshData, Vertices, Indexs);
 	}
 
-	void FMeshCreator::CreateCustomModel(std::vector<FMeshData>& MeshDatas, const std::string& Path, FVertexBufferLayout& Layout)
+	void FMeshGenerator::CreateCustomModel(std::vector<FMeshData>& MeshDatas, const std::string& Path, FVertexBufferLayout& Layout)
 	{
 		Assimp::Importer Importer;
-		unsigned int Flag = aiProcess_Triangulate;
+		unsigned int Flag = (aiProcess_Triangulate | aiProcess_MakeLeftHanded);
 		for (const FBufferElement& Element : Layout)
 		{
 			if (Element.Name == "NORMAL")
@@ -202,29 +202,92 @@ namespace Zero
 			CORE_LOG_ERROR("Mesh Load Error");
 			return;
 		}
-		ProcessNode(MeshDatas, Scene->mRootNode, Scene);
+		ProcessNode(MeshDatas, Scene->mRootNode, Scene, Layout);
 	}
 
-	void FMeshCreator::ProcessNode(std::vector<FMeshData>& MeshDatas, aiNode* Node, const aiScene* Scene)
+	void FMeshGenerator::ProcessNode(std::vector<FMeshData>& MeshDatas, aiNode* Node, const aiScene* Scene, FVertexBufferLayout& Layout)
 	{
 		for (unsigned int i = 0; i < Node->mNumMeshes; i++)
 		{
 			aiMesh* Mesh = Scene->mMeshes[Node->mMeshes[i]];
-			MeshDatas.push_back(ProcessMesh(Mesh, Scene));
+			MeshDatas.push_back(ProcessMesh(Mesh, Scene, Layout));
 		}
 		// Iteratorly Process Child Node
 		for (unsigned int i = 0; i < Node->mNumChildren; i++)
 		{
-			ProcessNode(MeshDatas, Node->mChildren[i], Scene);
+			ProcessNode(MeshDatas, Node->mChildren[i], Scene, Layout);
 		}
 	}
 
-	FMeshData FMeshCreator::ProcessMesh(aiMesh* Mesh, const aiScene* Scene)
+	FMeshData FMeshGenerator::ProcessMesh(aiMesh* Mesh, const aiScene* Scene, FVertexBufferLayout& Layout)
 	{
-		return FMeshData();
+		std::vector<float> Vertices;
+		std::vector<uint32_t> Indices;
+
+		for (unsigned int i = 0; i < Mesh->mNumVertices; i++)
+		{
+			for (FBufferElement& Element : Layout)
+			{
+				if (Element.Name == "POSITION")
+				{
+					Vertices.push_back(Mesh->mVertices[i].x);
+					Vertices.push_back(Mesh->mVertices[i].y);
+					Vertices.push_back(Mesh->mVertices[i].z);
+				}
+				else if (Element.Name == "TEXCOORD" || Element.Name == "TEXCO0RD0")
+				{
+					if (Mesh->HasTextureCoords(0))
+					{
+						Vertices.push_back(Mesh->mTextureCoords[0][i].x);
+						Vertices.push_back(Mesh->mTextureCoords[0][i].y);
+					}
+					else
+					{
+						Vertices.push_back(0);
+						Vertices.push_back(0);
+					}
+				}
+				else if (Element.Name == "NORMAL")
+				{
+					Vertices.push_back(Mesh->mNormals[i].x);
+					Vertices.push_back(Mesh->mNormals[i].y);
+					Vertices.push_back(Mesh->mNormals[i].z);
+				}
+				else if (Element.Name == "TANGENT")
+				{
+					if (Mesh->HasTangentsAndBitangents())
+					{
+						Vertices.push_back(Mesh->mTangents[i].x);
+						Vertices.push_back(Mesh->mTangents[i].y);
+						Vertices.push_back(Mesh->mTangents[i].z);
+					}
+					else
+					{
+						//SIByL_CORE_ERROR("Mesh Process Error: NO TANGENT");
+						Vertices.push_back(0);
+						Vertices.push_back(0);
+						Vertices.push_back(0);
+					}
+				}
+				else
+				{
+					for (int j = 0; j < Element.Size / 4; j++)
+						Vertices.push_back(0);
+				}
+			}
+		}
+
+		for (uint32_t i = 0; i < Mesh->mNumFaces; i++)
+		{
+			aiFace face = Mesh->mFaces[i];
+			for (uint32_t j = 0; j < face.mNumIndices; j++)
+				Indices.push_back(face.mIndices[j]);
+		}
+
+		return FMeshData(Vertices, Indices);
 	}
 
-	FVertex FMeshCreator::MidPoint(const FVertex& v0, const FVertex& v1)
+	FVertex FMeshGenerator::MidPoint(const FVertex& v0, const FVertex& v1)
 	{
 		ZMath::vec3 p0 = v0.Position;
 		ZMath::vec3 p1 = v1.Position;
@@ -252,7 +315,7 @@ namespace Zero
 		return v;
 	}
 
-	void FMeshCreator::SubDivide(std::vector<FVertex>& Vertices, std::vector<uint32_t>& Indices)
+	void FMeshGenerator::SubDivide(std::vector<FVertex>& Vertices, std::vector<uint32_t>& Indices)
 	{
 		std::vector<FVertex> InputVertex = Vertices;
 		std::vector<uint32_t> InputIndice = Indices;
@@ -313,7 +376,7 @@ namespace Zero
 			Indices.push_back(i * 6 + 4);
 		}
 	}
-	void FMeshCreator::AttachToMeshData(FMeshData& MeshData, std::vector<FVertex>& Vertexes, std::vector<uint32_t>& Indices)
+	void FMeshGenerator::AttachToMeshData(FMeshData& MeshData, std::vector<FVertex>& Vertexes, std::vector<uint32_t>& Indices)
 	{
 		for(FVertex& Vertex : Vertexes)
 		{

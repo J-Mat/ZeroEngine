@@ -66,7 +66,8 @@ namespace Zero
 		{}
 	};
 
-	class FMeshCreator : public IPublicSingleton<FMeshCreator>
+	class FVertexBufferLayout;
+	class FMeshGenerator : public IPublicSingleton<FMeshGenerator>
 	{
 	public:
 		void CreatMesh(const FMeshType& MeshType, FMeshData& MeshData, int ParaNum, ...);
@@ -75,8 +76,8 @@ namespace Zero
 		void CreateCustomModel(std::vector<FMeshData>& MeshDatas, const std::string& Path, FVertexBufferLayout& Layout);
 	private: 
 
-		void ProcessNode(std::vector<FMeshData>& MeshDatas, aiNode* Node, const aiScene* Scene);
-		FMeshData ProcessMesh(aiMesh* Mesh, const aiScene* Scene);
+		void ProcessNode(std::vector<FMeshData>& MeshDatas, aiNode* Node, const aiScene* Scene, FVertexBufferLayout& Layout);
+		FMeshData ProcessMesh(aiMesh* Mesh, const aiScene* Scene, FVertexBufferLayout& Layout);
 		FVertex MidPoint(const FVertex& V0, const FVertex& V1);
 		void SubDivide(std::vector<FVertex>& Vertexes, std::vector<uint32_t>& Indices);
 		void AttachToMeshData(FMeshData& Meshata, std::vector<FVertex>& Vertexes, std::vector<uint32_t>& Indices);

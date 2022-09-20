@@ -5,6 +5,7 @@
 #include "EditorCameraController.h"
 #include "World/Actor/SphereMeshActor.h"
 #include "World/Actor/CubeMeshActor.h"
+#include "World/Actor/CustomMeshActor.h"
 
 namespace Zero
 {
@@ -24,10 +25,14 @@ namespace Zero
 		
 		FRenderer::GraphicFactroy->CreateTexture2D(FRenderer::GetDevice().get(), "container.jpg");
 		
-		UCubeMeshActor* MeshActor = UActor::Create<UCubeMeshActor>(m_World);
+		UCustomMeshActor* MeshActor = UActor::Create<UCustomMeshActor>(m_World, "cat", "backpack.obj");
+		//UCustomMeshActor* MeshActor = UActor::Create<UCustomMeshActor>(m_World, "cat", "sphere.fbx");
+		//UCubeMeshActor* MeshActor = UActor::Create<UCubeMeshActor>(m_World);
 		FRenderer::GetDevice()->FlushInitCommandList();
 
 		m_CameraController = CreateRef<FEditorCameraController>(m_World->GetCameraActor());
+
+		FShaderRegister::GetInstance().RegisterDefaultShader(FRenderer::GetDevice().get());
 
 	}
 	

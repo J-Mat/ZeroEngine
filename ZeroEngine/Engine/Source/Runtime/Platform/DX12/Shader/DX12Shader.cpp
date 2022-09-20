@@ -60,7 +60,7 @@ namespace Zero
 		for (const auto& Element : m_ShaderDesc.VertexBufferLayout)
 		{
 			m_InputLayoutDesc.push_back({
-				Element.m_Name.c_str(), 
+				Element.Name.c_str(), 
 				0, 
 				ShaderDataTypeToDXGIFormat(Element.Type), 
 				0, 

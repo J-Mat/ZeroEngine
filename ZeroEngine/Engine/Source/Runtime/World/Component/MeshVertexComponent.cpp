@@ -64,10 +64,7 @@ namespace Zero
 	{
 		m_Mesh = FRenderer::GraphicFactroy->CreateMesh(
 			GetWorld()->GetDevice().get(),
-			m_MeshDatas.Vertices.data(),
-			uint32_t(m_MeshDatas.Vertices.size()),
-			m_MeshDatas.Indices.data(),
-			uint32_t(m_MeshDatas.Indices.size()) ,
+			m_MeshDatas,
 			FVertexBufferLayout::s_DefaultVertexLayout
 		);
 	}

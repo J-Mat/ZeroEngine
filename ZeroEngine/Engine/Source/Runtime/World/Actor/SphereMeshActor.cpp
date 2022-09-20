@@ -11,8 +11,10 @@ namespace Zero
 
 	void USphereMeshActor::BuildMesh()
 	{
-		FMeshData& MeshData = m_MeshVertexComponent->GetMeshData();
-		FMeshCreator::GetInstance().CreateSphere(MeshData, m_Radius, 3);
+		std::vector<FMeshData>& MeshDatas = m_MeshVertexComponent->GetMeshDatas();
+		FMeshData MeshData;
+		FMeshGenerator::GetInstance().CreateSphere(MeshData, m_Radius, 3);
+		MeshDatas.push_back(MeshData);
 
 		m_MeshVertexComponent->CreateMesh();
 	}

@@ -11,9 +11,9 @@ namespace Zero
 
 	void UCubeMeshActor::BuildMesh()
 	{
-		std::vector<FMeshData>& MeshDatas =  m_MeshVertexComponent->GetMeshData();
+		std::vector<FMeshData>& MeshDatas =  m_MeshVertexComponent->GetMeshDatas();
 		FMeshData MeshData;
-		FMeshCreator::GetInstance().CreateCube(MeshData, m_Width, m_Height, m_Depth, 0);
+		FMeshGenerator::GetInstance().CreateCube(MeshData, m_Width, m_Height, m_Depth, 0);
 		MeshDatas.push_back(MeshData);
 
 		m_MeshVertexComponent->CreateMesh();
