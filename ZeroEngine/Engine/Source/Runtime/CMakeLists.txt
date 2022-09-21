@@ -20,6 +20,7 @@ target_link_libraries(${ProjectName}
     PUBLIC spdlog
     PUBLIC stb_image
 	PUBLIC assimp
+	PUBLIC imgui
 	PUBLIC headers
 )
 

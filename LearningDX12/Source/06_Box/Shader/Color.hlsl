@@ -18,5 +18,4 @@ struct VertexOut
 VertexOut VS(VertexIn vin)
 {
 	VertexOut vin;
-	yont 
 }

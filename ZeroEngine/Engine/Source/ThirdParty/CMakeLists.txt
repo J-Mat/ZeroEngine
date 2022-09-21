@@ -20,6 +20,12 @@ if(NOT TARGET stb_image)
     NoWarning(stb_image)
 endif()
 
+if(NOT TARGET imgui)
+	add_subdirectory(imgui)
+    set_target_properties(imgui PROPERTIES FOLDER ${ThirdPartyFolder})
+    NoWarning(stb_image)
+endif()
+
 if(NOT TARGET assimp)
     OPTION( BUILD_SHARED_LIBS
       "Build package with shared libraries."
