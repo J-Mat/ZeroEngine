@@ -16,13 +16,20 @@ namespace Zero
 		D3D12_DESCRIPTOR_HEAP_DESC HeapDesc = {};
 		HeapDesc.Type   = m_HeapType;
 		HeapDesc.NumDescriptors = m_NumDescriptorsInHeap;
+		if (Type == D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)
+		{
+			HeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+		}
 
 		ThrowIfFailed(
 			D3dDevice->CreateDescriptorHeap(&HeapDesc,  IID_PPV_ARGS( &m_D3DDescriptorHeap ) )
 		);
 		
 		m_BaseDescriptor = m_D3DDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-		m_BaseGpuHandle = m_D3DDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+		if (Type == D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)
+		{
+			m_BaseGpuHandle = m_D3DDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+		}
 		m_DescriptorHandleIncrementSize = D3dDevice->GetDescriptorHandleIncrementSize(m_HeapType);
 		m_NumFreeHandles = m_NumDescriptorsInHeap;
 		
