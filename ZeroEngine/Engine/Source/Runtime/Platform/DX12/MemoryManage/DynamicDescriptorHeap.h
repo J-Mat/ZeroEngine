@@ -69,7 +69,7 @@ namespace Zero
 	private:
 		// Request a descriptor heap if one is available.
 		ComPtr<ID3D12DescriptorHeap> RequestDescriptorHeap();
-		// Create a new descriptor heap of no descriptor heap is available.
+		// Create a new descriptor hea p of no descriptor heap is available.
 		ComPtr<ID3D12DescriptorHeap> CreateDescriptorHeap();
 
 		// Compute the number of stale descriptors that need to be copied
@@ -109,19 +109,19 @@ namespace Zero
 		{
 			FDescriptorTableCache()
 				: NumDescriptors(0)
-				, BaseDescriptor(nullptr)
+				, m_BaseDescriptor(nullptr)
 			{}
 			
 			void Reset()
 			{
 				NumDescriptors = 0;
-				BaseDescriptor = nullptr;
+				m_BaseDescriptor = nullptr;
 			}
 
 			// The number of descriptors in this descriptor table.
 			uint32_t NumDescriptors;
 			// The pointer to the descriptor in the descriptor handle cache.
-			D3D12_CPU_DESCRIPTOR_HANDLE* BaseDescriptor;
+			D3D12_CPU_DESCRIPTOR_HANDLE* m_BaseDescriptor;
 		};
 
 		FDX12Device& m_Device;

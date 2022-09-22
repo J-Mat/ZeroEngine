@@ -13,3 +13,9 @@
 #include "Core/Events/Event.h"
 #include "Core/Events/KeyEvent.h"
 #include "Core/Events/MouseEvent.h"
+
+#include "imgui/imgui.h"
+#if defined(_WIN32)
+#include "imgui/backends/imgui_impl_win32.h"
+#include "imgui/backends/imgui_impl_dx12.h"
+#endif

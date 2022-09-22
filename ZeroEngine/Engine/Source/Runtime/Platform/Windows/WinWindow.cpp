@@ -6,7 +6,9 @@
 #include "Platform/DX12/DX12RenderPipeline.h"
 #include "Platform/DX12/MemoryManage/FrameResource.h"
 #include "Render/RendererAPI.h"
-
+#include "imgui/imgui.h"
+#include "imgui/backends/imgui_impl_win32.h"
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 namespace Zero
 {
 	#define TRANSFER_EVENT(FEvent, ...) if (m_WindowData.EventCallback == nullptr)\
@@ -35,10 +37,7 @@ namespace Zero
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		else
-		{
-			FDX12RenderPipeline::GetInstance().DrawFrame();
-		}
+		FDX12RenderPipeline::GetInstance().DrawFrame();
 	}
 
 	void FWinWindow::SetVSync(bool bEnabled)
@@ -130,6 +129,11 @@ namespace Zero
 
 	LRESULT CALLBACK FWinWindow::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
+		if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wParam, lParam))
+		{
+			return true;
+		}
+
 		switch (msg)
 		{
 		// WM_ACTIVATE is sent when the window is activated or deactivated.  

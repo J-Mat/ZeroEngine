@@ -34,6 +34,8 @@ namespace Zero
 		void OnEvent(FEvent &Event);
 		void OnAwake();
 		void OnDraw();
+		void PostDraw();
+		void OnGuiRender();
 		void OnResourceDestroy();
 		
 		void PushLayer(FLayer* Layer);

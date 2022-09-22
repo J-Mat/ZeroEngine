@@ -22,6 +22,8 @@ namespace Zero
 		
 		m_FrameTimer.reset(FFrameTimer::Create());
 		m_FrameTimer->Reset();
+
+		PushOverlay(FRenderer::GraphicFactroy->CreatGuiLayer());
 	}
 
 	void FApplication::Run()
@@ -66,6 +68,22 @@ namespace Zero
 		}
 	}
 
+	void FApplication::PostDraw()
+	{
+		for (auto Layer : m_LayerStack)
+		{
+			Layer->PostDraw();
+		}
+	}
+
+	void FApplication::OnGuiRender()
+	{
+		for (auto Layer : m_LayerStack)
+		{
+			Layer->OnGuiRender();
+		}
+	}
+
 	void FApplication::OnResourceDestroy()
 	{
 	}
@@ -78,7 +96,6 @@ namespace Zero
 	void FApplication::PushOverlay(FLayer* Overlay)
 	{
 		m_LayerStack.PushOverlay(Overlay);
-		Overlay->OnAttach();
 	}
 	
 	

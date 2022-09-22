@@ -21,7 +21,8 @@ namespace Zero
 			D3dDevice->CreateDescriptorHeap(&HeapDesc,  IID_PPV_ARGS( &m_D3DDescriptorHeap ) )
 		);
 		
-		BaseDescriptor = m_D3DDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+		m_BaseDescriptor = m_D3DDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+		m_BaseGpuHandle = m_D3DDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
 		m_DescriptorHandleIncrementSize = D3dDevice->GetDescriptorHandleIncrementSize(m_HeapType);
 		m_NumFreeHandles = m_NumDescriptorsInHeap;
 		
@@ -113,7 +114,7 @@ namespace Zero
 
 	uint32_t FDescriptorAllocatorPage::ComputeOffset(D3D12_CPU_DESCRIPTOR_HANDLE Handle)
 	{
-		return static_cast<uint32_t>(Handle.ptr - BaseDescriptor.ptr) / m_DescriptorHandleIncrementSize;
+		return static_cast<uint32_t>(Handle.ptr - m_BaseDescriptor.ptr) / m_DescriptorHandleIncrementSize;
 	}
 
 	FDescriptorAllocation FDescriptorAllocatorPage::Allocate(uint32_t NumDescriptors)
@@ -144,7 +145,9 @@ namespace Zero
 		}
 	
 		m_NumFreeHandles -= NumDescriptors;
-		return { CD3DX12_CPU_DESCRIPTOR_HANDLE(BaseDescriptor, Offset, m_DescriptorHandleIncrementSize), NumDescriptors, m_DescriptorHandleIncrementSize, shared_from_this() };
+		return FDescriptorAllocation(CD3DX12_CPU_DESCRIPTOR_HANDLE(m_BaseDescriptor, Offset, m_DescriptorHandleIncrementSize),
+			CD3DX12_GPU_DESCRIPTOR_HANDLE(m_BaseGpuHandle, Offset, m_DescriptorHandleIncrementSize),
+			NumDescriptors, m_DescriptorHandleIncrementSize, shared_from_this());
 	}
 
 	void FDescriptorAllocatorPage::ReleaseStaleDescriptors()

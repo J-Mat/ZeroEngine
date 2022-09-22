@@ -47,6 +47,8 @@ namespace Zero
 		* Allocate a number of CPU visible descriptors.
 		*/
 		FDescriptorAllocation AllocateDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE Type, uint32_t NumDescriptors = 1);
+		
+		ComPtr<ID3D12DescriptorHeap> CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE Type, uint32_t NumDescriptors = 64);
 
 		/**
 		* Release stale descriptors. This should only be called with a completed frame counter.

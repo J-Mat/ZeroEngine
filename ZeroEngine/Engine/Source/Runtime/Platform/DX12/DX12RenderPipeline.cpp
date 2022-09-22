@@ -34,8 +34,9 @@ namespace Zero
 		//RenderTarget->UnBind();
 		*/
 
-
 		FApplication::Get().OnDraw();
+
+		FApplication::Get().PostDraw();
 
 		SwapChain->Present();
 	}

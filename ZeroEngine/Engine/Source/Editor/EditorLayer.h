@@ -17,6 +17,7 @@ namespace Zero
 
 		virtual void OnUpdate() override;
 		virtual void OnDraw() override;
+		virtual void OnGuiRender() override;
 		void OnEvent(FEvent& e) override;
 		
 		void BuildWorld();

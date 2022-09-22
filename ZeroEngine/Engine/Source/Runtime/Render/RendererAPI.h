@@ -1,5 +1,7 @@
 #pragma once
 #include "Core.h"
+#include "Core/Framework/Layer.h"
+#include "Platform/DX12/GUI/DX12GuiLayer.h"
 #include "Platform/DX12/DX12VertexBuffer.h"
 #include "Platform/DX12/DX12Texture2D.h"
 #include "Platform/DX12/DX12Mesh.h"
@@ -80,6 +82,7 @@ namespace Zero
 	{
 	public:
 		virtual Ref<IDevice> CreateDevice() = 0;
+		virtual FLayer* CreatGuiLayer() = 0;
 		virtual Ref<FWinWindow> CreatePlatformWindow(const FWindowsConfig& Config) = 0;
 		virtual Ref<IVertexBuffer> CreateVertexBuffer(IDevice* Device, void* data, uint32_t VertexCount, FVertexBufferLayout& Layout, IVertexBuffer::EType Type = IVertexBuffer::EType::Static) = 0;
 		virtual Ref<FMesh> CreateMesh(IDevice* Device, const std::vector<FMeshData>& MeshDatas, FVertexBufferLayout& Layout) = 0;
@@ -103,6 +106,12 @@ namespace Zero
 			FRenderer::PushDevice(Device);
 			return Device;
 		}
+
+		virtual FLayer* CreatGuiLayer()
+		{
+			return new FDX12GuiLayer();
+		}
+
 		virtual Ref<IVertexBuffer> CreateVertexBuffer(IDevice* Device, void* data, uint32_t VertexCount, FVertexBufferLayout& Layout, IVertexBuffer::EType Type = IVertexBuffer::EType::Static)
 		{
 			return CreateRef<FDX12VertexBuffer>(*((FDX12Device*)Device), data, VertexCount, Layout, Type);

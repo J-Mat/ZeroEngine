@@ -18,7 +18,8 @@ namespace Zero
 		virtual void OnDetach() {}
 		virtual void OnUpdate() {}
 		virtual void OnDraw() = 0;
-		virtual void OnImGuiRender() {}
+		virtual void PostDraw() {}
+		virtual void OnGuiRender() {}
 		virtual void OnEvent(FEvent& event) {}
 	protected:
 		std::string m_Name;

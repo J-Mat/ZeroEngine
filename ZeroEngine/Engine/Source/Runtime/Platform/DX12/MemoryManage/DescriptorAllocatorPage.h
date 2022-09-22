@@ -22,7 +22,7 @@ namespace Zero
 
 		FDescriptorAllocation Allocate(uint32_t NumDescriptors);
 		void ReleaseStaleDescriptors();
-
+		ComPtr<ID3D12DescriptorHeap> GetDescriptorHeap() { return m_D3DDescriptorHeap; }
 	private:
 		struct FFreeBlockInfo;
 
@@ -62,7 +62,8 @@ namespace Zero
 
 		ComPtr<ID3D12DescriptorHeap> m_D3DDescriptorHeap;
 		D3D12_DESCRIPTOR_HEAP_TYPE m_HeapType;
-		CD3DX12_CPU_DESCRIPTOR_HANDLE BaseDescriptor;
+		CD3DX12_CPU_DESCRIPTOR_HANDLE m_BaseDescriptor;
+		CD3DX12_GPU_DESCRIPTOR_HANDLE m_BaseGpuHandle;
 		uint32_t  m_DescriptorHandleIncrementSize;
 		uint32_t  m_NumDescriptorsInHeap;
 		uint32_t  m_NumFreeHandles;

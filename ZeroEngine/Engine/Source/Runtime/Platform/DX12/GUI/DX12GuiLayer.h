@@ -6,16 +6,20 @@
 
 namespace Zero
 {
+	class FDX12Device;
 	class FDX12GuiLayer : public FGuiLayer
 	{
+	public:
 		FDX12GuiLayer() = default;
-		~FDX12GuiLayer() = default();
-
-		struct GuiAllocation
-		{
-			D3D12_CPU_DESCRIPTOR_HANDLE m_CpuHandle;
-			D3D12_GPU_DESCRIPTOR_HANDLE m_GpuHandle;
-		};
-
+		~FDX12GuiLayer();
+	protected:
+		virtual void PlatformInit() override;
+		virtual void NewFrameBegin() override;
+		virtual void DrawCall() override;
+		virtual void PlatformDestroy() override;
+		virtual void PostDraw() override;
+	private:
+		ComPtr<ID3D12DescriptorHeap> g_D3DSrvDescHeap = nullptr;
+		Ref<FDX12Device> m_Device;
 	};
 }

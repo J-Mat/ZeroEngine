@@ -49,7 +49,7 @@ namespace Zero
 			uint32_t  NumDescriptors = RootSignature->GetNumDescriptors(RootIndex);
 			FDescriptorTableCache& DescriptorTableCache = m_DescriptorTableCache[RootIndex];
 			DescriptorTableCache.NumDescriptors = NumDescriptors;
-			DescriptorTableCache.BaseDescriptor = m_DescriptorHandleCache.get() + CurrentOffset;
+			DescriptorTableCache.m_BaseDescriptor = m_DescriptorHandleCache.get() + CurrentOffset;
 
 			CurrentOffset += NumDescriptors;
 
@@ -138,7 +138,7 @@ namespace Zero
 		while (_BitScanForward(&RootIndex, m_StaleDescriptorTableBitMask))
 		{
 			UINT NumSrcDescriptors = m_DescriptorTableCache[RootIndex].NumDescriptors;
-			D3D12_CPU_DESCRIPTOR_HANDLE* pSrcDescriptorHandles = m_DescriptorTableCache[RootIndex].BaseDescriptor;
+			D3D12_CPU_DESCRIPTOR_HANDLE* pSrcDescriptorHandles = m_DescriptorTableCache[RootIndex].m_BaseDescriptor;
 			
 			D3D12_CPU_DESCRIPTOR_HANDLE pDestDescriptorRangeStarts[] = { m_CurrentCPUDescriptorHandle };
 			UINT pDestDescriptorRangeSizes[] = {NumSrcDescriptors};
@@ -188,7 +188,7 @@ namespace Zero
 		{
 			throw std::length_error("Number of descriptors exceeds the number of descriptors in the descriptor table.");
 		}
-		D3D12_CPU_DESCRIPTOR_HANDLE* DstDescriptor = (DescriptorTableCache.BaseDescriptor + Offset);
+		D3D12_CPU_DESCRIPTOR_HANDLE* DstDescriptor = (DescriptorTableCache.m_BaseDescriptor + Offset);
 		for (uint32_t i = 0; i < NumDescriptors; ++i)
 		{
 			DstDescriptor[i] = CD3DX12_CPU_DESCRIPTOR_HANDLE(SrcDescriptors, i, m_DescriptorHandleIncrementSize);
