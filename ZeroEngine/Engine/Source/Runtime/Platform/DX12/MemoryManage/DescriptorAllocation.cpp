@@ -13,9 +13,8 @@ namespace Zero
 	{
 	}
 
-	FDescriptorAllocation::FDescriptorAllocation(D3D12_CPU_DESCRIPTOR_HANDLE InDescriptor, D3D12_GPU_DESCRIPTOR_HANDLE GpuHandle, uint32_t InNumHandles, uint32_t InDescriptorSize, Ref<FDescriptorAllocatorPage> InPage)
+	FDescriptorAllocation::FDescriptorAllocation(D3D12_CPU_DESCRIPTOR_HANDLE InDescriptor, uint32_t InNumHandles, uint32_t InDescriptorSize, Ref<FDescriptorAllocatorPage> InPage)
 		: m_Descriptor(InDescriptor)
-		, m_GpuHandle(GpuHandle)
 		, m_NumHandles(InNumHandles)
 		, DescriptorSize(InDescriptorSize)
 		, Page(InPage)
@@ -29,7 +28,6 @@ namespace Zero
 	
 	FDescriptorAllocation::FDescriptorAllocation(FDescriptorAllocation&& Allocation) noexcept
 		: m_Descriptor(Allocation.m_Descriptor)
-		, m_GpuHandle(Allocation.m_GpuHandle)
 		, m_NumHandles(Allocation.m_NumHandles)
 		, DescriptorSize(Allocation.m_NumHandles)
 		, Page(std::move(Allocation.Page))
@@ -44,7 +42,6 @@ namespace Zero
 		Free();
 		
 		m_Descriptor = Other.m_Descriptor;
-		m_GpuHandle = Other.m_GpuHandle;
   		m_NumHandles = Other.m_NumHandles;
     	DescriptorSize = Other.DescriptorSize;
     	Page = std::move( Other.Page );
@@ -75,12 +72,6 @@ namespace Zero
 	{
 		CORE_ASSERT(Offset < m_NumHandles, "GetDescriptorHandle Offset < NumHandles");
 		return { m_Descriptor.ptr + DescriptorSize * Offset };
-	}
-
-	D3D12_GPU_DESCRIPTOR_HANDLE FDescriptorAllocation::GetGpuHandle(uint32_t Offset) const
-	{
-		CORE_ASSERT(Offset < m_NumHandles, "GetGpuHandle Offset < NumHandles");
-		return CD3DX12_GPU_DESCRIPTOR_HANDLE(m_GpuHandle, Offset, DescriptorSize);
 	}
 	
 	uint32_t FDescriptorAllocation::GetNumHandles() const

@@ -31,6 +31,7 @@ namespace Zero
 		virtual ~FApplication() = default;
 		
 		void Run();
+
 		void OnEvent(FEvent &Event);
 		void OnAwake();
 		void OnDraw();

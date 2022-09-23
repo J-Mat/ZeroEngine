@@ -102,6 +102,8 @@ namespace Zero
 		Scope<FDX12CommandQueue> m_CopyCommandQueue;
 
 		Ref<FDescriptorAllocator> m_DescriptorAllocators[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
+		
+		ComPtr<ID3D12DescriptorHeap> m_GUISrvDescHeap = nullptr;
 
 		D3D_ROOT_SIGNATURE_VERSION m_HighestRootSignatureVersion;
 		
