@@ -42,5 +42,11 @@ namespace Zero
 		
 		Ref<FDescriptorAllocatorPage> Page;
 	};
+	
+	struct FLightDescrptorAllocation
+	{
+		D3D12_CPU_DESCRIPTOR_HANDLE CpuHandle;
+		D3D12_GPU_DESCRIPTOR_HANDLE	GpuHandle;
+	};
 }
 

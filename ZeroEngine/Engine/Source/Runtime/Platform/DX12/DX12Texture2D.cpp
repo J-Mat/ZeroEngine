@@ -58,6 +58,22 @@ namespace Zero
 		}
 	}
 
+	void FDX12Texture2D::RegistGuiShaderResource()
+	{
+		if (!m_bHasGuiResource)
+		{
+			m_GuiAllocation = m_Device.AllocateGuiDescritor();
+		}
+		m_bHasGuiResource = true;
+	}
+
+	void* FDX12Texture2D::GetGuiShaderReseource()
+	{
+		CORE_ASSERT(m_bHasGuiResource, "Textrue must has gui resource!");
+		D3D12_GPU_DESCRIPTOR_HANDLE* Handle = &(m_GuiAllocation.GpuHandle);
+		return (void*)Handle;
+	}
+
 	// Get a UAV description that matches the resource description.
 	D3D12_UNORDERED_ACCESS_VIEW_DESC GetUAVDesc(const D3D12_RESOURCE_DESC& ResDesc, UINT MipSlice, UINT ArraySlice = 0,
 		UINT PlaneSlice = 0)
@@ -121,21 +137,21 @@ namespace Zero
 			// Create RTV	
 			if ((Desc.Flags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET) != 0 && CheckRTVSupport())
 			{
-				m_RenderTargetView = m_Device.AllocateDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+				m_RenderTargetView = m_Device.AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 				D3DDevice->CreateRenderTargetView(m_D3DResource.Get(), nullptr, m_RenderTargetView.GetDescriptorHandle());
 			}
 
 			// Create DSV	
 			if ((Desc.Flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL) != 0 && CheckDSVSupport())
 			{
-				m_DepthStencilView = m_Device.AllocateDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+				m_DepthStencilView = m_Device.AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 				D3DDevice->CreateDepthStencilView(m_D3DResource.Get(), nullptr,
 					m_DepthStencilView.GetDescriptorHandle());
 			}
 			// Create SRV
 			if ((Desc.Flags & D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE) == 0 && CheckSRVSupport())
 			{
-				m_ShaderResourceView = m_Device.AllocateDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+				m_ShaderResourceView = m_Device.AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 				D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc = {};
 				SrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 				SrvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -150,7 +166,7 @@ namespace Zero
 			if ((Desc.Flags & D3D12_RESOURCE_STATE_UNORDERED_ACCESS) != 0 && CheckUAVSupport() &&
 				Desc.DepthOrArraySize == 1)
 			{
-				m_UnorderedAccessView = m_Device.AllocateDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, Desc.MipLevels);
+				m_UnorderedAccessView = m_Device.AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, Desc.MipLevels);
 				for (int i = 0; i < Desc.MipLevels; ++i)
 				{
 					auto uavDesc = GetUAVDesc(Desc, i);

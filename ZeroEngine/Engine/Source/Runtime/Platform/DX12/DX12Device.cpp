@@ -16,20 +16,28 @@ namespace Zero
 		CheckFeatures();
 	}
 	
-	FDescriptorAllocation FDX12Device::AllocateDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE Type, uint32_t NumDescriptors)
+	FDescriptorAllocation FDX12Device::AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE Type, uint32_t NumDescriptors)
 	{
 		return m_DescriptorAllocators[Type]->Allocate(NumDescriptors);
 	}
 
-	ComPtr<ID3D12DescriptorHeap> FDX12Device::CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE Type, uint32_t NumDescriptors)
+	void FDX12Device::CreateGuiDescHeap(uint32_t NumDescriptors)
 	{
-		ComPtr<ID3D12DescriptorHeap> DescriptorHeap;
 		D3D12_DESCRIPTOR_HEAP_DESC Desc = {};
-		Desc.Type = Type;
+		Desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 		Desc.NumDescriptors = NumDescriptors;
 		Desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-		ThrowIfFailed(m_D3DDevice->CreateDescriptorHeap(&Desc, IID_PPV_ARGS(&DescriptorHeap)));
-		return DescriptorHeap;
+		ThrowIfFailed(m_D3DDevice->CreateDescriptorHeap(&Desc, IID_PPV_ARGS(&m_GUISrvDescHeap)));
+	}
+
+	FLightDescrptorAllocation FDX12Device::AllocateGuiDescritor()
+	{
+		D3D12_CPU_DESCRIPTOR_HANDLE CpuHandle = m_GUISrvDescHeap->GetCPUDescriptorHandleForHeapStart();
+		CpuHandle.ptr += m_Cbv_Srv_UavDescriptorSize * m_CurGuiDescHeapIndex;
+		D3D12_GPU_DESCRIPTOR_HANDLE GpuHandle = m_GUISrvDescHeap->GetGPUDescriptorHandleForHeapStart();
+		GpuHandle.ptr += m_Cbv_Srv_UavDescriptorSize * m_CurGuiDescHeapIndex;
+		++m_CurGuiDescHeapIndex;
+		return { CpuHandle, GpuHandle };
 	}
 
 	void FDX12Device::ReleaseStaleDescriptors()

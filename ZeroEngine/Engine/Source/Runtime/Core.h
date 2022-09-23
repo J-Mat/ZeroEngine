@@ -2,6 +2,7 @@
 #include "PCH.h"
 #include "Utils.h"
 
+#define EDITOR_MODE 1
 
 #define _KB(x) (x * 1024)
 #define _MB(x) (x * 1024 * 1024)

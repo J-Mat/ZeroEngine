@@ -41,6 +41,9 @@ namespace Zero
 
 	void FDX12RenderTarget::AttachTexture(EAttachmentIndex AttachmentIndex, Ref<FTexture2D> Texture2D)
 	{
+#ifdef EDITOR_MODE 
+		Texture2D->RegistGuiShaderResource();
+#endif
 		size_t Index = size_t(AttachmentIndex);
 		m_Textures[Index] = Texture2D;
 

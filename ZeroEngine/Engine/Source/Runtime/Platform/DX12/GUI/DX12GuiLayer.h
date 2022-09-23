@@ -19,7 +19,6 @@ namespace Zero
 		virtual void PlatformDestroy() override;
 		virtual void PostDraw() override;
 	private:
-		ComPtr<ID3D12DescriptorHeap> g_D3DSrvDescHeap = nullptr;
 		Ref<FDX12Device> m_Device;
 	};
 }

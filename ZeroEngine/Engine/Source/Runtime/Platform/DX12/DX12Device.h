@@ -46,10 +46,11 @@ namespace Zero
 		/**
 		* Allocate a number of CPU visible descriptors.
 		*/
-		FDescriptorAllocation AllocateDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE Type, uint32_t NumDescriptors = 1);
+		FDescriptorAllocation AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE Type, uint32_t NumDescriptors = 1);
 		
-		ComPtr<ID3D12DescriptorHeap> CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE Type, uint32_t NumDescriptors = 64);
-
+		void CreateGuiDescHeap(uint32_t NumDescriptors = 64);
+		ComPtr<ID3D12DescriptorHeap> GetGuiDescHeap() { return m_GUISrvDescHeap; }
+		FLightDescrptorAllocation AllocateGuiDescritor();
 		/**
 		* Release stale descriptors. This should only be called with a completed frame counter.
 		*/
@@ -104,10 +105,13 @@ namespace Zero
 		Ref<FDescriptorAllocator> m_DescriptorAllocators[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
 		
 		ComPtr<ID3D12DescriptorHeap> m_GUISrvDescHeap = nullptr;
+		uint32_t m_CurGuiDescHeapIndex = 0;
 
 		D3D_ROOT_SIGNATURE_VERSION m_HighestRootSignatureVersion;
 		
 		Ref<FDX12SwapChain> m_SwapChain;
+
+		ComPtr<ID3D12DescriptorHeap> m_D3DGuiDescHeap = nullptr;
 		
 		uint32_t m_CommandListID = 0;
 		std::map<uint32_t, Ref<FDX12CommandList>> m_ActiveCommandListMap;

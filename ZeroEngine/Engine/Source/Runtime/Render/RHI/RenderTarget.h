@@ -41,7 +41,7 @@ namespace Zero
 		virtual Ref<FTexture2D> GetTexture(EAttachmentIndex AttachmentIndex) const { return m_Textures[size_t(AttachmentIndex)]; }
 		virtual const std::vector<Ref<FTexture2D>>& GetTextures() const { return m_Textures; }
 		
-		virtual void Resize(uint32_t Width, uint32_t Height, uint32_t Depth) = 0;
+		virtual void Resize(uint32_t Width, uint32_t Height, uint32_t Depth = 1) = 0;
 		uint32_t GetWidth() { return m_Width; }
 		uint32_t GetHeight() { return m_Height; }
 		

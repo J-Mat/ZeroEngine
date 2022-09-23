@@ -26,6 +26,9 @@ namespace Zero
         
         virtual void Resize(uint32_t Width, uint32_t Height, uint32_t DepthOrArraySize);
 
+        virtual void RegistGuiShaderResource() override;
+        virtual void* GetGuiShaderReseource() override;
+
 		void CreateViews();
 
         bool CheckSRVSupport() const
@@ -70,6 +73,7 @@ namespace Zero
         * Note: Only only supported for 1D and 2D textures.
         */
         D3D12_CPU_DESCRIPTOR_HANDLE GetUnorderedAccessView(uint32_t mip) const;
+        
 	private:
 		FDX12Device& m_Device;
 
@@ -77,5 +81,7 @@ namespace Zero
 		FDescriptorAllocation m_DepthStencilView;
 		FDescriptorAllocation m_ShaderResourceView;
 		FDescriptorAllocation m_UnorderedAccessView;
+        FLightDescrptorAllocation m_GuiAllocation;
+        bool m_bHasGuiResource = false;
 	};
 }

@@ -28,6 +28,8 @@ namespace Zero
 		virtual ~FTexture2D() = default;
 		virtual void Resize(uint32_t Width, uint32_t Height, uint32_t DepthOrArraySize = 1) = 0;
 		virtual ZMath::uvec2 GetSize() = 0;
+		virtual void RegistGuiShaderResource() = 0;
+		virtual void* GetGuiShaderReseource() = 0;
 	};
 
 	class FTextureCubemap : public ITexture

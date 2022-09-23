@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ZeroEngine.h>
+#include "EditPanels/ViewportPanel.h"
 
 
 namespace Zero
@@ -26,5 +27,6 @@ namespace Zero
 		Ref<FRenderPipeline> m_ScriptablePipeline;
 		UWorld* m_World = nullptr;
 		Ref<FEditorCameraController> m_CameraController;
+		FViewportPanel m_ViewportPanel;
 	};
 }
