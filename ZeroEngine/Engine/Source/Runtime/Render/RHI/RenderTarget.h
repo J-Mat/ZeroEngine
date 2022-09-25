@@ -17,6 +17,13 @@ namespace Zero
 		DepthStencil,
 		NumAttachmentPoints
 	};
+	
+	struct FRenderTargetDesc
+	{
+		uint32_t Mask = ((1 << EAttachmentIndex::Color0) | (1 << EAttachmentIndex::DepthStencil));
+		uint32_t Width;
+		uint32_t Height;
+	};
 
 	class FRenderTarget
 	{

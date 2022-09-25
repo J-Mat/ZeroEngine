@@ -10,6 +10,8 @@ namespace Zero
 		: IResource(Device, ResourceDesc, clearValue)
 		, m_Device(Device)
 	{
+		m_Width = (uint32_t)ResourceDesc.Width;
+		m_Height = (uint32_t)ResourceDesc.Height;
 		CreateViews();
 	}
 
@@ -19,15 +21,18 @@ namespace Zero
 	{
 		m_Width = ImageData->GetWidth();
 		m_Height = ImageData->GetHeight();
+		CORE_ASSERT(ImageData->GetData() != nullptr, "Image has no data!");
 		auto Resource = m_Device.GetInitWorldCommandList()->CreateTextureResource(ImageData);
 		SetResource(Resource);
 		CreateViews();
 	}
 
-	FDX12Texture2D::FDX12Texture2D(FDX12Device& Device, ComPtr<ID3D12Resource> Resource, const D3D12_CLEAR_VALUE* ClearValue)
+	FDX12Texture2D::FDX12Texture2D(FDX12Device& Device, ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, const D3D12_CLEAR_VALUE* ClearValue)
 		: IResource(Device, Resource, ClearValue)
 		, m_Device(Device)
 	{
+		m_Width = Width;
+		m_Height = Height;
 		CreateViews();
 	}
 
@@ -64,14 +69,15 @@ namespace Zero
 		{
 			m_GuiAllocation = m_Device.AllocateGuiDescritor();
 		}
+		m_Device.GetDevice()->CreateShaderResourceView(m_D3DResource.Get(), nullptr, m_GuiAllocation.CpuHandle);
 		m_bHasGuiResource = true;
 	}
 
-	void* FDX12Texture2D::GetGuiShaderReseource()
+	UINT64 FDX12Texture2D::GetGuiShaderReseource()
 	{
 		CORE_ASSERT(m_bHasGuiResource, "Textrue must has gui resource!");
 		D3D12_GPU_DESCRIPTOR_HANDLE* Handle = &(m_GuiAllocation.GpuHandle);
-		return (void*)Handle;
+		return m_GuiAllocation.GpuHandle.ptr;
 	}
 
 	// Get a UAV description that matches the resource description.

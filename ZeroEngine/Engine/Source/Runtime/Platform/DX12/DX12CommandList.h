@@ -31,6 +31,7 @@ namespace Zero
 		
 
 		ComPtr<ID3D12Resource> CreateTextureResource(Ref<FImage> Image);
+		ComPtr<ID3D12Resource> CreateRenderTargetResource(uint32_t Width, uint32_t Height);
 		
 		void ResolveSubResource(const Ref<IResource>& DstRes, const Ref<IResource> SrcRes, uint32_t DstSubRes = 0, uint32_t SrcSubRes = 0);
 

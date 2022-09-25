@@ -20,7 +20,7 @@ namespace Zero
 	{
 		m_FrameConstants = CreateRef<FFrameConstants>(Device);
 		m_FrameResourceBuffer = m_FrameConstants->GetShaderConstantBuffer();
-		SetShader(Library<IShader>::Fetch("Color.hlsl"));
+		SetShader(TLibrary<IShader>::Fetch("Color.hlsl"));
 	}
 
 	FMaterial::~FMaterial()
@@ -61,7 +61,7 @@ namespace Zero
 			*m_ResourcesDesc.get(), 
 			m_Shader->GetBinder()->GetRootSignature()
 		);
-		Ref<FTexture2D> Texture =  Library<FTexture2D>::Fetch("container");
+		Ref<FTexture2D> Texture =  TLibrary<FTexture2D>::Fetch("container");
 		SetTexture2D("gDiffuseMap", Texture);
 	}
 

@@ -52,7 +52,7 @@ namespace Zero
 		ThrowIfFailed(
 			D3DDevice->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &TextureDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&TextureResource))
 		);
-
+	
 		D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint;
 		UINT64  TotalBytes = 0;
 		m_Device.GetDevice()->GetCopyableFootprints(&TextureDesc, 0, 1, 0, &footprint, nullptr, nullptr, &TotalBytes);
@@ -89,6 +89,43 @@ namespace Zero
 		TrackResource(TextureResource);
 
 		return TextureResource;
+	}
+
+	ComPtr<ID3D12Resource> FDX12CommandList::CreateRenderTargetResource(uint32_t Width, uint32_t Height)
+	{
+		ID3D12Device* D3DDevice = m_Device.GetDevice();
+
+		D3D12_RESOURCE_DESC RtvResourceDesc;
+		RtvResourceDesc.Alignment = 0;
+		RtvResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+		RtvResourceDesc.DepthOrArraySize = 1;
+		RtvResourceDesc.Width = Width;
+		RtvResourceDesc.Height = Height;
+		RtvResourceDesc.MipLevels = 1;
+		RtvResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+		RtvResourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+		RtvResourceDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		RtvResourceDesc.SampleDesc.Count = 1;
+		RtvResourceDesc.SampleDesc.Quality = 0;
+
+		CD3DX12_CLEAR_VALUE OptClear;
+		OptClear.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		memcpy(OptClear.Color, DirectX::Colors::Transparent, 4 * sizeof(float));
+
+
+		ComPtr<ID3D12Resource> Resource;
+	
+		ThrowIfFailed(D3DDevice->CreateCommittedResource(
+			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+			D3D12_HEAP_FLAG_NONE,
+			&RtvResourceDesc,
+			D3D12_RESOURCE_STATE_COMMON,
+			&OptClear,
+			IID_PPV_ARGS(&Resource))
+		);
+		TransitionBarrier(Resource, D3D12_RESOURCE_STATE_RENDER_TARGET);
+		
+		return Resource;
 	}
 
 	void FDX12CommandList::ResolveSubResource(const Ref<IResource>& DstRes, const Ref<IResource> SrcRes, uint32_t DstSubRes, uint32_t SrcSubRes)

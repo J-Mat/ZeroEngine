@@ -20,7 +20,6 @@ namespace  Zero
 	void FDX12GuiLayer::PlatformInit()
 	{
 		m_Device = static_cast<FDX12Device*>(FRenderer::GetDevice().get())->AsShared();
-		m_Device->CreateGuiDescHeap();
 		FLightDescrptorAllocation Allocation = m_Device->AllocateGuiDescritor();
 		ImGui_ImplWin32_Init(FApplication::Get().GetWindow().GetNativeWindow());
 		ImGui_ImplDX12_Init(

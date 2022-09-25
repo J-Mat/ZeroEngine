@@ -91,6 +91,8 @@ namespace Zero
 		virtual Ref<IShaderResourcesBuffer> CreateShaderResourceBuffer(IDevice* Device, FShaderResourcesDesc& Desc, IRootSignature* RootSignature) = 0;
 		virtual Ref<IShader> CreateShader(IDevice* Device, const std::string& FileName, const FShaderBinderDesc& BinderDesc, const FShaderDesc& ShaderDesc) = 0;
 		virtual Ref<FTexture2D> CreateTexture2D(IDevice* Device, const std::string& FileName) = 0;
+		virtual Ref<FRenderTarget> CreateRenderTarget(IDevice* Device, FRenderTargetDesc Desc) = 0;
+		virtual Ref<FTexture2D> CreateDepthStencilTexture(IDevice* Device, uint32_t Width, uint32_t Height, const std::string& Name) = 0;
 	};
 	
 
@@ -157,12 +159,12 @@ namespace Zero
 		virtual Ref<IShader> CreateShader(IDevice* Device, const std::string& FileName, const FShaderBinderDesc& BinderDesc, const FShaderDesc& ShaderDesc)
 		{
 			FDX12Device* DX12Device = static_cast<FDX12Device*>(Device);
-			Ref<IShader> Shader = Library<IShader>::Fetch(FileName);
+			Ref<IShader> Shader = TLibrary<IShader>::Fetch(FileName);
 			if (Shader == nullptr)
 			{
 				std::filesystem::path ShaderPath = FConfig::GetInstance().GetShaderFullPath(FileName);
 				Shader = CreateRef<FDX12Shader>(*DX12Device, ShaderPath.string(), BinderDesc, ShaderDesc);
-				Library<IShader>::Push(FileName, Shader);
+				TLibrary<IShader>::Push(FileName, Shader);
 			}
 			return Shader;
 		}
@@ -170,16 +172,37 @@ namespace Zero
 		{
 			FDX12Device* DX12Device = static_cast<FDX12Device*>(Device);
 			std::filesystem::path TextureFileName = FileName;
-			Ref<FTexture2D> Texture = Library<FTexture2D>::Fetch(TextureFileName.stem().string());
+			Ref<FTexture2D> Texture = TLibrary<FTexture2D>::Fetch(TextureFileName.stem().string());
 			if (Texture == nullptr)
 			{
 				std::filesystem::path TexturePath = FConfig::GetInstance().GetTextureFullPath(FileName);
 				Ref<FImage> Image = CreateRef<FImage>(TexturePath.string());
 				Texture = CreateRef<FDX12Texture2D>(*DX12Device, Image);
 				std::cout << TextureFileName.stem().string() << std::endl;
-				Library<FTexture2D>::Push(TextureFileName.stem().string(), Texture);
+				TLibrary<FTexture2D>::Push(TextureFileName.stem().string(), Texture);
 			}
 			return Texture;
+		}
+		virtual Ref<FRenderTarget> CreateRenderTarget(IDevice* Device, FRenderTargetDesc Desc)
+		{
+			FDX12Device* DX12Device = static_cast<FDX12Device*>(Device);
+			return CreateRef<FDX12RenderTarget>(*DX12Device, Desc);
+		}
+		virtual Ref<FTexture2D> CreateDepthStencilTexture(IDevice* Device, uint32_t Width, uint32_t Height, const std::string& Name)
+		{
+			FDX12Device* DX12Device = static_cast<FDX12Device*>(Device);
+			
+			auto DepthStencilDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D24_UNORM_S8_UINT, Width, Height);
+			// Must be set on textures that will be used as a depth-stencil buffer.
+			DepthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
+			// Specify optimized clear values for the depth buffer.
+			D3D12_CLEAR_VALUE OptClear = {};
+			OptClear.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+			OptClear.DepthStencil = { 1.0F, 0 };
+			Ref<FDX12Texture2D> DepthStencilTexture = CreateRef<FDX12Texture2D>(*DX12Device, DepthStencilDesc, &OptClear);
+			DepthStencilTexture->SetName(Utils::String2WString(Name));
+			return DepthStencilTexture;
 		}
 	};
 }

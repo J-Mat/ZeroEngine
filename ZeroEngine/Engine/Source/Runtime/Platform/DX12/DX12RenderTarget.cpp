@@ -1,6 +1,7 @@
 #include "DX12RenderTarget.h"
 #include "DX12Device.h"
 #include "DX12CommandList.h"
+#include "Render/RendererAPI.h"
 
 namespace Zero
 {
@@ -11,6 +12,64 @@ namespace Zero
 	{
 	}
 
+	FDX12RenderTarget::FDX12RenderTarget(FDX12Device& Device, FRenderTargetDesc Desc)
+		: m_Device(Device)
+	{
+		m_Width = Desc.Width;
+		m_Height = Desc.Height;
+		uint32_t Mask = Desc.Mask;
+		uint32_t Flag = 1;
+		uint32_t Index = 0;
+		while (Mask != 0)
+		{
+			if (Mask & Flag)
+			{
+				Ref<FTexture2D> Texture;
+				EAttachmentIndex AttachMentIndex = EAttachmentIndex(Index);
+				if (Index <= EAttachmentIndex::Color7)
+				{
+					D3D12_RESOURCE_DESC RtvResourceDesc;
+					RtvResourceDesc.Alignment = 0;
+					RtvResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+					RtvResourceDesc.DepthOrArraySize = 1;
+					RtvResourceDesc.Width = m_Width;
+					RtvResourceDesc.Height = m_Height;
+					RtvResourceDesc.MipLevels = 1;
+					RtvResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+					RtvResourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+					RtvResourceDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+					RtvResourceDesc.SampleDesc.Count = 1;
+					RtvResourceDesc.SampleDesc.Quality = 0;
+
+					CD3DX12_CLEAR_VALUE OptClear;
+					OptClear.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+					memcpy(OptClear.Color, DirectX::Colors::Transparent, 4 * sizeof(float));
+
+					Texture = CreateRef<FDX12Texture2D>(m_Device, RtvResourceDesc, &OptClear);	
+#ifdef EDITOR_MODE
+					Texture->RegistGuiShaderResource();
+#endif
+				}
+				else
+				{
+					auto DepthStencilDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D24_UNORM_S8_UINT, m_Width, m_Height);
+					// Must be set on textures that will be used as a depth-stencil buffer.
+					DepthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
+					// Specify optimized clear values for the depth buffer.
+					D3D12_CLEAR_VALUE OptClear = {};
+					OptClear.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+					OptClear.DepthStencil = { 1.0F, 0 };
+					Texture = CreateRef<FDX12Texture2D>(m_Device, DepthStencilDesc, &OptClear);
+				}
+				AttachTexture(AttachMentIndex, Texture);
+				Mask ^= Flag;
+			}
+			Flag <<= 1;
+			++Index;
+		}
+	}
+
 	void FDX12RenderTarget::ClearBuffer()
 	{
 		auto CommandList = m_Device.GetRenderCommandList();
@@ -19,7 +78,7 @@ namespace Zero
 			auto* Texture = static_cast<FDX12Texture2D*>(m_Textures[i].get());
 			if (Texture != nullptr)
 			{
-				CommandList->ClearTexture(Texture, Utils::Colors::Black);
+				CommandList->ClearTexture(Texture, Utils::Colors::Red);
 			}
 		}
 		auto* DepthStencilTexture = static_cast<FDX12Texture2D*>(m_Textures[EAttachmentIndex::DepthStencil].get());
@@ -33,7 +92,10 @@ namespace Zero
 
 		for (int i = 0; i < EAttachmentIndex::NumAttachmentPoints; ++i)
 		{
-			m_Textures[i]->Resize(Width, Height, Depth);
+			if (m_Textures[i] != nullptr)
+			{
+				m_Textures[i]->Resize(Width, Height, Depth);
+			}
 		}
 
 		SetViewportRect();
@@ -41,9 +103,6 @@ namespace Zero
 
 	void FDX12RenderTarget::AttachTexture(EAttachmentIndex AttachmentIndex, Ref<FTexture2D> Texture2D)
 	{
-#ifdef EDITOR_MODE 
-		Texture2D->RegistGuiShaderResource();
-#endif
 		size_t Index = size_t(AttachmentIndex);
 		m_Textures[Index] = Texture2D;
 

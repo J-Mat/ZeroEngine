@@ -23,24 +23,25 @@ namespace Zero
 		m_World->SetDevice(FRenderer::GetDevice());
 		UWorld::SetCurrentWorld(m_World);
 		
-		FRenderer::GraphicFactroy->CreateTexture2D(FRenderer::GetDevice().get(), "container.jpg");
+		Ref<FTexture2D> Texture = FRenderer::GraphicFactroy->CreateTexture2D(FRenderer::GetDevice().get(), "container.jpg");
+		Texture->RegistGuiShaderResource();
 		
 		//UCustomMeshActor* MeshActor = UActor::Create<UCustomMeshActor>(m_World, "cat", "backpack.obj");
 		UCustomMeshActor* MeshActor = UActor::Create<UCustomMeshActor>(m_World, "cat", "sphere.fbx");
 		//UCubeMeshActor* MeshActor = UActor::Create<UCubeMeshActor>(m_World);
-		FRenderer::GetDevice()->FlushInitCommandList();
 
 		m_CameraController = CreateRef<FEditorCameraController>(m_World->GetCameraActor());
 
-		FShaderRegister::GetInstance().RegisterDefaultShader(FRenderer::GetDevice().get());
+		Ref<FRenderStage> ForwardRendering = FForwardStage::Create();
+		m_ScriptablePipeline->PushLayer(ForwardRendering);
 
+		FShaderRegister::GetInstance().RegisterDefaultShader(FRenderer::GetDevice().get());
 	}
 	
 	void FEditorLayer::OnAttach()
 	{
 		CLIENT_LOG_INFO("FEditorLayer::OnAttach");
-		Ref<FRenderStage> ForwardRendering = FForwardStage::Create();
-		m_ScriptablePipeline->PushLayer(ForwardRendering);
+		FRenderer::GetDevice()->FlushInitCommandList();
 	}
 	
 	void FEditorLayer::OnDetach()
@@ -135,6 +136,8 @@ namespace Zero
 		}
 		bool showdemo = true;
 		ImGui::ShowDemoWindow(&showdemo);
+
+		ImVec2 ViewportPanelSize = ImGui::GetContentRegionAvail();
 		
 		m_ViewportPanel.OnGuiRender();
 

@@ -11,8 +11,8 @@ namespace Zero
 		virtual uint32_t GetHeight() { return m_Height; };
 		virtual void Bind(uint32_t Slot) {};
 	protected:
-		uint32_t m_Width;
-		uint32_t m_Height;
+		uint32_t m_Width = 0;
+		uint32_t m_Height = 0;
 	}; 
 
 	class FTexture2D : public ITexture
@@ -29,7 +29,7 @@ namespace Zero
 		virtual void Resize(uint32_t Width, uint32_t Height, uint32_t DepthOrArraySize = 1) = 0;
 		virtual ZMath::uvec2 GetSize() = 0;
 		virtual void RegistGuiShaderResource() = 0;
-		virtual void* GetGuiShaderReseource() = 0;
+		virtual UINT64 GetGuiShaderReseource() = 0;
 	};
 
 	class FTextureCubemap : public ITexture

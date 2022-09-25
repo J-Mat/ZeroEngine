@@ -9,6 +9,13 @@ namespace Zero
 {
 	void FForwardStage::OnAttach()
 	{
+		Ref<IDevice> Device = UWorld::GetCurrentWorld()->GetDevice();
+		FRenderTargetDesc Desc;
+		auto [Width, Height] = Device->GetSwapChain()->GetSize();
+		Desc.Width = Width;
+		Desc.Height = Height;
+		m_RenderTarget = FRenderer::GraphicFactroy->CreateRenderTarget(Device.get(), Desc);
+		TLibrary<FRenderTarget>::Push(FORWARD_STAGE, m_RenderTarget);
 	}
 
 	void FForwardStage::OnDetach()
@@ -17,8 +24,6 @@ namespace Zero
 
 	void FForwardStage::OnDraw()
 	{
-		Ref<IDevice> Device = UWorld::GetCurrentWorld()->GetDevice();
-		m_RenderTarget =  Device->GetSwapChain()->GetRenderTarget();
 		m_RenderTarget->ClearBuffer();
 		m_RenderTarget->Bind();
 		FRenderItemPool& RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool();

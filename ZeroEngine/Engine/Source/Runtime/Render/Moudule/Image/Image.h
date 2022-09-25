@@ -31,7 +31,7 @@ namespace Zero
 			RGBA,
 		};
 		FImage(std::string Path);
-		FImage(uint32_t Width, uint32_t Height, uint32_t Channels, ZMath::vec4 Color = {0,0,0,0 });
+		FImage(uint32_t Width, uint32_t Height, uint32_t Channels, ZMath::vec4 Color = {0.0f, 0.0f, 0.0f, 0.0f});
 		~FImage();
 
 		void Clear(ZMath::vec4 Color = { 0,0,0,0 });
@@ -48,7 +48,7 @@ namespace Zero
 		int m_Channels;
 		EImgeType m_Type;
 
-		unsigned char* m_Data;
+		unsigned char* m_Data = nullptr;
 		uint32_t m_BufferSize;
 	};
 

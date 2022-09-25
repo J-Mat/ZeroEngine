@@ -9,6 +9,7 @@
 #include <memory>
 #include "World/World.h"
 #include "Core/Framework/Application.h"
+#include "Core/Framework/Library.h"
 
 namespace Zero
 { 
@@ -35,9 +36,6 @@ namespace Zero
 	void FDX12RenderPipeline::SetDevice(Ref<IDevice> Device)
 	{
 		m_Device = static_cast<FDX12Device*>(Device.get())->AsShared();
-
-		auto RenderTarget = m_Device->GetSwapChain()->GetRenderTarget();
-		
 	}
 	
 }

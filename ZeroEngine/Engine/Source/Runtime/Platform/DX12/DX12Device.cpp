@@ -14,6 +14,7 @@ namespace Zero
 		CreateCommandQueue();
 		CreateDescriptors();
 		CheckFeatures();
+		CreateGuiDescHeap();
 	}
 	
 	FDescriptorAllocation FDX12Device::AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE Type, uint32_t NumDescriptors)

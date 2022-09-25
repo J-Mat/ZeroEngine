@@ -34,6 +34,7 @@
 #define TO_VOIDPTR_FROM_DATA(Value) ((void*)&Value)
 #define TO_VOID_PTR_FROM_PTR(Ptr) ((void*)Ptr)
 
+#define FORWARD_STAGE "ForwardStage"
 
 namespace Zero
 {
@@ -52,5 +53,4 @@ namespace Zero
 	{
 		return std::make_shared<T>(std::forward<Args>(args)...);
 	}
-	
 }

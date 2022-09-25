@@ -2,6 +2,7 @@
 #include "DX12Device.h"
 #include "DX12CommandList.h"
 #include <dxgi1_2.h>
+#include "Core/Framework/Library.h"
 
 namespace Zero
 {
@@ -75,7 +76,7 @@ namespace Zero
 			m_Height = std::max(Height, 1u);
 
 			m_Device.Flush();
-			
+		
 			m_RenderTarget->Reset();
 			for (UINT i = 0; i < s_BufferCount; ++i)
 			{
@@ -112,6 +113,7 @@ namespace Zero
 	{
 		m_RenderTarget->AttachTexture(EAttachmentIndex::Color0, m_BackBufferTextures[m_CurrentBackBufferIndex]);
 		m_RenderTarget->AttachTexture(EAttachmentIndex::DepthStencil, m_DepthStencilTexture);
+		TLibrary<FRenderTarget>::Push("MainViewport", m_RenderTarget);
 		return m_RenderTarget;
 	}
 
@@ -159,12 +161,14 @@ namespace Zero
 			ComPtr<ID3D12Resource> BackBuffer;
 			ThrowIfFailed(m_DxgiSwapChain->GetBuffer(i, IID_PPV_ARGS(&BackBuffer)));
 			
-			m_BackBufferTextures[i] = CreateRef<FDX12Texture2D>(m_Device, BackBuffer);
+			m_BackBufferTextures[i] = CreateRef<FDX12Texture2D>(m_Device, BackBuffer, m_Width, m_Height);
+			m_BackBufferTextures[i]->RegistGuiShaderResource();
 
 			// Set the names for the backbuffer textures.
 			// Useful for debugging.
 			m_BackBufferTextures[i]->SetName(L"Backbuffer[" + std::to_wstring(i) + L"]");
 		}
+		
 		
 		// Resize the depth texture.
 		auto DepthStencilDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D24_UNORM_S8_UINT, m_Width, m_Height);

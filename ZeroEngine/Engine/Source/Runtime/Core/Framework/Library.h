@@ -13,10 +13,11 @@ namespace Zero
 	}
 
 	template<class T>
-	class Library
+	class TLibrary
 	{
 	public:
 		static void Push(const std::string& id, Ref<T> Instance);
+		static void Update(const std::string& id, Ref<T> Instance);
 		static Ref<T> Fetch(const std::string& id);
 		static void Remove(const std::string& id);
 		static void Reset();
@@ -25,16 +26,22 @@ namespace Zero
 	};
 
 	template<class T>
-	void Library<T>::Push(const std::string& ID, Ref<T> Instance)
+	void TLibrary<T>::Push(const std::string& ID, Ref<T> Instance)
 	{
 		if (Mapper.find(ID) == Mapper.end())
 		{
 			Mapper[ID] = Instance;
 		}
 	}
+	
+	template<class T>
+	void TLibrary<T>::Update(const std::string& ID, Ref<T> Instance)
+	{
+		Mapper.insert({ ID, Instance });
+	}
 
 	template<class T>
-	Ref<T> Library<T>::Fetch(const std::string& ID)
+	Ref<T> TLibrary<T>::Fetch(const std::string& ID)
 	{
 		if (Mapper.find(ID) != Mapper.end())
 		{
@@ -47,7 +54,7 @@ namespace Zero
 	}
 
 	template<class T>
-	void Library<T>::Remove(const std::string& ID)
+	void TLibrary<T>::Remove(const std::string& ID)
 	{
 		if (Mapper.find(ID) != Mapper.end())
 		{
@@ -56,11 +63,11 @@ namespace Zero
 	}
 
 	template<class T>
-	void Library<T>::Reset()
+	void TLibrary<T>::Reset()
 	{
 		Mapper.clear();
 	}
 
 	template<class T>
-	std::unordered_map<std::string, Ref<T>> Library<T>::Mapper;
+	std::unordered_map<std::string, Ref<T>> TLibrary<T>::Mapper;
 }
