@@ -40,15 +40,15 @@ namespace Zero
 		NewFrameBegin();
 		ImGui::NewFrame();
 
+		FApplication::Get().OnGuiRender();
+
+		ImGui::Render();
 	}
 
 	void FGuiLayer::OnDraw()
 	{
-		FApplication::Get().OnGuiRender();
-
-		ImGui::Render();
-		ImGui::EndFrame();
 		DrawCall();
+		//ImGui::EndFrame();
 	}
 
 	void FGuiLayer::OnEvent(FEvent& e)

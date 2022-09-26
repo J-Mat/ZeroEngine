@@ -7,6 +7,7 @@
 namespace Zero
 {
 	class FDX12Device;
+	class FDX12CommandList;
 	class FDX12GuiLayer : public FGuiLayer
 	{
 	public:
@@ -20,5 +21,6 @@ namespace Zero
 		virtual void PostDraw() override;
 	private:
 		Ref<FDX12Device> m_Device;
+		Ref<FDX12CommandList> m_GuiCommandList;
 	};
 }

@@ -15,7 +15,7 @@ namespace Zero
 
 		virtual void Resize(uint32_t Width, uint32_t Hegiht) {}
 		virtual void BindRenderTarget() {}
-		virtual void SetRenderTarget() {}
+		virtual void SetRenderTarget() = 0;
 		virtual void PreparePresent() {}
 		virtual UINT Present(Ref<FTexture2D> Texture = nullptr) = 0;
 

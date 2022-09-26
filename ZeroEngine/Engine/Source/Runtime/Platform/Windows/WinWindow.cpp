@@ -8,6 +8,8 @@
 #include "Render/RendererAPI.h"
 #include "imgui/imgui.h"
 #include "imgui/backends/imgui_impl_win32.h"
+#include "imgui/backends/imgui_impl_dx12.h"
+
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 namespace Zero
 {
@@ -64,6 +66,7 @@ namespace Zero
 		m_WindowData.Width = Config.Width;
 		m_WindowData.Height = Config.Height;
 		m_WindowData.hAppInst = Config.hAppInst;
+		m_WindowData.bScreeeMaxSize = Config.bScreenMaxSize;
 		
 		CORE_LOG_INFO("Creating windows {0} ({1}, {2})", Config.Title, Config.Width, Config.Height);
 
@@ -89,20 +92,28 @@ namespace Zero
 			return;
 		}
 
-		int Syswidth = GetSystemMetrics(SM_CXSCREEN);
-		int Sysheight = GetSystemMetrics(SM_CYSCREEN);
-
-		// Compute window rectangle dimensions based on requested client area dimensions.
-		RECT R = { 0, 0, (LONG)Config.Width, (LONG)Config.Height };
-		AdjustWindowRect(&R, WS_OVERLAPPEDWINDOW, false);
-
-		int Width = R.right - R.left;
-		int Height = R.bottom - R.top;
-		CORE_LOG_INFO("WinWindow Init finished.");
-		
 		std::wstring MainWndCaption = Utils::String2WString(Config.Title);
-		m_WindowData.hMainWnd = CreateWindow(L"MainWnd", MainWndCaption.c_str(), 
-			WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, Width, Height, 0, 0, m_WindowData.hAppInst, 0);
+		if (m_WindowData.bScreeeMaxSize)
+		{
+			m_WindowData.hMainWnd = CreateWindow(L"MainWnd", MainWndCaption.c_str(),
+				WS_MAXIMIZE | WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, 0, 0, m_WindowData.hAppInst, 0);
+		}
+		else
+		{
+			int Syswidth = GetSystemMetrics(SM_CXSCREEN);
+			int Sysheight = GetSystemMetrics(SM_CYSCREEN);
+
+			// Compute window rectangle dimensions based on requested client area dimensions.
+			RECT R = { 0, 0, (LONG)Config.Width, (LONG)Config.Height };
+			AdjustWindowRect(&R, WS_OVERLAPPEDWINDOW, false);
+
+			int Width = R.right - R.left;
+			int Height = R.bottom - R.top;
+			CORE_LOG_INFO("WinWindow Init finished.");
+
+			m_WindowData.hMainWnd = CreateWindow(L"MainWnd", MainWndCaption.c_str(),
+				WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, Width, Height, 0, 0, m_WindowData.hAppInst, 0);
+		}
 		
 		if (!m_WindowData.hMainWnd)
 		{

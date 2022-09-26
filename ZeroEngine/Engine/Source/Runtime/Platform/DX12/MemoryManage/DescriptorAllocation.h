@@ -47,6 +47,7 @@ namespace Zero
 	{
 		D3D12_CPU_DESCRIPTOR_HANDLE CpuHandle;
 		D3D12_GPU_DESCRIPTOR_HANDLE	GpuHandle;
+		int32_t DescriptorIndex = -1;
 	};
 }
 

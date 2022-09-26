@@ -78,7 +78,7 @@ namespace Zero
 			auto* Texture = static_cast<FDX12Texture2D*>(m_Textures[i].get());
 			if (Texture != nullptr)
 			{
-				CommandList->ClearTexture(Texture, Utils::Colors::Red);
+				CommandList->ClearTexture(Texture, Utils::Colors::AliceBlue);
 			}
 		}
 		auto* DepthStencilTexture = static_cast<FDX12Texture2D*>(m_Textures[EAttachmentIndex::DepthStencil].get());
@@ -95,6 +95,13 @@ namespace Zero
 			if (m_Textures[i] != nullptr)
 			{
 				m_Textures[i]->Resize(Width, Height, Depth);
+#ifdef EDITOR_MODE
+				if (i != EAttachmentIndex::DepthStencil)
+				{
+					m_Textures[i]->RegistGuiShaderResource();
+				}
+#endif //  EDIT_MODE
+
 			}
 		}
 
@@ -153,6 +160,8 @@ namespace Zero
 
 	void FDX12RenderTarget::UnBind()
 	{
+		m_Device.GetSwapChain()->SetRenderTarget();
+
 		auto  CommandList = m_Device.GetRenderCommandList();
 		for (int i = EAttachmentIndex::Color0; i <= EAttachmentIndex::Color7; ++i)
 		{

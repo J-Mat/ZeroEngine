@@ -65,10 +65,7 @@ namespace Zero
 
 	void FDX12Texture2D::RegistGuiShaderResource()
 	{
-		if (!m_bHasGuiResource)
-		{
-			m_GuiAllocation = m_Device.AllocateGuiDescritor();
-		}
+		m_GuiAllocation = m_Device.AllocateGuiDescritor(m_GuiAllocation.DescriptorIndex);
 		m_Device.GetDevice()->CreateShaderResourceView(m_D3DResource.Get(), nullptr, m_GuiAllocation.CpuHandle);
 		m_bHasGuiResource = true;
 	}

@@ -42,6 +42,9 @@ namespace Zero
 	{
 		CLIENT_LOG_INFO("FEditorLayer::OnAttach");
 		FRenderer::GetDevice()->FlushInitCommandList();
+		
+		auto RenderTarget = TLibrary<FRenderTarget>::Fetch(FORWARD_STAGE);
+		m_ViewportPanel.SetRenderTarget(RenderTarget);
 	}
 	
 	void FEditorLayer::OnDetach()
@@ -136,8 +139,6 @@ namespace Zero
 		}
 		bool showdemo = true;
 		ImGui::ShowDemoWindow(&showdemo);
-
-		ImVec2 ViewportPanelSize = ImGui::GetContentRegionAvail();
 		
 		m_ViewportPanel.OnGuiRender();
 

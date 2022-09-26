@@ -117,6 +117,11 @@ namespace Zero
 		return m_RenderTarget;
 	}
 
+	void FDX12SwapChain::SetRenderTarget()
+	{
+		GetRenderTarget()->Bind();
+	}
+
 	UINT FDX12SwapChain::Present(Ref<FTexture2D> Texture)
 	{
 		auto CommandList = m_Device.GetRenderCommandList();

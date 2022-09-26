@@ -40,6 +40,7 @@ namespace Zero
 		{
 			std::string Title;
 			unsigned int Width, Height;
+			bool bScreeeMaxSize = true;
 			bool VSync;
 			HINSTANCE hAppInst = nullptr; // application instance handle
 			HWND      hMainWnd = nullptr; // main window handle

@@ -31,14 +31,21 @@ namespace Zero
 		ThrowIfFailed(m_D3DDevice->CreateDescriptorHeap(&Desc, IID_PPV_ARGS(&m_GUISrvDescHeap)));
 	}
 
-	FLightDescrptorAllocation FDX12Device::AllocateGuiDescritor()
+	FLightDescrptorAllocation FDX12Device::AllocateGuiDescritor(int32_t ReuseIndex)
 	{
+		if (ReuseIndex == -1)
+		{
+			D3D12_CPU_DESCRIPTOR_HANDLE CpuHandle = m_GUISrvDescHeap->GetCPUDescriptorHandleForHeapStart();
+			CpuHandle.ptr += m_Cbv_Srv_UavDescriptorSize * m_CurGuiDescHeapIndex;
+			D3D12_GPU_DESCRIPTOR_HANDLE GpuHandle = m_GUISrvDescHeap->GetGPUDescriptorHandleForHeapStart();
+			GpuHandle.ptr += m_Cbv_Srv_UavDescriptorSize * m_CurGuiDescHeapIndex;
+			return { CpuHandle, GpuHandle, m_CurGuiDescHeapIndex++};
+		}
 		D3D12_CPU_DESCRIPTOR_HANDLE CpuHandle = m_GUISrvDescHeap->GetCPUDescriptorHandleForHeapStart();
-		CpuHandle.ptr += m_Cbv_Srv_UavDescriptorSize * m_CurGuiDescHeapIndex;
+		CpuHandle.ptr += m_Cbv_Srv_UavDescriptorSize * ReuseIndex;
 		D3D12_GPU_DESCRIPTOR_HANDLE GpuHandle = m_GUISrvDescHeap->GetGPUDescriptorHandleForHeapStart();
-		GpuHandle.ptr += m_Cbv_Srv_UavDescriptorSize * m_CurGuiDescHeapIndex;
-		++m_CurGuiDescHeapIndex;
-		return { CpuHandle, GpuHandle };
+		GpuHandle.ptr += m_Cbv_Srv_UavDescriptorSize * ReuseIndex;
+		return { CpuHandle, GpuHandle, ReuseIndex};
 	}
 
 	void FDX12Device::ReleaseStaleDescriptors()

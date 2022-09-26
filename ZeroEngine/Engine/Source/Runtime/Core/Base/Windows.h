@@ -11,11 +11,13 @@ namespace Zero
 		uint32_t Width;
 		uint32_t Height;
 		HINSTANCE hAppInst;
+		bool bScreenMaxSize = true;
 
 		FWindowsConfig(HINSTANCE InhAppInst, const std::string& InTitle = "HEngine",
 			uint32_t InWidth = 1600,
-			uint32_t InHeight = 900)
-			: hAppInst(InhAppInst), Title(InTitle), Width(InWidth), Height(InHeight)
+			uint32_t InHeight = 900,
+			bool _bScreenMaxSize = true)
+			: hAppInst(InhAppInst), Title(InTitle), Width(InWidth), Height(InHeight), bScreenMaxSize(_bScreenMaxSize)
 		{}
 	};
 	

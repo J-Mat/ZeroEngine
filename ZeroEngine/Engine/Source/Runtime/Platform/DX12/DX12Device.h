@@ -50,7 +50,7 @@ namespace Zero
 		
 		void CreateGuiDescHeap(uint32_t NumDescriptors = 64);
 		ComPtr<ID3D12DescriptorHeap> GetGuiDescHeap() { return m_GUISrvDescHeap; }
-		FLightDescrptorAllocation AllocateGuiDescritor();
+		FLightDescrptorAllocation AllocateGuiDescritor(int32_t ReuseIndex = -1);
 		/**
 		* Release stale descriptors. This should only be called with a completed frame counter.
 		*/
@@ -105,7 +105,7 @@ namespace Zero
 		Ref<FDescriptorAllocator> m_DescriptorAllocators[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
 		
 		ComPtr<ID3D12DescriptorHeap> m_GUISrvDescHeap = nullptr;
-		uint32_t m_CurGuiDescHeapIndex = 0;
+		int32_t m_CurGuiDescHeapIndex = 0;
 
 		D3D_ROOT_SIGNATURE_VERSION m_HighestRootSignatureVersion;
 		

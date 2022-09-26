@@ -40,10 +40,10 @@ namespace  Zero
 
 	void FDX12GuiLayer::DrawCall()
 	{
-		auto  D3dCommandList = m_Device->GetRenderCommandList()->GetD3D12CommandList();
+		m_GuiCommandList = m_Device->GetRenderCommandList();
 		ID3D12DescriptorHeap* Heap = m_Device->GetGuiDescHeap().Get();
-		D3dCommandList->SetDescriptorHeaps(1, &Heap);
-		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), D3dCommandList.Get());
+		m_GuiCommandList->GetD3D12CommandList()->SetDescriptorHeaps(1, &Heap);
+		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_GuiCommandList->GetD3D12CommandList().Get());
 	}
 
 	void FDX12GuiLayer::PlatformDestroy()
@@ -56,12 +56,11 @@ namespace  Zero
 	void FDX12GuiLayer::PostDraw()
 	{
 		ImGuiIO& io = ImGui::GetIO();
-		auto*  D3dCommandList = m_Device->GetRenderCommandList()->GetD3D12CommandList().Get();
 		// Update and Render additional Platform Windows
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
 			ImGui::UpdatePlatformWindows();
-			ImGui::RenderPlatformWindowsDefault(NULL, (void*)D3dCommandList);
+			ImGui::RenderPlatformWindowsDefault(NULL, (void*)(m_GuiCommandList->GetD3D12CommandList().Get()));
 		}
 	}
 }
