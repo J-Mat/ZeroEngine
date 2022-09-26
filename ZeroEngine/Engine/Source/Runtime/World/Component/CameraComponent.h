@@ -35,9 +35,11 @@ namespace Zero
 		virtual void PostInit();
 		virtual ~UCameraComponent();
 		void SetCameraSettings(FCameraSettings& Setting);
+		void UpdateCameraSettings();
 		void UpdateMat();
 		void UploadBuffer();
 		Ref<IShaderConstantsBuffer> GetConstantBuffer() { return m_ShaderConstantsBuffer; }
+		void OnResizeViewport(uint32_t Width, uint32_t Height);
 		virtual void Tick();
 	private:
 		ZMath::vec3 m_LookAt = {0, 0, 0};

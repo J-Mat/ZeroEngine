@@ -41,6 +41,11 @@ namespace Zero
 	void UCameraComponent::SetCameraSettings(FCameraSettings& Setting)
 	{
 		m_CameraSettings = Setting;
+		UpdateCameraSettings();
+	}
+
+	void UCameraComponent::UpdateCameraSettings()
+	{
 		switch (m_CameraSettings.Cameratype)
 		{
 		case ECameraType::CT_PERSPECT:
@@ -72,6 +77,12 @@ namespace Zero
 			m_ShaderConstantsBuffer->SetFloat3("ViewPos", m_Position);
 		}
 		m_ShaderConstantsBuffer->UploadDataIfDirty();
+	}
+
+	void UCameraComponent::OnResizeViewport(uint32_t Width, uint32_t Height)
+	{
+		m_CameraSettings.Aspect = (float)Width / Height;
+		UpdateCameraSettings();
 	}
 
 	void UCameraComponent::Tick()

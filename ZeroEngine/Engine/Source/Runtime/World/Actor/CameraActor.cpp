@@ -26,4 +26,9 @@ namespace Zero
 		m_TransformationComponent->SetRotation(Tmp);
 	}
 
+	void UCameraActor::OnResizeViewport(uint32_t Width, uint32_t Height)
+	{
+		m_CameraComponent->OnResizeViewport(Width, Height);
+	}
+
 }
