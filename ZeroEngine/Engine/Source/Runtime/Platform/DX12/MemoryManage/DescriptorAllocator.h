@@ -12,7 +12,7 @@ namespace Zero
 	class FDescriptorAllocator
 	{
 	public:
-		FDescriptorAllocator(FDX12Device& InDevice, D3D12_DESCRIPTOR_HEAP_TYPE Type, uint32_t InNumDescriptorsPerHeap = 256);
+		FDescriptorAllocator(D3D12_DESCRIPTOR_HEAP_TYPE Type, uint32_t InNumDescriptorsPerHeap = 256);
 		virtual ~FDescriptorAllocator();
 		FDescriptorAllocation Allocate(uint32_t NumDescriptors = 1);
 		Ref<FDescriptorAllocatorPage> CreateAllocatorPage();
@@ -21,7 +21,7 @@ namespace Zero
 		using DescriptorHeapPool = std::vector<Ref<FDescriptorAllocatorPage>>;
 		
 
-		FDX12Device& m_Device;
+
 		D3D12_DESCRIPTOR_HEAP_TYPE m_HeapType;
 		uint32_t m_NumDescriptorsPerHeap;
 

@@ -46,14 +46,14 @@ namespace Zero
 	class FDX12ShaderResourcesBuffer : public IShaderResourcesBuffer
 	{
 	public:
-		FDX12ShaderResourcesBuffer(FDX12Device& Device, FShaderResourcesDesc& Desc, FDX12RootSignature* RootSignature);
+		FDX12ShaderResourcesBuffer(FShaderResourcesDesc& Desc, FDX12RootSignature* RootSignature);
 		virtual FShaderResourcesDesc* GetShaderResourceDesc();
 		virtual void SetTexture2D(const std::string& Name, Ref<FTexture2D> Texture) override;
 		virtual void SetTextureCubemap(const std::string& Name, Ref<FTextureCubemap> Texture) override;
 
 		virtual void UploadDataIfDirty() override;
 	private:
-		FDX12Device& m_Device;
+
 		Ref<FDynamicDescriptorHeap> m_SrvDynamicDescriptorHeap;
 		Ref<FDynamicDescriptorHeap> m_SamplerDynamicDescriptorHeap;
 		bool m_bIsDirty = true;
@@ -62,7 +62,7 @@ namespace Zero
 	class FDX12ShaderBinder : public IShaderBinder
 	{
 	public:
-		FDX12ShaderBinder(FDX12Device &Device, FShaderBinderDesc& Desc);
+		FDX12ShaderBinder(FShaderBinderDesc& Desc);
 		virtual ~FDX12ShaderBinder();
 		virtual IRootSignature* GetRootSignature() { return m_RootSignature.get(); }
 		virtual void BindConstantsBuffer(uint32_t Slot, IShaderConstantsBuffer* Buffer) override;
@@ -71,7 +71,7 @@ namespace Zero
 		void BuildRootSignature();
 		void BuildDynamicHeap();
 	private:
-		FDX12Device& m_Device;
+
 		Ref<FDX12RootSignature> m_RootSignature;
 	};
 }

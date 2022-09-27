@@ -58,6 +58,27 @@ namespace Zero
 			return  FileName;
 		}
 
+		static bool IsParentFolder(const std::filesystem::path& Root, const std::filesystem::path& Child) 
+		{
+			if (Child.empty() || Child.root_path() == Child)
+				return false;
+			else 
+			{
+				const auto Parent = Child.parent_path();
+				if (Parent == Root)
+					return true;
+				return IsParentFolder(Root, Parent);
+			}
+		}
+
+		static void NameShrink(std::string& Name, size_t MaxLength) {
+			if (Name.size() <= MaxLength)
+				return;
+			Name.resize(MaxLength);
+			Name[MaxLength - 2] = '.';
+			Name[MaxLength - 1] = '.';
+		}
+
 		namespace Colors
 		{
 			const ZMath::vec4 AliceBlue = { 0.941176534f, 0.972549081f, 1.000000000f, 1.000000000f };

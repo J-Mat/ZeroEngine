@@ -10,11 +10,11 @@ namespace Zero
 	class FDX12VertexBuffer :public IVertexBuffer, public IBuffer
 	{
 	public:
-		FDX12VertexBuffer(FDX12Device& m_Device, void* _Data, uint32_t _VertexCount, FVertexBufferLayout& _Layout, IVertexBuffer::EType _Type = IVertexBuffer::EType::Static);
+		FDX12VertexBuffer(void* _Data, uint32_t _VertexCount, FVertexBufferLayout& _Layout, IVertexBuffer::EType _Type = IVertexBuffer::EType::Static);
 
 		const D3D12_VERTEX_BUFFER_VIEW& GetVertexBufferView();
 	private:
-		FDX12Device& m_Device;
+
 		void CreateVertexBufferView();
 		D3D12_VERTEX_BUFFER_VIEW m_VertexBufferView = {};
 	};

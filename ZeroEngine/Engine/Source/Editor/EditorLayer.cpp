@@ -13,17 +13,18 @@ namespace Zero
 		FLayer("EditorLayer")
 	{
 		m_ScriptablePipeline = CreateRef<FRenderPipeline>();
+		FRenderer::GetDevice()->PreInitWorld();
+		InitEditPanel();
 		BuildWorld();
 	}
 
 	void FEditorLayer::BuildWorld()
 	{
-		FRenderer::GetDevice()->PreInitWorld();
 		m_World = UWorld::CreateWorld();
 		m_World->SetDevice(FRenderer::GetDevice());
 		UWorld::SetCurrentWorld(m_World);
 		
-		Ref<FTexture2D> Texture = FRenderer::GraphicFactroy->CreateTexture2D(FRenderer::GetDevice().get(), "container.jpg");
+		Ref<FTexture2D> Texture = FRenderer::GraphicFactroy->CreateTexture2D("container.jpg");
 		Texture->RegistGuiShaderResource();
 		
 		//UCustomMeshActor* MeshActor = UActor::Create<UCustomMeshActor>(m_World, "cat", "backpack.obj");
@@ -35,7 +36,12 @@ namespace Zero
 		Ref<FRenderStage> ForwardRendering = FForwardStage::Create();
 		m_ScriptablePipeline->PushLayer(ForwardRendering);
 
-		FShaderRegister::GetInstance().RegisterDefaultShader(FRenderer::GetDevice().get());
+		FShaderRegister::GetInstance().RegisterDefaultShader();
+	}
+
+	void FEditorLayer::InitEditPanel()
+	{
+		m_ContentBrowserPanel.Init();
 	}
 	
 	void FEditorLayer::OnAttach()
@@ -141,6 +147,7 @@ namespace Zero
 		ImGui::ShowDemoWindow(&showdemo);
 		
 		m_ViewportPanel.OnGuiRender();
+		m_ContentBrowserPanel.OnGuiRender();
 
 		ImGui::End();
 	}

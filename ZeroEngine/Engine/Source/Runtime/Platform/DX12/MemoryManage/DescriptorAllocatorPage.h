@@ -11,7 +11,7 @@ namespace Zero
 	{
 	public:
 		D3D12_DESCRIPTOR_HEAP_TYPE GetHeapType() const { return m_HeapType; }
-		FDescriptorAllocatorPage(FDX12Device& Device, D3D12_DESCRIPTOR_HEAP_TYPE Type, uint32_t NumDescriptors);
+		FDescriptorAllocatorPage(D3D12_DESCRIPTOR_HEAP_TYPE Type, uint32_t NumDescriptors);
 
 		bool HasSpace(uint32_t NumDescriptors);
 		uint32_t GetNumFreeHandles() const;
@@ -56,10 +56,6 @@ namespace Zero
 		FFreeListByOffset m_FreeListByOffset;
 		FFreeListBySize  m_FreeListBySize;
 		FStaleDescriptorQueue StaleDescriptorQueue;
-
-
-		FDX12Device& m_Device;
-
 		ComPtr<ID3D12DescriptorHeap> m_D3DDescriptorHeap;
 		D3D12_DESCRIPTOR_HEAP_TYPE m_HeapType;
 		CD3DX12_CPU_DESCRIPTOR_HANDLE m_BaseDescriptor;

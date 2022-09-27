@@ -19,14 +19,13 @@ namespace  Zero
 
 	void FDX12GuiLayer::PlatformInit()
 	{
-		m_Device = static_cast<FDX12Device*>(FRenderer::GetDevice().get())->AsShared();
-		FLightDescrptorAllocation Allocation = m_Device->AllocateGuiDescritor();
+		FLightDescrptorAllocation Allocation = FDX12Device::Get()->AllocateGuiDescritor();
 		ImGui_ImplWin32_Init(FApplication::Get().GetWindow().GetNativeWindow());
 		ImGui_ImplDX12_Init(
-			m_Device->GetDevice(), 
+			FDX12Device::Get()->GetDevice(),
 			NUM_FRAMES_IN_FLIGHT, 
 			DXGI_FORMAT_R8G8B8A8_UNORM,
-			m_Device->GetGuiDescHeap().Get(),
+			FDX12Device::Get()->GetGuiDescHeap().Get(),
 			Allocation.CpuHandle,
 			Allocation.GpuHandle
 		);
@@ -40,8 +39,8 @@ namespace  Zero
 
 	void FDX12GuiLayer::DrawCall()
 	{
-		m_GuiCommandList = m_Device->GetRenderCommandList();
-		ID3D12DescriptorHeap* Heap = m_Device->GetGuiDescHeap().Get();
+		m_GuiCommandList = FDX12Device::Get()->GetRenderCommandList();
+		ID3D12DescriptorHeap* Heap = FDX12Device::Get()->GetGuiDescHeap().Get();
 		m_GuiCommandList->GetD3D12CommandList()->SetDescriptorHeaps(1, &Heap);
 		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_GuiCommandList->GetD3D12CommandList().Get());
 	}

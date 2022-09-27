@@ -11,13 +11,13 @@ namespace Zero
 	class FDX12IndexBuffer :public IIndexBuffer, public IBuffer
 	{
 	public:
-		FDX12IndexBuffer(FDX12Device& Device, uint32_t* Indices, uint32_t Count);
+		FDX12IndexBuffer(uint32_t* Indices, uint32_t Count);
 		const D3D12_INDEX_BUFFER_VIEW& GetIndexBufferView() { return m_IndexBufferView; }
 
 	private:
 		void CreateIndexBufferView();
 	private:
-		FDX12Device& m_Device;
+
 		uint32_t IndexCount;
 		D3D12_INDEX_BUFFER_VIEW m_IndexBufferView;
 	};

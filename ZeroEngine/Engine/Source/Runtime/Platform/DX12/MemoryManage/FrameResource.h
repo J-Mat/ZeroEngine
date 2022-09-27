@@ -74,7 +74,7 @@ namespace Zero
 	public:
 		FFrameResourcesManager(int FrameResourcesCount = 3);
 		virtual ~FFrameResourcesManager();
-		void Init(Ref<IDevice> Device);
+		void Init();
 		void SetCurrentFence(uint64_t FenceValue);
 		void UseNextFrameResource() { m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_FrameResourcesCount; }
 		uint32_t GetCurrentIndex() { return m_CurrentFrameIndex; }
@@ -107,7 +107,7 @@ namespace Zero
 	private:
 		uint32_t m_FrameResourcesCount;
 		uint32_t m_CurrentFrameIndex;
-		Ref<FDX12Device> m_Device;
+		
 		std::vector<uint64_t> m_Fences;
 		std::vector<ComPtr<ID3D12CommandAllocator>> m_CommandAllocators;
 		std::vector<Ref<FUploadBuffer>> m_UploadBuffers;

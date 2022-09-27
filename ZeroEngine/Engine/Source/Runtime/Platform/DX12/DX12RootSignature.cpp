@@ -3,9 +3,8 @@
 
 namespace Zero
 {
-	FDX12RootSignature::FDX12RootSignature(FDX12Device& Device, const D3D12_ROOT_SIGNATURE_DESC& RootSignatureDesc)
-		: m_Device(Device)
-		, m_RootSignatureDesc{}
+	FDX12RootSignature::FDX12RootSignature(const D3D12_ROOT_SIGNATURE_DESC& RootSignatureDesc)
+		: m_RootSignatureDesc{}
 		, m_NumDescriptorsPerTable{ 0 }
 		, m_SamplerTableBitMask(0)
 		, m_DescriptorTableBitMask(0)
@@ -117,14 +116,14 @@ namespace Zero
 		CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC VersionRootSignatureDesc;
 		VersionRootSignatureDesc.Init_1_0(NumParameters, pParameters, NumStaticSamplers, pStaticSamplers, Flags);
 		
-		D3D_ROOT_SIGNATURE_VERSION HighestVersion = m_Device.GetHighestRootSignatureVersion();
+		D3D_ROOT_SIGNATURE_VERSION HighestVersion = FDX12Device::Get()->GetHighestRootSignatureVersion();
 
 		// Serialize the root signature.
 		ComPtr<ID3DBlob> RootSignatureBlob;
 		ComPtr<ID3DBlob> ErrorBlob;
 		ThrowIfFailed(D3DX12SerializeVersionedRootSignature(&VersionRootSignatureDesc, HighestVersion, &RootSignatureBlob, &ErrorBlob));
 
-		m_Device.GetDevice()->CreateRootSignature(0, RootSignatureBlob->GetBufferPointer(), RootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_RootSignature));
+		FDX12Device::Get()->GetDevice()->CreateRootSignature(0, RootSignatureBlob->GetBufferPointer(), RootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_RootSignature));
 	}
 
 	uint32_t FDX12RootSignature::GetDescriptorTableBitMask(D3D12_DESCRIPTOR_HEAP_TYPE DescriptorHeapType) const

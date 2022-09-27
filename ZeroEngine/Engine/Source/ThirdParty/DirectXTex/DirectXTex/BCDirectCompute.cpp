@@ -227,7 +227,7 @@ HRESULT GPUCompressBC::Prepare(size_t width, size_t height, DWORD flags, DXGI_FO
 
     m_bcformat = format;
 
-    auto pDevice = m_device.Get();
+    auto pDevice = FDX12Device::Get()->Get();
     if (!pDevice)
         return E_POINTER;
 
@@ -359,7 +359,7 @@ HRESULT GPUCompressBC::Compress(const Image& srcImage, const Image& destImage)
     }
 
     //--- Create input texture --------------------------------------------------------
-    auto pDevice = m_device.Get();
+    auto pDevice = FDX12Device::Get()->Get();
     if (!pDevice)
         return E_POINTER;
 

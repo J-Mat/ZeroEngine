@@ -6,6 +6,15 @@
 
 namespace Zero
 {
+	FDX12Device* FDX12Device::m_Instance = nullptr;
+	FDX12Device::FDX12Device()
+	{
+		CORE_ASSERT(m_Instance == nullptr, "Device must be the only one!")
+		if (m_Instance == nullptr)
+		{
+			m_Instance = this;
+		}
+	}
 	void FDX12Device::Init()
 	{
 		EnableDebugLayer();
@@ -31,21 +40,14 @@ namespace Zero
 		ThrowIfFailed(m_D3DDevice->CreateDescriptorHeap(&Desc, IID_PPV_ARGS(&m_GUISrvDescHeap)));
 	}
 
-	FLightDescrptorAllocation FDX12Device::AllocateGuiDescritor(int32_t ReuseIndex)
+	FLightDescrptorAllocation FDX12Device::AllocateGuiDescritor()
 	{
-		if (ReuseIndex == -1)
-		{
-			D3D12_CPU_DESCRIPTOR_HANDLE CpuHandle = m_GUISrvDescHeap->GetCPUDescriptorHandleForHeapStart();
-			CpuHandle.ptr += m_Cbv_Srv_UavDescriptorSize * m_CurGuiDescHeapIndex;
-			D3D12_GPU_DESCRIPTOR_HANDLE GpuHandle = m_GUISrvDescHeap->GetGPUDescriptorHandleForHeapStart();
-			GpuHandle.ptr += m_Cbv_Srv_UavDescriptorSize * m_CurGuiDescHeapIndex;
-			return { CpuHandle, GpuHandle, m_CurGuiDescHeapIndex++};
-		}
 		D3D12_CPU_DESCRIPTOR_HANDLE CpuHandle = m_GUISrvDescHeap->GetCPUDescriptorHandleForHeapStart();
-		CpuHandle.ptr += m_Cbv_Srv_UavDescriptorSize * ReuseIndex;
+		CpuHandle.ptr += m_Cbv_Srv_UavDescriptorSize * m_CurGuiDescHeapIndex;
 		D3D12_GPU_DESCRIPTOR_HANDLE GpuHandle = m_GUISrvDescHeap->GetGPUDescriptorHandleForHeapStart();
-		GpuHandle.ptr += m_Cbv_Srv_UavDescriptorSize * ReuseIndex;
-		return { CpuHandle, GpuHandle, ReuseIndex};
+		GpuHandle.ptr += m_Cbv_Srv_UavDescriptorSize * m_CurGuiDescHeapIndex;
+		m_CurGuiDescHeapIndex++;
+		return { CpuHandle, GpuHandle };
 	}
 
 	void FDX12Device::ReleaseStaleDescriptors()
@@ -65,7 +67,7 @@ namespace Zero
 
 	void FDX12Device::CreateSwapChain(HWND hWnd)
 	{
-		m_SwapChain = CreateRef<FDX12SwapChain>(*this, hWnd);
+		m_SwapChain = CreateRef<FDX12SwapChain>(hWnd);
 		m_SwapChain->SetVSync(false);
 	}
 
@@ -142,16 +144,16 @@ namespace Zero
 	
 	void FDX12Device::CreateCommandQueue()
 	{
-		m_DirectCommandQueue = CreateScope<FDX12CommandQueue>(*this, D3D12_COMMAND_LIST_TYPE_DIRECT);
-		m_ComputeCommandQueue = CreateScope<FDX12CommandQueue>(*this, D3D12_COMMAND_LIST_TYPE_COMPUTE);
-		m_CopyCommandQueue = CreateScope<FDX12CommandQueue>(*this, D3D12_COMMAND_LIST_TYPE_COPY);
+		m_DirectCommandQueue = CreateScope<FDX12CommandQueue>(D3D12_COMMAND_LIST_TYPE_DIRECT);
+		m_ComputeCommandQueue = CreateScope<FDX12CommandQueue>(D3D12_COMMAND_LIST_TYPE_COMPUTE);
+		m_CopyCommandQueue = CreateScope<FDX12CommandQueue>(D3D12_COMMAND_LIST_TYPE_COPY);
 	}
 
 	void FDX12Device::CreateDescriptors()
 	{
 		for (int i = 0; i < D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES; ++i)
 		{
-			m_DescriptorAllocators[i] = CreateRef<FDescriptorAllocator>(*this, static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(i));
+			m_DescriptorAllocators[i] = CreateRef<FDescriptorAllocator>(static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(i));
 		}
 	}
 

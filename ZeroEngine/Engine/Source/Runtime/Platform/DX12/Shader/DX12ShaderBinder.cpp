@@ -126,9 +126,8 @@ namespace Zero
 	}
 
 
-	FDX12ShaderBinder::FDX12ShaderBinder(FDX12Device& Device, FShaderBinderDesc& Desc)
-	: m_Device(Device)
-	, IShaderBinder(Desc)
+	FDX12ShaderBinder::FDX12ShaderBinder(FShaderBinderDesc& Desc)
+	: IShaderBinder(Desc)
 	{
 		InitMappers();
 		BuildRootSignature();
@@ -142,13 +141,13 @@ namespace Zero
 	{
 		FDX12ShaderConstantsBuffer* D3DBuffer = static_cast<FDX12ShaderConstantsBuffer*>(Buffer);
 		D3D12_GPU_VIRTUAL_ADDRESS GPUAddress = D3DBuffer->GetFrameResourceBuffer()->GetCurrentGPUAddress();
-		Ref<FDX12CommandList> CommandList = m_Device.GetRenderCommandList();
+		Ref<FDX12CommandList> CommandList = FDX12Device::Get()->GetRenderCommandList();
 		CommandList->GetD3D12CommandList()->SetGraphicsRootConstantBufferView(Slot, GPUAddress);
 	}
 
 	void FDX12ShaderBinder::Bind()
 	{
-		Ref<FDX12CommandList> CommandList = m_Device.GetRenderCommandList();
+		Ref<FDX12CommandList> CommandList = FDX12Device::Get()->GetRenderCommandList();
 		CommandList->SetGraphicsRootSignature(m_RootSignature);
 	}
 
@@ -186,7 +185,7 @@ namespace Zero
 		ComPtr<ID3DBlob> ErrorBlob = nullptr;
 		ThrowIfFailed(D3D12SerializeRootSignature(&RoogSig, D3D_ROOT_SIGNATURE_VERSION_1, &SerializedRootSig, &ErrorBlob));
 		
-		m_RootSignature = CreateRef<FDX12RootSignature>(m_Device, RoogSig);
+		m_RootSignature = CreateRef<FDX12RootSignature>(RoogSig);
 	}
 	void FDX12ShaderBinder::BuildDynamicHeap()
 	{
@@ -194,12 +193,11 @@ namespace Zero
 	}
 
 
-	FDX12ShaderResourcesBuffer::FDX12ShaderResourcesBuffer(FDX12Device& Device, FShaderResourcesDesc& Desc, FDX12RootSignature* RootSignature)
+	FDX12ShaderResourcesBuffer::FDX12ShaderResourcesBuffer(FShaderResourcesDesc& Desc, FDX12RootSignature* RootSignature)
 		: IShaderResourcesBuffer(Desc)
-		, m_Device(Device)
 	{
-		m_SrvDynamicDescriptorHeap = CreateRef<FDynamicDescriptorHeap>(m_Device, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-		m_SamplerDynamicDescriptorHeap = CreateRef<FDynamicDescriptorHeap>(m_Device, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+		m_SrvDynamicDescriptorHeap = CreateRef<FDynamicDescriptorHeap>(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		m_SamplerDynamicDescriptorHeap = CreateRef<FDynamicDescriptorHeap>(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
 		m_SrvDynamicDescriptorHeap->ParseRootSignature(RootSignature->AsShared());
 	}
 
@@ -227,7 +225,7 @@ namespace Zero
 	{
 		if (m_bIsDirty)
 		{
-			Ref<FDX12CommandList> CommandList = m_Device.GetRenderCommandList();
+			Ref<FDX12CommandList> CommandList = FDX12Device::Get()->GetRenderCommandList();
 			m_SrvDynamicDescriptorHeap->CommitStagedDescriptorsForDraw(*CommandList.get());
 			m_bIsDirty = false;
 		}

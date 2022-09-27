@@ -6,17 +6,16 @@
 
 namespace Zero
 {
-	FDX12CommandList::FDX12CommandList(FDX12Device& InDevice, D3D12_COMMAND_LIST_TYPE Type)
-	: m_Device(InDevice)
-	, m_CommandListType(Type)
+	FDX12CommandList::FDX12CommandList(D3D12_COMMAND_LIST_TYPE Type)
+	: m_CommandListType(Type)
 	, m_RootSignature(nullptr)
 	{
-		ThrowIfFailed(m_Device.GetDevice()->CreateCommandAllocator(m_CommandListType, IID_PPV_ARGS(&m_CommandAllocator)));
+		ThrowIfFailed(FDX12Device::Get()->GetDevice()->CreateCommandAllocator(m_CommandListType, IID_PPV_ARGS(&m_CommandAllocator)));
 
-		ThrowIfFailed(m_Device.GetDevice()->CreateCommandList(0, m_CommandListType, m_CommandAllocator.Get(),
+		ThrowIfFailed(FDX12Device::Get()->GetDevice()->CreateCommandList(0, m_CommandListType, m_CommandAllocator.Get(),
 			nullptr, IID_PPV_ARGS(&m_D3DCommandList)));
 	
-		m_UploadBuffer = CreateScope<FUploadBuffer>(m_Device);
+		m_UploadBuffer = CreateScope<FUploadBuffer>();
 
 		m_ResourceStateTracker = CreateScope<FResourceStateTracker>();
 
@@ -33,7 +32,7 @@ namespace Zero
 
 	ComPtr<ID3D12Resource> FDX12CommandList::CreateTextureResource(Ref<FImage> Image)
 	{
-		ID3D12Device* D3DDevice = m_Device.GetDevice();
+		ID3D12Device* D3DDevice = FDX12Device::Get()->GetDevice();
 		ComPtr<ID3D12Resource> TextureResource;
 
 		D3D12_RESOURCE_DESC TextureDesc = {};
@@ -55,7 +54,7 @@ namespace Zero
 	
 		D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint;
 		UINT64  TotalBytes = 0;
-		m_Device.GetDevice()->GetCopyableFootprints(&TextureDesc, 0, 1, 0, &footprint, nullptr, nullptr, &TotalBytes);
+		FDX12Device::Get()->GetDevice()->GetCopyableFootprints(&TextureDesc, 0, 1, 0, &footprint, nullptr, nullptr, &TotalBytes);
 
 		D3D12_RESOURCE_DESC UploadTexDesc;
 		memset(&UploadTexDesc, 0, sizeof(UploadTexDesc));
@@ -93,7 +92,7 @@ namespace Zero
 
 	ComPtr<ID3D12Resource> FDX12CommandList::CreateRenderTargetResource(uint32_t Width, uint32_t Height)
 	{
-		ID3D12Device* D3DDevice = m_Device.GetDevice();
+		ID3D12Device* D3DDevice = FDX12Device::Get()->GetDevice();
 
 		D3D12_RESOURCE_DESC RtvResourceDesc;
 		RtvResourceDesc.Alignment = 0;
@@ -317,7 +316,7 @@ namespace Zero
 		CORE_ASSERT(BufferSize != 0 && BufferData != nullptr, "InValid Buffer!")
 		ComPtr<ID3D12Resource> D3DResource;
 		
-		auto  D3DDevice = m_Device.GetDevice();
+		auto  D3DDevice = FDX12Device::Get()->GetDevice();
 
 		ThrowIfFailed(D3DDevice->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,

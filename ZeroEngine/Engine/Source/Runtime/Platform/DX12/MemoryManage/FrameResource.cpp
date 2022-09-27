@@ -33,9 +33,8 @@ namespace Zero
 		, m_CurrentFrameIndex(0)
 	{
 	}
-	void FFrameResourcesManager::Init(Ref<IDevice> Device)
+	void FFrameResourcesManager::Init()
 	{
-		m_Device = static_cast<FDX12Device*>(Device.get())->AsShared();
 		m_Fences.resize(m_FrameResourcesCount);
 		m_CommandAllocators.resize(m_FrameResourcesCount);
 		m_UploadBuffers.resize(m_FrameResourcesCount);
@@ -44,9 +43,9 @@ namespace Zero
 		{
 			m_Fences[i] = 0;
 			ThrowIfFailed(
-				m_Device->GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_CommandAllocators[i]))
+				FDX12Device::Get()->GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_CommandAllocators[i]))
 			);
-			m_UploadBuffers[i].reset(new FUploadBuffer(*m_Device.get()));
+			m_UploadBuffers[i].reset(new FUploadBuffer());
 		}
 	}
 	FFrameResourcesManager::~FFrameResourcesManager()

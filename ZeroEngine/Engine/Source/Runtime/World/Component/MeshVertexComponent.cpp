@@ -27,8 +27,7 @@ namespace Zero
 		Ref<IShaderConstantsBuffer> Result;
 		if (m_IdleConstantsBuffer.empty())
 		{
-			auto Device = Obj->GetWorld()->GetDevice();
-			Result = FRenderer::GraphicFactroy->CreateShaderConstantBuffer(Device.get(), GetPerObjectConstantsDesc());
+			Result = FRenderer::GraphicFactroy->CreateShaderConstantBuffer(GetPerObjectConstantsDesc());
 		}
 		else
 		{
@@ -63,7 +62,6 @@ namespace Zero
 	void UMeshVertexComponent::CreateMesh()
 	{
 		m_Mesh = FRenderer::GraphicFactroy->CreateMesh(
-			GetWorld()->GetDevice().get(),
 			m_MeshDatas,
 			FVertexBufferLayout::s_DefaultVertexLayout
 		);

@@ -21,7 +21,7 @@ namespace Zero
 	class FDX12CommandList : public FCommandList, public std::enable_shared_from_this<FDX12CommandList>
 	{
 	public:
-		FDX12CommandList(FDX12Device& InDevice, D3D12_COMMAND_LIST_TYPE Type);
+		FDX12CommandList(D3D12_COMMAND_LIST_TYPE Type);
 		virtual ~FDX12CommandList() = default;
 
 		void FlushResourceBarriers();
@@ -122,7 +122,7 @@ namespace Zero
 
 	private:
 		std::vector<ComPtr<ID3D12Object>> m_TrackedObjects;
-		FDX12Device& m_Device;
+
 		D3D12_COMMAND_LIST_TYPE  m_CommandListType;
 		ComPtr<ID3D12CommandAllocator>	m_CommandAllocator = nullptr;
 		ComPtr<ID3D12GraphicsCommandList> m_D3DCommandList = nullptr;

@@ -10,7 +10,7 @@ namespace Zero
 	class FFrameConstants
 	{
 	public:
-		FFrameConstants(IDevice* Device);
+		FFrameConstants();
 		virtual ~FFrameConstants() = default;
 		Ref<IShaderConstantsBuffer> GetShaderConstantBuffer() { return m_ShaderConstantsBuffer; }
 	protected:

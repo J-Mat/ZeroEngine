@@ -4,12 +4,11 @@
 
 namespace Zero
 {
-	FDX12VertexBuffer::FDX12VertexBuffer(FDX12Device& _Device, void* _Data, uint32_t _VertexCount, FVertexBufferLayout& _Layout, IVertexBuffer::EType _Type)
+	FDX12VertexBuffer::FDX12VertexBuffer(void* _Data, uint32_t _VertexCount, FVertexBufferLayout& _Layout, IVertexBuffer::EType _Type)
 		:IVertexBuffer(_Data, _VertexCount, _Layout, _Type)
-		, IBuffer(_Device)
-		, m_Device(_Device)
+		, IBuffer()
 	{
-		SetResource(m_Device.GetInitWorldCommandList()->CreateDefaultBuffer(m_Data, m_BufferSize));
+		SetResource(FDX12Device::Get()->GetInitWorldCommandList()->CreateDefaultBuffer(m_Data, m_BufferSize));
 		CreateVertexBufferView();
 	}
 	

@@ -45,9 +45,13 @@ namespace Zero
 	
 	struct FLightDescrptorAllocation
 	{
-		D3D12_CPU_DESCRIPTOR_HANDLE CpuHandle;
-		D3D12_GPU_DESCRIPTOR_HANDLE	GpuHandle;
-		int32_t DescriptorIndex = -1;
+		D3D12_CPU_DESCRIPTOR_HANDLE CpuHandle = {0};
+		D3D12_GPU_DESCRIPTOR_HANDLE	GpuHandle = {0};
+		bool IsNull()
+		{
+			return CpuHandle.ptr == 0;
+		}
 	};
+	
 }
 

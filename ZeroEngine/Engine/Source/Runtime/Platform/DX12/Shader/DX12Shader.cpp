@@ -30,9 +30,8 @@ namespace Zero
 		}
 	}
 
-	FDX12Shader::FDX12Shader(FDX12Device& Device, std::string FileName, const FShaderBinderDesc& BinderDesc, const FShaderDesc& Desc)
-	: m_Device(Device)
-	, IShader(BinderDesc, Desc)
+	FDX12Shader::FDX12Shader(std::string FileName, const FShaderBinderDesc& BinderDesc, const FShaderDesc& Desc)
+	: IShader(BinderDesc, Desc)
 	{
 		m_VSBytecode = CompileShader(Utils::String2WString(FileName), nullptr, "VS", "vs_5_0");
 		m_PSBytecode = CompileShader(Utils::String2WString(FileName), nullptr, "PS", "ps_5_0");
@@ -43,13 +42,13 @@ namespace Zero
 
 	void FDX12Shader::CreateBinder()
 	{
-		m_ShaderBinder = CreateRef<FDX12ShaderBinder>(m_Device, m_ShaderBinderDesc);
+		m_ShaderBinder = CreateRef<FDX12ShaderBinder>(m_ShaderBinderDesc);
 		CreatePSO();
 	}
 
 	void FDX12Shader::Use()
 	{
-		Ref<FDX12CommandList> CommandList = m_Device.GetRenderCommandList();
+		Ref<FDX12CommandList> CommandList = FDX12Device::Get()->GetRenderCommandList();
 		CommandList->GetD3D12CommandList()->SetPipelineState(m_PipelineStateObject->GetD3D12PipelineState().Get());
 		m_ShaderBinder->Bind();
 	}
@@ -124,6 +123,6 @@ namespace Zero
 		PsoDesc.SampleDesc.Count = 1;	// No 4XMSAA
 		PsoDesc.SampleDesc.Quality = 0;	////No 4XMSAA
 
-		m_PipelineStateObject = CreateRef<FPipelineStateObject>(m_Device, PsoDesc);
+		m_PipelineStateObject = CreateRef<FPipelineStateObject>(PsoDesc);
 	}
 }

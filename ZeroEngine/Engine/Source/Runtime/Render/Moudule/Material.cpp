@@ -2,7 +2,6 @@
 #include "Render/RHI/ShaderBinder.h"
 #include "Render/RendererAPI.h"
 #include "Render/RHI/Shader.h"
-#include "Render/RHI/GraphicDevice.h"
 #include "Render/RHI/Texture.h"
 #include "World/World.h"
 #include "World/Actor/CameraActor.h"
@@ -15,10 +14,9 @@
 namespace Zero
 {
 
-	FMaterial::FMaterial(IDevice* Device)
-		: m_Device(Device)
+	FMaterial::FMaterial()
 	{
-		m_FrameConstants = CreateRef<FFrameConstants>(Device);
+		m_FrameConstants = CreateRef<FFrameConstants>();
 		m_FrameResourceBuffer = m_FrameConstants->GetShaderConstantBuffer();
 		SetShader(TLibrary<IShader>::Fetch("Color.hlsl"));
 	}
@@ -55,9 +53,8 @@ namespace Zero
 		m_ConstantsDesc = m_Shader->GetBinder()->GetShaderConstantsDesc(ERootParameters::MaterialCB);
 		m_ResourcesDesc = m_Shader->GetBinder()->GetShaderResourcesDesc();
 		
-		m_ConstantsBuffer = FRenderer::GraphicFactroy->CreateShaderConstantBuffer(m_Device, *m_ConstantsDesc.get());
+		m_ConstantsBuffer = FRenderer::GraphicFactroy->CreateShaderConstantBuffer(*m_ConstantsDesc.get());
 		m_ResourcesBuffer = FRenderer::GraphicFactroy->CreateShaderResourceBuffer(
-			m_Device , 
 			*m_ResourcesDesc.get(), 
 			m_Shader->GetBinder()->GetRootSignature()
 		);

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Base/PublicSingleton.h"
+#include "Core.h"
 
 #include <filesystem>
 
@@ -23,6 +24,10 @@ namespace Zero
         const std::filesystem::path GetShaderFullPath(const std::string& RelativePath) const;
         const std::filesystem::path GetTextureFullPath(const std::string& RelativePath) const;
         const std::filesystem::path GetObjFullPath(const std::string& RelativePath) const;
+#ifdef  EDITOR_MODE
+        const std::filesystem::path GetEditorContentFolder() const;
+        const std::filesystem::path GetEditorContentFullPath(const std::string& RelativePath) const;
+#endif //  EDITOR_MODE
 
     private:
         std::filesystem::path m_RootFolder;
@@ -30,5 +35,8 @@ namespace Zero
         std::filesystem::path m_ShadersFolder;
         std::filesystem::path m_TexturesFolder;
         std::filesystem::path m_ObjFolder;
+#ifdef  EDITOR_MODE
+        std::filesystem::path m_EditorContentFolder;
+#endif //  EDITOR_MODE
     };
 }

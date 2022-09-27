@@ -271,8 +271,10 @@ namespace Zero
 				}
 				else
 				{
-					for (int j = 0; j < Element.Size / 4; j++)
+					for (uint32_t j = 0; j < Element.Size / 4; j++)
+					{
 						Vertices.push_back(0);
+					}
 				}
 			}
 		}

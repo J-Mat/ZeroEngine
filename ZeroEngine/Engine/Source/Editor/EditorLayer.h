@@ -2,7 +2,7 @@
 
 #include <ZeroEngine.h>
 #include "EditPanels/ViewportPanel.h"
-
+#include "EditPanels/ContentBrowserPanel.h"
 
 namespace Zero
 {
@@ -22,11 +22,13 @@ namespace Zero
 		void OnEvent(FEvent& e) override;
 		
 		void BuildWorld();
+		void InitEditPanel();
 		
 	private: 
 		Ref<FRenderPipeline> m_ScriptablePipeline;
 		UWorld* m_World = nullptr;
 		Ref<FEditorCameraController> m_CameraController;
 		FViewportPanel m_ViewportPanel;
+		FContentBrowserPanel m_ContentBrowserPanel;
 	};
 }

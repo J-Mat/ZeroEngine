@@ -122,9 +122,8 @@ namespace Zero
 		}
 		
 		m_Device = static_cast<FDX12Device*>(FRenderer::GraphicFactroy->CreateDevice().get())->AsShared();
-		m_Device->CreateSwapChain(m_WindowData.hMainWnd);
-		FDX12RenderPipeline::GetInstance().SetDevice(m_Device);
-		FFrameResourcesManager::GetInstance().Init(m_Device);
+		FDX12Device::Get()->CreateSwapChain(m_WindowData.hMainWnd);
+		FFrameResourcesManager::GetInstance().Init();
 		
 		ShowWindow(m_WindowData.hMainWnd , SW_SHOW);
 		

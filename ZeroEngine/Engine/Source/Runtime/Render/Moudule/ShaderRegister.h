@@ -9,6 +9,6 @@ namespace Zero
 	class FShaderRegister : public IPublicSingleton<FShaderRegister>
 	{
 	public:
-		void RegisterDefaultShader(IDevice* Device);
+		void RegisterDefaultShader();
 	};
 }

@@ -12,7 +12,7 @@ namespace Zero
 	class FDX12Shader : public IShader
 	{
 	public:
-		FDX12Shader(FDX12Device& Device, std::string FileName, const FShaderBinderDesc& BinderDesc, const FShaderDesc& Desc);
+		FDX12Shader(std::string FileName, const FShaderBinderDesc& BinderDesc, const FShaderDesc& Desc);
 
 		virtual void CreateBinder();
 		virtual void Use() override;
@@ -22,7 +22,7 @@ namespace Zero
 		void CreatePSO();
 
 	private:
-		FDX12Device& m_Device;
+
 		ComPtr<ID3DBlob> m_VSBytecode = nullptr;
 		ComPtr<ID3DBlob> m_PSBytecode = nullptr;
 		std::vector<D3D12_INPUT_ELEMENT_DESC> m_InputLayoutDesc;

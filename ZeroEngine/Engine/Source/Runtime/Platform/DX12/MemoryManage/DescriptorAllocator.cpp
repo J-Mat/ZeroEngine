@@ -3,9 +3,8 @@
 
 namespace Zero
 {
-    FDescriptorAllocator::FDescriptorAllocator(FDX12Device& InDevice, D3D12_DESCRIPTOR_HEAP_TYPE Type, uint32_t InNumDescriptorsPerHeap)
-        : m_Device(InDevice)
-        , m_HeapType(Type)
+    FDescriptorAllocator::FDescriptorAllocator(D3D12_DESCRIPTOR_HEAP_TYPE Type, uint32_t InNumDescriptorsPerHeap)
+        : m_HeapType(Type)
         , m_NumDescriptorsPerHeap(InNumDescriptorsPerHeap)
     {
        
@@ -18,7 +17,7 @@ namespace Zero
 
     Ref<FDescriptorAllocatorPage> FDescriptorAllocator::CreateAllocatorPage()
     {
-        Ref<FDescriptorAllocatorPage> NewPage = CreateRef<FDescriptorAllocatorPage>(m_Device, m_HeapType, m_NumDescriptorsPerHeap);
+        Ref<FDescriptorAllocatorPage> NewPage = CreateRef<FDescriptorAllocatorPage>(m_HeapType, m_NumDescriptorsPerHeap);
         
         m_HeapPool.emplace_back(NewPage);
         m_AvailableHeaps.insert(m_HeapPool.size() - 1);

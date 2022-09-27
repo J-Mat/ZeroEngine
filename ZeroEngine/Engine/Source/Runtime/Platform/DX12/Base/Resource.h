@@ -8,10 +8,10 @@ namespace Zero
 	class IResource
 	{
 	public:
-		IResource(FDX12Device& Device);
-		IResource(FDX12Device& Device, const D3D12_RESOURCE_DESC& ResourceDesc,
+		IResource();
+		IResource(const D3D12_RESOURCE_DESC& ResourceDesc,
 			const D3D12_CLEAR_VALUE* ClearValue = nullptr);
-		IResource(FDX12Device& Device, ComPtr<ID3D12Resource> Resource,
+		IResource(ComPtr<ID3D12Resource> Resource,
 			const D3D12_CLEAR_VALUE* ClearValue = nullptr);
 
 		void SetName(const std::wstring& Name);
@@ -43,7 +43,7 @@ namespace Zero
 		virtual ~IResource() = default;
 
 
-		FDX12Device& m_Device;
+
 		std::wstring                 m_ResourceName;
 		ComPtr<ID3D12Resource>   	m_D3DResource;
 		D3D12_FEATURE_DATA_FORMAT_SUPPORT  m_FormatSupport;

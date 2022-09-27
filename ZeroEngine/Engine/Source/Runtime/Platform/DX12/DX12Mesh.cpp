@@ -9,22 +9,20 @@
 
 namespace Zero
 {
-	FDX12Mesh::FDX12Mesh(FDX12Device& Device, float* Vertices, uint32_t VertexCount, uint32_t* Indices, uint32_t IndexCount, FVertexBufferLayout& Layout)
+	FDX12Mesh::FDX12Mesh(float* Vertices, uint32_t VertexCount, uint32_t* Indices, uint32_t IndexCount, FVertexBufferLayout& Layout)
 		: FMesh()
-		, m_Device(Device)
 	{
-		m_D3DVertexBuffer = CreateRef<FDX12VertexBuffer>(m_Device, Vertices, VertexCount, Layout);
+		m_D3DVertexBuffer = CreateRef<FDX12VertexBuffer>(Vertices, VertexCount, Layout);
 		m_VertexBuffer = m_D3DVertexBuffer;
-		m_D3DIndexBuffer = CreateRef<FDX12IndexBuffer>(m_Device, Indices, IndexCount);
+		m_D3DIndexBuffer = CreateRef<FDX12IndexBuffer>(Indices, IndexCount);
 		m_IndexBuffer = m_D3DIndexBuffer;
 		FSubMesh SubMesh;
 		SubMesh.Index = 0;
 		SubMesh.IndexNumber = IndexCount;
 		m_SubMeshes.push_back(SubMesh);
 	}
-	FDX12Mesh::FDX12Mesh(FDX12Device& Device, std::vector<FMeshData> MeshDatas, FVertexBufferLayout& Layout)
+	FDX12Mesh::FDX12Mesh(std::vector<FMeshData> MeshDatas, FVertexBufferLayout& Layout)
 	: FMesh()
-		, m_Device(Device)
 	{
 		std::vector<float> Vertices;
 		std::vector<uint32_t> Indices;
@@ -45,14 +43,14 @@ namespace Zero
 			Indices.insert(Indices.end(), std::begin(MeshData.Indices), std::end(MeshData.Indices));
 		}
 		
-		m_D3DVertexBuffer = CreateRef<FDX12VertexBuffer>(m_Device, Vertices.data(), uint32_t(Vertices.size()), Layout);
+		m_D3DVertexBuffer = CreateRef<FDX12VertexBuffer>(Vertices.data(), uint32_t(Vertices.size()), Layout);
 		m_VertexBuffer = m_D3DVertexBuffer;
-		m_D3DIndexBuffer = CreateRef<FDX12IndexBuffer>(m_Device, Indices.data(), uint32_t(Indices.size()));
+		m_D3DIndexBuffer = CreateRef<FDX12IndexBuffer>(Indices.data(), uint32_t(Indices.size()));
 		m_IndexBuffer = m_D3DIndexBuffer;
 	}
 	void FDX12Mesh::Draw()
 	{
-		Ref<FDX12CommandList> CommandList = m_Device.GetRenderCommandList();
+		Ref<FDX12CommandList> CommandList = FDX12Device::Get()->GetRenderCommandList();
 		auto D3DCommandList = CommandList->GetD3D12CommandList();
 		D3DCommandList->IASetVertexBuffers(0, 1, &(m_D3DVertexBuffer->GetVertexBufferView()));
 		D3DCommandList->IASetIndexBuffer(&(m_D3DIndexBuffer->GetIndexBufferView()));
@@ -61,7 +59,7 @@ namespace Zero
 	}
 	void FDX12Mesh::DrawSubMesh(FSubMesh& SubMesh)
 	{
-		Ref<FDX12CommandList> CommandList = m_Device.GetRenderCommandList();
+		Ref<FDX12CommandList> CommandList = FDX12Device::Get()->GetRenderCommandList();
 		auto D3DCommandList = CommandList->GetD3D12CommandList();
 		D3DCommandList->IASetVertexBuffers(0, 1, &(m_D3DVertexBuffer->GetVertexBufferView()));
 		D3DCommandList->IASetIndexBuffer(&(m_D3DIndexBuffer->GetIndexBufferView()));

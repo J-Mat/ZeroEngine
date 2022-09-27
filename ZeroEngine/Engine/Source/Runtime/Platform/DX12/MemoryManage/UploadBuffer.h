@@ -16,7 +16,7 @@ namespace Zero
 			D3D12_GPU_VIRTUAL_ADDRESS GPU;
 		};
 
-		FUploadBuffer(FDX12Device& Device, size_t PageSize = _2MB);
+		FUploadBuffer(size_t PageSize = _2MB);
 		virtual ~FUploadBuffer() {}
 		
 		FAllocation Allocate(size_t sizeInBytes, size_t alignment);
@@ -24,7 +24,7 @@ namespace Zero
 	private:
 		struct FPage
 		{
-			FPage(FDX12Device& InDevice, size_t InSizeInBytes);
+			FPage(size_t InSizeInBytes);
 			~FPage();
 
 			bool HasSpace(size_t SizeInBytes, size_t Alignment) const;
@@ -33,7 +33,7 @@ namespace Zero
 			
 			void Reset();
 		private:
-			FDX12Device& m_Device;
+	
 			ComPtr<ID3D12Resource> Resource;
 
 			void* m_CPUPtr;
@@ -47,7 +47,7 @@ namespace Zero
 
 		using FPagePool = std::deque<Ref<FPage>>;
 
-		FDX12Device& m_Device;
+
 		FPagePool m_PagePool;
 		FPagePool m_AvaliablePages;
 		Ref<FPage> m_CurrentPage;

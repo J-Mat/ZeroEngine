@@ -5,13 +5,12 @@
 
 namespace Zero
 {
-	FDX12CommandQueue::FDX12CommandQueue(FDX12Device& InDevice, D3D12_COMMAND_LIST_TYPE Type)
-		: m_Device(InDevice)
-		, m_CommandListType(Type)
+	FDX12CommandQueue::FDX12CommandQueue(D3D12_COMMAND_LIST_TYPE Type)
+		: m_CommandListType(Type)
 		, m_FenceValue(0)
 		, m_bProcessInFlightCommandLists(true)
 	{
-		auto D3DDevice = m_Device.GetDevice();
+		auto D3DDevice = FDX12Device::Get()->GetDevice();
 		
 		D3D12_COMMAND_QUEUE_DESC Desc = {};
 		Desc.Type = m_CommandListType;
@@ -50,7 +49,7 @@ namespace Zero
 
 	Ref<FDX12CommandList> FDX12CommandQueue::CreateNewCommandList()
 	{
-		return CreateRef<FDX12CommandList>(m_Device, m_CommandListType);
+		return CreateRef<FDX12CommandList>(m_CommandListType);
 	}
 
 	Ref<FDX12CommandList> FDX12CommandQueue::GetCommandList()
@@ -128,7 +127,7 @@ namespace Zero
 		// after the initial resource command lists have finished.
 		if (GenerateMipsCommandLists.size() > 0)
 		{
-			auto& ComputeQueue = m_Device.GetCommandQueue(D3D12_COMMAND_LIST_TYPE_COMPUTE);
+			auto& ComputeQueue = FDX12Device::Get()->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_COMPUTE);
 			ComputeQueue.Wait(*this);
 			ComputeQueue.ExecuteCommandLists(GenerateMipsCommandLists);
 		}

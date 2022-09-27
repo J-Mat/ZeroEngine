@@ -5,7 +5,7 @@
 
 namespace Zero
 {
-	void FShaderRegister::RegisterDefaultShader(IDevice* Device)
+	void FShaderRegister::RegisterDefaultShader()
 	{
 		std::vector<FConstantBufferLayout> CBLayouts =
 		{
@@ -25,6 +25,6 @@ namespace Zero
 
 		FShaderDesc ShaderDessc = { false, FVertexBufferLayout::s_DefaultVertexLayout, 1 };
 		
-		FRenderer::GraphicFactroy->CreateShader(Device, "Color.hlsl", {CBLayouts, ResourceLayout}, ShaderDessc);
+		FRenderer::GraphicFactroy->CreateShader("Color.hlsl", {CBLayouts, ResourceLayout}, ShaderDessc);
 	}
 }

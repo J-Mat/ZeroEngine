@@ -10,6 +10,9 @@ namespace Zero
         m_ShadersFolder = m_AssetsFolder / "Shader";
         m_TexturesFolder = m_AssetsFolder / "Textures";
         m_ObjFolder = m_AssetsFolder / "Obj";
+#ifdef  EDITOR_MODE
+        m_EditorContentFolder = m_RootFolder / "Engine" / "Source" / "Editor" / "Content";
+#endif
     }
 
     void FConfig::Clear()
@@ -49,4 +52,14 @@ namespace Zero
     {
         return m_ObjFolder / RelativePath;
     }
+#ifdef  EDITOR_MODE
+    const std::filesystem::path FConfig::GetEditorContentFolder() const
+    {
+        return m_EditorContentFolder;
+    }
+    const std::filesystem::path FConfig::GetEditorContentFullPath(const std::string& RelativePath) const
+    {
+        return m_EditorContentFolder / RelativePath;
+    }
+#endif
 }

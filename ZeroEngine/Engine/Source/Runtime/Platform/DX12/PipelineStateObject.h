@@ -9,7 +9,7 @@ namespace Zero
     class FPipelineStateObject
     {
     public:
-        FPipelineStateObject(FDX12Device& Device, const D3D12_GRAPHICS_PIPELINE_STATE_DESC& Desc);
+        FPipelineStateObject(const D3D12_GRAPHICS_PIPELINE_STATE_DESC& Desc);
         ~FPipelineStateObject() = default;
         ComPtr<ID3D12PipelineState> GetD3D12PipelineState() const
         {
@@ -17,7 +17,6 @@ namespace Zero
         }
 
     private:
-        FDX12Device& m_Device;
         ComPtr<ID3D12PipelineState> m_D3DPipelineState;
     };
 }  // 

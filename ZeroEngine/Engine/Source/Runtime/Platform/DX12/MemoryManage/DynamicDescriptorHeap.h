@@ -23,7 +23,7 @@ namespace Zero
 	class FDynamicDescriptorHeap
 	{
 	public:
-		FDynamicDescriptorHeap(FDX12Device& Device, D3D12_DESCRIPTOR_HEAP_TYPE HeapType, uint32_t HumDescriptorsPerHeap = 128);
+		FDynamicDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE HeapType, uint32_t HumDescriptorsPerHeap = 128);
 		
 		virtual ~FDynamicDescriptorHeap();
 
@@ -124,7 +124,7 @@ namespace Zero
 			D3D12_CPU_DESCRIPTOR_HANDLE* m_BaseDescriptor;
 		};
 
-		FDX12Device& m_Device;
+
 
 		// Describes the type of descriptors that can be staged using this
 		// dynamic descriptor heap.

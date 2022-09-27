@@ -21,10 +21,10 @@ namespace Zero
 
 	void FDX12RenderPipeline::DrawFrame()
 	{
-		auto& CommandQueue = m_Device->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
+		auto& CommandQueue = FDX12Device::Get()->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
 		auto CommandList = CommandQueue.GetCommandList();
-		m_Device->SetRenderCommandList(CommandList);
-		auto SwapChain = m_Device->GetSwapChain();
+		FDX12Device::Get()->SetRenderCommandList(CommandList);
+		auto SwapChain = FDX12Device::Get()->GetSwapChain();
 
 
 		FApplication::Get().OnDraw();
@@ -32,10 +32,6 @@ namespace Zero
 		FApplication::Get().PostDraw();
 
 		SwapChain->Present();
-	}
-	void FDX12RenderPipeline::SetDevice(Ref<IDevice> Device)
-	{
-		m_Device = static_cast<FDX12Device*>(Device.get())->AsShared();
 	}
 	
 }

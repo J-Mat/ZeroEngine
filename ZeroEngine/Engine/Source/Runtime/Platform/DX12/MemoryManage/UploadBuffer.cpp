@@ -3,22 +3,20 @@
 
 namespace Zero
 {
-	FUploadBuffer::FUploadBuffer(FDX12Device& Device, size_t PageSize)
-	: m_Device(Device)
-	, m_PageSize(PageSize)
+	FUploadBuffer::FUploadBuffer(size_t PageSize)
+	: m_PageSize(PageSize)
 	{
 				
 	}
 
-	FUploadBuffer::FPage::FPage(FDX12Device& InDevice, size_t InSizeInBytes)
-		: m_Device(InDevice)
-		, m_PageSize(InSizeInBytes)
+	FUploadBuffer::FPage::FPage(size_t InSizeInBytes)
+		: m_PageSize(InSizeInBytes)
 		, m_Offset(0)
 		, m_CPUPtr(nullptr)
 		, m_GPUPtr(D3D12_GPU_VIRTUAL_ADDRESS(0))
 	{
 		ThrowIfFailed(
-			m_Device.GetDevice()->CreateCommittedResource(
+			FDX12Device::Get()->GetDevice()->CreateCommittedResource(
 				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
 				&CD3DX12_RESOURCE_DESC::Buffer(m_PageSize), D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
 				IID_PPV_ARGS(&Resource))
@@ -97,7 +95,7 @@ namespace Zero
 		}
 		else
 		{
-			Page = CreateRef<FUploadBuffer::FPage>(m_Device, m_PageSize);
+			Page = CreateRef<FUploadBuffer::FPage>(m_PageSize);
 			m_PagePool.push_back(Page);
 		}
 

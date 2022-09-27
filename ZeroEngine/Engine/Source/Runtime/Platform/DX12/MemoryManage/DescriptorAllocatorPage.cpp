@@ -5,13 +5,12 @@
 
 namespace Zero
 {
-	FDescriptorAllocatorPage::FDescriptorAllocatorPage(FDX12Device& InDevice, D3D12_DESCRIPTOR_HEAP_TYPE Type, 
+	FDescriptorAllocatorPage::FDescriptorAllocatorPage(D3D12_DESCRIPTOR_HEAP_TYPE Type, 
 													  uint32_t NumDescriptors)
-	: m_Device(InDevice)
-	, m_HeapType(Type)
+	: m_HeapType(Type)
 	, m_NumDescriptorsInHeap(NumDescriptors)
 	{
-		auto D3dDevice = m_Device.GetDevice();
+		auto D3dDevice = FDX12Device::Get()->GetDevice();
 		
 		D3D12_DESCRIPTOR_HEAP_DESC HeapDesc = {};
 		HeapDesc.Type   = m_HeapType;

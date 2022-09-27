@@ -17,8 +17,9 @@ namespace Zero
 	class FDX12Device : public IDevice, public std::enable_shared_from_this<FDX12Device>
 	{
 	public:
-		FDX12Device() = default;
+		FDX12Device();
 		virtual void Init();
+		static FDX12Device* Get() { return m_Instance; }
 		
 		Ref<FDX12Device> AsShared() { return shared_from_this(); }
 
@@ -50,7 +51,7 @@ namespace Zero
 		
 		void CreateGuiDescHeap(uint32_t NumDescriptors = 64);
 		ComPtr<ID3D12DescriptorHeap> GetGuiDescHeap() { return m_GUISrvDescHeap; }
-		FLightDescrptorAllocation AllocateGuiDescritor(int32_t ReuseIndex = -1);
+		FLightDescrptorAllocation AllocateGuiDescritor();
 		/**
 		* Release stale descriptors. This should only be called with a completed frame counter.
 		*/
@@ -83,6 +84,7 @@ namespace Zero
 		void SetInitWorldCommandList(Ref<FDX12CommandList> CommandList) { m_InitWorldCommandList = CommandList; }
 
 	private:
+		static FDX12Device* m_Instance;
 		void EnableDebugLayer();
 		void CreateDevice();
 		void GetDescriptorSize();

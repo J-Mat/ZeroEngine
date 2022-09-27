@@ -23,8 +23,8 @@ namespace Zero
 
 		return PerObtConstantsDesc;
 	}
-	FFrameConstants::FFrameConstants(IDevice* Device)
-		: m_ShaderConstantsBuffer(FRenderer::GraphicFactroy->CreateShaderConstantBuffer(Device, GetPerObjectConstantsDesc()))
+	FFrameConstants::FFrameConstants()
+		: m_ShaderConstantsBuffer(FRenderer::GraphicFactroy->CreateShaderConstantBuffer(GetPerObjectConstantsDesc()))
 	{
 	}
 }

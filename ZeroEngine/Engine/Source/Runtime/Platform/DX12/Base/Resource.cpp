@@ -4,14 +4,12 @@
 
 namespace Zero
 {
-	IResource::IResource(FDX12Device& InDevice)
-	: m_Device(InDevice)
+	IResource::IResource()
 	{
 	}
-	IResource::IResource(FDX12Device& InDevice, const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* ClearValue)
-	: m_Device(InDevice)
+	IResource::IResource(const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* ClearValue)
 	{
-		auto D3dDevice = InDevice.GetDevice();
+		auto* D3dDevice = FDX12Device::Get()->GetDevice();
 		
 		if (ClearValue)
 		{
@@ -27,9 +25,8 @@ namespace Zero
 		CheckFeatureSupport();
 	}
 
-	IResource::IResource( FDX12Device& InDevice, ComPtr<ID3D12Resource> Resource, const D3D12_CLEAR_VALUE* ClearValue )
-	: m_Device(InDevice)
-	, m_D3DResource(Resource)
+	IResource::IResource( ComPtr<ID3D12Resource> Resource, const D3D12_CLEAR_VALUE* ClearValue )
+	: m_D3DResource(Resource)
 	{
 		if (ClearValue)
 		{
@@ -59,7 +56,7 @@ namespace Zero
 	{
     	auto Desc              = m_D3DResource->GetDesc();
     	m_FormatSupport.Format = Desc.Format;
-    	ThrowIfFailed( m_Device.GetDevice()->CheckFeatureSupport( D3D12_FEATURE_FORMAT_SUPPORT, &m_FormatSupport,
+    	ThrowIfFailed( FDX12Device::Get()->GetDevice()->CheckFeatureSupport( D3D12_FEATURE_FORMAT_SUPPORT, &m_FormatSupport,
                                                      sizeof( D3D12_FEATURE_DATA_FORMAT_SUPPORT ) ) );
 	}
 }

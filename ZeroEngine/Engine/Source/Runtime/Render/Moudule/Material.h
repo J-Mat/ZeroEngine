@@ -25,7 +25,7 @@ namespace Zero
 	class FMaterial
 	{
 	public:
-		FMaterial(IDevice* Device);
+		FMaterial();
 		~FMaterial();	
 		void Tick();
 		void SetPass();
@@ -50,7 +50,6 @@ namespace Zero
 		float* PtrFloat4(const std::string& Name);
 		float* PtrMatrix4x4(const std::string& Name);
 	private:
-		IDevice* m_Device;
 		Ref<IShader> m_Shader;
 		Ref<FShaderConstantsDesc> m_ConstantsDesc;
 		Ref<FShaderResourcesDesc> m_ResourcesDesc;

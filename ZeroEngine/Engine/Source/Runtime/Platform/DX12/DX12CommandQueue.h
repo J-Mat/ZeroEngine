@@ -12,7 +12,7 @@ namespace Zero
 	class FDX12CommandQueue
 	{
 	public:
-		FDX12CommandQueue(FDX12Device& InDevice, D3D12_COMMAND_LIST_TYPE Type);
+		FDX12CommandQueue(D3D12_COMMAND_LIST_TYPE Type);
 		virtual ~FDX12CommandQueue();
 
 		Ref<FDX12CommandList> CreateNewCommandList();
@@ -40,7 +40,7 @@ namespace Zero
 		// a shared pointer to the "in-flight" command list.
 		using FCommandListEntry = std::tuple<uint64_t, Ref<FDX12CommandList>>;
 		
-		FDX12Device& m_Device;
+
 		D3D12_COMMAND_LIST_TYPE                    m_CommandListType;
 		ComPtr<ID3D12CommandQueue> m_D3DCommandQueue;
 		ComPtr<ID3D12Fence>        m_Fence;

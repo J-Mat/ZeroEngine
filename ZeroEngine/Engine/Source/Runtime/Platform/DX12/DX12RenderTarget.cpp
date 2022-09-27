@@ -6,14 +6,12 @@
 namespace Zero
 {
 
-	FDX12RenderTarget::FDX12RenderTarget(FDX12Device& Device)
-		: m_Device(Device)
-		, FRenderTarget()
+	FDX12RenderTarget::FDX12RenderTarget()
+		:FRenderTarget()
 	{
 	}
 
-	FDX12RenderTarget::FDX12RenderTarget(FDX12Device& Device, FRenderTargetDesc Desc)
-		: m_Device(Device)
+	FDX12RenderTarget::FDX12RenderTarget(FRenderTargetDesc Desc)
 	{
 		m_Width = Desc.Width;
 		m_Height = Desc.Height;
@@ -45,7 +43,7 @@ namespace Zero
 					OptClear.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 					memcpy(OptClear.Color, DirectX::Colors::Transparent, 4 * sizeof(float));
 
-					Texture = CreateRef<FDX12Texture2D>(m_Device, RtvResourceDesc, &OptClear);	
+					Texture = CreateRef<FDX12Texture2D>(RtvResourceDesc, &OptClear);	
 #ifdef EDITOR_MODE
 					Texture->RegistGuiShaderResource();
 #endif
@@ -53,14 +51,12 @@ namespace Zero
 				else
 				{
 					auto DepthStencilDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D24_UNORM_S8_UINT, m_Width, m_Height);
-					// Must be set on textures that will be used as a depth-stencil buffer.
 					DepthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
-					// Specify optimized clear values for the depth buffer.
 					D3D12_CLEAR_VALUE OptClear = {};
 					OptClear.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 					OptClear.DepthStencil = { 1.0F, 0 };
-					Texture = CreateRef<FDX12Texture2D>(m_Device, DepthStencilDesc, &OptClear);
+					Texture = CreateRef<FDX12Texture2D>(DepthStencilDesc, &OptClear);
 				}
 				AttachTexture(AttachMentIndex, Texture);
 				Mask ^= Flag;
@@ -72,7 +68,7 @@ namespace Zero
 
 	void FDX12RenderTarget::ClearBuffer()
 	{
-		auto CommandList = m_Device.GetRenderCommandList();
+		auto CommandList = FDX12Device::Get()->GetRenderCommandList();
 		for (int i = EAttachmentIndex::Color0; i <= EAttachmentIndex::Color7; ++i)
 		{
 			auto* Texture = static_cast<FDX12Texture2D*>(m_Textures[i].get());
@@ -124,7 +120,7 @@ namespace Zero
 
 	void FDX12RenderTarget::Bind()
 	{
-		auto  CommandList = m_Device.GetRenderCommandList();
+		auto  CommandList = FDX12Device::Get()->GetRenderCommandList();
 		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> Handles;
 		for (int i = EAttachmentIndex::Color0; i <= EAttachmentIndex::Color7; ++i)
 		{
@@ -160,9 +156,9 @@ namespace Zero
 
 	void FDX12RenderTarget::UnBind()
 	{
-		m_Device.GetSwapChain()->SetRenderTarget();
+		FDX12Device::Get()->GetSwapChain()->SetRenderTarget();
 
-		auto  CommandList = m_Device.GetRenderCommandList();
+		auto  CommandList = FDX12Device::Get()->GetRenderCommandList();
 		for (int i = EAttachmentIndex::Color0; i <= EAttachmentIndex::Color7; ++i)
 		{
 			auto* Texture = static_cast<FDX12Texture2D*>(m_Textures[i].get());

@@ -14,7 +14,7 @@ namespace Zero
 		auto [Width, Height] = Device->GetSwapChain()->GetSize();
 		Desc.Width = 900;
 		Desc.Height = 600;
-		m_RenderTarget = FRenderer::GraphicFactroy->CreateRenderTarget(Device.get(), Desc);
+		m_RenderTarget = FRenderer::GraphicFactroy->CreateRenderTarget(Desc);
 		TLibrary<FRenderTarget>::Push(FORWARD_STAGE, m_RenderTarget);
 	}
 

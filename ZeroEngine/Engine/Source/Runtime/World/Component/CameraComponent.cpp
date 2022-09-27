@@ -27,11 +27,7 @@ namespace Zero
 	{
 		FCameraSettings Settings;
 		SetCameraSettings(Settings);
-		m_ShaderConstantsBuffer = FRenderer::GraphicFactroy->CreateShaderConstantBuffer(
-			m_World->GetDevice().get(), 
-			*GetPerCameraConstantsDesc()
-		);
-		
+		m_ShaderConstantsBuffer = FRenderer::GraphicFactroy->CreateShaderConstantBuffer(*GetPerCameraConstantsDesc());
 	}
 
 	UCameraComponent::~UCameraComponent()

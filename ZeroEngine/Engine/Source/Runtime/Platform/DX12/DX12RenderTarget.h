@@ -12,8 +12,8 @@ namespace Zero
 	class FDX12RenderTarget : public FRenderTarget
 	{
 	public:
-		FDX12RenderTarget(FDX12Device& Device);
-		FDX12RenderTarget(FDX12Device& Device, FRenderTargetDesc Desc);
+		FDX12RenderTarget();
+		FDX12RenderTarget(FRenderTargetDesc Desc);
 		virtual void ClearBuffer() override;
 		virtual void Resize(uint32_t Width, uint32_t Height, uint32_t depth);
 		virtual void AttachTexture(EAttachmentIndex AttachmentIndex, Ref<FTexture2D> Texture2D);
@@ -21,7 +21,7 @@ namespace Zero
 		virtual void UnBind();
 		void SetViewportRect();
 	private:
-		FDX12Device& m_Device;
+
 		// Get the render target formats of the textures currently
 		// attached to this render target object.
 		// This is needed to configure the Pipeline state object.

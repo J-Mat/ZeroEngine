@@ -5,12 +5,11 @@
 
 namespace Zero
 {
-	FDX12IndexBuffer::FDX12IndexBuffer(FDX12Device& Device, uint32_t* Indices, uint32_t Count)
+	FDX12IndexBuffer::FDX12IndexBuffer(uint32_t* Indices, uint32_t Count)
 		: IIndexBuffer(Indices, Count)
-		, IBuffer(Device)
-		, m_Device(Device)
+		, IBuffer()
 	{	
-		ComPtr<ID3D12Resource> Resource = m_Device.GetInitWorldCommandList()->CreateDefaultBuffer(m_Data, m_BufferSize);
+		ComPtr<ID3D12Resource> Resource = FDX12Device::Get()->GetInitWorldCommandList()->CreateDefaultBuffer(m_Data, m_BufferSize);
 		SetResource(Resource);
 		CreateIndexBufferView();
 	}

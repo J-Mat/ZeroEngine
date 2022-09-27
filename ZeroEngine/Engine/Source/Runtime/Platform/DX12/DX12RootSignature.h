@@ -10,7 +10,7 @@ namespace Zero
 	class FDX12RootSignature : public IRootSignature, public std::enable_shared_from_this<FDX12RootSignature>
 	{
 	public:
-		FDX12RootSignature(FDX12Device& Device, const D3D12_ROOT_SIGNATURE_DESC& RootSignatureDesc);
+		FDX12RootSignature(const D3D12_ROOT_SIGNATURE_DESC& RootSignatureDesc);
 		virtual	~FDX12RootSignature();
 		uint32_t GetNumDescriptors(uint32_t RootIndex);
 		void SetRootSignatureDesc(const D3D12_ROOT_SIGNATURE_DESC& RootSignatureDesc);
@@ -28,7 +28,7 @@ namespace Zero
 	private:
 		void Destroy();
 
-		FDX12Device& m_Device;
+
 		D3D12_ROOT_SIGNATURE_DESC                  m_RootSignatureDesc;
 		ComPtr<ID3D12RootSignature> m_RootSignature;
 

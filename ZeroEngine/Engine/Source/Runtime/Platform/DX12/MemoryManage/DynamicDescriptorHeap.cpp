@@ -5,9 +5,8 @@
 
 namespace Zero
 {
-	FDynamicDescriptorHeap::FDynamicDescriptorHeap(FDX12Device& Device, D3D12_DESCRIPTOR_HEAP_TYPE HeapType, uint32_t NumDescriptorsPerHeap)
-		:m_Device(Device)
-		,m_DescriptorHeapType(HeapType)
+	FDynamicDescriptorHeap::FDynamicDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE HeapType, uint32_t NumDescriptorsPerHeap)
+		:m_DescriptorHeapType(HeapType)
 		,m_NumDescriptorsPerHeap(NumDescriptorsPerHeap)
 		,m_DescriptorTableBitMask(0)
 		,m_StaleDescriptorTableBitMask(0)
@@ -18,7 +17,7 @@ namespace Zero
 		,m_CurrentGPUDescriptorHandle(D3D12_DEFAULT)
 		,m_NumFreeHandles(0)
 	{
-		m_DescriptorHandleIncrementSize = m_Device.GetDescriptorHandleIncrementSize(m_DescriptorHeapType);
+		m_DescriptorHandleIncrementSize = FDX12Device::Get()->GetDescriptorHandleIncrementSize(m_DescriptorHeapType);
 
 		// Allocate space for staging CPU visible descriptors.
 		m_DescriptorHandleCache = CreateScope<D3D12_CPU_DESCRIPTOR_HANDLE[]>(m_NumDescriptorsPerHeap);
@@ -90,7 +89,7 @@ namespace Zero
 
 		ComPtr<ID3D12DescriptorHeap> DescriptorHeap;
 		ThrowIfFailed(
-			m_Device.GetDevice()->CreateDescriptorHeap(&Desc, IID_PPV_ARGS(&DescriptorHeap))
+			FDX12Device::Get()->GetDevice()->CreateDescriptorHeap(&Desc, IID_PPV_ARGS(&DescriptorHeap))
 		);
 	
 		return DescriptorHeap;
@@ -144,7 +143,7 @@ namespace Zero
 			UINT pDestDescriptorRangeSizes[] = {NumSrcDescriptors};
 
 			// Copy the staged CPU visible descriptors to the GPU visible descriptor heap.
-			m_Device.GetDevice()->CopyDescriptors(1, pDestDescriptorRangeStarts, pDestDescriptorRangeSizes, NumSrcDescriptors,
+			FDX12Device::Get()->GetDevice()->CopyDescriptors(1, pDestDescriptorRangeStarts, pDestDescriptorRangeSizes, NumSrcDescriptors,
 				 pSrcDescriptorHandles, nullptr, m_DescriptorHeapType);
 
 			// Set the descriptors on the command list using the passed-in setter function.
@@ -202,7 +201,7 @@ namespace Zero
 		uint32_t TableBitMask = m_DescriptorTableBitMask;
 		DWORD RootIndex;
 		
-		auto CommandList = m_Device.GetRenderCommandList();
+		auto CommandList = FDX12Device::Get()->GetRenderCommandList();
 		CommandList->SetDescriptorHeap(m_DescriptorHeapType,  m_CurrentDescriptorHeap.Get());
 
 

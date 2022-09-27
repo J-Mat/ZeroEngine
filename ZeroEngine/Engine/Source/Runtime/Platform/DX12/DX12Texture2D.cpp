@@ -6,30 +6,27 @@
 
 namespace Zero
 {
-	FDX12Texture2D::FDX12Texture2D(FDX12Device& Device, const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* clearValue)
-		: IResource(Device, ResourceDesc, clearValue)
-		, m_Device(Device)
+	FDX12Texture2D::FDX12Texture2D(const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* clearValue)
+		: IResource(ResourceDesc, clearValue)
 	{
 		m_Width = (uint32_t)ResourceDesc.Width;
 		m_Height = (uint32_t)ResourceDesc.Height;
 		CreateViews();
 	}
 
-	FDX12Texture2D::FDX12Texture2D(FDX12Device& Device, Ref<FImage> ImageData)
-		:  IResource(Device)
-		, m_Device(Device)
+	FDX12Texture2D::FDX12Texture2D(Ref<FImage> ImageData)
+		:  IResource()
 	{
 		m_Width = ImageData->GetWidth();
 		m_Height = ImageData->GetHeight();
 		CORE_ASSERT(ImageData->GetData() != nullptr, "Image has no data!");
-		auto Resource = m_Device.GetInitWorldCommandList()->CreateTextureResource(ImageData);
+		auto Resource = FDX12Device::Get()->GetInitWorldCommandList()->CreateTextureResource(ImageData);
 		SetResource(Resource);
 		CreateViews();
 	}
 
-	FDX12Texture2D::FDX12Texture2D(FDX12Device& Device, ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, const D3D12_CLEAR_VALUE* ClearValue)
-		: IResource(Device, Resource, ClearValue)
-		, m_Device(Device)
+	FDX12Texture2D::FDX12Texture2D(ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, const D3D12_CLEAR_VALUE* ClearValue)
+		: IResource(Resource, ClearValue)
 	{
 		m_Width = Width;
 		m_Height = Height;
@@ -49,7 +46,7 @@ namespace Zero
 			
 			m_D3DResource.Reset();
 			ThrowIfFailed(
-				m_Device.GetDevice()->CreateCommittedResource(
+				FDX12Device::Get()->GetDevice()->CreateCommittedResource(
 					&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &ResDesc,
 					D3D12_RESOURCE_STATE_COMMON, m_D3DClearValue.get(), IID_PPV_ARGS(&m_D3DResource)
 				)
@@ -66,8 +63,11 @@ namespace Zero
 
 	void FDX12Texture2D::RegistGuiShaderResource()
 	{
-		m_GuiAllocation = m_Device.AllocateGuiDescritor(m_GuiAllocation.DescriptorIndex);
-		m_Device.GetDevice()->CreateShaderResourceView(m_D3DResource.Get(), nullptr, m_GuiAllocation.CpuHandle);
+		if (m_GuiAllocation.IsNull())
+		{
+			m_GuiAllocation = FDX12Device::Get()->AllocateGuiDescritor();
+		}
+		FDX12Device::Get()->GetDevice()->CreateShaderResourceView(m_D3DResource.Get(), nullptr, m_GuiAllocation.CpuHandle);
 		m_bHasGuiResource = true;
 	}
 
@@ -134,7 +134,7 @@ namespace Zero
 	{
 		if (m_D3DResource)
 		{
-			auto D3DDevice = m_Device.GetDevice();
+			auto D3DDevice = FDX12Device::Get()->GetDevice();
 			
 			CD3DX12_RESOURCE_DESC Desc(m_D3DResource->GetDesc());
 
@@ -143,7 +143,7 @@ namespace Zero
 			{
 				if (m_RenderTargetView.IsNull())
 				{
-					m_RenderTargetView = m_Device.AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+					m_RenderTargetView = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 				}
 				D3DDevice->CreateRenderTargetView(m_D3DResource.Get(), nullptr, m_RenderTargetView.GetDescriptorHandle());
 			}
@@ -153,7 +153,7 @@ namespace Zero
 			{
 				if (m_DepthStencilView.IsNull())
 				{
-					m_DepthStencilView = m_Device.AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+					m_DepthStencilView = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 				}
 				D3DDevice->CreateDepthStencilView(m_D3DResource.Get(), nullptr,
 					m_DepthStencilView.GetDescriptorHandle());
@@ -163,7 +163,7 @@ namespace Zero
 			{
 				if (m_ShaderResourceView.IsNull())
 				{
-					m_ShaderResourceView = m_Device.AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+					m_ShaderResourceView = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 				}
 				D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc = {};
 				SrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -181,7 +181,7 @@ namespace Zero
 			{
 				if (m_UnorderedAccessView.IsNull())
 				{
-					m_UnorderedAccessView = m_Device.AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, Desc.MipLevels);
+					m_UnorderedAccessView = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, Desc.MipLevels);
 				}
 				for (int i = 0; i < Desc.MipLevels; ++i)
 				{

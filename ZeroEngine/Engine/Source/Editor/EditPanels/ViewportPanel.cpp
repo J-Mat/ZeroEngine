@@ -16,17 +16,15 @@ namespace Zero
 		m_bViewportHoverd = ImGui::IsWindowHovered();
 		
 		ImVec2 ViewportPanelSize = ImGui::GetContentRegionAvail();
-		std::cout << ViewportPanelSize.x << " " << ViewportPanelSize.y << std::endl;
 		ViewportPanelSize.x = ZMath::max(ViewportPanelSize.x, 1600.0f / 2.0f);
 		ViewportPanelSize.y = ZMath::max(ViewportPanelSize.y, 900.0f /2.0f);
-	
 		
 		if (m_ViewportSize != *((ZMath::vec2*)&ViewportPanelSize))
 		{
 			m_ViewportSize = { ViewportPanelSize.x, ViewportPanelSize.y };
 			if (m_RenderTarget != nullptr)
 			{
-				m_RenderTarget->Resize(m_ViewportSize.x, m_ViewportSize.y);
+				m_RenderTarget->Resize(uint32_t(m_ViewportSize.x), uint32_t(m_ViewportSize.y));
 			}
 			
 			UWorld::GetCurrentWorld()->GetCameraActor()->OnResizeViewport(uint32_t(m_ViewportSize.x), uint32_t(m_ViewportSize.y));

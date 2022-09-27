@@ -6,10 +6,9 @@
 
 namespace Zero
 {
-	FDX12SwapChain::FDX12SwapChain(FDX12Device& Device, HWND hWnd, DXGI_FORMAT RenderTargetFormat)
+	FDX12SwapChain::FDX12SwapChain(HWND hWnd, DXGI_FORMAT RenderTargetFormat)
 		: FSwapChain()
-		, m_Device(Device)
-		, m_CommandQueue(m_Device.GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT))
+		, m_CommandQueue(FDX12Device::Get()->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT))
 		, m_hWnd(hWnd) 
 		, m_RenderTargetFormat(RenderTargetFormat)
 		, m_bTearingSupported(false)
@@ -18,7 +17,7 @@ namespace Zero
 		auto D3DComandQueue = m_CommandQueue.GetD3DCommandQueue();
 		
 		// Query the factory from the adapter that was used to create the device.
-		auto Adaptor = m_Device.GetAdapter();
+		auto Adaptor = FDX12Device::Get()->GetAdapter();
 		auto DxgiAdapter = Adaptor->GetDXGIAdapter();
 		
 
@@ -61,7 +60,7 @@ namespace Zero
 		
 		UpdateRenderTargetViews();
 
-		m_RenderTarget = CreateRef<FDX12RenderTarget>(m_Device);
+		m_RenderTarget = CreateRef<FDX12RenderTarget>();
 	}
 
 	FDX12SwapChain::~FDX12SwapChain()
@@ -75,7 +74,7 @@ namespace Zero
 			m_Width = std::max(Width, 1u);
 			m_Height = std::max(Height, 1u);
 
-			m_Device.Flush();
+			FDX12Device::Get()->Flush();
 		
 			m_RenderTarget->Reset();
 			for (UINT i = 0; i < s_BufferCount; ++i)
@@ -92,7 +91,7 @@ namespace Zero
 			
 			UpdateRenderTargetViews();
 			
-			m_RenderTarget = CreateRef<FDX12RenderTarget>(m_Device);
+			m_RenderTarget = CreateRef<FDX12RenderTarget>();
 		}
 	}
 
@@ -124,7 +123,7 @@ namespace Zero
 
 	UINT FDX12SwapChain::Present(Ref<FTexture2D> Texture)
 	{
-		auto CommandList = m_Device.GetRenderCommandList();
+		auto CommandList = FDX12Device::Get()->GetRenderCommandList();
 		
 		Ref<FDX12Texture2D> BufferBuffer = m_BackBufferTextures[m_CurrentBackBufferIndex];
 		
@@ -154,7 +153,7 @@ namespace Zero
 		auto FenceValue = m_FenceValues[m_CurrentBackBufferIndex];
 		m_CommandQueue.WaitForFenceValue(FenceValue);
 		
-		m_Device.ReleaseStaleDescriptors();
+		FDX12Device::Get()->ReleaseStaleDescriptors();
 
 		return m_CurrentBackBufferIndex;
 	}
@@ -166,7 +165,7 @@ namespace Zero
 			ComPtr<ID3D12Resource> BackBuffer;
 			ThrowIfFailed(m_DxgiSwapChain->GetBuffer(i, IID_PPV_ARGS(&BackBuffer)));
 			
-			m_BackBufferTextures[i] = CreateRef<FDX12Texture2D>(m_Device, BackBuffer, m_Width, m_Height);
+			m_BackBufferTextures[i] = CreateRef<FDX12Texture2D>(BackBuffer, m_Width, m_Height);
 			m_BackBufferTextures[i]->RegistGuiShaderResource();
 
 			// Set the names for the backbuffer textures.
@@ -184,7 +183,7 @@ namespace Zero
 		D3D12_CLEAR_VALUE OptClear = {};
 		OptClear.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 		OptClear.DepthStencil = { 1.0F, 0 };
-		m_DepthStencilTexture = CreateRef<FDX12Texture2D>(m_Device, DepthStencilDesc, &OptClear);
+		m_DepthStencilTexture = CreateRef<FDX12Texture2D>(DepthStencilDesc, &OptClear);
 		m_DepthStencilTexture->SetName(L"DepthStencilTexture");
 	}
 }

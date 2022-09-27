@@ -20,7 +20,7 @@ namespace Zero
 		virtual void PlatformDestroy() override;
 		virtual void PostDraw() override;
 	private:
-		Ref<FDX12Device> m_Device;
+		
 		Ref<FDX12CommandList> m_GuiCommandList;
 	};
 }
