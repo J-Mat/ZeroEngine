@@ -204,16 +204,18 @@ namespace Zero
 		auto CommandList = FDX12Device::Get()->GetRenderCommandList();
 		CommandList->SetDescriptorHeap(m_DescriptorHeapType,  m_CurrentDescriptorHeap.Get());
 
-
-		m_CurrentGPUDescriptorHandle = m_CurrentDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
-
-		// Scan from LSB to MSB for a bit set in staleDescriptorsBitMask
-		while (_BitScanForward(&RootIndex, TableBitMask))
+		if (m_CurrentDescriptorHeap != nullptr)
 		{
-			UINT NumSrcDescriptors = m_DescriptorTableCache[RootIndex].NumDescriptors;
-			CommandList->GetD3D12CommandList()->SetGraphicsRootDescriptorTable(RootIndex, m_CurrentGPUDescriptorHandle);
-			m_CurrentGPUDescriptorHandle.Offset(NumSrcDescriptors, m_DescriptorHandleIncrementSize);
-			TableBitMask ^= (1 << RootIndex);
+			m_CurrentGPUDescriptorHandle = m_CurrentDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+
+			// Scan from LSB to MSB for a bit set in staleDescriptorsBitMask
+			while (_BitScanForward(&RootIndex, TableBitMask))
+			{
+				UINT NumSrcDescriptors = m_DescriptorTableCache[RootIndex].NumDescriptors;
+				CommandList->GetD3D12CommandList()->SetGraphicsRootDescriptorTable(RootIndex, m_CurrentGPUDescriptorHandle);
+				m_CurrentGPUDescriptorHandle.Offset(NumSrcDescriptors, m_DescriptorHandleIncrementSize);
+				TableBitMask ^= (1 << RootIndex);
+			}
 		}
 	}
 

@@ -24,9 +24,6 @@ namespace Zero
 		m_World->SetDevice(FRenderer::GetDevice());
 		UWorld::SetCurrentWorld(m_World);
 		
-		Ref<FTexture2D> Texture = FRenderer::GraphicFactroy->CreateTexture2D("container.jpg");
-		Texture->RegistGuiShaderResource();
-		
 		//UCustomMeshActor* MeshActor = UActor::Create<UCustomMeshActor>(m_World, "cat", "backpack.obj");
 		UCustomMeshActor* MeshActor = UActor::Create<UCustomMeshActor>(m_World, "cat", "sphere.fbx");
 		//UCubeMeshActor* MeshActor = UActor::Create<UCubeMeshActor>(m_World);

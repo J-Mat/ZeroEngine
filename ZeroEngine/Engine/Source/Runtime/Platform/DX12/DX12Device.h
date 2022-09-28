@@ -49,7 +49,7 @@ namespace Zero
 		*/
 		FDescriptorAllocation AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE Type, uint32_t NumDescriptors = 1);
 		
-		void CreateGuiDescHeap(uint32_t NumDescriptors = 64);
+		void CreateGuiDescHeap(uint32_t NumDescriptors = 256);
 		ComPtr<ID3D12DescriptorHeap> GetGuiDescHeap() { return m_GUISrvDescHeap; }
 		FLightDescrptorAllocation AllocateGuiDescritor();
 		/**

@@ -5,13 +5,25 @@ namespace Zero
 	FContentBrowserPanel::FContentBrowserPanel()
 	{
 	}
+
+	Ref<FTexture2D> FContentBrowserPanel::CreateIcon(const std::string&& FileName)
+	{
+		Ref<FImage> Image = CreateRef<FImage>(FConfig::GetInstance().GetEditorContentFullPath(FileName).string());
+		auto Icon = FRenderer::GraphicFactroy->CreateTexture2D(Image);
+		Icon->RegistGuiShaderResource();
+		return Icon;
+	}
+
 	void FContentBrowserPanel::Init()
 	{
 		m_SelectedFolder.clear();
 		m_SelectedFile.clear();
-		Ref<FImage> FolderImage = CreateRef<FImage>(FConfig::GetInstance().GetEditorContentFullPath("folder.png").string());
-		m_FolderIcon = FRenderer::GraphicFactroy->CreateTexture2D(FolderImage);
-		m_FolderIcon->RegistGuiShaderResource();
+
+		m_FolderIcon = CreateIcon("folder.png");
+		m_ShaderIcon = CreateIcon("shader.png");
+		m_ImageIcon = CreateIcon("image.png");
+		m_ModelIcon = CreateIcon("model.png");
+		m_FileIcon = CreateIcon("file.png");
 	}
 	void FContentBrowserPanel::ProjectViewerSystemPrintChildren(std::filesystem::path Folder)
 	{
@@ -33,11 +45,15 @@ namespace Zero
 				
 				if (Utils::IsParentFolder(Child.path(), m_SelectedFolder))
 					ImGui::SetNextItemOpen(true, ImGuiCond_Always);
+					
 				
-				if (ImGui::TreeNodeEx(Path.string().c_str(), NodeBaseFlags, "%s", FileName.c_str()))
+				if (ImGui::TreeNodeEx(Path.string().c_str(), NodeFlags, "%s", FileName.c_str()))
 				{
 					if (ImGui::IsItemClicked())
+					{
 						m_SelectedFolder = Child;
+						m_SelectedFile = "";
+					}
 
 					ProjectViewerSystemPrintChildren(Child.path());
 					ImGui::TreePop();
@@ -63,6 +79,7 @@ namespace Zero
 				if (ImGui::SmallButton(Path.stem().string().c_str()))
 				{
 					m_SelectedFolder = Path;
+					m_SelectedFile = "";
 				}
 				ImGui::SameLine();
 				ImGui::Text(">");
@@ -74,6 +91,25 @@ namespace Zero
 			}
 		}
 		ImGui::Separator();
+	}
+
+	Ref<FTexture2D> FContentBrowserPanel::GetIcon(const std::filesystem::path& File)
+	{
+		const std::string FileName = File.string();
+		if (FileName.ends_with(".hlsl"))
+			return m_ShaderIcon;
+
+		if (FileName.ends_with(".obj") || FileName.ends_with(".fbx"))
+			return m_ModelIcon;
+	
+
+		if (FileName.ends_with(".png") || FileName.ends_with(".jpg") || FileName.ends_with(".tga"))
+		{
+			auto Texture = FRenderer::GraphicFactroy->CreateTexture2D(File.filename().string());
+			Texture->RegistGuiShaderResource();
+			return Texture;
+		}
+		return m_FileIcon;
 	}
 
 	void FContentBrowserPanel::PrintFiles()
@@ -98,27 +134,43 @@ namespace Zero
 		for (size_t i = 0; i < Paths.size(); ++i)
 		{
 			auto& Child = Paths[i];
+			ImGui::PushID(Child.c_str());
 			ImGui::BeginGroup();
 			{
-				ImTextureID TextureID = 0;
-				if (std::filesystem::is_directory(Child))
+				ImTextureID TextureID = std::filesystem::is_directory(Child) ? (ImTextureID)m_FolderIcon->GetGuiShaderReseource() : (ImTextureID)GetIcon(Child)->GetGuiShaderReseource();
+				ImVec4 Tint = m_SelectedFile == Child ? ImVec4{ 0.65f, 0.65f, 1.0f, 1.f } : ImVec4{ 1,1,1,1 };
+				if (m_SelectedFile == Child)
+					ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 1));
+				else
+					ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 1));
+						
+				ImGui::ImageButton(TextureID, ButtonSize, { 0,0 }, { 1,1 }, 0, Style.Colors[ImGuiCol_WindowBg], Tint);
+				std::string FileName = Child.stem().string();
+				Utils::NameShrink(FileName, 9);
+
+
+				if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && std::filesystem::is_directory(Child))
 				{
-					TextureID = (ImTextureID)m_FolderIcon->GetGuiShaderReseource();
-					ImVec4 Tint = m_SelectedFile == Child ? ImVec4{ 0.65f, 0.65f, 0.65f, 1.f } : ImVec4{ 1,1,1,1 };
-					if (ImGui::ImageButton(TextureID, ButtonSize, { 0,0 }, { 1,1 }, 0, Style.Colors[ImGuiCol_WindowBg], Tint))
-					{
-						m_SelectedFile = Child;
-					}
-					std::string FileName = Child.stem().string();
-					Utils::NameShrink(FileName, 9);
-					ImGui::Text(FileName.c_str());
+					m_SelectedFile = "";
+					m_SelectedFolder = Child;
 				}
+				if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+				{
+					std::cout << Child.string() << std::endl;
+					m_SelectedFile = Child;
+				}
+
+
+				ImGui::TextWrapped(FileName.c_str());
+				ImGui::PopStyleColor();
 			}
 			ImGui::EndGroup();
+
 			float LastX = ImGui::GetItemRectMax().x;
 			float NextX = LastX + Style.ItemSpacing.x + ButtonSize.x;
 			if (i + 1 < Paths.size() && NextX < WindowVisibleMax_X)
 				ImGui::SameLine();
+			ImGui::PopID();
 		}
 	}
 

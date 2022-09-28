@@ -172,7 +172,6 @@ namespace Zero
 
 		virtual Ref<FTexture2D> CreateTexture2D(const std::string& FileName)
 		{
-			
 			std::filesystem::path TextureFileName = FileName;
 			Ref<FTexture2D> Texture = TLibrary<FTexture2D>::Fetch(TextureFileName.stem().string());
 			if (Texture == nullptr)
