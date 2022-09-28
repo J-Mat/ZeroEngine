@@ -34,5 +34,7 @@ namespace Zero
 		ImGui::Image((ImTextureID)Texture->GetGuiShaderReseource(), ViewportPanelSize);
 		ImGui::End();
 		ImGui::PopStyleVar();
+		
+		ZMath::b
 	}
 }

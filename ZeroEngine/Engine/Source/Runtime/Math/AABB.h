@@ -1,20 +1,22 @@
 #pragma once
 
-#include <glm/glm.hpp>
 
-namespace Hazel {
+#include "ZMath.h"
 
-	struct AABB
+namespace Zero 
+{
+	namespace ZMath
 	{
-		glm::vec3 Min, Max;
+		struct FAABB
+		{
+			ZMath::vec3 Min, Max;
 
-		AABB()
-			: Min(0.0f), Max(0.0f) {}
+			FAABB()
+				: Min(0.0f), Max(0.0f) {}
 
-		AABB(const glm::vec3& min, const glm::vec3& max)
-			: Min(min), Max(max) {}
+			FAABB(const ZMath::vec3& min, const ZMath::vec3& max)
+				: Min(min), Max(max) {}
 
-	};
-
-
+		};
+	}
 }
