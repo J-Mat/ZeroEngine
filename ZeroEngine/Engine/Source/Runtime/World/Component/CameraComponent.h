@@ -31,6 +31,7 @@ namespace Zero
 	class UCameraComponent : public UTransformationComponent
 	{
 	public:
+		COMPONENT_CLASS_TYPE(CameraComponent)
 		UCameraComponent() = default;
 		virtual void PostInit();
 		virtual ~UCameraComponent();
@@ -41,6 +42,8 @@ namespace Zero
 		Ref<IShaderConstantsBuffer> GetConstantBuffer() { return m_ShaderConstantsBuffer; }
 		void OnResizeViewport(uint32_t Width, uint32_t Height);
 		virtual void Tick();
+		ZMath::mat4 GetProjection() { return m_Projection;}
+		ZMath::mat4 GetView() { return m_View; }
 	private:
 		ZMath::vec3 m_LookAt = {0, 0, 0};
 		ZMath::mat4 m_Projection;

@@ -179,37 +179,49 @@ namespace Zero
 			return 0;
 		case WM_LBUTTONDOWN:
 		{
-			TRANSFER_EVENT(FMouseButtonPressedEvent, 0);
+			TRANSFER_EVENT(FMouseButtonDownEvent, 0);
 			return 0;
 		}
 		case WM_MBUTTONDOWN:
 		{
-			TRANSFER_EVENT(FMouseButtonPressedEvent, 2);
+			TRANSFER_EVENT(FMouseButtonDownEvent, 2);
 			return 0;
 		}
 		case WM_RBUTTONDOWN:
 		{
-			TRANSFER_EVENT(FMouseButtonPressedEvent, 1);
+			TRANSFER_EVENT(FMouseButtonDownEvent, 1);
 			return 0;
 		}
 		case WM_LBUTTONUP:
 		{
-			TRANSFER_EVENT(FMouseButtonReleasedEvent, 0);
+			int X = GET_X_LPARAM(lParam);
+			int Y = GET_Y_LPARAM(lParam);
+			TRANSFER_EVENT(FMouseButtonReleasedEvent, 0, X, Y);
 			return 0;
 		}
 		case WM_MBUTTONUP:
 		{
-			TRANSFER_EVENT(FMouseButtonReleasedEvent, 2);
+			int X = GET_X_LPARAM(lParam);
+			int Y = GET_Y_LPARAM(lParam);
+			TRANSFER_EVENT(FMouseButtonReleasedEvent, 2, X, Y);
 			return 0;
 		}
 		case WM_RBUTTONUP:
 		{
-			TRANSFER_EVENT(FMouseButtonReleasedEvent, 1);
+			int X = GET_X_LPARAM(lParam);
+			int Y = GET_Y_LPARAM(lParam);
+			TRANSFER_EVENT(FMouseButtonReleasedEvent, 1, X, Y);
+			return 0;
+		}
+		case WM_LBUTTONDBLCLK:
+		{
+			int X = GET_X_LPARAM(lParam);
+			int Y = GET_Y_LPARAM(lParam);
 			return 0;
 		}
 		case WM_MOUSEMOVE:
 		{
-			TRANSFER_EVENT(FMouseMovedEvent, (float)GET_X_LPARAM(lParam), (float)GET_Y_LPARAM(lParam));
+			TRANSFER_EVENT(FMouseMovedEvent, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 			return 0;
 		}
 		case WM_MOUSEWHEEL:

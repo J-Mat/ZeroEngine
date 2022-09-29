@@ -7,11 +7,11 @@ namespace Zero
 	class FMouseMovedEvent : public FEvent
 	{
 	public:
-		FMouseMovedEvent(float x, float y)
+		FMouseMovedEvent(int x, int y)
 			:MouseX(x), MouseY(y) {}
 
-		inline float GetX() const { return MouseX; }
-		inline float GetY() const { return MouseY; }
+		inline int GetX() const { return MouseX; }
+		inline int GetY() const { return MouseY; }
 
 		std::string ToString() const override
 		{
@@ -24,7 +24,7 @@ namespace Zero
 		EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
 
 	private:
-		float MouseX, MouseY;
+		int MouseX, MouseY;
 	};
 
 	class FMouseScrolledEvent : public FEvent
@@ -64,10 +64,10 @@ namespace Zero
 		int Button;
 	};
 
-	class FMouseButtonPressedEvent : public FMouseButtonEvent
+	class FMouseButtonDownEvent : public FMouseButtonEvent
 	{
 	public:
-		FMouseButtonPressedEvent(int button)
+		FMouseButtonDownEvent(int button)
 			: FMouseButtonEvent(button) {}
 
 
@@ -84,17 +84,48 @@ namespace Zero
 	class FMouseButtonReleasedEvent : public FMouseButtonEvent
 	{
 	public:
-		FMouseButtonReleasedEvent(int InButton)
-			: FMouseButtonEvent(InButton) {}
+		FMouseButtonReleasedEvent(int InButton, int X, int Y)
+			: FMouseButtonEvent(InButton)
+			, MouseX(X)
+			, MouseY(Y)
+		{}
 
+		inline int GetX() const { return MouseX; }
+		inline int GetY() const { return MouseY; }
 
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "MouseButtonReleasedEvent: " << Button;
+			ss << "MouseButtonReleasedEvent: " << Button <<  "  " << MouseX << " " << MouseY;
 			return ss.str();
 		}
 
 		EVENT_CLASS_TYPE(MouseButtonReleased)
+	private:
+		int MouseX, MouseY;
+	};
+
+	class FMouseButtonDoubleClickEvent : public FMouseButtonEvent
+	{
+	public:
+		FMouseButtonDoubleClickEvent(int InButton, int X, int Y)
+			: FMouseButtonEvent(InButton)
+			, MouseX(X)
+			, MouseY(Y)
+		{}
+
+		inline int GetX() const { return MouseX; }
+		inline int GetY() const { return MouseY; }
+
+		std::string ToString() const override
+		{
+			std::stringstream ss;
+			ss << "MouseButtonDoubleClickEvent: " << Button <<  "  " << MouseX << " " << MouseY;
+			return ss.str();
+		}
+
+		EVENT_CLASS_TYPE(MouseButtonDubleClick)
+	private:
+		int MouseX, MouseY;
 	};
 }

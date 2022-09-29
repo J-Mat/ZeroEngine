@@ -1,5 +1,5 @@
 #include "TransformComponent.h"
-#include "ZMath.h"
+#include "Math/ZMath.h"
 
 namespace Zero
 {

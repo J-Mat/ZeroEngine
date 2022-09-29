@@ -19,10 +19,14 @@ namespace Zero
 		virtual void OnUpdate() override;
 		virtual void OnDraw() override;
 		virtual void OnGuiRender() override;
-		void OnEvent(FEvent& e) override;
+		void OnEvent(FEvent& Event) override;
+
 		
 		void BuildWorld();
 		void InitEditPanel();
+
+	private:
+		bool MouseButtonPressed(FMouseButtonReleasedEvent& Event);
 		
 	private: 
 		Ref<FRenderPipeline> m_ScriptablePipeline;

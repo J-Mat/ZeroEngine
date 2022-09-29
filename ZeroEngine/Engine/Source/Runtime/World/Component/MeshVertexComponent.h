@@ -21,12 +21,14 @@ namespace Zero
 	class UMeshVertexComponent : public UComponent
 	{
 	public:
+		COMPONENT_CLASS_TYPE(MeshVertexComponent)
 		friend class UMeshActor;
 		UMeshVertexComponent(FMeshType& MeshType);
 		virtual void PostInit();
 		virtual ~UMeshVertexComponent();
 		std::vector<FMeshData>& GetMeshDatas() { return m_MeshDatas; }
 		void CreateMesh();
+		void GenerateAABB();
 	protected:
 		Ref<IShaderConstantsBuffer> m_ShaderConstantsBuffer = nullptr;
 		Ref<FMesh> m_Mesh;

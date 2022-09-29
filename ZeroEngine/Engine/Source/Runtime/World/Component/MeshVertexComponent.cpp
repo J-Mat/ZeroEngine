@@ -66,4 +66,11 @@ namespace Zero
 			FVertexBufferLayout::s_DefaultVertexLayout
 		);
 	}
+	void UMeshVertexComponent::GenerateAABB()
+	{
+		for (FMeshData& MeshData : m_MeshDatas)
+		{
+			m_Mesh->Merge(MeshData.AABB);
+		}
+	}
 }

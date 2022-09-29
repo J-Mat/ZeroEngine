@@ -22,6 +22,18 @@ namespace Zero
 			return Obj;
 		}
 
+		template<class T>
+		T* GetComponent()
+		{
+			for (UComponent* Component : m_Components)
+			{
+				if (Component->GetEventType() == T::GetStaticType())
+				{
+					return static_cast<T*>(Component);
+				}
+			}
+			return nullptr;
+		}
 
 		UActor(const std::string Tag = "Actor");
 		virtual void PostInit();

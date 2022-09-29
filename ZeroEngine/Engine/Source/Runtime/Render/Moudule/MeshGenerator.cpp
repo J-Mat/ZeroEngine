@@ -221,8 +221,7 @@ namespace Zero
 
 	FMeshData FMeshGenerator::ProcessMesh(aiMesh* Mesh, const aiScene* Scene, FVertexBufferLayout& Layout)
 	{
-		std::vector<float> Vertices;
-		std::vector<uint32_t> Indices;
+		FMeshData MeshData;
 
 		for (unsigned int i = 0; i < Mesh->mNumVertices; i++)
 		{
@@ -230,50 +229,51 @@ namespace Zero
 			{
 				if (Element.Name == "POSITION")
 				{
-					Vertices.push_back(Mesh->mVertices[i].x);
-					Vertices.push_back(Mesh->mVertices[i].y);
-					Vertices.push_back(Mesh->mVertices[i].z);
+					MeshData.Vertices.push_back(Mesh->mVertices[i].x);
+					MeshData.Vertices.push_back(Mesh->mVertices[i].y);
+					MeshData.Vertices.push_back(Mesh->mVertices[i].z);
+					MeshData.AABB.Merge({ Mesh->mVertices[i].x, Mesh->mVertices[i].y ,Mesh->mVertices[i].z });
 				}
 				else if (Element.Name == "TEXCOORD" || Element.Name == "TEXCO0RD0")
 				{
 					if (Mesh->HasTextureCoords(0))
 					{
-						Vertices.push_back(Mesh->mTextureCoords[0][i].x);
-						Vertices.push_back(Mesh->mTextureCoords[0][i].y);
+						MeshData.Vertices.push_back(Mesh->mTextureCoords[0][i].x);
+						MeshData.Vertices.push_back(Mesh->mTextureCoords[0][i].y);
 					}
 					else
 					{
-						Vertices.push_back(0);
-						Vertices.push_back(0);
+						MeshData.Vertices.push_back(0);
+						MeshData.Vertices.push_back(0);
 					}
 				}
 				else if (Element.Name == "NORMAL")
 				{
-					Vertices.push_back(Mesh->mNormals[i].x);
-					Vertices.push_back(Mesh->mNormals[i].y);
-					Vertices.push_back(Mesh->mNormals[i].z);
+					MeshData.Vertices.push_back(Mesh->mNormals[i].x);
+					MeshData.Vertices.push_back(Mesh->mNormals[i].y);
+					MeshData.Vertices.push_back(Mesh->mNormals[i].z);
 				}
 				else if (Element.Name == "TANGENT")
 				{
 					if (Mesh->HasTangentsAndBitangents())
 					{
-						Vertices.push_back(Mesh->mTangents[i].x);
-						Vertices.push_back(Mesh->mTangents[i].y);
-						Vertices.push_back(Mesh->mTangents[i].z);
+						MeshData.Vertices.push_back(Mesh->mTangents[i].x);
+						MeshData.Vertices.push_back(Mesh->mTangents[i].y);
+						MeshData.Vertices.push_back(Mesh->mTangents[i].z);
 					}
 					else
 					{
 						//SIByL_CORE_ERROR("Mesh Process Error: NO TANGENT");
-						Vertices.push_back(0);
-						Vertices.push_back(0);
-						Vertices.push_back(0);
+						MeshData.Vertices.push_back(0);
+						MeshData.Vertices.push_back(0);
+						MeshData.Vertices.push_back(0);
 					}
 				}
 				else
 				{
 					for (uint32_t j = 0; j < Element.Size / 4; j++)
 					{
-						Vertices.push_back(0);
+						MeshData.Vertices.push_back(0);
 					}
 				}
 			}
@@ -283,10 +283,10 @@ namespace Zero
 		{
 			aiFace face = Mesh->mFaces[i];
 			for (uint32_t j = 0; j < face.mNumIndices; j++)
-				Indices.push_back(face.mIndices[j]);
+				MeshData.Indices.push_back(face.mIndices[j]);
 		}
 
-		return FMeshData(Vertices, Indices);
+		return MeshData;
 	}
 
 	FVertex FMeshGenerator::MidPoint(const FVertex& v0, const FVertex& v1)

@@ -31,6 +31,8 @@
 
 #include "Core/Log/Log.h"
 #include "Math/ZMath.h"
+#include "Math/AABB.h"
+#include "Math/Ray.h"
 
 #include <Windows.h>
 #include <wincodec.h>

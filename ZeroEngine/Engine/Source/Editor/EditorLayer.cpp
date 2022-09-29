@@ -40,6 +40,7 @@ namespace Zero
 	{
 		m_ContentBrowserPanel.Init();
 	}
+
 	
 	void FEditorLayer::OnAttach()
 	{
@@ -149,8 +150,16 @@ namespace Zero
 		ImGui::End();
 	}
 	
-	void FEditorLayer::OnEvent(FEvent& e)
+	void FEditorLayer::OnEvent(FEvent& Event)
 	{
-		
+		FEventDispatcher Dispatcher(Event);
+		Dispatcher.Dispatch<FMouseButtonReleasedEvent>(BIND_EVENT_FN(FEditorLayer::MouseButtonPressed));
 	}
+	
+	bool FEditorLayer::MouseButtonPressed(FMouseButtonReleasedEvent& Event)
+	{
+		m_ViewportPanel.OnMouseClick(Event.GetX(), Event.GetY());
+		return true;
+	}
+	
 }

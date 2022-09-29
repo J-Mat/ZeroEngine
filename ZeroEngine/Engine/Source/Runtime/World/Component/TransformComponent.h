@@ -8,6 +8,7 @@ namespace Zero
 	class UTransformationComponent : public UComponent
 	{
 	public:
+		COMPONENT_CLASS_TYPE(TransformationComponent)
 		UTransformationComponent();
 		virtual void MoveLocal(const ZMath::vec3& Offset);
 		virtual void RotateLocal(const ZMath::FEulerAngle& Offset);

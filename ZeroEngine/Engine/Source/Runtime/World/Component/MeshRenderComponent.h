@@ -11,6 +11,7 @@ namespace Zero
 	{
 	public:
 		friend class UMeshActor;
+		COMPONENT_CLASS_TYPE(MeshRenderComponent)
 		UMeshRenderComponent();
 		virtual ~UMeshRenderComponent();
 

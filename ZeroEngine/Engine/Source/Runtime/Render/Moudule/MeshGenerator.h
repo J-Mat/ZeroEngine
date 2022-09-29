@@ -56,6 +56,7 @@ namespace Zero
 
 	struct FMeshData
 	{
+		ZMath::FAABB AABB;	
 		std::vector<float> Vertices;
 		std::vector<uint32_t> Indices;
 

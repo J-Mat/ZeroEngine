@@ -11,7 +11,11 @@ namespace Zero
 	{
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2({ 0,0 }));
 		ImGui::Begin("Scene", 0, ImGuiWindowFlags_MenuBar);
-
+		
+		ImVec2 WindowsPos = ImGui::GetWindowPos();
+		m_WindowsPos.x = WindowsPos.x;
+		m_WindowsPos.y = WindowsPos.y;
+		
 		m_bViewportFocused = ImGui::IsWindowFocused();
 		m_bViewportHoverd = ImGui::IsWindowHovered();
 		
@@ -34,7 +38,31 @@ namespace Zero
 		ImGui::Image((ImTextureID)Texture->GetGuiShaderReseource(), ViewportPanelSize);
 		ImGui::End();
 		ImGui::PopStyleVar();
-		
-		ZMath::b
 	}
+
+
+	ZMath::FRay FViewportPanel::GetProjectionRay()
+	{
+		UCameraActor* CameraActor = UWorld::GetCurrentWorld()->GetCameraActor();
+		UCameraComponent* CameraComponent = CameraActor->GetComponent<UCameraComponent>();
+		CLIENT_ASSERT(CameraComponent != nullptr, "CameraActor shoule be has CameraComponent");
+		ZMath::mat4 Projection = CameraComponent->GetProjection();
+
+		float ViewX = (+2.0f * m_MousePos.x / m_ViewportSize.x - 1.0f) / Projection[0][0];
+		float ViewY = (-2.0f * m_MousePos.y / m_ViewportSize.y + 1.0f) / Projection[1][1];
+		
+		ZMath::vec3 m_Origin(0.0f);
+		ZMath::vec3 m_Direction(ViewX, ViewY, 1.0f);
+		
+		return { m_Origin, m_Direction };
+	}
+
+	void FViewportPanel::OnMouseClick(int X, int Y)
+	{
+		m_MousePos = { X - m_WindowsPos.x, Y - m_WindowsPos.y };
+		ZMath::FRay Ray = GetProjectionRay();
+		
+	}
+
+
 }

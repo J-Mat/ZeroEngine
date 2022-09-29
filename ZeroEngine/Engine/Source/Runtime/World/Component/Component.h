@@ -5,6 +5,18 @@
 
 namespace Zero
 {
+	enum class EComponentType
+	{
+		None = 0,
+		TransformationComponent,
+		TagComponent,
+		MeshVertexComponent,
+		MeshRenderComponent,
+		CameraComponent
+	};
+
+#define COMPONENT_CLASS_TYPE(Type) static  EComponentType GetStaticType() {return EComponentType::##Type;}\
+								virtual EComponentType GetEventType() const override {return GetStaticType();}
 	class UActor;
 	class UComponent : public UCoreObject
 	{
@@ -19,10 +31,12 @@ namespace Zero
 		return Component;
 	}
 
+
 	public:
 		UComponent()
 			: UCoreObject()
 		{
 		}
+		virtual EComponentType GetEventType() const = 0;
 	};
 }

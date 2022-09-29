@@ -5,6 +5,7 @@ namespace Zero
 	class UTagComponent : public UComponent
 	{
 	public:
+		COMPONENT_CLASS_TYPE(TagComponent)
 		UTagComponent(const std::string Tag);
 		virtual ~UTagComponent();
 		const std::string& GetTag() const { return m_Tag; }
