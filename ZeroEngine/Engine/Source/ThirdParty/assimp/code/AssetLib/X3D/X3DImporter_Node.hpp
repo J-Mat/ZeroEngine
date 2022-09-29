@@ -437,7 +437,7 @@ struct X3DNodeElementMetaString : X3DNodeElementMeta {
 struct X3DNodeElementLight : X3DNodeElementBase {
     float AmbientIntensity; ///< Specifies the intensity of the ambient emission from the light.
     aiColor3D Color; ///< specifies the spectral colour properties of both the direct and ambient light emission as an RGB value.
-    aiVector3D Direction; ///< Specifies the direction vector of the illumination emanating from the light source in the local coordinate system.
+    aiVector3D m_Direction; ///< Specifies the direction vector of the illumination emanating from the light source in the local coordinate system.
     /// \var Global
     /// Field that determines whether the light is global or scoped. Global lights illuminate all objects that fall within their volume of lighting influence.
     /// Scoped lights only illuminate objects that are in the same transformation hierarchy as the light.

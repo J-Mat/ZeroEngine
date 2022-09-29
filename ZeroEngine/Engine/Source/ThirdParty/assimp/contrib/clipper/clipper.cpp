@@ -53,7 +53,7 @@ namespace ClipperLib {
 static long64 const loRange = 0x3FFFFFFF;
 static long64 const hiRange = 0x3FFFFFFFFFFFFFFFLL;
 static double const pi = 3.141592653589793238;
-enum Direction { dRightToLeft, dLeftToRight };
+enum m_Direction { dRightToLeft, dLeftToRight };
 
 #define HORIZONTAL (-1.0E+40)
 #define TOLERANCE (1.0e-20)
@@ -2340,7 +2340,7 @@ void Clipper::SwapPositionsInSEL(TEdge *edge1, TEdge *edge2)
 }
 //------------------------------------------------------------------------------
 
-TEdge* GetNextInAEL(TEdge *e, Direction dir)
+TEdge* GetNextInAEL(TEdge *e, m_Direction dir)
 {
   return dir == dLeftToRight ? e->nextInAEL : e->prevInAEL;
 }
@@ -2348,7 +2348,7 @@ TEdge* GetNextInAEL(TEdge *e, Direction dir)
 
 void Clipper::ProcessHorizontal(TEdge *horzEdge)
 {
-  Direction dir;
+  m_Direction dir;
   long64 horzLeft, horzRight;
 
   if( horzEdge->xcurr < horzEdge->xtop )

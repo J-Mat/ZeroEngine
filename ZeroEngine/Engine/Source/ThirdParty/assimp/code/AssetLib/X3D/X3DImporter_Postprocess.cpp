@@ -138,7 +138,7 @@ void X3DImporter::Postprocess_BuildLight(const X3DNodeElementBase &pNodeElement,
     switch (pNodeElement.Type) {
     case X3DElemType::ENET_DirectionalLight:
         new_light->mType = aiLightSource_DIRECTIONAL;
-        new_light->mDirection = ne.Direction, new_light->mDirection *= transform_matr;
+        new_light->mDirection = ne.m_Direction, new_light->mDirection *= transform_matr;
 
         break;
     case X3DElemType::ENET_PointLight:
@@ -152,7 +152,7 @@ void X3DImporter::Postprocess_BuildLight(const X3DNodeElementBase &pNodeElement,
     case X3DElemType::ENET_SpotLight:
         new_light->mType = aiLightSource_SPOT;
         new_light->mPosition = ne.Location, new_light->mPosition *= transform_matr;
-        new_light->mDirection = ne.Direction, new_light->mDirection *= transform_matr;
+        new_light->mDirection = ne.m_Direction, new_light->mDirection *= transform_matr;
         new_light->mAttenuationConstant = ne.Attenuation.x;
         new_light->mAttenuationLinear = ne.Attenuation.y;
         new_light->mAttenuationQuadratic = ne.Attenuation.z;

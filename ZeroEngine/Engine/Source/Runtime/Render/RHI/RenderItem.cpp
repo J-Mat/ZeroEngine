@@ -13,6 +13,7 @@ namespace Zero
 			m_RenderItems.end()
 		);
 		
+		m_RenderGuids.clear();
 		m_RenderItems.clear();
 	}
 	Ref<FRenderItem> FRenderItemPool::Request()
@@ -51,6 +52,7 @@ namespace Zero
 	}
 	void FRenderItem::SetModelMatrix(const ZMath::mat4& Transform)
 	{
+		m_Transform = Transform;
 		m_ConstantsBuffer->SetMatrix4x4("Model", Transform);
 	}
 	void FRenderItem::OnDrawCall()

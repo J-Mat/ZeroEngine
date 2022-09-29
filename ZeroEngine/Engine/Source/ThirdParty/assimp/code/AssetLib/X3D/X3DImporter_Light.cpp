@@ -95,7 +95,7 @@ void X3DImporter::readDirectionalLight(XmlNode &node) {
 
             ((X3DNodeElementLight *)ne)->AmbientIntensity = ambientIntensity;
             ((X3DNodeElementLight *)ne)->Color = color;
-            ((X3DNodeElementLight *)ne)->Direction = direction;
+            ((X3DNodeElementLight *)ne)->m_Direction = direction;
             ((X3DNodeElementLight *)ne)->Global = global;
             ((X3DNodeElementLight *)ne)->Intensity = intensity;
             // Assimp want a node with name similar to a light. "Why? I don't no." )
@@ -241,7 +241,7 @@ void X3DImporter::readSpotLight(XmlNode &node) {
             ((X3DNodeElementLight *)ne)->BeamWidth = beamWidth;
             ((X3DNodeElementLight *)ne)->Color = color;
             ((X3DNodeElementLight *)ne)->CutOffAngle = cutOffAngle;
-            ((X3DNodeElementLight *)ne)->Direction = direction;
+            ((X3DNodeElementLight *)ne)->m_Direction = direction;
             ((X3DNodeElementLight *)ne)->Global = global;
             ((X3DNodeElementLight *)ne)->Intensity = intensity;
             ((X3DNodeElementLight *)ne)->Location = location;

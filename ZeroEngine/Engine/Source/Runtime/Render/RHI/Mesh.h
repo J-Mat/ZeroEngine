@@ -25,7 +25,7 @@ namespace Zero
 		virtual void Draw() = 0;
 		virtual void DrawSubMesh(FSubMesh& SubMesh) = 0;
 		uint32_t GetSubMeshNum() { return uint32_t(m_SubMeshes.size()); }
-		ZMath::FAABB& GetAABB();
+		ZMath::FAABB& GetAABB() { return AABB; };
 		void Merge(ZMath::FAABB& Other) { AABB.Merge(Other); };
 	protected:
 		Ref<IVertexBuffer>	m_VertexBuffer;

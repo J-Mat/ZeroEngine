@@ -1,6 +1,6 @@
 #include "GUIDInterface.h"
 
 Zero::IGUIDInterface::IGUIDInterface()
-	:m_GUID(FGUID::GenerateGUID())
+	:m_GUID(Utils::newGuid())
 {
 }

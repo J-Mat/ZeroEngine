@@ -11,7 +11,8 @@ namespace Zero
 	public:
 		UCoreObject();
 		virtual ~UCoreObject();
-		static std::vector<UCoreObject*> s_ObjectsCollection;
+		static std::map<Utils::Guid, UCoreObject*> s_ObjectsCollection;
+		static UCoreObject* GetObjByGuid(const Utils::Guid& Guid);
 		bool IsTick()const { return m_bTick; }
 		inline void SetWorld(UWorld* World) { m_World = World; }
 		inline virtual UWorld* GetWorld();

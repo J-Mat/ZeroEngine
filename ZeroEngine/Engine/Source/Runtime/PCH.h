@@ -33,6 +33,7 @@
 #include "Math/ZMath.h"
 #include "Math/AABB.h"
 #include "Math/Ray.h"
+#include <crossguid/guid.hpp>
 
 #include <Windows.h>
 #include <wincodec.h>

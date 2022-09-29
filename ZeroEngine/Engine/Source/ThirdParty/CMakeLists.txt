@@ -117,6 +117,15 @@ if(NOT TARGET glm)
 endif()
 
 
+if(NOT TARGET crossguid)
+  option(BUILD_STATIC_LIBS "" ON)
+  option(BUILD_TESTING "" OFF)
+  option(GLM_TEST_ENABLE "" OFF)
+  add_subdirectory(crossguid)
+  set_target_properties(crossguid PROPERTIES FOLDER ${ThirdPartyFolder})
+  NoWarningInterface(crossguid)
+endif()
+
 
 if(NOT TARGET headers)
     add_library(headers INTERFACE)

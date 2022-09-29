@@ -17,6 +17,7 @@ namespace Zero
 
 	void UMeshActor::PostInit()
 	{
+		UActor::PostInit();
 		m_MeshVertexComponent = UComponent::CreateComponent<UMeshVertexComponent>(this, m_MeshType);
 		m_MeshRenderComponent =  UComponent::CreateComponent<UMeshRenderComponent>(this);
 		
@@ -42,11 +43,17 @@ namespace Zero
 
 			RenderItemPool.Push(Item);
 		}
+		RenderItemPool.AddGuid(m_GUID);
 	}
 
 	void UMeshActor::Tick()
 	{
 		CommitToPipieline();
+	}
+
+	ZMath::FAABB UMeshActor::GetAABB()
+	{
+		return m_MeshVertexComponent->m_Mesh->GetAABB();
 	}
 
 }

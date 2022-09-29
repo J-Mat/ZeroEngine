@@ -19,6 +19,8 @@ namespace Zero
 {
 	namespace Utils
 	{
+		using namespace xg;
+
 		inline void SetThreadName(std::thread& thread, const char* threadName)
 		{
 			THREADNAME_INFO info;

@@ -3,24 +3,28 @@
 
 namespace Zero
 {
-	std::vector<UCoreObject*> UCoreObject::s_ObjectsCollection = {};
+	std::map<Utils::Guid, UCoreObject*>  UCoreObject::s_ObjectsCollection = {};
 	UCoreObject::UCoreObject()
+		: IGUIDInterface()
 	{
-		s_ObjectsCollection.push_back(this);
+		s_ObjectsCollection.insert({m_GUID, this});
 	}
 
 
 	UCoreObject::~UCoreObject()
 	{
-		for (std::vector<UCoreObject*>::const_iterator Iter = s_ObjectsCollection.begin(); Iter != s_ObjectsCollection.end(); ++Iter)
-		{
-			if (*Iter == this)
-			{
-				s_ObjectsCollection.erase(Iter);
-				break;
-			}
-		}
+		s_ObjectsCollection.erase(m_GUID);
 	}
+	UCoreObject* UCoreObject::GetObjByGuid(const Utils::Guid& Guid)
+	{
+		auto Iter = s_ObjectsCollection.find(Guid);
+		if (Iter != s_ObjectsCollection.end())
+		{
+			return Iter->second;
+		}
+		return nullptr;
+	}
+
 	UWorld* UCoreObject::GetWorld()
 	{
 		return m_World;

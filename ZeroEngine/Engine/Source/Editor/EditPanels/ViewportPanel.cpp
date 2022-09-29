@@ -61,7 +61,11 @@ namespace Zero
 	{
 		m_MousePos = { X - m_WindowsPos.x, Y - m_WindowsPos.y };
 		ZMath::FRay Ray = GetProjectionRay();
-		
+		UActor* Actor = UWorld::GetCurrentWorld()->PickActorByMouse(Ray);
+		if (Actor != nullptr)
+		{
+			std::cout << Actor->GetTag() << std::endl;
+		}
 	}
 
 

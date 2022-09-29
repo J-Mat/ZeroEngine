@@ -80,9 +80,9 @@ namespace Zero
             FRay TransformRay (const ZMath::mat4& Transform) const
             {
                 // 影响位移，后面补1
-                ZMath::vec3 Origin = ZMath::vec4(m_Origin, 1.0f) * Transform;
+                ZMath::vec3 Origin = Transform * ZMath::vec4(m_Origin, 1.0f);
                 // 不影响位移，后面补0
-                ZMath::vec3 Direciton = ZMath::vec4(m_Direction, 0.0f) * Transform;
+                ZMath::vec3 Direciton = Transform * ZMath::vec4(m_Direction, 0.0f);
                 
                 return { Origin, Direciton };
             }

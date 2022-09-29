@@ -35,6 +35,8 @@ namespace Zero
 		{
 			m_Actors.push_back(Actor);
 		}
+		
+		UActor* PickActorByMouse(ZMath::FRay Ray);
 
 	private:
 		static UWorld* s_CurrentWorld;

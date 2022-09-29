@@ -43,6 +43,7 @@ namespace Zero
 		virtual void SetPosition(const ZMath::vec3& Position);
 		virtual void SetRotation(const ZMath::vec3& Rotation);
 		virtual void SetScale(const ZMath::vec3& Scale);
+		virtual ZMath::FAABB GetAABB() { return ZMath::FAABB(); }
 		virtual void Tick();
 		ZMath::quat GetOrientation();
 		ZMath::mat4 GetTransform();
@@ -56,6 +57,7 @@ namespace Zero
 		ZMath::vec3& GetUPVector();
 		std::vector<UComponent*>& GetAllComponents() { return m_Components; }
 		void AddComponent(UComponent* Component) { m_Components.push_back(Component); }
+		std::string GetTag() { return m_Tag; }
 	protected:
 		std::string m_Tag;
 		UTransformationComponent* m_TransformationComponent = nullptr;

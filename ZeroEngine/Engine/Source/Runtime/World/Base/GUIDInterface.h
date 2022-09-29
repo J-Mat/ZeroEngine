@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Core.h"
-#include "Core/Base/GUID.h"
 
 namespace Zero
 {
@@ -9,12 +8,7 @@ namespace Zero
 	{
 	public:
 		IGUIDInterface();
-		std::string ToString() const { return m_GUID.ToString(); }
-		bool operator==(IGUIDInterface& Other)
-		{
-			return ToString() == Other.ToString();
-		}
-	private:
-		FGUID m_GUID;
+	protected:
+		Utils::Guid m_GUID;
 	};
 }

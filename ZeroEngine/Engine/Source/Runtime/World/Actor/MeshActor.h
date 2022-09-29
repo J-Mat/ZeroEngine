@@ -17,6 +17,7 @@ namespace Zero
 		virtual void BuildMesh() = 0;
 		virtual void CommitToPipieline();
 		virtual void Tick();
+		virtual ZMath::FAABB GetAABB() override;
 	protected:
 		UMeshVertexComponent* m_MeshVertexComponent = nullptr;
 		UMeshRenderComponent* m_MeshRenderComponent = nullptr;

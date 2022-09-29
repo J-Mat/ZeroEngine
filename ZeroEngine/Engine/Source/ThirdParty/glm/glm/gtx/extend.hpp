@@ -32,7 +32,7 @@ namespace glm
 	/// @see gtx_extend
 	template<typename genType>
 	GLM_FUNC_DECL genType extend(
-		genType const& Origin,
+		genType const& m_Origin,
 		genType const& Source,
 		typename genType::value_type const Length);
 
