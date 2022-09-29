@@ -26,7 +26,7 @@ namespace Zero
 		ZMath::vec3& GetRightVector() { return m_RightVector; }
 		ZMath::vec3& GetUPVector() { return m_UpVector; }
 	protected:
-		ZMath::vec3 m_Position = {0.0f, +0.0f, -3.535f};
+		ZMath::vec3 m_Position = {0.0f, 0.0f, 0.0f};
 		ZMath::vec3 m_Rotation = { 0.0f, 0.0f, 0.0f };
 		ZMath::vec3 m_Scale = { 1.0f, 1.0f, 1.0f };
 

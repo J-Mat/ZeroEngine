@@ -11,6 +11,7 @@ namespace Zero
 	{
 		m_CameraComponent = UComponent::CreateComponent<UCameraComponent>(this);
 		m_TransformationComponent = m_CameraComponent;
+		m_TransformationComponent->SetPosition({ 0.0f, 0.0f, -3.35f });
 	}
 
 	void UCameraActor::Tick()
