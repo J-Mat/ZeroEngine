@@ -20,9 +20,9 @@ namespace Zero
 	
 	struct FRenderTargetDesc
 	{
-		uint32_t Mask = ((1 << EAttachmentIndex::Color0) | (1 << EAttachmentIndex::DepthStencil));
-		uint32_t Width;
-		uint32_t Height;
+		uint32_t Mask = (BIT(EAttachmentIndex::Color0) | BIT(EAttachmentIndex::DepthStencil));
+		uint32_t Width = 900;
+		uint32_t Height = 600;
 	};
 
 	class FRenderTarget
