@@ -6,6 +6,27 @@
 
 namespace Zero
 {
+	DXGI_FORMAT FDX12Texture2D::GetFormatByDesc(ETextureFormat Format)
+	{
+		switch (Format)
+		{
+		case Zero::ETextureFormat::None:
+			return DXGI_FORMAT_UNKNOWN;
+		case Zero::ETextureFormat::R8G8B8:
+			return DXGI_FORMAT_R8G8_UNORM;
+		case Zero::ETextureFormat::R8G8B8A8:
+			return DXGI_FORMAT_R8G8B8A8_UNORM;
+		case Zero::ETextureFormat::INT32:
+			return DXGI_FORMAT_R32_UINT;
+		case Zero::ETextureFormat::R32G32B32A32:
+			return DXGI_FORMAT_R32G32B32A32_FLOAT;
+		case Zero::ETextureFormat::DEPTH32F:
+			return DXGI_FORMAT_D24_UNORM_S8_UINT;
+		default:
+			break;
+		}
+		return DXGI_FORMAT_UNKNOWN;
+	}
 	FDX12Texture2D::FDX12Texture2D(const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* clearValue)
 		: IResource(ResourceDesc, clearValue)
 	{

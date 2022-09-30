@@ -186,13 +186,10 @@ namespace Zero
 		}
 		virtual Ref<FRenderTarget> CreateRenderTarget(FRenderTargetDesc Desc)
 		{
-			
 			return CreateRef<FDX12RenderTarget>(Desc);
 		}
 		virtual Ref<FTexture2D> CreateDepthStencilTexture(uint32_t Width, uint32_t Height, const std::string& Name)
 		{
-			
-			
 			auto DepthStencilDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D24_UNORM_S8_UINT, Width, Height);
 			// Must be set on textures that will be used as a depth-stencil buffer.
 			DepthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;

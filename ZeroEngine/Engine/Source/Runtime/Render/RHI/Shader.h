@@ -3,6 +3,7 @@
 #include "ShaderData.h"
 #include "ShaderBinder.h"
 #include "VertexBuffer.h"
+#include "Texture.h"
 
 namespace Zero
 {
@@ -27,7 +28,18 @@ namespace Zero
 	{
 		bool bUseAlphaBlending = false;
 		FVertexBufferLayout VertexBufferLayout;
-		int NumRenderTarget = 1;
+		int NumRenderTarget = 2;
+		FFrameBufferTexturesFormats Formats = {
+			ETextureFormat::R8G8B8A8,
+			ETextureFormat::INT32, //   For Picking
+			ETextureFormat::None,
+			ETextureFormat::None,
+			ETextureFormat::None,
+			ETextureFormat::None,
+			ETextureFormat::None,
+			ETextureFormat::None,
+			ETextureFormat::DEPTH32F
+		};
 	};
 
 

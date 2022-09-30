@@ -35,9 +35,14 @@ namespace Zero
 			return nullptr;
 		}
 
+		template<>
+		UTransformationComponent* GetComponent()
+		{
+			return m_TransformationComponent;
+		}
+
 		UActor(const std::string Tag = "Actor");
 		virtual void PostInit();
-		UTransformationComponent* GetTransformationComponent() { return m_TransformationComponent; }
 		virtual void MoveLocal(const ZMath::vec3& Offset);
 		virtual void RotateLocal(const ZMath::FEulerAngle& Offset);
 		virtual void SetPosition(const ZMath::vec3& Position);

@@ -1,9 +1,9 @@
 #pragma once
 #include "Core.h"
+#include "Texture.h"
 
 namespace Zero
 {
-	class FTexture2D;
 	enum EAttachmentIndex
 	{
 		Color0,
@@ -17,10 +17,10 @@ namespace Zero
 		DepthStencil,
 		NumAttachmentPoints
 	};
-	
+
 	struct FRenderTargetDesc
 	{
-		uint32_t Mask = (BIT(EAttachmentIndex::Color0) | BIT(EAttachmentIndex::DepthStencil));
+		FFrameBufferTexturesFormats Format;
 		uint32_t Width = 900;
 		uint32_t Height = 600;
 	};

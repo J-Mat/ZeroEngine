@@ -243,7 +243,7 @@ enum class SamplerWrap : unsigned int {
 };
 
 //! Values for the Texture::format and Texture::internalFormat fields
-enum TextureFormat {
+enum ETextureFormat {
     TextureFormat_ALPHA = 6406,
     TextureFormat_RGB = 6407,
     TextureFormat_RGBA = 6408,

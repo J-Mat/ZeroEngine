@@ -11,6 +11,17 @@ namespace Zero
 	{
 		Ref<IDevice> Device = UWorld::GetCurrentWorld()->GetDevice();
 		FRenderTargetDesc Desc;
+		Desc.Format = {
+			ETextureFormat::R8G8B8A8,
+			ETextureFormat::INT32, //   For Picking
+			ETextureFormat::None,
+			ETextureFormat::None,
+			ETextureFormat::None,
+			ETextureFormat::None,
+			ETextureFormat::None,
+			ETextureFormat::None,
+			ETextureFormat::DEPTH32F
+		};
 		m_RenderTarget = FRenderer::GraphicFactroy->CreateRenderTarget(Desc);
 		TLibrary<FRenderTarget>::Push(FORWARD_STAGE, m_RenderTarget);
 	}

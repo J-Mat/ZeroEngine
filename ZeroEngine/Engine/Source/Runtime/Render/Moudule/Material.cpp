@@ -26,9 +26,6 @@ namespace Zero
 	}
 	void FMaterial::Tick()
 	{
-		float TotalTime = FApplication::Get().GetFrameTimer()->GetTotalTime();
-		ZMath::vec4 Color = { 1.0 * ZMath::sin(TotalTime), 0.0f, 1.0f, 1.0f};
-		m_FrameResourceBuffer->SetFloat4("Color", Color);
 	}
 	void FMaterial::SetPass()
 	{

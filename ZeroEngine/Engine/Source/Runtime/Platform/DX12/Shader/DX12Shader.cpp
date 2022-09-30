@@ -33,8 +33,8 @@ namespace Zero
 	FDX12Shader::FDX12Shader(std::string FileName, const FShaderBinderDesc& BinderDesc, const FShaderDesc& Desc)
 	: IShader(BinderDesc, Desc)
 	{
-		m_VSBytecode = CompileShader(Utils::String2WString(FileName), nullptr, "VS", "vs_5_0");
-		m_PSBytecode = CompileShader(Utils::String2WString(FileName), nullptr, "PS", "ps_5_0");
+		m_VSBytecode = CompileShader(Utils::String2WString(FileName), nullptr, "VS", "vs_5_1");
+		m_PSBytecode = CompileShader(Utils::String2WString(FileName), nullptr, "PS", "ps_5_1");
 		
 		GenerateInputLayout();
 		CreateBinder();
@@ -118,7 +118,7 @@ namespace Zero
 		PsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 		PsoDesc.NumRenderTargets = m_ShaderDesc.NumRenderTarget;
 		for (int i = 0; i < m_ShaderDesc.NumRenderTarget; i++)
-			PsoDesc.RTVFormats[i] = DXGI_FORMAT_R8G8B8A8_UNORM;
+			PsoDesc.RTVFormats[i] = FDX12Texture2D::GetFormatByDesc(m_ShaderDesc.Formats[i]);
 		PsoDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 		PsoDesc.SampleDesc.Count = 1;	// No 4XMSAA
 		PsoDesc.SampleDesc.Quality = 0;	////No 4XMSAA

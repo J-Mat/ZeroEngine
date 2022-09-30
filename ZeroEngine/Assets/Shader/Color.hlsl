@@ -28,7 +28,7 @@ cbuffer cbMaterial : register(b2)
 
 cbuffer cbConstBuffer : register(b3)
 {
-	float4 Color;
+	int ActorID;
 };
 
 struct VertexIn
@@ -46,6 +46,12 @@ struct VertexOut
     float3 Normal  : NORMAL;
 };
 
+struct PixelOutput
+{
+    float4 BaseColor    : SV_TARGET0;
+	uint OutAcotorID     : SV_TARGET1;
+};
+
 VertexOut VS(VertexIn vin)
 {
 	VertexOut vout;
@@ -59,8 +65,11 @@ VertexOut VS(VertexIn vin)
 	return vout;
 };
 
-float4 PS(VertexOut pin) : SV_Target
+PixelOutput PS(VertexOut pin)
 {
-	float3 diffuseAlbedo = gDiffuseMap.Sample(gSamAnisotropicWarp, pin.TexC);
-	return float4(pin.Normal, 1.0f);
+	PixelOutput Out;
+	//float3 diffuseAlbedo = gDiffuseMap.Sample(gSamAnisotropicWarp, pin.TexC);
+	Out.BaseColor = float4(pin.Normal, 1.0f);
+	Out.OutAcotorID = 2;
+	return Out;
 }

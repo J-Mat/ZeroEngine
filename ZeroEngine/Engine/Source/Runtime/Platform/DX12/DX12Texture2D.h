@@ -10,9 +10,11 @@ namespace Zero
 {
     class FDX12Device;
     class FDescriptorAllocation;
+
 	class FDX12Texture2D :public FTexture2D, public IResource
 	{
 	public:
+        static DXGI_FORMAT GetFormatByDesc(ETextureFormat Format);
 		FDX12Texture2D(const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* ClearValue = nullptr);
 		FDX12Texture2D(Ref<FImage> ImageData);
         FDX12Texture2D(ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, const D3D12_CLEAR_VALUE* ClearValue = nullptr);

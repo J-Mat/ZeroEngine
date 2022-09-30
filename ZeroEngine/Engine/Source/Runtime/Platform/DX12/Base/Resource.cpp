@@ -21,7 +21,7 @@ namespace Zero
 				D3D12_RESOURCE_STATE_COMMON, m_D3DClearValue.get(), IID_PPV_ARGS( &m_D3DResource )));
 
 		FResourceStateTracker::AddGlobalResourceState(m_D3DResource.Get(), D3D12_RESOURCE_STATE_COMMON);
-		
+	
 		CheckFeatureSupport();
 	}
 

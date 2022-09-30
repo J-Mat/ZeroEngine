@@ -15,54 +15,48 @@ namespace Zero
 	{
 		m_Width = Desc.Width;
 		m_Height = Desc.Height;
-		uint32_t Mask = Desc.Mask;
-		uint32_t Flag = 1;
-		uint32_t Index = 0;
-		while (Mask != 0)
+		for (int Index = EAttachmentIndex::Color0; Index <= EAttachmentIndex::Color7; ++Index)
 		{
-			if (Mask & Flag)
-			{
-				Ref<FTexture2D> Texture;
-				EAttachmentIndex AttachMentIndex = EAttachmentIndex(Index);
-				if (Index <= EAttachmentIndex::Color7)
-				{
-					D3D12_RESOURCE_DESC RtvResourceDesc;
-					RtvResourceDesc.Alignment = 0;
-					RtvResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-					RtvResourceDesc.DepthOrArraySize = 1;
-					RtvResourceDesc.Width = m_Width;
-					RtvResourceDesc.Height = m_Height;
-					RtvResourceDesc.MipLevels = 1;
-					RtvResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-					RtvResourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
-					RtvResourceDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-					RtvResourceDesc.SampleDesc.Count = 1;
-					RtvResourceDesc.SampleDesc.Quality = 0;
+			const ETextureFormat& TextureFormat = Desc.Format[Index];
+			if (TextureFormat == ETextureFormat::None)
+				continue;
+			DXGI_FORMAT DxgiFormat = FDX12Texture2D::GetFormatByDesc(TextureFormat);
 
-					CD3DX12_CLEAR_VALUE OptClear;
-					OptClear.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-					memcpy(OptClear.Color, DirectX::Colors::Transparent, 4 * sizeof(float));
-
-					Texture = CreateRef<FDX12Texture2D>(RtvResourceDesc, &OptClear);	
+			Ref<FTexture2D> Texture;
+			EAttachmentIndex AttachMentIndex = EAttachmentIndex(Index);
+			D3D12_RESOURCE_DESC RtvResourceDesc;
+			RtvResourceDesc.Alignment = 0;
+			RtvResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+			RtvResourceDesc.DepthOrArraySize = 1;
+			RtvResourceDesc.Width = m_Width;
+			RtvResourceDesc.Height = m_Height;
+			RtvResourceDesc.MipLevels = 1;
+			RtvResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+			RtvResourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+			RtvResourceDesc.Format = DxgiFormat;
+			RtvResourceDesc.SampleDesc.Count = 1;
+			RtvResourceDesc.SampleDesc.Quality = 0;
+			CD3DX12_CLEAR_VALUE OptClear;
+			OptClear.Format = DxgiFormat;
+			memcpy(OptClear.Color, DirectX::Colors::Transparent, 4 * sizeof(float));
+			Texture = CreateRef<FDX12Texture2D>(RtvResourceDesc, &OptClear);
+			AttachTexture(AttachMentIndex, Texture);
 #ifdef EDITOR_MODE
-					Texture->RegistGuiShaderResource();
+			Texture->RegistGuiShaderResource();
 #endif
-				}
-				else
-				{
-					auto DepthStencilDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D24_UNORM_S8_UINT, m_Width, m_Height);
-					DepthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+		}
 
-					D3D12_CLEAR_VALUE OptClear = {};
-					OptClear.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-					OptClear.DepthStencil = { 1.0F, 0 };
-					Texture = CreateRef<FDX12Texture2D>(DepthStencilDesc, &OptClear);
-				}
-				AttachTexture(AttachMentIndex, Texture);
-				Mask ^= Flag;
-			}
-			Flag <<= 1;
-			++Index;
+		DXGI_FORMAT DepthDxgiFormat = FDX12Texture2D::GetFormatByDesc(Desc.Format[EAttachmentIndex::DepthStencil]);
+		if (DepthDxgiFormat != DXGI_FORMAT_UNKNOWN)
+		{
+			auto DepthStencilDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D24_UNORM_S8_UINT, m_Width, m_Height);
+			DepthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
+			D3D12_CLEAR_VALUE OptClear = {};
+			OptClear.Format = DepthDxgiFormat;
+			OptClear.DepthStencil = { 1.0F, 0 };
+			Ref<FDX12Texture2D> Texture = CreateRef<FDX12Texture2D>(DepthStencilDesc, &OptClear);
+			AttachTexture(EAttachmentIndex::DepthStencil, Texture);
 		}
 	}
 
@@ -139,7 +133,7 @@ namespace Zero
 			CommandList->GetD3D12CommandList()->OMSetRenderTargets(
 				UINT(Handles.size()),
 				Handles.data(),
-				true,
+				false,
 				&DsvTexture->GetDepthStencilView()
 			);
 		}
@@ -148,7 +142,7 @@ namespace Zero
 			CommandList->GetD3D12CommandList()->OMSetRenderTargets(
 				UINT(Handles.size()),
 				Handles.data(),
-				true,
+				false,
 				nullptr
 			);
 		}
