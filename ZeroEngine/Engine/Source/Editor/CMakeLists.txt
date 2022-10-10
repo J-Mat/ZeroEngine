@@ -12,3 +12,9 @@ target_include_directories(${ProjectName} PRIVATE
 	"${EngineRuntimeDir}"
 )
 
+add_custom_command(
+	TARGET ${ProjectName} 
+    PRE_BUILD 
+    COMMAND call ${EngineEditorDir}/test.bat
+    VERBATIM
+)

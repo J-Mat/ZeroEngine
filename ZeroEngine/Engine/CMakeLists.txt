@@ -1,5 +1,6 @@
 set(EngineRootDir "${ProjectRootDir}/Engine")
 set(EngineRuntimeDir "${EngineSourceDir}/Runtime")
+set(EngineUtilsDir "${EngineSourceDir}/Utils")
 set(EngineAssetsDir "${ProjectRootDir}/Assets")
 set(EngineSourceDir "${EngineRootDir}/Source")
 

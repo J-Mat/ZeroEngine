@@ -28,12 +28,3 @@
 #include <stdexcept>
 #include <unordered_map>
 #include <unordered_set>
-
-#include "Utils.h"
-#include "Math/ZMath.h"
-#include "Math/AABB.h"
-#include "Math/Ray.h"
-
-#include <Windows.h>
-#include <wincodec.h>
-#include <windowsx.h>

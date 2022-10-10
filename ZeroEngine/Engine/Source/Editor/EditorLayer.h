@@ -22,7 +22,7 @@ namespace Zero
 		void OnEvent(FEvent& Event) override;
 
 		
-		void BuildWorld();
+		void BuildWorld() ;
 		void InitEditPanel();
 
 	private:
