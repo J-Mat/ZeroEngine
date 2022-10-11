@@ -1,12 +1,14 @@
 #pragma once
 
 #include "Component.h"
-
+#include "TransformationComponent.reflection.h"
 
 namespace Zero
 {
+	UClass()
 	class UTransformationComponent : public UComponent
-	{
+	{	
+		#define GENERATED_UCLASS_BODY()
 	public:
 		COMPONENT_CLASS_TYPE(TransformationComponent)
 		UTransformationComponent();
@@ -25,9 +27,14 @@ namespace Zero
 		ZMath::vec3& GetForwardVector() { return m_ForwardVector; }
 		ZMath::vec3& GetRightVector() { return m_RightVector; }
 		ZMath::vec3& GetUPVector() { return m_UpVector; }
-	protected:
+	public:
+		UPROPERTY()
 		ZMath::vec3 m_Position = {0.0f, 0.0f, 0.0f};
+
+		UPROPERTY()
 		ZMath::vec3 m_Rotation = { 0.0f, 0.0f, 0.0f };
+
+		UPROPERTY()
 		ZMath::vec3 m_Scale = { 1.0f, 1.0f, 1.0f };
 
 		ZMath::vec3 m_ForwardVector = { 0.0f, 0.0f, 1.0f };

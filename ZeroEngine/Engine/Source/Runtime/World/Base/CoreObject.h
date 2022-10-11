@@ -2,6 +2,7 @@
 
 #include "Core.h"
 #include "GUIDInterface.h"
+#include "ObjectMacros.h"
 
 namespace Zero
 {
