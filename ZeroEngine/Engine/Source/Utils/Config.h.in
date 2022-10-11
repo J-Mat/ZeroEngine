@@ -10,10 +10,10 @@ namespace Zero
 {
 	namespace Config
 	{
+		static const std::filesystem::path EngineSourceDir = "@EngineSourceDir@";
 		static const std::filesystem::path ConfigDir = "@EngineConfigDir@";
 		static const std::string& ZBTFile = "ZBTConfig.ini";
 		static const std::filesystem::path AssetsDir = "@EngineAssetsDir@";
-		static const std::string& EngineParseDir = "Engine\Source\Runtime";
 	}
 }
 
