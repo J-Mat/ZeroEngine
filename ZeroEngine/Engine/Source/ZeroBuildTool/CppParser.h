@@ -50,7 +50,6 @@ namespace ZBT
 	public:
 		FCppParser() = default;
 		void Parse(std::filesystem::path Path);
-		n t ye ojg y n
 	};
 
 }

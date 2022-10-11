@@ -20,6 +20,12 @@ if(NOT TARGET stb_image)
     NoWarning(stb_image)
 endif()
 
+if(NOT TARGET mINI)
+	add_subdirectory(mINI)
+  set_target_properties(mINI PROPERTIES FOLDER ${ThirdPartyFolder})
+  NoWarning(mINI)
+endif()
+
 if(NOT TARGET imgui)
 	add_subdirectory(imgui)
     set_target_properties(imgui PROPERTIES FOLDER ${ThirdPartyFolder})
