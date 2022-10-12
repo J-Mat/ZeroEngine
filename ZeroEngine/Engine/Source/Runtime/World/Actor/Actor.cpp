@@ -13,8 +13,8 @@ namespace Zero
 	}
 	void UActor::PostInit()
 	{
-		m_TransformationComponent = UComponent::CreateComponent<UTransformationComponent>(this);
-		m_Tagcomponent = UComponent::CreateComponent<UTagComponent>(this, m_Tag);
+	//	m_TransformationComponent = UComponent::CreateComponent<UTransformationComponent>(this);
+		//m_Tagcomponent = UComponent::CreateComponent<UTagComponent>(this, m_Tag);
 	}
 
 	void UActor::MoveLocal(const ZMath::vec3& Offset)
@@ -24,6 +24,12 @@ namespace Zero
 	void  UActor::RotateLocal(const ZMath::FEulerAngle& Offset)
 	{
 		m_TransformationComponent->RotateLocal(Offset);
+	}
+
+	UActor::UActor()
+		: UCoreObject()
+	{
+		
 	}
 
 	void UActor::SetPosition(const ZMath::vec3& Position)

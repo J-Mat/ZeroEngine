@@ -12,6 +12,12 @@ namespace Zero
 	class UActor : public UCoreObject
 	{
 	public:
+		UActor();
+
+		UPROPERTY()
+		UTransformationComponent* m_RootComponent;
+		UTransformationComponent* GetRootComponent() const { return m_RootComponent; }
+
 		template<class T, typename ...ParamTypes>
 		static T* Create(UWorld *World, ParamTypes &&...Params)
 		{

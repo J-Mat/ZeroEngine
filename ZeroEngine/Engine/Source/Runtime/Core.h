@@ -20,16 +20,6 @@
 #define _256MB _MB(256)
 
 
-#define ZERO_ENABLE_ASSETS
-
-#ifdef ZERO_ENABLE_ASSETS
-	#define CLIENT_ASSERT(x, ...) {if(!(x)){CLIENT_LOG_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak();}}
-	#define CORE_ASSERT(x, ...) {if(!(x)){CORE_LOG_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak();}}
-#else
-	#define CLIENT_ASSERT(x, ...)
-	#define CORE_ASSERT(x, ...)
-#endif
-
 #define BIT(x) (1 << x)
 #define BIND_EVENT_FN(x) std::bind(&x, this, std::placeholders::_1)
 #define TO_VOIDPTR_FROM_DATA(Value) ((void*)&Value)

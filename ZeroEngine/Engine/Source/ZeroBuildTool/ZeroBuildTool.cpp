@@ -3,6 +3,10 @@
 #include "Config.h"
 #include "Log.h"
 #include "mini/ini.h"
+#include "CppParser.h"
+
+
+ZBT::FFileParser g_FileParser;
 
 void ParseDir(const std::filesystem::path& Folder)
 {
@@ -15,9 +19,11 @@ void ParseDir(const std::filesystem::path& Folder)
 		else if (Child.path().extension().string() == ".h")
 		{
 			CLIENT_LOG_INFO(Child.path().string());
-			auto Content = Zero::StringUtils::ReadFile(Child.path().string());
-			std::cout << Content;
-			if ()
+			g_FileParser.Parse(Child.path());
+			if (g_FileParser.CheckNeedGenerateReflection())
+			{ 
+				g_FileParser.GenerateCodeReflectionFile();
+			}
 		}
 	}
 }
