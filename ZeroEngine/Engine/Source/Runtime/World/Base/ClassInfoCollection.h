@@ -1,13 +1,38 @@
 #pragma once
+#include "CoreObject.h"
+#include "Property.h"
+#include "ObjectGenerator.h"
 
 namespace Zero
 {
 	class FClassInfoCollection
 	{
-		FClassInfoCollection();
+	public:
+		FClassInfoCollection() = default;
+		
+		UCoreObject* AddProperty(const std::string& PropertyName, void* Data, uint32_t PropertySize, const EPropertyType PropertyType);
 
 		template<class T>
-		inline T* FClassInfoCollection::AddProperty()
+		inline T* ConstructProperty(
+			const std::string& PropertyName, void* Data, uint32_t PropertySize, const EPropertyType PropertyType)
+		{
+			UProperty* Property = CreateObject<UProperty>(m_Outer, Data, PropertySize, PropertyType);
+			Property->SetName(PropertyName);
 		
+			if (HeadProperty == nullptr)
+			{
+				HeadProperty = Property;
+				TailProprty = HeadProperty;
+			}
+			else
+			{
+				TailProprty->Next = Property;
+				TailProprty = Property;
+			}
+			
+		}
+		UCoreObject* m_Outer;
+		UProperty* HeadProperty = nullptr;
+		UProperty* TailProprty = nullptr;;
 	};
 }

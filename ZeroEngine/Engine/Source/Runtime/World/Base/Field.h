@@ -9,6 +9,7 @@ namespace Zero
 	public: 
 		UField();
 
-		UField* Next;
+		UField* Next = nullptr;
+		
 	};
 }

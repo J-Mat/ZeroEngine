@@ -20,9 +20,12 @@ namespace Zero
 		inline virtual UWorld* GetWorld();
 		virtual void PostInit() {}
 		virtual void Tick() {}
+		void SetName(std::string Name) { m_Name = Name; }
+		const std::string& GetName() const { return m_Name; }
 	protected:
 		bool m_bTick = true;
 		UWorld* m_World;
 		UCoreObject* m_Outer;
+		std::string m_Name;
 	};
 }
