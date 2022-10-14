@@ -1,6 +1,6 @@
 #pragma once
 #include "Core.h"
-#include "Field.h"
+#include "FieldObject.h"
 
 namespace Zero
 {

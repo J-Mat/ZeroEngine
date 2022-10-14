@@ -1,5 +1,5 @@
-#include "Field.h"
-#include "Property.h"
+#include "FieldObject.h"
+#include "PropertyObject.h"
 
 namespace Zero
 {
