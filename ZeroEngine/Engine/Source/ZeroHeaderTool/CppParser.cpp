@@ -10,7 +10,7 @@
 #define CUR_CHAR m_Content[m_CurPos] 
 #define PRE_CHAR m_Content[m_CurPos - 1] 
 #define INCREASE_INDEX m_CurPos++
-namespace ZBT
+namespace ZHT
 {
 	void FFileParser::ParseWhiteSpace()
 	{
@@ -231,12 +231,107 @@ namespace ZBT
 				return false;
 			}
 			const auto& NextToken = m_Tokens[i + 1];
-			if (CurToken.TokenName == "UClass" && CurToken.TokenName.starts_with("("))
+			if (CurToken.TokenName == "UCLASS" && CurToken.TokenName.starts_with("("))
 			{
+				m_ClassTagIndex = i;
+				break;
+			}
+		}
+
+		for (; i < m_Tokens.size();++i)
+		{
+			const auto& CurToken = m_Tokens[i];
+			if (i + 1 == m_Tokens.size())
+			{
+				return false;
+			}
+			const auto& NextToken = m_Tokens[i + 1];
+			if (CurToken.TokenName == "REFLECTION_BODY" && CurToken.TokenName.starts_with("("))
+			{
+				m_PropertyIndex = m_ClassBodyIndex = i;
 				return true;
 			}
 		}
 		return false;
+	}
+
+	static std::string GetType(uint32_t TokenIndex)
+	{
+
+	}
+
+	void FFileParser::CollectProperty(FPropertyElement& PropertyElement)
+	{
+		uint32_t CurIndex = m_PropertyIndex + 2;
+		bool bHasEqual = false;
+		uint32_t EqualTokenIndex = -1;
+		while (m_Tokens[CurIndex].TokenName != ";")
+		{
+			if (m_Tokens[CurIndex].TokenName == "const")
+			{
+				PropertyElement.bConst = true;
+			}
+			else if (m_Tokens[CurIndex].TokenName == "*")
+			{
+				PropertyElement.bPointer = true;
+			}
+			else if (m_Tokens[CurIndex].TokenName == "&")
+			{
+				PropertyElement.bRefercence = true;
+			}
+			else if (m_Tokens[CurIndex].TokenName == "static")
+			{
+				PropertyElement.bStatic = true;
+			}
+			else if (m_Tokens[CurIndex].TokenName == "=")
+			{
+				bHasEqual = true;
+				EqualTokenIndex = CurIndex;
+			}
+			CurIndex++;
+		}
+
+		if (bHasEqual)
+		{
+			PropertyElement.Name = m_Tokens[EqualTokenIndex - 1].TokenName;
+			PropertyElement.DataType =  
+		}
+	}
+
+	bool FFileParser::LocatePropertyTag(FClassElement& ClassElement)
+	{
+		for (size_t i = m_PropertyIndex; i < m_Tokens.size() - 2; ++i)
+		{
+			const auto& CurToken = m_Tokens[i];
+			const auto& NextToken = m_Tokens[i + 1];
+			
+			if (CurToken.TokenName == "UPROPERTY" && NextToken.TokenName.starts_with("("))
+			{
+				m_PropertyIndex = i;
+				return true;;
+			}
+		}
+		return false;
+	}
+	
+	void FFileParser::CollectClassInfo(FClassElement& ClassElement)
+	{
+		ClassElement.Path = m_CurFilePath;
+
+		CLIENT_ASSERT(m_Tokens[m_ClassTagIndex + 1].TokenName == "class", "Semantic Faild!");
+		ClassElement.ClassName = m_Tokens[m_ClassBodyIndex + 2].TokenName;
+		ClassElement.LineIndex = m_Tokens[m_ClassBodyIndex + 2].LineIndex;
+		size_t CurIndex = m_ClassBodyIndex + 3;
+		CLIENT_ASSERT(m_Tokens[CurIndex].TokenName == ":", "Semantic Faild!");
+		CLIENT_ASSERT(m_Tokens[CurIndex + 1].TokenName == "public", "Semantic Faild!");
+	
+		ClassElement.InheritName = m_Tokens[CurIndex + 2].TokenName;
+
+		while (LocatePropertyTag())
+		{
+			CollectProperty();
+		}
+		
 	}
 
 	void FFileParser::GenerateCodeReflectionFile()

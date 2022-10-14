@@ -3,7 +3,7 @@
 #include <string>
 
 
-namespace ZBT
+namespace ZHT
 {
 	enum  EDataType
 	{
@@ -28,16 +28,19 @@ namespace ZBT
 		std::string Category = "Default";
 	};
 
-	struct FVariableElement : public FParamElement
+	struct FPropertyElement : public FParamElement
 	{
 		bool bStatic = false;
-		FVariableElement() = default;
+		std::string Value;
+		FPropertyElement() = default;
 	};
 
 	struct FClassElement
 	{
 		std::string ClassName;
-		std::vector<FVariableElement> Variables;
+		std::vector<FPropertyElement> Variables;
+		std::string InheritName;
+		uint32_t LineIndex;
 		std::filesystem::path Path;
 
 		std::string GetPath() { return Path.string(); }
@@ -69,7 +72,10 @@ namespace ZBT
 		void AcceptDefaultToken();
 		void Parse(std::filesystem::path Path);
 		bool CheckNeedGenerateReflection();
+		void CollectProperty(FPropertyElement& PropertyElement);
+		void CollectClassInfo(FClassElement& ClassElement);
 		void GenerateCodeReflectionFile();
+		bool LocatePropertyTag();
 	private:
 		std::string m_Content;
 		std::filesystem::path m_CurFilePath;
@@ -77,6 +83,10 @@ namespace ZBT
 		size_t m_CurPos;
 		uint32_t m_CurLineIndex; 
 		std::vector<FToken> m_Tokens;
+		size_t m_CurrentTokenIndex;
+		size_t m_ClassTagIndex;
+		size_t m_ClassBodyIndex;
+		size_t m_PropertyIndex;
 	};
 
 }

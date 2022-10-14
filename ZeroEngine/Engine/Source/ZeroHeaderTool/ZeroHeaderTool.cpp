@@ -6,7 +6,8 @@
 #include "CppParser.h"
 
 
-ZBT::FFileParser g_FileParser;
+ZHT::FFileParser g_FileParser;
+
 
 void ParseDir(const std::filesystem::path& Folder)
 {
@@ -22,6 +23,7 @@ void ParseDir(const std::filesystem::path& Folder)
 			g_FileParser.Parse(Child.path());
 			if (g_FileParser.CheckNeedGenerateReflection())
 			{ 
+				ZHT::FClassElement ClassElement;
 				g_FileParser.GenerateCodeReflectionFile();
 			}
 		}
