@@ -2,9 +2,8 @@
 
 namespace Zero
 {
-	UTagComponent::UTagComponent(const std::string Tag)
+	UTagComponent::UTagComponent()
 		:UComponent()
-		,m_Tag(Tag)
 	{
 		m_bTick = false;
 	}

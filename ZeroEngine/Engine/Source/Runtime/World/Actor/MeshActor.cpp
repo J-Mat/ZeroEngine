@@ -2,25 +2,21 @@
 #include "Render/RendererAPI.h"
 #include "../Component/MeshRenderComponent.h"
 #include "../Component/MeshVertexComponent.h"
-#include "../Construction/ObjectConstruction.h"
 #include "Render/RHI/RenderItem.h"
 #include "Render/RHI/Mesh.h"
 #include "World/World.h"
 
 namespace Zero
 {
-	UMeshActor::UMeshActor(const std::string& Tag, FMeshType& MeshType)
-		: UActor(Tag)
-		, m_MeshType(MeshType)
+	UMeshActor::UMeshActor()
+		: UActor()
 	{
+		m_MeshVertexComponent = CreateComponent<UMeshVertexComponent>(this, GetRootComponent());
+		m_MeshRenderComponent = CreateComponent<UMeshRenderComponent>(this, GetRootComponent());
 	}
 
 	void UMeshActor::PostInit()
 	{
-		UActor::PostInit();
-		m_MeshVertexComponent = UComponent::CreateComponent<UMeshVertexComponent>(this, m_MeshType);
-		m_MeshRenderComponent =  UComponent::CreateComponent<UMeshRenderComponent>(this);
-		
 		BuildMesh();
 		m_MeshVertexComponent->GenerateAABB();
 

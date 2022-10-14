@@ -21,10 +21,8 @@ namespace Zero
 	class UMeshVertexComponent : public UComponent
 	{
 	public:
-		COMPONENT_CLASS_TYPE(MeshVertexComponent)
 		friend class UMeshActor;
-		UMeshVertexComponent(FMeshType& MeshType);
-		virtual void PostInit();
+		UMeshVertexComponent();
 		virtual ~UMeshVertexComponent();
 		std::vector<FMeshData>& GetMeshDatas() { return m_MeshDatas; }
 		void CreateMesh();

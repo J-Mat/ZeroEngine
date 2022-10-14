@@ -30,6 +30,17 @@ namespace Zero
 		void SetCamera(UCameraActor* Camera) { m_MainCamera = Camera; }
 		UCameraActor* GetCameraActor() { return m_MainCamera; }
 
+		template<class T, typename ...ParamTypes>
+		T* CreateActor(ParamTypes &&...Params)
+		{
+			T* Obj = new T(std::forward<ParamTypes>(Params)...);
+			Obj->SetWorld(this);
+			Obj->PostInit();
+			AddActor(Obj);
+			return Obj;
+		}
+
+
 		template<class T>
 		void AddActor(T* Actor)
 		{

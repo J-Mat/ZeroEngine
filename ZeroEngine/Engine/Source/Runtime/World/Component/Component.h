@@ -15,8 +15,6 @@ namespace Zero
 		CameraComponent
 	};
 
-#define COMPONENT_CLASS_TYPE(Type) static  EComponentType GetStaticType() {return EComponentType::##Type;}\
-								virtual EComponentType GetEventType() const override {return GetStaticType();}
 	class UActor;
 	class UComponent : public UCoreObject
 	{
@@ -25,7 +23,6 @@ namespace Zero
 			: UCoreObject()
 		{
 		}
-		virtual EComponentType GetEventType() const = 0;
 		void SetParentComponent(UComponent* Component) { m_Parent = Component; };
 	protected:
 		UComponent* m_Parent = nullptr;

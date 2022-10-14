@@ -12,15 +12,14 @@ namespace Zero
 	class UMeshActor : public UActor
 	{
 	public:
-		UMeshActor(const std::string& Tag = "Mesh", FMeshType& MeshType = FMeshType::s_CubeMeshType);
-		virtual void PostInit();
+		UMeshActor();
 		virtual void BuildMesh() = 0;
+		virtual void PostInit() override;
 		virtual void CommitToPipieline();
 		virtual void Tick();
 		virtual ZMath::FAABB GetAABB() override;
 	protected:
 		UMeshVertexComponent* m_MeshVertexComponent = nullptr;
 		UMeshRenderComponent* m_MeshRenderComponent = nullptr;
-		FMeshType m_MeshType;
 	};
 }

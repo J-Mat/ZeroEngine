@@ -31,9 +31,7 @@ namespace Zero
 	class UCameraComponent : public UTransformationComponent
 	{
 	public:
-		COMPONENT_CLASS_TYPE(CameraComponent)
-		UCameraComponent() = default;
-		virtual void PostInit();
+		UCameraComponent();
 		virtual ~UCameraComponent();
 		void SetCameraSettings(FCameraSettings& Setting);
 		void UpdateCameraSettings();

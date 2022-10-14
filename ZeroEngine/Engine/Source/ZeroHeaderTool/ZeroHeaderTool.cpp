@@ -6,7 +6,8 @@
 #include "CppParser.h"
 
 
-ZBT::FFileParser g_FileParser;
+ZHT::FFileParser g_FileParser;
+
 
 void ParseDir(const std::filesystem::path& Folder)
 {
@@ -18,11 +19,14 @@ void ParseDir(const std::filesystem::path& Folder)
 		}
 		else if (Child.path().extension().string() == ".h")
 		{
-			CLIENT_LOG_INFO(Child.path().string());
+			//CLIENT_LOG_INFO(Child.path().string());
 			g_FileParser.Parse(Child.path());
 			if (g_FileParser.CheckNeedGenerateReflection())
 			{ 
-				g_FileParser.GenerateCodeReflectionFile();
+				ZHT::FClassElement ClassElement;
+				g_FileParser.CollectClassInfo(ClassElement);
+				g_FileParser.LogClassInfo(ClassElement);
+				g_FileParser.GenerateCodeReflectionFile(ClassElement);
 			}
 		}
 	}

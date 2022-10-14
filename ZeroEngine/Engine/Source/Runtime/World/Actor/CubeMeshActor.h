@@ -8,7 +8,7 @@ namespace Zero
 	class UCubeMeshActor : public UMeshActor
 	{
 	public:
-		UCubeMeshActor(const std::string& Tag = "Mesh");
+		UCubeMeshActor();
 		virtual void BuildMesh();
 	private:
 		float m_Width = 2.0f;

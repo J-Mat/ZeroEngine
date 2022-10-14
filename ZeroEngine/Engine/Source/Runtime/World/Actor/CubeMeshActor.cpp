@@ -4,8 +4,8 @@
 
 namespace Zero
 {
-	UCubeMeshActor::UCubeMeshActor(const std::string& Tag)
-		: UMeshActor(Tag, FMeshType::s_CubeMeshType)
+	UCubeMeshActor::UCubeMeshActor()
+		: UMeshActor()
 	{
 	}
 

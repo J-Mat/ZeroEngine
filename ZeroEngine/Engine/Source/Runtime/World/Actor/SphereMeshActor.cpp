@@ -4,8 +4,8 @@
 
 namespace Zero
 {
-	USphereMeshActor::USphereMeshActor(const std::string& Tag)
-		: UMeshActor(Tag, FMeshType::s_CubeMeshType)
+	USphereMeshActor::USphereMeshActor()
+		: UMeshActor()
 	{
 	}
 

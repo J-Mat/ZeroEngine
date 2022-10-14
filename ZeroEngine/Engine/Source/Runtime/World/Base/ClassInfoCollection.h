@@ -1,7 +1,8 @@
 #pragma once
 #include "CoreObject.h"
-#include "Property.h"
+#include "PropertyObject.h"
 #include "ObjectGenerator.h"
+
 
 namespace Zero
 {
@@ -30,6 +31,7 @@ namespace Zero
 				TailProprty = Property;
 			}
 			
+			return Property;
 		}
 		UCoreObject* m_Outer;
 		UProperty* HeadProperty = nullptr;

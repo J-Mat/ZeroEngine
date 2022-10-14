@@ -16,7 +16,7 @@ namespace Zero
 		static UCoreObject* GetObjByGuid(const Utils::Guid& Guid);
 		bool IsTick()const { return m_bTick; }
 		inline void SetWorld(UWorld* World) { m_World = World; }
-		inline void SetOuter(UCoreObject* InNewOuter) { m_Outer = InNewOuter; }
+		virtual inline void SetOuter(UCoreObject* InNewOuter) { m_Outer = InNewOuter; }
 		inline virtual UWorld* GetWorld();
 		virtual void PostInit() {}
 		virtual void Tick() {}

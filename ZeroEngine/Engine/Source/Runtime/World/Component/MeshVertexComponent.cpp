@@ -44,13 +44,8 @@ namespace Zero
 	}
 
 
-	UMeshVertexComponent::UMeshVertexComponent(FMeshType& MeshType)
+	UMeshVertexComponent::UMeshVertexComponent()
 		: UComponent()
-		, m_MeshType(MeshType)
-	{
-	}
-
-	void UMeshVertexComponent::PostInit()
 	{
 		m_ShaderConstantsBuffer = FPerObjectConstantsBufferPool::GetInstance().GetPerObjectConstantsBuffer(this);		
 	}

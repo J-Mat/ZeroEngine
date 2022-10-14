@@ -2,6 +2,7 @@
 
 #include "Core.h"
 #include "../Base/CoreObject.h"
+#include "../Base/ObjectGenerator.h"
 
 namespace Zero
 {
@@ -9,24 +10,16 @@ namespace Zero
 	class UTagComponent;
 	class UComponent;
 	class UWorld;
+	UCLASS()
 	class UActor : public UCoreObject
 	{
 	public:
 		UActor();
 
-		UPROPERTY()
 		UTransformationComponent* m_RootComponent;
+
 		UTransformationComponent* GetRootComponent() const { return m_RootComponent; }
 
-		template<class T, typename ...ParamTypes>
-		static T* Create(UWorld *World, ParamTypes &&...Params)
-		{
-			T* Obj = new T(std::forward<ParamTypes>(Params)...);
-			Obj->SetWorld(World);
-			Obj->PostInit();
-			World->AddActor(Obj);
-			return Obj;
-		}
 
 		template<class T>
 		T* GetComponent()
@@ -47,7 +40,6 @@ namespace Zero
 			return m_TransformationComponent;
 		}
 
-		UActor(const std::string Tag = "Actor");
 		virtual void PostInit();
 		virtual void MoveLocal(const ZMath::vec3& Offset);
 		virtual void RotateLocal(const ZMath::FEulerAngle& Offset);

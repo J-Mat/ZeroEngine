@@ -8,9 +8,9 @@ namespace Zero
 	class UCustomMeshActor : public UMeshActor
 	{
 	public:
-		UCustomMeshActor(const std::string& Tag = "Custom", const std::string& FileName = "cat.fbx");
+		UCustomMeshActor(const std::string& FileName = "cat.fbx");
 		virtual void BuildMesh();
-	private:
-		std::string m_FileName = "";
+	protected:
+		std::string m_FileName;
 	};
 }

@@ -1,16 +1,12 @@
 #include "CameraActor.h"
 #include "../Component/CameraComponent.h"
-#include "World/Construction/ObjectConstruction.h"
 
 namespace Zero
 {
-	UCameraActor::UCameraActor(const std::string& Tag)
+	UCameraActor::UCameraActor()
+		: UActor()
 	{
-	}
-	void UCameraActor::PostInit()
-	{
-		m_CameraComponent = UComponent::CreateComponent<UCameraComponent>(this);
-		m_TransformationComponent = m_CameraComponent;
+		m_TransformationComponent = m_CameraComponent = CreateComponent<UCameraComponent>(this,  nullptr);
 		m_TransformationComponent->SetPosition({ 0.0f, 0.0f, -3.35f });
 	}
 

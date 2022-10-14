@@ -23,7 +23,8 @@ namespace Zero
 		return &PerCameraConstantsDesc;
 	}
 
-	void UCameraComponent::PostInit()
+	UCameraComponent::UCameraComponent()
+		: UTransformationComponent()
 	{
 		FCameraSettings Settings;
 		SetCameraSettings(Settings);

@@ -2,14 +2,12 @@
 #include "World/Base/CoreObject.h"
 #include "World/Component/TransformComponent.h"
 #include "World/Component/TagComponent.h"
-#include "World/Construction/ObjectConstruction.h"
 
 namespace Zero
 {
-	UActor::UActor(const std::string Tag)
+	UActor::UActor()
 		: UCoreObject()
 	{
-		m_Tag = Tag;
 	}
 	void UActor::PostInit()
 	{
@@ -24,12 +22,6 @@ namespace Zero
 	void  UActor::RotateLocal(const ZMath::FEulerAngle& Offset)
 	{
 		m_TransformationComponent->RotateLocal(Offset);
-	}
-
-	UActor::UActor()
-		: UCoreObject()
-	{
-		
 	}
 
 	void UActor::SetPosition(const ZMath::vec3& Position)

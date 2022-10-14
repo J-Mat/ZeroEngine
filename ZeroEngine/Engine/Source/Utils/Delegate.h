@@ -22,7 +22,7 @@ namespace Zero
 	class FObjectDelegate : public FDelegateBase<TReturn, ParamTypes...>
 	{
 	public:
-		FObjectDelegate(TObjectType* Object, Return(TObjectType::* Funcation)(ParamTypes ...))
+		FObjectDelegate(TObjectType* Object, TReturn(TObjectType::* Funcation)(ParamTypes ...))
 			: m_Object(Object)
 			, m_Function(Funcation)
 		{}
@@ -32,7 +32,7 @@ namespace Zero
 		}
 	private:
 		TObjectType* m_Object;
-		TReturn(TObjectType::* m_Function)(Params...);
+		TReturn(TObjectType::* m_Function)(ParamTypes...);
 	};
 
 
@@ -156,4 +156,61 @@ namespace Zero
 
 		Utils::Guid Guid;
 	};
+
+	template<class TReturn, typename ...ParamTypes>
+	class FMulticastDelegate :public std::map<FDelegateHandle, FDelegate<TReturn, ParamTypes...>>
+	{
+	public:
+		using TDelegate = FDelegate<TReturn, ParamTypes...>;
+		FMulticastDelegate() = default;
+		
+		void RemoveDelegate(const FDelegateHandle& Handle)
+		{
+			this->erase(Handle);
+		}
+
+		template<class TObjectType>
+		const FDelegateHandle AddFuncion(TObjectType* Object, TReturn(TObjectType::* Funcation)(ParamTypes ...))
+		{
+			FDelegateHandle Handle;
+			TDelegate Delegate;
+			Delegate.Bind(Object, Funcation);
+			this->insert({Handle, Delegate});
+		
+			return Handle;
+		}
+
+		const FDelegateHandle& AddFunction(TReturn(*InFuncation)(ParamTypes...))
+		{
+			FDelegateHandle Handle;
+			TDelegate Delegate;
+			Delegate.Bind(Funcation);
+			this->insert({Handle, Delegate});
+
+			return Handle;
+		}
+
+		void Broadcast(ParamTypes ...Params)
+		{
+			for (auto& Tmp : *this)
+			{
+				Tmp.second.Execute(std::forward<ParamTypes>(Params)...);
+			}
+		}
+
+		void ReleaseDelegates()
+		{
+			for (auto& Tmp : *this)
+			{
+				Tmp.ReleaseDelegate();
+			}
+		}
+	};
+
+#define SIMPLE_SINGLE_DELEGATE(Name,Return,...) FSingleDelegate<Return,__VA_ARGS__> Name
+#define MULTICAST_SINGLE_DELEGATE(Name,Return,...) FMulticastDelegate<Return,__VA_ARGS__> Name
+#define DEFINITION_SIMPLE_SINGLE_DELEGATE(DefinitionName,Return,...) class DefinitionName :public FSingleDelegate<Return, __VA_ARGS__> {};
+#define DEFINITION_MULTICAST_SINGLE_DELEGATE(DefinitionName,Return,...) class DefinitionName :public FMulticastDelegate<Return, __VA_ARGS__> {};
 }
+
+

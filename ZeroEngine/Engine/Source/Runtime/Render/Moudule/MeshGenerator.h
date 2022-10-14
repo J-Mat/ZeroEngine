@@ -45,6 +45,7 @@ namespace Zero
 
 	struct FMeshType
 	{
+		FMeshType() {};
 		FMeshType(EMeshShapeType Type, std::string _Path) 
 			: MeshShapeType(Type)
 			, Path(_Path)
@@ -52,6 +53,7 @@ namespace Zero
 		EMeshShapeType MeshShapeType = EMeshShapeType::Custom;
 		std::string  Path = "";
 		static FMeshType s_CubeMeshType; 	
+		static FMeshType s_SphereMeshType; 	
 	};
 
 	struct FMeshData
@@ -71,7 +73,6 @@ namespace Zero
 	class FMeshGenerator : public IPublicSingleton<FMeshGenerator>
 	{
 	public:
-		void CreatMesh(const FMeshType& MeshType, FMeshData& MeshData, int ParaNum, ...);
 		void CreateCube(FMeshData& Meshata, float Width, float Height, float Depth, uint32_t NumSubdivisions);
 		void CreateSphere(FMeshData& MeshData, float Radius, uint32_t NumSubdivisions);
 		void CreateCustomModel(std::vector<FMeshData>& MeshDatas, const std::string& Path, FVertexBufferLayout& Layout);

@@ -7,29 +7,8 @@
 namespace Zero
 {
 	FMeshType FMeshType::s_CubeMeshType = { EMeshShapeType::Cube, "" };
+	FMeshType FMeshType::s_SphereMeshType = { EMeshShapeType::Sphere, "" };
 
-	void FMeshGenerator::CreatMesh(const FMeshType& MeshType, FMeshData& MeshData, int ParaNum, ...)
-	{
-		switch (MeshType.MeshShapeType)
-		{
-		case EMeshShapeType::Custom:
-			break;
-		case EMeshShapeType::Cube:
-		{
-			va_list VaList;
-			va_start(VaList, ParaNum);
-			float Width = va_arg(VaList, float);
-			float Height = va_arg(VaList, float);
-			float Depth = va_arg(VaList, float);
-			uint32_t NumSubdivisions = va_arg(VaList, uint32_t);
-			va_end(VaList);
-			CreateCube(MeshData, Width, Height, Depth, NumSubdivisions);
-			break;
-		}
-		default:
-			break;
-		}
-	}
 	void FMeshGenerator::CreateCube(FMeshData& MeshData, float Width, float Height, float Depth, uint32_t NumSubdivisions)
 	{
 		std::vector<FVertex> Vertex(24);

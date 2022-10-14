@@ -6,8 +6,8 @@
 
 namespace Zero
 {
-	UCustomMeshActor::UCustomMeshActor(const std::string& Tag, const std::string& FileName)
-		: UMeshActor(Tag)
+	UCustomMeshActor::UCustomMeshActor(const std::string& FileName)
+		: UMeshActor()
 		, m_FileName(FConfig::GetInstance().GetObjFullPath(FileName).string())
 	{
 	}

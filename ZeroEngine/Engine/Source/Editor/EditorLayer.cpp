@@ -25,7 +25,7 @@ namespace Zero
 		UWorld::SetCurrentWorld(m_World);
 		
 		//UCustomMeshActor* MeshActor = UActor::Create<UCustomMeshActor>(m_World, "cat", "backpack.obj");
-		UCustomMeshActor* MeshActor = UActor::Create<UCustomMeshActor>(m_World, "cat", "sphere.fbx");
+		UCustomMeshActor* MeshActor = m_World->CreateActor<UCustomMeshActor>("sphere.fbx");
 		//UCubeMeshActor* MeshActor = UActor::Create<UCubeMeshActor>(m_World);
 
 		m_CameraController = CreateRef<FEditorCameraController>(m_World->GetCameraActor());

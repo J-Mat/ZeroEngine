@@ -2,6 +2,7 @@
 #include "DX12Device.h"
 #include "DX12CommandList.h"
 #include "Render/RendererAPI.h"
+#include "Colors.h"
 
 namespace Zero
 {

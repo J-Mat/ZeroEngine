@@ -3,45 +3,38 @@
 #include <string>
 
 
-namespace ZBT
+namespace ZHT
 {
-	enum  EDataType
-	{
-		DT_Int32,
-		DT_UInt32,
-		DT_Float,
-		DT_Double,
-		DT_String,
-		DT_Vector
-	};
-
 	struct FParamElement
 	{
 		std::string Name;
 		bool bConst = false;
 		bool bPointer = false;
 		bool bRefercence = false;
-		EDataType DataType;
+		std::string DataType;
+		uint32_t LineIndex = 0;
 
 		std::vector<FParamElement> InternelType;
 
 		std::string Category = "Default";
 	};
 
-	struct FVariableElement : public FParamElement
+	struct FPropertyElement : public FParamElement
 	{
 		bool bStatic = false;
-		FVariableElement() = default;
+		std::string Value;
+		FPropertyElement() = default;
 	};
 
 	struct FClassElement
 	{
 		std::string ClassName;
-		std::vector<FVariableElement> Variables;
-		std::filesystem::path Path;
-
-		std::string GetPath() { return Path.string(); }
-		std::string GetFileName() { return Path.stem().string(); }
+		std::vector<FPropertyElement> Properties;
+		std::string InheritName;
+		uint32_t LineIndex;
+		std::filesystem::path OriginFilePath;
+		std::filesystem::path HeaderPath;
+		std::filesystem::path CppPath;
 	};
 
 	struct FToken
@@ -69,7 +62,13 @@ namespace ZBT
 		void AcceptDefaultToken();
 		void Parse(std::filesystem::path Path);
 		bool CheckNeedGenerateReflection();
-		void GenerateCodeReflectionFile();
+		FToken GetType(uint32_t& TokenIndex);
+		void CollectProperty(FPropertyElement& PropertyElement);
+		bool LocatePropertyTag();
+		void CollectClassInfo(FClassElement& ClassElement);
+		void LogClassInfo(FClassElement& ClassElement);
+		void GenerateCodeReflectionFile(FClassElement& ClassElement);
+		
 	private:
 		std::string m_Content;
 		std::filesystem::path m_CurFilePath;
@@ -77,6 +76,10 @@ namespace ZBT
 		size_t m_CurPos;
 		uint32_t m_CurLineIndex; 
 		std::vector<FToken> m_Tokens;
+		size_t m_CurrentTokenIndex;
+		size_t m_ClassTagIndex;
+		size_t m_ClassBodyIndex;
+		size_t m_PropertyIndex;
 	};
 
 }

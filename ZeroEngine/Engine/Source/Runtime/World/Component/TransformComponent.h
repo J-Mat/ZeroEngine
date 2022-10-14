@@ -1,16 +1,15 @@
 #pragma once
 
 #include "Component.h"
-#include "TransformationComponent.reflection.h"
+//#include "TransformationComponent.reflection.h"
 
 namespace Zero
 {
-	UClass()
+	//UCLASS()
 	class UTransformationComponent : public UComponent
 	{	
-		#define GENERATED_UCLASS_BODY()
+		//GENERATED_BODY()
 	public:
-		COMPONENT_CLASS_TYPE(TransformationComponent)
 		UTransformationComponent();
 		virtual void MoveLocal(const ZMath::vec3& Offset);
 		virtual void RotateLocal(const ZMath::FEulerAngle& Offset);
@@ -28,13 +27,13 @@ namespace Zero
 		ZMath::vec3& GetRightVector() { return m_RightVector; }
 		ZMath::vec3& GetUPVector() { return m_UpVector; }
 	public:
-		UPROPERTY()
+		//UPROPERTY()
 		ZMath::vec3 m_Position = {0.0f, 0.0f, 0.0f};
 
-		UPROPERTY()
+		//UPROPERTY()
 		ZMath::vec3 m_Rotation = { 0.0f, 0.0f, 0.0f };
 
-		UPROPERTY()
+		//UPROPERTY()
 		ZMath::vec3 m_Scale = { 1.0f, 1.0f, 1.0f };
 
 		ZMath::vec3 m_ForwardVector = { 0.0f, 0.0f, 1.0f };

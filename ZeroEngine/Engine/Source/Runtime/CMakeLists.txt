@@ -9,6 +9,7 @@ add_library(${ProjectName} STATIC ${HeadList} ${SrcList})
 target_include_directories(${ProjectName} 
     PRIVATE "${EngineSourceDir}"
     PRIVATE "${EngineRuntimeDir}" # make sure we can directly include "hepch.h"
+    PRIVATE	"${EngineIntermediateDir}"
 )
 
 target_link_libraries(${ProjectName}

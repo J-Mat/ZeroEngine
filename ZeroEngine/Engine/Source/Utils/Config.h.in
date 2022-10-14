@@ -14,6 +14,7 @@ namespace Zero
 		static const std::filesystem::path ConfigDir = "@EngineConfigDir@";
 		static const std::string& ZBTFile = "ZBTConfig.ini";
 		static const std::filesystem::path AssetsDir = "@EngineAssetsDir@";
+		static const std::filesystem::path IntermediateDir = "@EngineIntermediateDir@";
 	}
 }
 
