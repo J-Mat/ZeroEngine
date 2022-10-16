@@ -13,8 +13,8 @@ namespace Zero
 		ImGui::Begin("Scene", 0, ImGuiWindowFlags_MenuBar);
 		
 		ImVec2 WindowsPos = ImGui::GetWindowPos();
-		m_WindowsPos.x = WindowsPos.x;
-		m_WindowsPos.y = WindowsPos.y;
+		m_WindowsPos.x = int(WindowsPos.x);
+		m_WindowsPos.y = int(WindowsPos.y);
 		
 		m_bViewportFocused = ImGui::IsWindowFocused();
 		m_bViewportHoverd = ImGui::IsWindowHovered();
