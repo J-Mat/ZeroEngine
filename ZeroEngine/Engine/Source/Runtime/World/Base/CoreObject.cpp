@@ -1,4 +1,5 @@
 #include "CoreObject.h"
+#include "ClassInfoCollection.h"
 
 
 namespace Zero
@@ -25,8 +26,10 @@ namespace Zero
 		return nullptr;
 	}
 
-	UWorld* UCoreObject::GetWorld()
+	void UCoreObject::InitCoreObject()
 	{
-		return m_World;
+		ClassInfoCollection.m_Outer = this;
+		InitReflectionContent();
 	}
+
 }

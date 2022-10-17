@@ -404,10 +404,8 @@ namespace ZHT
 		std::cout << "\n\n\n";
 	}
 
-	void FFileParser::GenerateCodeReflectionFile(FClassElement& ClassElement)
+	void FFileParser::GenerateReflectionHeaderFile(FClassElement& ClassElement)
 	{
-		// Removeo all files first
-		Zero::Utils::RemoveFilesInDir(Zero::Config::IntermediateDir.string());
 
 		std::vector<std::string> Contents;
 		Contents.push_back("#pragma once\n\n\n");
@@ -423,8 +421,46 @@ namespace ZHT
 		Contents.push_back( Zero::StringUtils::Format("#define REFLECTION_FILE_NAME {0}", ClassElement.ClassName));
 		Contents.push_back( Zero::StringUtils::Format("#define TAG_LINE {0}", ClassElement.LineIndex));
 
+		Contents.push_back( Zero::StringUtils::Format("#define {0}_{1}_Internal_BODY \\",
+			ClassElement.ClassName, 
+			ClassElement.LineIndex
+		));
+
+		Contents.push_back(Zero::StringUtils::Format("using Supper = {0};", ClassElement.InheritName));
+		Contents.push_back("static class UClass* GetClass(); \\");
+		Contents.push_back("protected: \\");
+		Contents.push_back("\tvirtual void InitReflectionContent();");
+		
+		Contents.push_back( Zero::StringUtils::Format("#define {0}_{1}_GENERATED_BODY \\",
+			ClassElement.ClassName, 
+			ClassElement.LineIndex
+		));
+
+		Contents.push_back( Zero::StringUtils::Format("#define {0}_{1}_Internal_BODY",
+			ClassElement.ClassName, 
+			ClassElement.LineIndex
+		));
+
 		std::string WholeContent = Zero::StringUtils::Join(Contents, "\n", true);
 		std::cout << WholeContent;
 		Zero::StringUtils::WriteFile(ClassElement.HeaderPath.string(), WholeContent);
+	}
+
+	void FFileParser::GenerateReflectionCppFile(FClassElement& ClassElement)
+	{
+		std::vector<std::string> Contents;
+		Contents.push_back(Zero::StringUtils::Format("#include \"{0}\"", ClassElement.HeaderPath.filename().string()));
+		std::stringstream Stream;
+		Stream << "#ifdef _MSC_VER\n"
+			<< "#pragma warning (push)\n"
+			<< "#pragma warning (disable : 4883)\n"
+			<< "#endif\n";
+
+		Contents.push_back(Stream.str());
+
+		std::string WholeContent = Zero::StringUtils::Join(Contents, "\n", true);
+
+		std::cout << WholeContent;
+		Zero::StringUtils::WriteFile(ClassElement.CppPath.string(), WholeContent);
 	}
 }

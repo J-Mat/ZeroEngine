@@ -4,6 +4,7 @@
 #include "Log.h"
 #include "mini/ini.h"
 #include "CppParser.h"
+#include "Utils.h"
 
 
 ZHT::FFileParser g_FileParser;
@@ -26,7 +27,8 @@ void ParseDir(const std::filesystem::path& Folder)
 				ZHT::FClassElement ClassElement;
 				g_FileParser.CollectClassInfo(ClassElement);
 				g_FileParser.LogClassInfo(ClassElement);
-				g_FileParser.GenerateCodeReflectionFile(ClassElement);
+				g_FileParser.GenerateReflectionHeaderFile(ClassElement);
+				g_FileParser.GenerateReflectionCppFile(ClassElement);
 			}
 		}
 	}
@@ -37,6 +39,8 @@ int main()
 {
 	Zero::FLog::Init();
 	std::filesystem::path Path = Zero::Config::ConfigDir / Zero::Config::ZBTFile;
+	// Removeo all files first
+	Zero::Utils::RemoveFilesInDir(Zero::Config::IntermediateDir.string());
 	std::cout << Path.string() << std::endl;
 	mINI::INIFile File(Path.string());
 	mINI::INIStructure Ini;

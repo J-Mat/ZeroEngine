@@ -67,7 +67,8 @@ namespace ZHT
 		bool LocatePropertyTag();
 		void CollectClassInfo(FClassElement& ClassElement);
 		void LogClassInfo(FClassElement& ClassElement);
-		void GenerateCodeReflectionFile(FClassElement& ClassElement);
+		void GenerateReflectionHeaderFile(FClassElement& ClassElement);
+		void GenerateReflectionCppFile(FClassElement& ClassElement);
 		
 	private:
 		std::string m_Content;

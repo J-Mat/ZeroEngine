@@ -6,6 +6,7 @@
 
 namespace Zero
 {
+	class UCoreObject;
 	class FClassInfoCollection
 	{
 	public:
