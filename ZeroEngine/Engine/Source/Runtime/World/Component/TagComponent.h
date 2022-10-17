@@ -15,9 +15,7 @@ namespace Zero
 		void SetTag(const std::string& Tag) { m_Tag = Tag; }
 	public:
 		UPROPERTY()
-			std::string m_Tag;
-
-		UPROPERTY()
-			std::string m_test = "lalla";
+		std::string m_Tag;
+		
 	};
 }

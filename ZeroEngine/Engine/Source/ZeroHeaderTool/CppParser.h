@@ -40,13 +40,18 @@ namespace ZHT
 	struct FToken
 	{
 		FToken() = default;
-		FToken(const std::string& _Str, uint32_t _LineIndex)
+		FToken(const std::string& _Str, int32_t _LineIndex)
 			:TokenName(_Str)
 			,LineIndex(_LineIndex)
 		{
 		}
-		std::string TokenName;
-		uint32_t LineIndex = 0;
+		std::string TokenName = "";
+		int32_t LineIndex = -1;
+		
+		bool IsValid()
+		{
+			return LineIndex >= 0;
+		}
 	};
 
 	class FFileParser
@@ -68,6 +73,8 @@ namespace ZHT
 		void CollectClassInfo(FClassElement& ClassElement);
 		void LogClassInfo(FClassElement& ClassElement);
 		void GenerateReflectionHeaderFile(FClassElement& ClassElement);
+
+		std::string WriteAddPropertyCode(FClassElement& ClassElement);
 		void GenerateReflectionCppFile(FClassElement& ClassElement);
 		
 	private:

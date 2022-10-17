@@ -10,6 +10,8 @@ namespace ZMath
 {
     using namespace glm;
     
+    using FColor = glm::vec4;
+    
     struct FEulerAngle
     {
         FEulerAngle() = default;

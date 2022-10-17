@@ -3,23 +3,23 @@
 
 namespace Zero
 {
-	UTransformationComponent::UTransformationComponent()
+	UTransformComponent::UTransformComponent()
 		: UComponent()
 	{
 	}
 
-	void UTransformationComponent::MoveLocal(const ZMath::vec3& Offset)
+	void UTransformComponent::MoveLocal(const ZMath::vec3& Offset)
 	{
 		m_Position += m_RightVector * Offset.x + m_UpVector * Offset.y + m_ForwardVector * Offset.z;
 	}
 
-	void UTransformationComponent::RotateLocal(const ZMath::FEulerAngle& Offset)
+	void UTransformComponent::RotateLocal(const ZMath::FEulerAngle& Offset)
 	{
 		ZMath::vec3 Rotate = { m_Rotation.x + Offset.Pitch, m_Rotation.y + Offset.Yaw, m_Rotation.z + Offset.Roll };
 		SetRotation(Rotate);
 	}
 
-	void UTransformationComponent::SetRotation(const ZMath::vec3& Rotation)
+	void UTransformComponent::SetRotation(const ZMath::vec3& Rotation)
 	{
 		m_Rotation = {
 			ZMath::radians(Rotation.x),
@@ -39,12 +39,12 @@ namespace Zero
 		m_UpVector = ZMath::cross(m_ForwardVector, m_RightVector);
 	}
 
-	ZMath::quat UTransformationComponent::GetOrientation()
+	ZMath::quat UTransformComponent::GetOrientation()
 	{
 		return ZMath::quat(m_Rotation);
 	}
 
-	ZMath::mat4 UTransformationComponent::GetTransform()
+	ZMath::mat4 UTransformComponent::GetTransform()
 	{
 		return ZMath::scale(ZMath::mat4(1.0f), m_Scale) * ZMath::toMat4(GetOrientation())  * ZMath::translate(ZMath::mat4(1.0f), m_Position);
 	}

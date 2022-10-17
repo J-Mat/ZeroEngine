@@ -24,7 +24,7 @@ namespace Zero
 	}
 
 	UCameraComponent::UCameraComponent()
-		: UTransformationComponent()
+		: UTransformComponent()
 	{
 		FCameraSettings Settings;
 		SetCameraSettings(Settings);

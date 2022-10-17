@@ -12,11 +12,11 @@ namespace Zero
 	public:
 		FClassInfoCollection() = default;
 		
-		UCoreObject* AddProperty(const std::string& PropertyName, void* Data, uint32_t PropertySize, const EPropertyType PropertyType);
+		UCoreObject* AddProperty(const std::string& PropertyName, void* Data, const std::string& PropertyType, uint32_t PropertySize);
 
 		template<class T>
 		inline T* ConstructProperty(
-			const std::string& PropertyName, void* Data, uint32_t PropertySize, const EPropertyType PropertyType)
+			const std::string& PropertyName, void* Data, uint32_t PropertySize, const std::string&  PropertyType)
 		{
 			UProperty* Property = CreateObject<UProperty>(m_Outer, Data, PropertySize, PropertyType);
 			Property->SetName(PropertyName);

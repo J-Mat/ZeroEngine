@@ -39,7 +39,7 @@ namespace Zero
 			if (Obj != nullptr)
 			{
 				auto* Actor = static_cast<UActor*>(Obj);
-				auto* TransformComponent = Actor->GetComponent<UTransformationComponent>();
+				auto* TransformComponent = Actor->GetComponent<UTransformComponent>();
 				const ZMath::mat4 Transform = ZMath::inverse(TransformComponent->GetTransform());
 				
 				ZMath::FRay TransformRay = ViewRay.TransformRay(Transform);

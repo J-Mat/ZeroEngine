@@ -28,7 +28,7 @@ namespace Zero
 		float Top = 0.0f;
 	};
 
-	class UCameraComponent : public UTransformationComponent
+	class UCameraComponent : public UTransformComponent
 	{
 	public:
 		UCameraComponent();

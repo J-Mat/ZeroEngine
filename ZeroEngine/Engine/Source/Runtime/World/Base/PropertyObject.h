@@ -21,7 +21,7 @@ namespace Zero
 	{
 		using Supper = UField;
 	public: 
-		UProperty(void* Data, uint32_t DataSize, EPropertyType PropertyType);
+		UProperty(void* Data, uint32_t DataSize, const std::string PropertyType);
 
 		template<class T>
 		T* GetData() const

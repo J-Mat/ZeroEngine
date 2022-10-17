@@ -6,7 +6,7 @@
 
 namespace Zero
 {
-	class UTransformationComponent;
+	class UTransformComponent;
 	class UTagComponent;
 	class UComponent;
 	class UWorld;
@@ -16,9 +16,9 @@ namespace Zero
 	public:
 		UActor();
 
-		UTransformationComponent* m_RootComponent;
+		UTransformComponent* m_RootComponent;
 
-		UTransformationComponent* GetRootComponent() const { return m_RootComponent; }
+		UTransformComponent* GetRootComponent() const { return m_RootComponent; }
 
 
 		template<class T>
@@ -35,7 +35,7 @@ namespace Zero
 		}
 
 		template<>
-		UTransformationComponent* GetComponent()
+		UTransformComponent* GetComponent()
 		{
 			return m_TransformationComponent;
 		}
@@ -63,7 +63,7 @@ namespace Zero
 		std::string GetTag() { return m_Tag; }
 	protected:
 		std::string m_Tag;
-		UTransformationComponent* m_TransformationComponent = nullptr;
+		UTransformComponent* m_TransformationComponent = nullptr;
 		UTagComponent* m_Tagcomponent = nullptr;
 		std::vector<UComponent*> m_Components;
 	};
