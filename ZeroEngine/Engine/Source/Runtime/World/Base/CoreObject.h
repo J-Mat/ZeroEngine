@@ -3,10 +3,10 @@
 #include "Core.h"
 #include "GUIDInterface.h"
 #include "ObjectMacros.h"
+#include "ClassInfoCollection.h"
 
 namespace Zero
 {
-	class FClassInfoCollection;
 	class UCoreObject : public IGUIDInterface
 	{
 	public:
@@ -15,7 +15,7 @@ namespace Zero
 		static std::map<Utils::Guid, UCoreObject*> s_ObjectsCollection;
 		static UCoreObject* GetObjByGuid(const Utils::Guid& Guid);
 		bool IsTick()const { return m_bTick; }
-		virtual inline void SetOuter(UCoreObject* InNewOuter) { m_Outer = InNewOuter; }
+		virtual inline void SetOuter(UCoreObject* InNewOuter);
 		virtual void PostInit() {}
 		virtual void Tick() {}
 		
@@ -25,14 +25,13 @@ namespace Zero
 	public:
 		virtual void InitCoreObject();
 		virtual void InitReflectionContent() {};
-	protected:
+	public:
 		FClassInfoCollection m_ClassInfoCollection;
 
 	protected:
 		bool m_bTick = true;
 		UCoreObject* m_Outer;
 		std::string m_Name;
-		
 
 	};
 }

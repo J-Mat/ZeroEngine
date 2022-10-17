@@ -268,24 +268,30 @@ namespace ZHT
 
 	FToken FFileParser::GetType(uint32_t& TokenIndex)
 	{
+		int32_t LineIndex = m_Tokens[TokenIndex].LineIndex;
+		std::stringstream Stream;
+		std::string CurTokenName = m_Tokens[TokenIndex].TokenName;
+		if (CurTokenName == "std::vector" ||  CurTokenName == "std::map")
+		{
+			Stream << CurTokenName;
+			TokenIndex += 1;
+			
+			CurTokenName = m_Tokens[TokenIndex].TokenName;
+			Stream << CurTokenName;
+			return { Stream.str(), LineIndex };
+		}
+
 		static std::set<std::string> SimpleType = { "int", "std::string", "string", "uint32_t", "int32_t", "ZMath::vec3", "ZMath::vec4", "ZMath::FColor"};
-		std::string CurToken = m_Tokens[TokenIndex].TokenName;
-		uint32_t LineIndex = m_Tokens[TokenIndex].LineIndex;
-		if (SimpleType.contains(CurToken))
+		if (SimpleType.contains(CurTokenName))
+		{
+			return m_Tokens[TokenIndex];
+		}
+		
+		if (CurTokenName.starts_with("U"))
 		{
 			return m_Tokens[TokenIndex];
 		}
 
-		std::stringstream Stream;
-		if (CurToken == "std::vector" ||  CurToken == "std::map")
-		{
-			Stream << CurToken;
-			TokenIndex += 1;
-			
-			CurToken = m_Tokens[TokenIndex].TokenName;
-			Stream << CurToken;
-			return { Stream.str(), LineIndex };
-		}
 		return FToken();
 	}
 
@@ -368,8 +374,7 @@ namespace ZHT
 		ClassElement.OriginFilePath = m_CurFilePath;
 		ClassElement.HeaderPath = Zero::Config::IntermediateDir / Zero::StringUtils::Format("{0}.reflection.h", m_CurFilePath.filename().stem().string());
 
-		ClassElement.CppPath = Zero::Config::IntermediateDir / Zero::StringUtils::Format("{0}.reflection.cpp", m_CurFilePath.filename().stem().string());
-
+		ClassElement.CppPath = Zero::Config::IntermediateDir / Zero::StringUtils::Format("{0}.reflection.cpp", m_CurFilePath.filename().stem().string()); 
 		CLIENT_ASSERT(m_Tokens[m_ClassTagIndex + 2].TokenName == "class", "Semantic Faild!");
 		ClassElement.ClassName = m_Tokens[m_ClassTagIndex + 3].TokenName;
 		ClassElement.LineIndex = m_Tokens[m_ClassTagIndex + 3].LineIndex;
@@ -435,7 +440,7 @@ namespace ZHT
 
 		Contents.push_back("public: \\");
 		Contents.push_back(Zero::StringUtils::Format("using Supper = {0}; \\", ClassElement.InheritName));
-		Contents.push_back("static class UClass* GetClass(); \\");
+		Contents.push_back("static class UClass* GetClass();\\");
 		Contents.push_back("protected: \\");
 		Contents.push_back("\tvirtual void InitReflectionContent();");
 		
@@ -444,10 +449,12 @@ namespace ZHT
 			ClassElement.LineIndex
 		));
 
-		Contents.push_back( Zero::StringUtils::Format("#define {0}_{1}_Internal_BODY",
+		Contents.push_back( Zero::StringUtils::Format("{0}_{1}_Internal_BODY",
 			ClassElement.ClassName, 
 			ClassElement.LineIndex
 		));
+
+		Contents.push_back(Zero::StringUtils::Format("#include \"{0}\"", ClassElement.CppPath.string()));
 
 		std::string WholeContent = Zero::StringUtils::Join(Contents, "\n", true);
 		std::cout << WholeContent;
@@ -460,11 +467,22 @@ namespace ZHT
 		std::stringstream Stream;
 		for (const FPropertyElement& PropertyElement : ClassElement.Properties)
 		{
-			Stream << "\t\tm_ClassInfoCollection.AddProperty("
-				<< "\"" << PropertyElement.Name << "\", "
-				<< "&" << PropertyElement.Name << ", "
-				<< "\"" << PropertyElement.DataType << "\", "
-				<< Zero::StringUtils::Format("sizeof({0})", PropertyElement.DataType) << ");\n";
+			if (PropertyElement.bPointer)
+			{
+				Stream << "\t\tm_ClassInfoCollection.AddProperty("
+					<< "\"" << PropertyElement.Name << "\", "
+					<< "&(*" << PropertyElement.Name << "), "
+					<< "\"" << PropertyElement.DataType << "\", "
+					<< Zero::StringUtils::Format("sizeof(*{0})", PropertyElement.DataType) << ");\n";
+			}
+			else
+			{
+				Stream << "\t\tm_ClassInfoCollection.AddProperty("
+					<< "\"" << PropertyElement.Name << "\", "
+					<< "&" << PropertyElement.Name << ", "
+					<< "\"" << PropertyElement.DataType << "\", "
+					<< Zero::StringUtils::Format("sizeof({0})", PropertyElement.DataType) << ");\n";
+			}
 		}
 		return Stream.str();
 	}
@@ -472,8 +490,10 @@ namespace ZHT
 	void FFileParser::GenerateReflectionCppFile(FClassElement& ClassElement)
 	{
 		std::vector<std::string> Contents;
-		Contents.push_back(Zero::StringUtils::Format("#include \"{0}\"", ClassElement.HeaderPath.filename().string()));
-		Contents.push_back("#include \"ObjectGenerator.h\"");
+		Contents.push_back("#pragma once\n\n\n");
+		Contents.push_back(Zero::StringUtils::Format("#include \"{0}\"", ClassElement.OriginFilePath.string()));
+		Contents.push_back("#include \"World/Base/ObjectGenerator.h\"");
+		Contents.push_back("#include \"World/Base/ClassObject.h\"");
 		std::stringstream Stream;
 		Stream << "#ifdef _MSC_VER\n"
 			<< "#pragma warning (push)\n"
@@ -492,10 +512,10 @@ namespace ZHT
 			<< "\t\tif (ClassObject != nullptr)\n"
 			<< "\t\t{\n"
 			<< "\t\t\tClassObject = CreateObject<UClass>(nullptr);\n"
-			<< "\t\t\tClassObject->m_RegisterClassObjectDelegate.BindLambda([&]()->UClass*\n"
+			<< "\t\t\tClassObject->m_RegisterClassObjectDelegate.BindLambda([&]()->UCoreObject*\n"
 			<< "\t\t\t{\n"
 			<< "\t\t\t\treturn CreateObject<" << ClassElement.ClassName << ">(nullptr);\n"
-			<< "\t\t\t}\n"
+			<< "\t\t\t});\n"
 			<< "\t\t}\n"
 			<< "\t\treturn ClassObject;\n"
 			<< "\t}\n";

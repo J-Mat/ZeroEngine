@@ -1,11 +1,14 @@
 #pragma once
 
-#include "CoreObject.h"
-#include "../Actor/Actor.h"
-#include "../Component/Component.h"
+//#include "../Actor/Actor.h"
+//#include "../Component/Component.h"
 
 namespace Zero
 {
+	class UWorld;
+	class UActor;
+	class UComponent;
+	class UCoreObject;
 	template<typename T, typename ... Args>
 	T* CreateObject(UCoreObject* Outer, Args&&...Params)
 	{
@@ -26,4 +29,3 @@ namespace Zero
 		return Component;
 	}
 }
-

@@ -82,7 +82,7 @@ namespace ZHT
 		std::filesystem::path m_CurFilePath;
 		size_t m_ContentSize;
 		size_t m_CurPos;
-		uint32_t m_CurLineIndex; 
+		int32_t m_CurLineIndex; 
 		std::vector<FToken> m_Tokens;
 		size_t m_CurrentTokenIndex;
 		size_t m_ClassTagIndex;

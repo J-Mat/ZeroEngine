@@ -3,6 +3,9 @@
 #include "Core.h"
 #include "../Base/CoreObject.h"
 #include "../Base/ObjectGenerator.h"
+#include "Actor.reflection.h"
+//#include "test.reflection.h"
+
 
 namespace Zero
 {
@@ -13,6 +16,7 @@ namespace Zero
 	UCLASS()
 	class UActor : public UCoreObject
 	{
+		GENERATED_BODY()
 	public:
 		UActor();
 
@@ -61,9 +65,14 @@ namespace Zero
 		std::vector<UComponent*>& GetAllComponents() { return m_Components; }
 		void AddComponent(UComponent* Component) { m_Components.push_back(Component); }
 		std::string GetTag() { return m_Tag; }
-	protected:
-		std::string m_Tag;
+		void SetWorld(UWorld* World) { m_World = World; }
+		UWorld* GetWorld() { return m_World; }
+	public:
+		UPROPERTY()
 		UTransformComponent* m_TransformationComponent = nullptr;
+	protected:
+		UWorld* m_World;
+		std::string m_Tag;
 		UTagComponent* m_Tagcomponent = nullptr;
 		std::vector<UComponent*> m_Components;
 	};

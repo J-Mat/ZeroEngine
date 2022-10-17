@@ -1,14 +1,14 @@
 #pragma once
-
+#include "../Base/ObjectMacros.h"
 #include "Component.h"
-#include "TransformComponent.reflection.h"
+//#include "TransformComponent.reflection.h"
 
 namespace Zero
 {
 	UCLASS()
 	class UTransformComponent : public UComponent
 	{	
-		GENERATED_BODY()
+		//GENERATED_BODY()
 	public:
 		UTransformComponent();
 		virtual void MoveLocal(const ZMath::vec3& Offset);

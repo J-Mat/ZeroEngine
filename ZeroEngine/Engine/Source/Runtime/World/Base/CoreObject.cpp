@@ -1,5 +1,4 @@
 #include "CoreObject.h"
-#include "ClassInfoCollection.h"
 
 
 namespace Zero
@@ -26,9 +25,14 @@ namespace Zero
 		return nullptr;
 	}
 
+	void UCoreObject::SetOuter(UCoreObject* InNewOuter)
+	{
+		m_Outer = InNewOuter; 
+	}
+
 	void UCoreObject::InitCoreObject()
 	{
-		ClassInfoCollection.m_Outer = this;
+		m_ClassInfoCollection.m_Outer = this;
 		InitReflectionContent();
 	}
 

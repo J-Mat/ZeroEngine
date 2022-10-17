@@ -1,13 +1,13 @@
 #pragma once
 #include "Component.h"
-#include "TagComponent.reflection.h" 
+//#include "TagComponent.reflection.h" 
 
 namespace Zero
 {
 	UCLASS()
 	class UTagComponent : public UComponent
 	{
-		GENERATED_BODY()
+		//GENERATED_BODY()
 	public:
 		UTagComponent();
 		virtual ~UTagComponent();

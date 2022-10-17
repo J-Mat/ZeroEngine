@@ -5,25 +5,12 @@
 
 namespace Zero
 {
-	enum class EComponentType
-	{
-		None = 0,
-		TransformationComponent,
-		TagComponent,
-		MeshVertexComponent,
-		MeshRenderComponent,
-		CameraComponent
-	};
-
-	class UActor;
+	class UCoreObject;
 	class UComponent : public UCoreObject
 	{
 	public:
-		UComponent()
-			: UCoreObject()
-		{
-		}
-		void SetParentComponent(UComponent* Component) { m_Parent = Component; };
+		UComponent();
+		void SetParentComponent(UComponent* Component);
 	protected:
 		UComponent* m_Parent = nullptr;
 	};
