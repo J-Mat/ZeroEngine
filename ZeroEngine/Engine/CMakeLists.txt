@@ -6,6 +6,7 @@ set(EngineConfigDir "${ProjectRootDir}/Config")
 set(EngineSourceDir "${EngineRootDir}/Source")
 set(EngineIntermediateDir "${ProjectRootDir}/Intermediate")
 set(EngineToolDir "${ProjectRootDir}/Tools")
+set(CodeReflectionLinkFile "${EngineSourceDir}/CodeReflectionLinkFile.h")
 
 
 add_subdirectory(Source)

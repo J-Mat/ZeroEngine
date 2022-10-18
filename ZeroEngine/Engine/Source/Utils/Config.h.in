@@ -1,5 +1,4 @@
-#ifndef __PATH_H__
-#define __PATH_H__
+#pragma once
 
 #include <filesystem>
 
@@ -15,6 +14,7 @@ namespace Zero
 		static const std::string& ZBTFile = "ZBTConfig.ini";
 		static const std::filesystem::path AssetsDir = "@EngineAssetsDir@";
 		static const std::filesystem::path IntermediateDir = "@EngineIntermediateDir@";
+		static const std::filesystem::path CodeReflectionLinkFile = "@CodeReflectionLinkFile@";
 	}
 }
 

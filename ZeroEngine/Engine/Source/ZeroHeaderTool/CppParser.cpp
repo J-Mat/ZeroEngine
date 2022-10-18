@@ -178,7 +178,7 @@ namespace ZHT
 	void FFileParser::Parse(std::filesystem::path Path)
 	{
 		m_CurFilePath = Path;
-		m_Content = Zero::StringUtils::ReadFile(Path.string());
+		m_Content = Zero::Utils::StringUtils::ReadFile(Path.string());
 		m_CurPos = 0;
 		m_ContentSize = m_Content.size();
 		m_Tokens.clear();
@@ -372,9 +372,9 @@ namespace ZHT
 	void FFileParser::CollectClassInfo(FClassElement& ClassElement)
 	{
 		ClassElement.OriginFilePath = m_CurFilePath;
-		ClassElement.HeaderPath = Zero::Config::IntermediateDir / Zero::StringUtils::Format("{0}.reflection.h", m_CurFilePath.filename().stem().string());
+		ClassElement.HeaderPath = Zero::Config::IntermediateDir / Zero::Utils::StringUtils::Format("{0}.reflection.h", m_CurFilePath.filename().stem().string());
 
-		ClassElement.CppPath = Zero::Config::IntermediateDir / Zero::StringUtils::Format("{0}.reflection.cpp", m_CurFilePath.filename().stem().string()); 
+		ClassElement.CppPath = Zero::Config::IntermediateDir / Zero::Utils::StringUtils::Format("{0}.reflection.cpp", m_CurFilePath.filename().stem().string()); 
 		CLIENT_ASSERT(m_Tokens[m_ClassTagIndex + 2].TokenName == "class", "Semantic Faild!");
 		ClassElement.ClassName = m_Tokens[m_ClassTagIndex + 3].TokenName;
 		ClassElement.LineIndex = m_Tokens[m_ClassTagIndex + 3].LineIndex;
@@ -430,35 +430,32 @@ namespace ZHT
 		Contents.push_back("#undef TAG_LINE");
 		Contents.push_back("#endif //TAG_LINE\n\n");
 
-		Contents.push_back( Zero::StringUtils::Format("#define REFLECTION_FILE_NAME {0}", ClassElement.ClassName));
-		Contents.push_back( Zero::StringUtils::Format("#define TAG_LINE {0}", ClassElement.LineIndex));
+		Contents.push_back( Zero::Utils:: StringUtils::Format("#define REFLECTION_FILE_NAME {0}", ClassElement.ClassName));
+		Contents.push_back( Zero::Utils::StringUtils::Format("#define TAG_LINE {0}", ClassElement.LineIndex));
 
-		Contents.push_back( Zero::StringUtils::Format("#define {0}_{1}_Internal_BODY \\",
+		Contents.push_back( Zero::Utils::StringUtils::Format("#define {0}_{1}_Internal_BODY \\",
 			ClassElement.ClassName, 
 			ClassElement.LineIndex
 		));
 
 		Contents.push_back("public: \\");
-		Contents.push_back(Zero::StringUtils::Format("using Supper = {0}; \\", ClassElement.InheritName));
+		Contents.push_back(Zero::Utils::StringUtils::Format("using Supper = {0}; \\", ClassElement.InheritName));
 		Contents.push_back("static class UClass* GetClass();\\");
 		Contents.push_back("protected: \\");
 		Contents.push_back("\tvirtual void InitReflectionContent();");
 		
-		Contents.push_back( Zero::StringUtils::Format("#define {0}_{1}_GENERATED_BODY \\",
+		Contents.push_back( Zero::Utils::StringUtils::Format("#define {0}_{1}_GENERATED_BODY \\",
 			ClassElement.ClassName, 
 			ClassElement.LineIndex
 		));
 
-		Contents.push_back( Zero::StringUtils::Format("{0}_{1}_Internal_BODY",
+		Contents.push_back( Zero::Utils::StringUtils::Format("{0}_{1}_Internal_BODY",
 			ClassElement.ClassName, 
 			ClassElement.LineIndex
 		));
-
-		Contents.push_back(Zero::StringUtils::Format("#include \"{0}\"", ClassElement.CppPath.string()));
-
-		std::string WholeContent = Zero::StringUtils::Join(Contents, "\n", true);
+		std::string WholeContent = Zero::Utils::StringUtils::Join(Contents, "\n", true);
 		std::cout << WholeContent;
-		Zero::StringUtils::WriteFile(ClassElement.HeaderPath.string(), WholeContent);
+		Zero::Utils::StringUtils::WriteFile(ClassElement.HeaderPath.string(), WholeContent);
 	}
 
 	std::string FFileParser::WriteAddPropertyCode(FClassElement& ClassElement)
@@ -469,11 +466,12 @@ namespace ZHT
 		{
 			if (PropertyElement.bPointer)
 			{
+				continue;
 				Stream << "\t\tm_ClassInfoCollection.AddProperty("
 					<< "\"" << PropertyElement.Name << "\", "
 					<< "&(*" << PropertyElement.Name << "), "
 					<< "\"" << PropertyElement.DataType << "\", "
-					<< Zero::StringUtils::Format("sizeof(*{0})", PropertyElement.DataType) << ");\n";
+					<< Zero::Utils::StringUtils::Format("sizeof(*{0})", PropertyElement.DataType) << ");\n";
 			}
 			else
 			{
@@ -481,7 +479,7 @@ namespace ZHT
 					<< "\"" << PropertyElement.Name << "\", "
 					<< "&" << PropertyElement.Name << ", "
 					<< "\"" << PropertyElement.DataType << "\", "
-					<< Zero::StringUtils::Format("sizeof({0})", PropertyElement.DataType) << ");\n";
+					<< Zero::Utils::StringUtils::Format("sizeof({0})", PropertyElement.DataType) << ");\n";
 			}
 		}
 		return Stream.str();
@@ -490,8 +488,7 @@ namespace ZHT
 	void FFileParser::GenerateReflectionCppFile(FClassElement& ClassElement)
 	{
 		std::vector<std::string> Contents;
-		Contents.push_back("#pragma once\n\n\n");
-		Contents.push_back(Zero::StringUtils::Format("#include \"{0}\"", ClassElement.OriginFilePath.string()));
+		Contents.push_back(Zero::Utils::StringUtils::Format("#include \"{0}\"", ClassElement.OriginFilePath.string()));
 		Contents.push_back("#include \"World/Base/ObjectGenerator.h\"");
 		Contents.push_back("#include \"World/Base/ClassObject.h\"");
 		std::stringstream Stream;
@@ -506,7 +503,7 @@ namespace ZHT
 			<< "{";
 		PUSH_TO_CONTENT
 
-		Stream << Zero::StringUtils::Format("\tUClass* {0}::GetClass()\n", ClassElement.ClassName)
+		Stream << Zero::Utils::StringUtils::Format("\tUClass* {0}::GetClass()\n", ClassElement.ClassName)
 			<< "\t{\n"
 			<< "\t\tstatic UClass* ClassObject = nullptr;\n"
 			<< "\t\tif (ClassObject != nullptr)\n"
@@ -521,7 +518,7 @@ namespace ZHT
 			<< "\t}\n";
 		PUSH_TO_CONTENT
 
-		Stream << Zero::StringUtils::Format("\tvoid {0}::InitReflectionContent()\n", ClassElement.ClassName)
+		Stream << Zero::Utils::StringUtils::Format("\tvoid {0}::InitReflectionContent()\n", ClassElement.ClassName)
 			<< "\t{\n"
 			<< "\t\tSupper::InitReflectionContent();\n"
 			<< WriteAddPropertyCode(ClassElement)
@@ -537,8 +534,8 @@ namespace ZHT
 			<< "#endif\n";
 		PUSH_TO_CONTENT
 
-		std::string WholeContent = Zero::StringUtils::Join(Contents, "\n", true);
+		std::string WholeContent = Zero::Utils::StringUtils::Join(Contents, "\n", true);
 		std::cout << WholeContent;
-		Zero::StringUtils::WriteFile(ClassElement.CppPath.string(), WholeContent);
+		Zero::Utils::StringUtils::WriteFile(ClassElement.CppPath.string(), WholeContent);
 	}
 }

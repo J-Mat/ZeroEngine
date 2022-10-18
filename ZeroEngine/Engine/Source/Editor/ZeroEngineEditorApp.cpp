@@ -1,5 +1,6 @@
 #include <ZeroEngine.h>
 #include <Core/Framework/EntryPoint.h>
+#include "../CodeReflectionLinkFile.h"
 
 #include "EditorLayer.h"
 

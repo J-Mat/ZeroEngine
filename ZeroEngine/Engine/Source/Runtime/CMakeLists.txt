@@ -28,3 +28,13 @@ if (WIN32)
 		PUBLIC d3dcompiler.lib
 	)
 endif()
+
+
+add_custom_command(
+	TARGET ${ProjectName} 
+    PRE_BUILD 
+    COMMAND cd ${EngineToolDir}
+    COMMAND cd ZeroHeaderTool
+    COMMAND ZeroHeaderTool.bat
+    VERBATIM
+)

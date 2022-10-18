@@ -8,6 +8,7 @@
 
 
 ZHT::FFileParser g_FileParser;
+std::vector<std::filesystem::path> g_AllLinkCppFiles;
 
 
 void ParseDir(const std::filesystem::path& Folder)
@@ -28,11 +29,24 @@ void ParseDir(const std::filesystem::path& Folder)
 				g_FileParser.LogClassInfo(ClassElement);
 				g_FileParser.GenerateReflectionHeaderFile(ClassElement);
 				g_FileParser.GenerateReflectionCppFile(ClassElement);
+				g_AllLinkCppFiles.push_back(ClassElement.CppPath);
 			}
 		}
 	}
 }
 
+void WriteLinkReflectionFile()
+{
+	std::vector<std::string> Contents;
+	Contents.push_back("#pragma once\n\n\n");
+	for (const auto& Path : g_AllLinkCppFiles)
+	{
+		Contents.push_back(Zero::Utils::StringUtils::Format("#include \"{0}\"", Path.string()));
+	}
+	std::string WholeContent = Zero::Utils::StringUtils::Join(Contents, "\n", true);
+	std::cout << WholeContent;
+	Zero::Utils::StringUtils::WriteFile(Zero::Config::CodeReflectionLinkFile.string(), WholeContent);
+}
 
 int main()
 {
@@ -58,6 +72,7 @@ int main()
 		}
 	}
 	
+	WriteLinkReflectionFile();
 	//file.generate(ini);
 	return 0;
 }
