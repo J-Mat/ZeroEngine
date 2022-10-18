@@ -4,7 +4,6 @@
 #include "../Base/CoreObject.h"
 #include "../Base/ObjectGenerator.h"
 #include "Actor.reflection.h"
-//#include "test.reflection.h"
 
 
 namespace Zero
