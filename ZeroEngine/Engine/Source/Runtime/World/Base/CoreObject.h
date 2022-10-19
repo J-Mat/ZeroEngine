@@ -27,6 +27,7 @@ namespace Zero
 		virtual void InitReflectionContent() {};
 	public:
 		FClassInfoCollection m_ClassInfoCollection;
+		FClassInfoCollection& GetClassCollection() { m_ClassInfoCollection; }
 
 	protected:
 		bool m_bTick = true;
