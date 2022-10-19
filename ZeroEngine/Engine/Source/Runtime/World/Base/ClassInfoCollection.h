@@ -13,6 +13,8 @@ namespace Zero
 		FClassInfoCollection() = default;
 		
 		UProperty* AddProperty(const std::string& PropertyName, void* Data, const std::string& PropertyType, uint32_t PropertySize);
+
+		UProperty* AddClassProperty(const std::string& PropertyName);
 		
 		UProperty* FindProperty(const std::string PropertyName);
 

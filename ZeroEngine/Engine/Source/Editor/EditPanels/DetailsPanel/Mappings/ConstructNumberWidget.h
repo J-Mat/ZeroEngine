@@ -1,17 +1,29 @@
 #pragma once
 #include <ZeroEngine.h>
 #include "World/Base/PropertyObject.h"
+#include "World/Base/ClassInfoCollection.h"
 
 #define CONSTRUCT_NUM_WIDGET_MARCRO(type, Type, Number) \
-
-
+ConstructNumberWidget(Property,\
+[&]()->bool \
+{ \
+	return ImGui::Drag##Type##Number(Property->GetName().c_str(), (type*)Property->GetData<type>()); \
+}, \
+[&](int32_t Min, int32_t Max, int32_t Step)->bool {\
+	 return ImGui::Drag##Type##Number(Property->GetName().c_str(), (type*)Property->GetData<type>(), Step, Min, Max); \
+}, \
+[&]()->bool \
+{ \
+	return ImGui::Input##Type##Number(Property->GetName().c_str(), (type*)Property->GetData<type>()); \
+}\
+)
 
 namespace Zero
 {
 	namespace NumberWidget
 	{
 		
-		bool ConstructWidget(
+		bool ConstructNumberWidget(
 			UProperty* Property,
 			std::function<bool()> DraggableFunc,
 			std::function<bool(int, int, int)> DraggableMaxMinFunc,
@@ -44,22 +56,33 @@ namespace Zero
 					{
 						Step = atoi(StepValue.c_str());
 					}
+					return DraggableMaxMinFunc(Max, Min, Step);
 				}
+			}
+			else
+			{
+				return InputFunc();
 			}
 		}
 		
-		template<class int, int Num>
-		bool ConstructNumWidget(UProperty* Property)
+		bool ConstructFloatWidget(UProperty* Property)
 		{
-			const FClassInfoCollection&  ClassInfoCollection = Property->GetClassCollection();
-			
-			T* Data = (T*)Property->GetData<T>();
+			return CONSTRUCT_NUM_WIDGET_MARCRO(float, Float, );
+		}
+
+		bool ConstructFloat2Widget(UProperty* Property)
+		{
+			return CONSTRUCT_NUM_WIDGET_MARCRO(float, Float, 2);
 		}
 		
 		bool ConstructFloat3Widget(UProperty* Property)
 		{
-			
-			ConstructNumWidget<>(Property, );
+			return CONSTRUCT_NUM_WIDGET_MARCRO(float, Float, 3);
+		}
+
+		bool ConstructFloat4Widget(UProperty* Property)
+		{
+			return CONSTRUCT_NUM_WIDGET_MARCRO(float, Float, 4);
 		}
 	}
 }
