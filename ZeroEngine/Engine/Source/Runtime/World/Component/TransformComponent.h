@@ -1,14 +1,14 @@
 #pragma once
 #include "../Base/ObjectMacros.h"
 #include "Component.h"
-//#include "TransformComponent.reflection.h"
+#include "TransformComponent.reflection.h"
 
 namespace Zero
 {
 	UCLASS()
 	class UTransformComponent : public UComponent
 	{	
-		//GENERATED_BODY()
+		GENERATED_BODY()
 	public:
 		UTransformComponent();
 		virtual void MoveLocal(const ZMath::vec3& Offset);
@@ -35,9 +35,6 @@ namespace Zero
 
 		UPROPERTY()
 		ZMath::vec3 m_Scale = { 1.0f, 1.0f, 1.0f };
-
-		UPROPERTY()
-		ZMath::FColor m_Color = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 		ZMath::vec3 m_ForwardVector = { 0.0f, 0.0f, 1.0f };
 		ZMath::vec3 m_RightVector = { 1.0f, 0.0f, 0.0f };

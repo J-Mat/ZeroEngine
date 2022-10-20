@@ -17,5 +17,3 @@ namespace Zero
 		static const std::filesystem::path CodeReflectionLinkFile = "@CodeReflectionLinkFile@";
 	}
 }
-
-#endif

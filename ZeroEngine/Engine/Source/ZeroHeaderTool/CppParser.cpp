@@ -281,7 +281,7 @@ namespace ZHT
 			return { Stream.str(), LineIndex };
 		}
 
-		static std::set<std::string> SimpleType = { "int", "std::string", "string", "uint32_t", "int32_t", "ZMath::vec3", "ZMath::vec4", "ZMath::FColor"};
+		static std::set<std::string> SimpleType = { "int", "std::string", "string", "uint32_t", "int32_t", "ZMath::vec3", "ZMath::vec4", "ZMath::FColor", "float", "double"};
 		if (SimpleType.contains(CurTokenName))
 		{
 			return m_Tokens[TokenIndex];
@@ -382,7 +382,7 @@ namespace ZHT
 		CLIENT_ASSERT(m_Tokens[CurIndex].TokenName == ":", "Semantic Faild!");
 		CLIENT_ASSERT(m_Tokens[CurIndex + 1].TokenName == "public", "Semantic Faild!");
 	
-		ClassElement.InheritName = m_Tokens[CurIndex + 2].TokenName;
+		ClassElement.InheritNames.push_back(m_Tokens[CurIndex + 2].TokenName);
 
 		while (LocatePropertyTag())
 		{
@@ -396,7 +396,10 @@ namespace ZHT
 	void FFileParser::LogClassInfo(FClassElement& ClassElement)
 	{
 		CLIENT_LOG_INFO("Class Name : {0}", ClassElement.ClassName);
-		CLIENT_LOG_INFO("Inherit : {0}", ClassElement.InheritName);
+		for (const auto& ClassName : ClassElement.InheritNames)
+		{
+			CLIENT_LOG_INFO("Inherit : {0}", ClassName);
+		}
 		CLIENT_LOG_INFO("Line : {0}", ClassElement.LineIndex);
 		
 		
@@ -439,7 +442,10 @@ namespace ZHT
 		));
 
 		Contents.push_back("public: \\");
-		Contents.push_back(Zero::Utils::StringUtils::Format("using Supper = {0}; \\", ClassElement.InheritName));
+		if (ClassElement.InheritNames.size() > 0)
+		{
+			Contents.push_back(Zero::Utils::StringUtils::Format("using Supper = {0}; \\", ClassElement.InheritNames[0]));
+		}
 		Contents.push_back("static class UClass* GetClass();\\");
 		Contents.push_back("protected: \\");
 		Contents.push_back("\tvirtual void InitReflectionContent();");
@@ -458,7 +464,7 @@ namespace ZHT
 		Zero::Utils::StringUtils::WriteFile(ClassElement.HeaderPath.string(), WholeContent);
 	}
 
-	std::string FFileParser::WriteAddPropertyCode(FClassElement& ClassElement)
+	std::string FFileParser::WriteAddPropertyCode(const FClassElement& ClassElement)
 	{
 		//td::string& PropertyName, void* Data, const std::string& PropertyType, uint32_t PropertySize);
 		std::stringstream Stream;
@@ -485,7 +491,18 @@ namespace ZHT
 		return Stream.str();
 	}
 
-	void FFileParser::GenerateReflectionCppFile(FClassElement& ClassElement)
+	std::string FFileParser::MakeInheritLink(const FClassElement& ClassElement)
+	{
+		std::stringstream Stream;
+		for (std::string ClassName : ClassElement.InheritNames)
+		{
+			Stream << Zero::Utils::StringUtils::Format("\t\tm_ClassInfoCollection.PushBackInheritClass(\"{0}\");\n", ClassName);
+		}
+		Stream << Zero::Utils::StringUtils::Format("\t\tm_ClassInfoCollection.PushBackInheritClass(\"{0}\");\n", ClassElement.ClassName);
+		return Stream.str();
+	}
+
+	void FFileParser::GenerateReflectionCppFile(const FClassElement& ClassElement)
 	{
 		std::vector<std::string> Contents;
 		Contents.push_back(Zero::Utils::StringUtils::Format("#include \"{0}\"", ClassElement.OriginFilePath.string()));
@@ -503,7 +520,7 @@ namespace ZHT
 			<< "{";
 		PUSH_TO_CONTENT
 
-		Stream << Zero::Utils::StringUtils::Format("\tUClass* {0}::GetClass()\n", ClassElement.ClassName)
+			Stream << Zero::Utils::StringUtils::Format("\tUClass* {0}::GetClass()\n", ClassElement.ClassName)
 			<< "\t{\n"
 			<< "\t\tstatic UClass* ClassObject = nullptr;\n"
 			<< "\t\tif (ClassObject != nullptr)\n"
@@ -514,17 +531,22 @@ namespace ZHT
 			<< "\t\t\t\treturn CreateObject<" << ClassElement.ClassName << ">(nullptr);\n"
 			<< "\t\t\t});\n"
 			<< "\t\t}\n"
-			<< "\t\treturn ClassObject;\n"
-			<< "\t}\n";
+			<< "\t\treturn ClassObject;\n";
 		PUSH_TO_CONTENT
 
 		Stream << Zero::Utils::StringUtils::Format("\tvoid {0}::InitReflectionContent()\n", ClassElement.ClassName)
 			<< "\t{\n"
 			<< "\t\tSupper::InitReflectionContent();\n"
 			<< WriteAddPropertyCode(ClassElement)
+			<< "\n";
+		PUSH_TO_CONTENT
+
+
+		Stream << "#ifdef EDITOR_MODE\n"
+			<< MakeInheritLink(ClassElement)
+			<< "#endif\n"
 			<< "\t}\n";
-
-
+		PUSH_TO_CONTENT
 		Stream << "}\n";
 		PUSH_TO_CONTENT
 

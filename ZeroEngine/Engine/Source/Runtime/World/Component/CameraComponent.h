@@ -2,6 +2,7 @@
 #include "Core.h"
 #include "TransformComponent.h"
 #include "Render/RHI/ShaderBinder.h"
+#include "CameraComponent.reflection.h"
 
 namespace Zero
 {
@@ -12,28 +13,13 @@ namespace Zero
 	};
 
 
-	struct FCameraSettings
-	{
-		FCameraSettings() = default;
-		float Fov = 90.0f;
-		float Aspect = 16.0f / 9.0f;
-		ZMath::vec3 WorldUp = { 0.0f, 1.0f, 0.0f };
-		ECameraType Cameratype = ECameraType::CT_PERSPECT;
-
-		float Near = 0.01f;
-		float Far = 1000.0f;
-		float Left = 0.0f;
-		float Right = 0.0f;
-		float Bottom = 0.0f;
-		float Top = 0.0f;
-	};
-
+	UCLASS()
 	class UCameraComponent : public UTransformComponent
 	{
+		GENERATED_BODY()
 	public:
 		UCameraComponent();
 		virtual ~UCameraComponent();
-		void SetCameraSettings(FCameraSettings& Setting);
 		void UpdateCameraSettings();
 		void UpdateMat();
 		void UploadBuffer();
@@ -48,7 +34,20 @@ namespace Zero
 		ZMath::mat4 m_ProjectionDither;
 		ZMath::mat4 m_View;
 		ZMath::mat4 m_ProjectionView;
-		FCameraSettings m_CameraSettings;
 		Ref<IShaderConstantsBuffer> m_ShaderConstantsBuffer = nullptr;
+
+		UPROPERTY()
+		float m_Fov = 90.0f;
+
+
+		float m_Aspect = 16.0f / 9.0f;
+		ZMath::vec3 m_WorldUp = { 0.0f, 1.0f, 0.0f };
+		ECameraType m_Cameratype = ECameraType::CT_PERSPECT;
+		float m_Near = 0.01f;
+		float m_Far = 1000.0f;
+		float m_Left = 0.0f;
+		float m_Right = 0.0f;
+		float m_Bottom = 0.0f;
+		float m_Top = 0.0f;
 	};
 }

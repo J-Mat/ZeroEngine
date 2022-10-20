@@ -26,8 +26,6 @@ namespace Zero
 	UCameraComponent::UCameraComponent()
 		: UTransformComponent()
 	{
-		FCameraSettings Settings;
-		SetCameraSettings(Settings);
 		m_ShaderConstantsBuffer = FRenderer::GraphicFactroy->CreateShaderConstantBuffer(*GetPerCameraConstantsDesc());
 	}
 
@@ -35,22 +33,17 @@ namespace Zero
 	{
 	}
 	
-	void UCameraComponent::SetCameraSettings(FCameraSettings& Setting)
-	{
-		m_CameraSettings = Setting;
-		UpdateCameraSettings();
-	}
 
 	void UCameraComponent::UpdateCameraSettings()
 	{
-		switch (m_CameraSettings.Cameratype)
+		switch (m_Cameratype)
 		{
 		case ECameraType::CT_PERSPECT:
 			m_Projection = ZMath::perspectiveLH(
-				ZMath::radians(m_CameraSettings.Fov),
-				m_CameraSettings.Aspect,
-				m_CameraSettings.Near, 
-				m_CameraSettings.Far
+				ZMath::radians(m_Fov),
+				m_Aspect,
+				m_Near, 
+				m_Far
 			);
 		case ECameraType::CT_ORI:
 			break;
@@ -78,12 +71,13 @@ namespace Zero
 
 	void UCameraComponent::OnResizeViewport(uint32_t Width, uint32_t Height)
 	{
-		m_CameraSettings.Aspect = (float)Width / Height;
+		m_Aspect = (float)Width / Height;
 		UpdateCameraSettings();
 	}
 
 	void UCameraComponent::Tick()
 	{
+		UpdateCameraSettings();
 		UpdateMat(); 
 		UploadBuffer();
 	}

@@ -30,7 +30,7 @@ namespace ZHT
 	{
 		std::string ClassName;
 		std::vector<FPropertyElement> Properties;
-		std::string InheritName;
+		std::vector<std::string> InheritNames;
 		uint32_t LineIndex;
 		std::filesystem::path OriginFilePath;
 		std::filesystem::path HeaderPath;
@@ -74,8 +74,9 @@ namespace ZHT
 		void LogClassInfo(FClassElement& ClassElement);
 		void GenerateReflectionHeaderFile(FClassElement& ClassElement);
 
-		std::string WriteAddPropertyCode(FClassElement& ClassElement);
-		void GenerateReflectionCppFile(FClassElement& ClassElement);
+		std::string WriteAddPropertyCode(const FClassElement& ClassElement);
+		std::string MakeInheritLink(const FClassElement& ClassElement);
+		void GenerateReflectionCppFile(const FClassElement& ClassElement);
 		
 	private:
 		std::string m_Content;

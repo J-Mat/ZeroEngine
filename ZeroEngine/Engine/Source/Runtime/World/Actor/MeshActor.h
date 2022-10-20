@@ -3,7 +3,7 @@
 #include "Core.h"
 #include "Actor.h"
 #include "Render/Moudule/MeshGenerator.h"
-//#include "MeshActor.reflection.h"
+#include "MeshActor.reflection.h"
 
 namespace Zero
 {
@@ -13,7 +13,7 @@ namespace Zero
 	UCLASS()
 	class UMeshActor : public UActor
 	{
-		//GENERATED_BODY()
+		GENERATED_BODY()
 	public:
 		UMeshActor();
 		virtual void BuildMesh() = 0;

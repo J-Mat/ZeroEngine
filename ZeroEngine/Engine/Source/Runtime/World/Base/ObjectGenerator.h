@@ -13,6 +13,7 @@ namespace Zero
 	T* CreateObject(UCoreObject* Outer, Args&&...Params)
 	{
 		T* Obj = new T(std::forward<Args>(Params)...);
+		Obj->InitReflectionContent();
 		Obj->SetOuter(Outer);
 		Obj->PostInit();
 		return Obj;
@@ -23,6 +24,7 @@ namespace Zero
 	T* CreateComponent(UActor* Actor, UComponent* RootComponent, Args&&...Params)
 	{
 		T* Component = new T(std::forward<Args>(args)...);
+		Component->InitReflectionContent();
 		Component->SetOuter(Actor);
 		Actor->AddComponent(Component);
 		Component->SetParentComponent(RootComponent);

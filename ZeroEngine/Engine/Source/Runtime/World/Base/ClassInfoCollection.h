@@ -20,6 +20,8 @@ namespace Zero
 
 		template<class T>
 		inline T* ConstructProperty(const std::string& PropertyName, void* Data, uint32_t PropertySize, const std::string& PropertyType);
+		
+		void PushBackInheritClass(std::string ClassName) { m_InheritLink.push_back(ClassName); }
 
 		bool FindMetas(const std::string Key, std::string& Value);
 		bool ExitField(const std::string Field);
@@ -34,6 +36,7 @@ namespace Zero
 		UProperty* TailProprty = nullptr;
 	private:
 #ifdef EDITOR_MODE
+		std::vector<std::string> m_InheritLink;
 		std::set<std::string> m_Fields;
 		std::map<std::string, std::string> m_Metas;
 #endif
