@@ -10,7 +10,7 @@ namespace Zero
 	{
 		using Supper = UField;
 	public: 
-		UProperty(void* Data, uint32_t DataSize, const std::string PropertyType);
+		UProperty(std::string PropertyName, void* Data, uint32_t DataSize, const std::string PropertyType);
 
 		template<class T>
 		T* GetData() const
@@ -20,6 +20,8 @@ namespace Zero
 		
 		uint32_t GetDataSize() { return m_DataSize; }
 		void* GetData() const { return m_Data; }
+		const std::string& GetPropertyType() const { return m_PropertyType; }
+		const std::string& GetPropertyName() const { return m_PropertyName; }
 
 		void InitializeValue(void* InDest) { m_Data = (char*)InDest; }
 		void SetDataSize(uint32_t InSize) {  m_DataSize = InSize; }
@@ -27,6 +29,8 @@ namespace Zero
 	protected:
 		void* m_Data = nullptr;
 		uint32_t m_DataSize = 0;
+		std::string m_PropertyType;
+		std::string m_PropertyName;
 	};
 	
 	

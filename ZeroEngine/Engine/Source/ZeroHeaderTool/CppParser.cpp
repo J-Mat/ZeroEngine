@@ -482,6 +482,7 @@ namespace ZHT
 				if (PropertyElement.bPointer)
 				{
 					Stream << "\t\tm_ClassInfoCollection.AddClassProperty("
+						<< "\"" << ClassElement.ClassName << "\", "
 						<< "\"" << PropertyElement.Name << "\", "
 						<< "&(*" << PropertyElement.Name << "), "
 						<< "\"" << PropertyElement.DataType << "\", "
@@ -490,6 +491,7 @@ namespace ZHT
 				else
 				{
 					Stream << "\t\tm_ClassInfoCollection.AddClassProperty("
+						<< "\"" << ClassElement.ClassName << "\", "
 						<< "\"" << PropertyElement.Name << "\", "
 						<< "&(*" << PropertyElement.Name << "), "
 						<< "\"" << PropertyElement.DataType << "\", "
@@ -499,6 +501,7 @@ namespace ZHT
 			else
 			{
 				Stream << "\t\tm_ClassInfoCollection.AddVariableProperty("
+					<< "\"" << ClassElement.ClassName << "\", "
 					<< "\"" << PropertyElement.Name << "\", "
 					<< "&" << PropertyElement.Name << ", "
 					<< "\"" << PropertyElement.DataType << "\", "
@@ -511,10 +514,6 @@ namespace ZHT
 	std::string FFileParser::MakeInheritLink(const FClassElement& ClassElement)
 	{
 		std::stringstream Stream;
-		for (std::string ClassName : ClassElement.InheritNames)
-		{
-			Stream << Zero::Utils::StringUtils::Format("\t\tm_ClassInfoCollection.PushBackInheritClass(\"{0}\");\n", ClassName);
-		}
 		Stream << Zero::Utils::StringUtils::Format("\t\tm_ClassInfoCollection.PushBackInheritClass(\"{0}\");\n", ClassElement.ClassName);
 		return Stream.str();
 	}

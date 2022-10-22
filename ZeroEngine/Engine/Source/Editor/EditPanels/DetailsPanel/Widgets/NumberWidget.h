@@ -7,14 +7,14 @@
 ConstructNumberWidget(Property,\
 [&]()->bool \
 { \
-	return ImGui::Drag##Type##Number(Property->GetName().c_str(), (type*)Property->GetData<type>()); \
+	return ImGui::Drag##Type##Number(Property->GetPropertyName().c_str(), (type*)Property->GetData<type>()); \
 }, \
 [&](int32_t Min, int32_t Max, int32_t Step)->bool {\
-	 return ImGui::Drag##Type##Number(Property->GetName().c_str(), (type*)Property->GetData<type>(), Step, Min, Max); \
+	 return ImGui::Drag##Type##Number(Property->GetPropertyName().c_str(), (type*)Property->GetData<type>(), Step, Min, Max); \
 }, \
 [&]()->bool \
 { \
-	return ImGui::Input##Type##Number(Property->GetName().c_str(), (type*)Property->GetData<type>()); \
+	return ImGui::Input##Type##Number(Property->GetPropertyName().c_str(), (type*)Property->GetData<type>()); \
 }\
 )
 

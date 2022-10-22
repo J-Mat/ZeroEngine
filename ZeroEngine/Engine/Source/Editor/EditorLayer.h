@@ -3,6 +3,8 @@
 #include <ZeroEngine.h>
 #include "EditPanels/ViewportPanel.h"
 #include "EditPanels/ContentBrowserPanel.h"
+#include "EditPanels/OutlinePanel.h"
+#include "EditPanels/DetailsPanel/DetailsPanel.h"
 
 namespace Zero
 {
@@ -34,5 +36,8 @@ namespace Zero
 		Ref<FEditorCameraController> m_CameraController;
 		FViewportPanel m_ViewportPanel;
 		FContentBrowserPanel m_ContentBrowserPanel;
+		FOutlinePanel m_OutlinePanel;
+		FDetailPanel m_DetailPanel;
+	
 	};
 }

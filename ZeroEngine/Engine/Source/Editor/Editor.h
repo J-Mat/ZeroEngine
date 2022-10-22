@@ -5,10 +5,9 @@
 
 namespace Zero
 {
-	class FDetailPanel
+	class FEditor
 	{
 	public:
-		FDetailPanel();
-		void OnGuiRender();
+		static UActor* SelectedActor;
 	};
 }

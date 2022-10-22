@@ -8,14 +8,15 @@ namespace Zero
 	class FDetailMappingManager : public IPublicSingleton<FDetailMappingManager>
 	{
 	public:
-		void RegisterVariableMapping(EPropertyType PropertyType, Ref<FVariableDetailsMapping> PropertyDetailsMapping);
-		Ref<FVariableDetailsMapping> FindPropertyMapping(EPropertyType PrpertyType);
+		void RegisterVariableMapping(std::string PropertyType, Ref<FVariableDetailsMapping> PropertyDetailsMapping);
+		Ref<FVariableDetailsMapping> FindPropertyMapping(std::string PrpertyType);
 		
-		bool UpdatePropertyWidgets(UVariableProperty* Property);
+		bool UpdatePropertyWidgets(const std::string& Category, UProperty * Property);
 		bool UpdateClassWidgets(UCoreObject* CoreObject);
 
 	private:
-		std::map<EPropertyType, Ref<FVariableDetailsMapping>> m_ProppertyMapping;
+		std::map<std::string, Ref<FVariableDetailsMapping>> m_VariableMapping;
+		UProperty* m_CurrentProperty = nullptr;
 	};
 	
 }

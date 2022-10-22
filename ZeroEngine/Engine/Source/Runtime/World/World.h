@@ -29,15 +29,17 @@ namespace Zero
 		static void  SetCurrentWorld(UWorld* World) { s_CurrentWorld = World; }
 		void SetCamera(UCameraActor* Camera) { m_MainCamera = Camera; }
 		UCameraActor* GetCameraActor() { return m_MainCamera; }
+		std::vector<UActor*> GetActors() { return m_Actors; }
 
 		template<class T, typename ...ParamTypes>
 		T* CreateActor(ParamTypes &&...Params)
 		{
-			T* Obj = new T(std::forward<ParamTypes>(Params)...);
-			Obj->SetWorld(this);
-			Obj->PostInit();
-			AddActor(Obj);
-			return Obj;
+			T* Actor = new T(std::forward<ParamTypes>(Params)...);
+			Actor->SetWorld(this);
+			Actor->InitReflectionContent();
+			Actor->PostInit();
+			AddActor(Actor);
+			return Actor;
 		}
 
 

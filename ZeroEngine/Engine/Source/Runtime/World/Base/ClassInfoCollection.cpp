@@ -4,14 +4,18 @@
 
 namespace Zero
 {
-	UVariableProperty* FClassInfoCollection::AddVariableProperty(const std::string& PropertyName, void* Data, const std::string& PropertyType, uint32_t PropertySize)
+	UVariableProperty* FClassInfoCollection::AddVariableProperty(const std::string& ClassName, const std::string& PropertyName, void* Data, const std::string& PropertyType, uint32_t PropertySize)
     {
-        return ConstructProperty<UVariableProperty>(PropertyName, Data, PropertySize, PropertyType);
+		UVariableProperty* Property = ConstructProperty<UVariableProperty>(PropertyName, Data, PropertySize, PropertyType);
+		Property->GetClassCollection().AddMeta("Category", ClassName);
+		return Property;
     }
 
-	UClassProperty* FClassInfoCollection::AddClassProperty(const std::string& PropertyName, void* Data, const std::string& PropertyType, uint32_t PropertySize)
+	UClassProperty* FClassInfoCollection::AddClassProperty(const std::string& ClassName, const std::string& PropertyName, void* Data, const std::string& PropertyType, uint32_t PropertySize)
 	{
-        return ConstructProperty<UClassProperty>(PropertyName, Data, PropertySize, PropertyType);
+        auto* Property =  ConstructProperty<UClassProperty>(Data, PropertySize, PropertyType);
+		Property->GetClassCollection().AddMeta("Category", ClassName);
+		return Property;
 	}
 
 	UProperty* FClassInfoCollection::FindProperty(const std::string PropertyName)
@@ -30,11 +34,10 @@ namespace Zero
 	}
 
 
-	template<class T>
-	inline T* FClassInfoCollection::ConstructProperty(const std::string& PropertyName, void* Data, uint32_t PropertySize, const std::string& PropertyType)
+	template<class T, typename ... Args>
+	inline T* FClassInfoCollection::ConstructProperty(Args&& ... args)
 	{
-		T* Property = CreateObject<T>(m_Outer, Data, PropertySize, PropertyType);
-		Property->SetName(PropertyName);
+		T* Property = CreateObject<T>(m_Outer, std::forward<Args>(args)...);
 
 		if (HeadProperty == nullptr)
 		{

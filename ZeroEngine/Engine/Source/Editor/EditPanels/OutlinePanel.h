@@ -5,10 +5,10 @@
 
 namespace Zero
 {
-	class FDetailPanel
+	class FOutlinePanel
 	{
 	public:
-		FDetailPanel();
+		FOutlinePanel();
 		void OnGuiRender();
 	};
 }

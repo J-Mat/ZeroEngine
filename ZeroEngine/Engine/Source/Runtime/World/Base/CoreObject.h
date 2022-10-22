@@ -38,6 +38,7 @@ namespace Zero
 		}
 		const std::string& GetName() const { return m_Name; }
 		UCoreObject* GetOuter() { return m_Outer; }
+		
 
 	public:
 		virtual void InitReflectionContent() {};

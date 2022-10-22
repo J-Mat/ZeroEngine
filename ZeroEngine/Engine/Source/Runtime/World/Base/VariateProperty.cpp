@@ -2,44 +2,44 @@
 
 namespace Zero
 {
-	UVariableProperty::UVariableProperty(void* Data, uint32_t DataSize, const std::string PropertyType)
-		: UProperty(Data, DataSize, PropertyType)
+	UVariableProperty::UVariableProperty(std::string PropertyName, void* Data, uint32_t DataSize, const std::string PropertyType)
+		: UProperty(PropertyName, Data, DataSize, PropertyType)
 	{
 		if (PropertyType == "int" || PropertyType == "int32_t")
 		{
-			m_PropertyType = EPropertyType::PT_Int32;
+			m_VariableType = EPropertyType::PT_Int32;
 		}
 		else if (PropertyType == "uint32_t")
 		{
-			m_PropertyType = EPropertyType::PT_UInt32;
+			m_VariableType = EPropertyType::PT_UInt32;
 		}
 		else if (PropertyType == "float")
 		{
-			m_PropertyType = EPropertyType::PT_Float;
+			m_VariableType = EPropertyType::PT_Float;
 		}
 		else if (PropertyType == "double")
 		{
-			m_PropertyType = EPropertyType::PT_Double;
+			m_VariableType = EPropertyType::PT_Double;
 		}
 		else if (PropertyType.ends_with("vec3"))
 		{
-			m_PropertyType = EPropertyType::PT_Vec3;
+			m_VariableType = EPropertyType::PT_Vec3;
 		}
 		else if (PropertyType.ends_with("vec4"))
 		{
-			m_PropertyType = EPropertyType::PT_Vec4;
+			m_VariableType = EPropertyType::PT_Vec4;
 		}
 		else if (PropertyType.ends_with("Color"))
 		{
-			m_PropertyType = EPropertyType::PT_Color;
+			m_VariableType = EPropertyType::PT_Color;
 		}
 		else if (PropertyType.ends_with("std::vector"))
 		{
-			m_PropertyType = EPropertyType::PT_Vector;
+			m_VariableType = EPropertyType::PT_Vector;
 		}
 		else if (PropertyType.ends_with("std::map"))
 		{
-			m_PropertyType = EPropertyType::PT_Map;
+			m_VariableType= EPropertyType::PT_Map;
 		}
 		
 	}

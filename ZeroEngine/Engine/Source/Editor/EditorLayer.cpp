@@ -142,10 +142,13 @@ namespace Zero
 			ImGui::EndMenuBar();
 		}
 		bool showdemo = true;
-		ImGui::ShowDemoWindow(&showdemo);
+		ImGui::ShowDemoWindow();
 		
+		m_OutlinePanel.OnGuiRender();
 		m_ViewportPanel.OnGuiRender();
 		m_ContentBrowserPanel.OnGuiRender();
+		m_DetailPanel.OnGuiRender();
+		
 
 		ImGui::End();
 	}

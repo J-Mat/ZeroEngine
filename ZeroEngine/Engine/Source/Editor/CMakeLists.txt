@@ -11,4 +11,5 @@ target_link_libraries(${ProjectName} PRIVATE Runtime)
 target_include_directories(${ProjectName}
     PRIVATE "${EngineRuntimeDir}"
     PRIVATE "${EngineIntermediateDir}"
+    PRIVATE "${EngineEditorDir}"
 )

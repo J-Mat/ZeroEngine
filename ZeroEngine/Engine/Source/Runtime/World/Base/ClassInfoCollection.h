@@ -14,17 +14,17 @@ namespace Zero
 	public:
 		FClassInfoCollection() = default;
 		
-		UVariableProperty* AddVariableProperty(const std::string& PropertyName, void* Data, const std::string& PropertyType, uint32_t PropertySize);
+		UVariableProperty* AddVariableProperty(const std::string& ClassName,  const std::string& PropertyName, void* Data, const std::string& PropertyType, uint32_t PropertySize);
 
-		UClassProperty* AddClassProperty(const std::string& PropertyName, void* Data, const std::string& PropertyType, uint32_t PropertySize);
+		UClassProperty* AddClassProperty(const std::string& ClassName, const std::string& PropertyName, void* Data, const std::string& PropertyType, uint32_t PropertySize);
 		
 		UProperty* FindProperty(const std::string PropertyName);
 
-		template<class T>
-		inline T* ConstructProperty(const std::string& PropertyName, void* Data, uint32_t PropertySize, const std::string& PropertyType);
+		template<class T, typename ... Args>
+		inline T* ConstructProperty(Args&& ... args);
 		
 		void PushBackInheritClass(std::string ClassName) { m_InheritLink.push_back(ClassName); }
-		std::vector<std::string> GetInheritLink() {return m_InheritLink;}
+		const std::vector<std::string>& GetInheritLink() const {return m_InheritLink;}
 		
 
 		bool FindMetas(const std::string Key, std::string& Value);

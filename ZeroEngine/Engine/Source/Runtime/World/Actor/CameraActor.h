@@ -2,12 +2,15 @@
 #include "Core.h"
 #include "Actor.h"
 #include "World/Component/CameraComponent.h"
+#include "CameraActor.reflection.h"
 
 namespace Zero
 {
 	class IShaderConstantsBuffer;
+	UCLASS()
 	class UCameraActor : public UActor
 	{
+		GENERATED_BODY()
 	public:
 		UCameraActor();
 		virtual void Tick();
@@ -21,6 +24,7 @@ namespace Zero
 			return m_CameraComponent;
 		}
 	private:
+		UPROPERTY()
 		UCameraComponent* m_CameraComponent = nullptr;
 	};
 }
