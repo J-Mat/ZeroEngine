@@ -56,7 +56,8 @@ VertexOut VS(VertexIn vin)
 {
 	VertexOut vout;
 	
-	vout.PosH = mul(View, float4(vin.PosL, 1.0f));
+	vout.PosH = mul(Model, float4(vin.PosL, 1.0f));
+	vout.PosH = mul(View, vout.PosH);
 	vout.PosH = mul(Projection, vout.PosH);
 	
 	vout.TexC = vin.TexC;

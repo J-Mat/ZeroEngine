@@ -35,6 +35,7 @@ namespace Zero
 			Item->m_SubMesh = SubMesh;
 			Item->m_ConstantsBuffer = m_MeshVertexComponent->m_ShaderConstantsBuffer;
 			Item->m_Material = m_MeshRenderComponent->GetPassMaterials(EMeshRenderLayerType::RenderLayer_Opaque)[MaterialIndex];
+			Item->SetModelMatrix(m_TransformationComponent->GetTransform());
 			MaterialIndex++;
 
 			RenderItemPool.Push(Item);

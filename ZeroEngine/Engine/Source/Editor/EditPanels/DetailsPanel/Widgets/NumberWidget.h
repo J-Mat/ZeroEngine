@@ -14,10 +14,11 @@ ConstructNumberWidget(Property,\
 }, \
 [&]()->bool \
 { \
-	return ImGui::Input##Type##Number(Property->GetPropertyName().c_str(), (type*)Property->GetData<type>()); \
+	return ImGui::Drag##Type##Number(Property->GetPropertyName().c_str(), (type*)Property->GetData<type>()); \
 }\
 )
 
+	//return ImGui::Input##Type##Number(Property->GetPropertyName().c_str(), (type*)Property->GetData<type>()); 
 namespace Zero
 {
 	namespace NumberWidget

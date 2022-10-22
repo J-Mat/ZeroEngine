@@ -46,6 +46,6 @@ namespace Zero
 
 	ZMath::mat4 UTransformComponent::GetTransform()
 	{
-		return ZMath::scale(ZMath::mat4(1.0f), m_Scale) * ZMath::toMat4(GetOrientation())  * ZMath::translate(ZMath::mat4(1.0f), m_Position);
+		return ZMath::translate(ZMath::mat4(1.0f), m_Position) * ZMath::toMat4(GetOrientation()) * ZMath::scale(ZMath::mat4(1.0f), m_Scale);
 	}
 }
