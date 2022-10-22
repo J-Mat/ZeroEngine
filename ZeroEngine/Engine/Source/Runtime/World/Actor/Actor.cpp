@@ -1,18 +1,17 @@
 #include "Actor.h"
 #include "World/Base/CoreObject.h"
 #include "World/Component/TransformComponent.h"
-#include "World/Component/TagComponent.h"
 
 namespace Zero
 {
 	UActor::UActor()
 		: UCoreObject()
 	{
+		m_TransformationComponent = CreateComponent<UTransformComponent>(this, nullptr);
+		SetRootComponent(m_TransformationComponent);
 	}
 	void UActor::PostInit()
 	{
-	//	m_TransformationComponent = UComponent::CreateComponent<UTransformationComponent>(this);
-		//m_Tagcomponent = UComponent::CreateComponent<UTagComponent>(this, m_Tag);
 	}
 
 	void UActor::MoveLocal(const ZMath::vec3& Offset)

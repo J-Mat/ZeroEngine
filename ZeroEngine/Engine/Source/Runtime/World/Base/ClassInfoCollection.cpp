@@ -1,12 +1,18 @@
 #include "ClassInfoCollection.h"
-#include "PropertyObject.h"
+#include "VariateProperty.h"
+#include "ClassProperty.h"
 
 namespace Zero
 {
-    UProperty* FClassInfoCollection::AddProperty(const std::string& PropertyName, void* Data, const std::string& PropertyType, uint32_t PropertySize)
+	UVariableProperty* FClassInfoCollection::AddVariableProperty(const std::string& PropertyName, void* Data, const std::string& PropertyType, uint32_t PropertySize)
     {
-        return ConstructProperty<UProperty>(PropertyName, Data, PropertySize, PropertyType);
+        return ConstructProperty<UVariableProperty>(PropertyName, Data, PropertySize, PropertyType);
     }
+
+	UClassProperty* FClassInfoCollection::AddClassProperty(const std::string& PropertyName, void* Data, const std::string& PropertyType, uint32_t PropertySize)
+	{
+        return ConstructProperty<UClassProperty>(PropertyName, Data, PropertySize, PropertyType);
+	}
 
 	UProperty* FClassInfoCollection::FindProperty(const std::string PropertyName)
 	{
@@ -27,7 +33,7 @@ namespace Zero
 	template<class T>
 	inline T* FClassInfoCollection::ConstructProperty(const std::string& PropertyName, void* Data, uint32_t PropertySize, const std::string& PropertyType)
 	{
-		UProperty* Property = CreateObject<UProperty>(m_Outer, Data, PropertySize, PropertyType);
+		T* Property = CreateObject<T>(m_Outer, Data, PropertySize, PropertyType);
 		Property->SetName(PropertyName);
 
 		if (HeadProperty == nullptr)

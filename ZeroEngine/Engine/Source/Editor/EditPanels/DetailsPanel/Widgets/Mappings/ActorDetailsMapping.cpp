@@ -1,4 +1,5 @@
 #include "ActorDetailsMapping.h"
+#include "DetailsMappingManager.h"
 
 namespace Zero
 {
@@ -11,10 +12,13 @@ namespace Zero
             ShowComponentObject(RootComponpent, 0);
         }
     }
+
     void FActorDetailsMapping::ShowComponentObject(UComponent* Component, int ID)
     {
         ImGui::PushID(ID);
         
+        //FDetailMappingManager::GetInstance().UpdatePropertyWidgets(Component->GetClassCollection().HeadProperty);
+
         if (ImGui::TreeNode(Component->GetGuidString().c_str(), "%s", Component->GetName().c_str()))
         {
             for (auto* Child : Component->GetChidren())

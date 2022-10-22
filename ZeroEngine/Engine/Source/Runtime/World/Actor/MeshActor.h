@@ -16,7 +16,7 @@ namespace Zero
 		GENERATED_BODY()
 	public:
 		UMeshActor();
-		virtual void BuildMesh() = 0;
+		virtual void BuildMesh() {};
 		virtual void PostInit() override;
 		virtual void CommitToPipieline();
 		virtual void Tick();

@@ -64,7 +64,7 @@ namespace Zero
 		UActor* Actor = UWorld::GetCurrentWorld()->PickActorByMouse(Ray);
 		if (Actor != nullptr)
 		{
-			std::cout << Actor->GetTag() << std::endl;
+			std::cout << Actor->GetName() << std::endl;
 		}
 	}
 

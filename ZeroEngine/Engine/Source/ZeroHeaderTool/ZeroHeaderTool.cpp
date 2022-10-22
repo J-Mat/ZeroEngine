@@ -45,7 +45,12 @@ void WriteLinkReflectionFile()
 	}
 	std::string WholeContent = Zero::Utils::StringUtils::Join(Contents, "\n", true);
 	std::cout << WholeContent;
-	Zero::Utils::StringUtils::WriteFile(Zero::Config::CodeReflectionLinkFile.string(), WholeContent);
+	std::string OriginFile = Zero::Utils::StringUtils::ReadFile(Zero::Config::CodeReflectionLinkFile.string());
+	
+	if (OriginFile != WholeContent)
+	{
+		Zero::Utils::StringUtils::WriteFile(Zero::Config::CodeReflectionLinkFile.string(), WholeContent);
+	}
 }
 
 int main()

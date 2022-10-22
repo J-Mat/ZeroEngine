@@ -266,7 +266,7 @@ namespace ZHT
 		return false;
 	}
 
-	FToken FFileParser::GetType(uint32_t& TokenIndex)
+	FToken FFileParser::GetType(uint32_t& TokenIndex,bool& bIsClass)
 	{
 		int32_t LineIndex = m_Tokens[TokenIndex].LineIndex;
 		std::stringstream Stream;
@@ -289,6 +289,7 @@ namespace ZHT
 		
 		if (CurTokenName.starts_with("U"))
 		{
+			bIsClass = true;
 			return m_Tokens[TokenIndex];
 		}
 
@@ -297,7 +298,7 @@ namespace ZHT
 
 	void FFileParser::CollectProperty(FPropertyElement& PropertyElement)
 	{
-		uint32_t CurIndex = m_PropertyIndex + 2;
+		uint32_t CurIndex = uint32_t(m_PropertyIndex + 2);
 		bool bHasEqual = false;
 		uint32_t EqualTokenIndex = -1;
 		bool bHasParsedType = false;
@@ -328,7 +329,7 @@ namespace ZHT
 			else if (!bHasParsedType)
 			{
 				bHasParsedType = true;
-				FToken Token  = GetType(CurIndex);
+				FToken Token  = GetType(CurIndex, PropertyElement.bIsClass);
 				if (Token.IsValid())
 				{
 					PropertyElement.DataType = Token.TokenName;
@@ -377,6 +378,7 @@ namespace ZHT
 		ClassElement.CppPath = Zero::Config::IntermediateDir / Zero::Utils::StringUtils::Format("{0}.reflection.cpp", m_CurFilePath.filename().stem().string()); 
 		CLIENT_ASSERT(m_Tokens[m_ClassTagIndex + 2].TokenName == "class", "Semantic Faild!");
 		ClassElement.ClassName = m_Tokens[m_ClassTagIndex + 3].TokenName;
+		ClassElement.ClassTagName = ClassElement.ClassName.substr(1);
 		ClassElement.LineIndex = m_Tokens[m_ClassTagIndex + 3].LineIndex;
 		size_t CurIndex = m_ClassTagIndex + 4;
 		CLIENT_ASSERT(m_Tokens[CurIndex].TokenName == ":", "Semantic Faild!");
@@ -440,6 +442,9 @@ namespace ZHT
 			ClassElement.ClassName, 
 			ClassElement.LineIndex
 		));
+		Contents.push_back("private: \\");
+		Contents.push_back(Zero::Utils::StringUtils::Format("static int s_{0}ClassIndex; \\", ClassElement.ClassName));;
+		
 
 		Contents.push_back("public: \\");
 		if (ClassElement.InheritNames.size() > 0)
@@ -447,8 +452,8 @@ namespace ZHT
 			Contents.push_back(Zero::Utils::StringUtils::Format("using Supper = {0}; \\", ClassElement.InheritNames[0]));
 		}
 		Contents.push_back("static class UClass* GetClass();\\");
-		Contents.push_back("protected: \\");
-		Contents.push_back("\tvirtual void InitReflectionContent();");
+		Contents.push_back("public: \\");
+		Contents.push_back("\tvirtual void InitReflectionContent() override;");
 		
 		Contents.push_back( Zero::Utils::StringUtils::Format("#define {0}_{1}_GENERATED_BODY \\",
 			ClassElement.ClassName, 
@@ -459,6 +464,8 @@ namespace ZHT
 			ClassElement.ClassName, 
 			ClassElement.LineIndex
 		));
+
+
 		std::string WholeContent = Zero::Utils::StringUtils::Join(Contents, "\n", true);
 		std::cout << WholeContent;
 		Zero::Utils::StringUtils::WriteFile(ClassElement.HeaderPath.string(), WholeContent);
@@ -470,18 +477,28 @@ namespace ZHT
 		std::stringstream Stream;
 		for (const FPropertyElement& PropertyElement : ClassElement.Properties)
 		{
-			if (PropertyElement.bPointer)
+			if (PropertyElement.bIsClass)
 			{
-				continue;
-				Stream << "\t\tm_ClassInfoCollection.AddProperty("
-					<< "\"" << PropertyElement.Name << "\", "
-					<< "&(*" << PropertyElement.Name << "), "
-					<< "\"" << PropertyElement.DataType << "\", "
-					<< Zero::Utils::StringUtils::Format("sizeof(*{0})", PropertyElement.DataType) << ");\n";
+				if (PropertyElement.bPointer)
+				{
+					Stream << "\t\tm_ClassInfoCollection.AddClassProperty("
+						<< "\"" << PropertyElement.Name << "\", "
+						<< "&(*" << PropertyElement.Name << "), "
+						<< "\"" << PropertyElement.DataType << "\", "
+						<< "sizeof(void*));\n";
+				}
+				else
+				{
+					Stream << "\t\tm_ClassInfoCollection.AddClassProperty("
+						<< "\"" << PropertyElement.Name << "\", "
+						<< "&(*" << PropertyElement.Name << "), "
+						<< "\"" << PropertyElement.DataType << "\", "
+						<< Zero::Utils::StringUtils::Format("sizeof(*{0})", PropertyElement.DataType) << ");\n";
+				}
 			}
 			else
 			{
-				Stream << "\t\tm_ClassInfoCollection.AddProperty("
+				Stream << "\t\tm_ClassInfoCollection.AddVariableProperty("
 					<< "\"" << PropertyElement.Name << "\", "
 					<< "&" << PropertyElement.Name << ", "
 					<< "\"" << PropertyElement.DataType << "\", "
@@ -531,30 +548,41 @@ namespace ZHT
 			<< "\t\t\t\treturn CreateObject<" << ClassElement.ClassName << ">(nullptr);\n"
 			<< "\t\t\t});\n"
 			<< "\t\t}\n"
-			<< "\t\treturn ClassObject;\n";
+			<< "\t\treturn ClassObject;\n"
+			<< "\t}\n";
 		PUSH_TO_CONTENT
 
 		Stream << Zero::Utils::StringUtils::Format("\tvoid {0}::InitReflectionContent()\n", ClassElement.ClassName)
 			<< "\t{\n"
 			<< "\t\tSupper::InitReflectionContent();\n"
+			<< std::format("\t\tSetName(\"{0}\");\n", ClassElement.ClassTagName)
 			<< WriteAddPropertyCode(ClassElement)
 			<< "\n";
 		PUSH_TO_CONTENT
-
 
 		Stream << "#ifdef EDITOR_MODE\n"
 			<< MakeInheritLink(ClassElement)
 			<< "#endif\n"
 			<< "\t}\n";
 		PUSH_TO_CONTENT
-		Stream << "}\n";
+
+			Stream << std::format("\tint Register_{0}()\n", ClassElement.ClassName)
+			<< "\t{\n"
+			<< "\t\tg_AllUObjectClasses.insert({"
+			<< Zero::Utils::StringUtils::Format("\"{0}\", {0}::GetClass()});\n", ClassElement.ClassName)
+			<< "\t\treturn 1;\n"
+			<< "\t}\n"
+			<< Zero::Utils::StringUtils::Format(" int {0}::s_{0}ClassIndex = Register_{0}();", ClassElement.ClassName);
 		PUSH_TO_CONTENT
 
+		Stream << "}\n";
+		PUSH_TO_CONTENT
 
 		Stream << "#ifdef _MSC_VER\n"
 			<< "#pragma warning (pop)\n"
 			<< "#endif\n";
 		PUSH_TO_CONTENT
+
 
 		std::string WholeContent = Zero::Utils::StringUtils::Join(Contents, "\n", true);
 		std::cout << WholeContent;

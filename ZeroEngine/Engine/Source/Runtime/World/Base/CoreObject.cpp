@@ -3,11 +3,14 @@
 
 namespace Zero
 {
+	std::map<std::string, uint32_t> UCoreObject::s_ObjectNameIndex;
 	std::map<Utils::Guid, UCoreObject*>  UCoreObject::s_ObjectsCollection = {};
+	
 	UCoreObject::UCoreObject()
 		: IGUIDInterface()
 	{
 		s_ObjectsCollection.insert({m_GUID, this});
+		m_ClassInfoCollection.m_Outer = this;
 	}
 
 
@@ -29,11 +32,4 @@ namespace Zero
 	{
 		m_Outer = InNewOuter; 
 	}
-
-	void UCoreObject::InitCoreObject()
-	{
-		m_ClassInfoCollection.m_Outer = this;
-		InitReflectionContent();
-	}
-
 }

@@ -11,6 +11,7 @@ namespace ZHT
 		bool bConst = false;
 		bool bPointer = false;
 		bool bRefercence = false;
+		bool bIsClass = false;
 		std::string DataType;
 		uint32_t LineIndex = 0;
 
@@ -29,6 +30,7 @@ namespace ZHT
 	struct FClassElement
 	{
 		std::string ClassName;
+		std::string ClassTagName;
 		std::vector<FPropertyElement> Properties;
 		std::vector<std::string> InheritNames;
 		uint32_t LineIndex;
@@ -67,7 +69,7 @@ namespace ZHT
 		void AcceptDefaultToken();
 		void Parse(std::filesystem::path Path);
 		bool CheckNeedGenerateReflection();
-		FToken GetType(uint32_t& TokenIndex);
+		FToken GetType(uint32_t& TokenIndex, bool& bIsClass);
 		void CollectProperty(FPropertyElement& PropertyElement);
 		bool LocatePropertyTag();
 		void CollectClassInfo(FClassElement& ClassElement);

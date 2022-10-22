@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Base/PropertyDetailsMapping.h"
+#include "Base/VariableDetailsMapping.h"
 
 namespace Zero
 {
-	class FStringDetailsMapping : public FPropertyDetailsMapping
+	class FStringDetailsMapping : public FVariableDetailsMapping
 	{
 	public:
 		virtual bool UpdateDetailsWidget(UProperty* Property);
-		static Ref<FPropertyDetailsMapping> MakeDetailMapping() { return CreateRef<FStringDetailsMapping>(); }
+		static Ref<FVariableDetailsMapping> MakeDetailMapping() { return CreateRef<FStringDetailsMapping>(); }
 	};
 }

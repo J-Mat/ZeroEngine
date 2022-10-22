@@ -4,7 +4,8 @@
 
 namespace Zero
 {
-	
+	class UClass;
+	static std::map<std::string, UClass*> g_AllUObjectClasses;
 	DEFINITION_SIMPLE_SINGLE_DELEGATE(FRegisterClassObjectDelegate, UCoreObject*);
 	class UClass : public UField
 	{

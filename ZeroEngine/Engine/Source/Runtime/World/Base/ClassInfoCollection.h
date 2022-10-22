@@ -7,14 +7,16 @@ namespace Zero
 {
 	class UCoreObject;
 	class UProperty;
+	class UVariableProperty;
+	class UClassProperty;
 	class FClassInfoCollection
 	{
 	public:
 		FClassInfoCollection() = default;
 		
-		UProperty* AddProperty(const std::string& PropertyName, void* Data, const std::string& PropertyType, uint32_t PropertySize);
+		UVariableProperty* AddVariableProperty(const std::string& PropertyName, void* Data, const std::string& PropertyType, uint32_t PropertySize);
 
-		UProperty* AddClassProperty(const std::string& PropertyName);
+		UClassProperty* AddClassProperty(const std::string& PropertyName, void* Data, const std::string& PropertyType, uint32_t PropertySize);
 		
 		UProperty* FindProperty(const std::string PropertyName);
 
@@ -22,6 +24,8 @@ namespace Zero
 		inline T* ConstructProperty(const std::string& PropertyName, void* Data, uint32_t PropertySize, const std::string& PropertyType);
 		
 		void PushBackInheritClass(std::string ClassName) { m_InheritLink.push_back(ClassName); }
+		std::vector<std::string> GetInheritLink() {return m_InheritLink;}
+		
 
 		bool FindMetas(const std::string Key, std::string& Value);
 		bool ExitField(const std::string Field);

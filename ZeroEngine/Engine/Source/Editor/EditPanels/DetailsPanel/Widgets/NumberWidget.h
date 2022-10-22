@@ -22,7 +22,7 @@ namespace Zero
 {
 	namespace NumberWidget
 	{
-		bool ConstructNumberWidget(
+		static bool ConstructNumberWidget(
 			UProperty* Property,
 			std::function<bool()> DraggableFunc,
 			std::function<bool(int, int, int)> DraggableMaxMinFunc,
@@ -58,28 +58,25 @@ namespace Zero
 					return DraggableMaxMinFunc(Max, Min, Step);
 				}
 			}
-			else
-			{
-				return InputFunc();
-			}
+			return InputFunc();
 		}
 		
-		bool ConstructFloatWidget(UProperty* Property)
+		static bool ConstructFloatWidget(UProperty* Property)
 		{
 			return CONSTRUCT_NUM_WIDGET_MARCRO(float, Float, );
 		}
 
-		bool ConstructFloat2Widget(UProperty* Property)
+		static bool ConstructFloat2Widget(UProperty* Property)
 		{
 			return CONSTRUCT_NUM_WIDGET_MARCRO(float, Float, 2);
 		}
 		
-		bool ConstructFloat3Widget(UProperty* Property)
+		static bool ConstructFloat3Widget(UProperty* Property)
 		{
 			return CONSTRUCT_NUM_WIDGET_MARCRO(float, Float, 3);
 		}
 
-		bool ConstructFloat4Widget(UProperty* Property)
+		static bool ConstructFloat4Widget(UProperty* Property)
 		{
 			return CONSTRUCT_NUM_WIDGET_MARCRO(float, Float, 4);
 		}

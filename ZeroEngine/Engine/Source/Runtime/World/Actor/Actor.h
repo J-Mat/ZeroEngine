@@ -19,9 +19,10 @@ namespace Zero
 	public:
 		UActor();
 
-		UTransformComponent* m_RootComponent;
+		UComponent* m_RootComponent;
 
-		UTransformComponent* GetRootComponent() const { return m_RootComponent; }
+		UComponent* GetRootComponent() const { return m_RootComponent; }
+		void SetRootComponent(UComponent* Component) { m_RootComponent = Component; }
 
 
 		template<class T>
@@ -63,7 +64,6 @@ namespace Zero
 		ZMath::vec3& GetUPVector();
 		std::vector<UComponent*>& GetAllComponents() { return m_Components; }
 		void AddComponent(UComponent* Component) { m_Components.push_back(Component); }
-		std::string GetTag() { return m_Tag; }
 		void SetWorld(UWorld* World) { m_World = World; }
 		UWorld* GetWorld() { return m_World; }
 	public:
@@ -71,8 +71,6 @@ namespace Zero
 		UTransformComponent* m_TransformationComponent = nullptr;
 	protected:
 		UWorld* m_World;
-		std::string m_Tag;
-		UTagComponent* m_Tagcomponent = nullptr;
 		std::vector<UComponent*> m_Components;
 	};
 }
