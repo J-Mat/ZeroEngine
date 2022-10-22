@@ -24,13 +24,18 @@ namespace Zero
 	}
 
 	UCameraComponent::UCameraComponent()
-		: UTransformComponent()
+		: UComponent()
 	{
-		m_ShaderConstantsBuffer = FRenderer::GraphicFactroy->CreateShaderConstantBuffer(*GetPerCameraConstantsDesc());
 	}
 
 	UCameraComponent::~UCameraComponent()
 	{
+	}
+
+	void UCameraComponent::PostInit()
+	{
+		m_TransformCompent =  static_cast<UTransformComponent*>(m_Parent);
+		m_ShaderConstantsBuffer = FRenderer::GraphicFactroy->CreateShaderConstantBuffer(*GetPerCameraConstantsDesc());
 	}
 	
 
@@ -52,8 +57,8 @@ namespace Zero
 
 	void UCameraComponent::UpdateMat()
 	{
-		m_LookAt = m_Position + m_ForwardVector;
-		m_View = ZMath::lookAtLH(m_Position, m_LookAt, m_UpVector);
+		m_LookAt = m_TransformCompent->m_Position + m_TransformCompent->m_ForwardVector;
+		m_View = ZMath::lookAtLH(m_TransformCompent->m_Position, m_LookAt, m_TransformCompent->m_UpVector);
 		m_ProjectionView = m_Projection * m_View;
 	}
 
@@ -64,9 +69,9 @@ namespace Zero
 			m_ShaderConstantsBuffer->SetMatrix4x4("Projection", m_Projection);
 			m_ShaderConstantsBuffer->SetMatrix4x4("View", m_View);
 			m_ShaderConstantsBuffer->SetMatrix4x4("ProjectionView", m_ProjectionView);
-			m_ShaderConstantsBuffer->SetFloat3("ViewPos", m_Position);
+			m_ShaderConstantsBuffer->SetFloat3("ViewPos", m_TransformCompent->m_Position);
+			m_ShaderConstantsBuffer->UploadDataIfDirty();
 		}
-		m_ShaderConstantsBuffer->UploadDataIfDirty();
 	}
 
 	void UCameraComponent::OnResizeViewport(uint32_t Width, uint32_t Height)

@@ -28,6 +28,7 @@ namespace Zero
 		Component->SetOuter(Actor);
 		Actor->AddComponent(Component);
 		Component->SetParentComponent(RootComponent);
+		Component->PostInit();
 		return Component;
 	}
 }

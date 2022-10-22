@@ -14,12 +14,13 @@ namespace Zero
 
 
 	UCLASS()
-	class UCameraComponent : public UTransformComponent
+	class UCameraComponent : public UComponent
 	{
 		GENERATED_BODY()
 	public:
 		UCameraComponent();
 		virtual ~UCameraComponent();
+		virtual void PostInit();
 		void UpdateCameraSettings();
 		void UpdateMat();
 		void UploadBuffer();
@@ -29,6 +30,9 @@ namespace Zero
 		ZMath::mat4 GetProjection() { return m_Projection;}
 		ZMath::mat4 GetView() { return m_View; }
 	private:
+		UTransformComponent* m_TransformCompent;
+		
+
 		ZMath::vec3 m_LookAt = {0, 0, 0};
 		ZMath::mat4 m_Projection;
 		ZMath::mat4 m_ProjectionDither;

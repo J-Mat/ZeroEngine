@@ -12,12 +12,3 @@ target_include_directories(${ProjectName}
     PRIVATE "${EngineRuntimeDir}"
     PRIVATE "${EngineIntermediateDir}"
 )
-
-add_custom_command(
-	TARGET ${ProjectName} 
-    PRE_BUILD 
-    COMMAND cd ${EngineToolDir}
-    COMMAND cd ZeroHeaderTool
-    COMMAND ZeroHeaderTool.bat
-    VERBATIM
-)

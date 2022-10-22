@@ -30,6 +30,7 @@ if (WIN32)
 endif()
 
 
+
 add_custom_command(
 	TARGET ${ProjectName} 
     PRE_BUILD 
