@@ -44,8 +44,13 @@ namespace Zero
 		return ZMath::quat(m_Rotation);
 	}
 
+	ZMath::mat4 UTransformComponent::GetRotationMatrix() const
+	{
+		return glm::toMat4(glm::quat(m_Rotation));
+	}
+
 	ZMath::mat4 UTransformComponent::GetTransform()
 	{
-		return ZMath::translate(ZMath::mat4(1.0f), m_Position) * ZMath::toMat4(GetOrientation()) * ZMath::scale(ZMath::mat4(1.0f), m_Scale);
+		return ZMath::translate(ZMath::mat4(1.0f), m_Position) * GetRotationMatrix() * ZMath::scale(ZMath::mat4(1.0f), m_Scale);
 	}
 }

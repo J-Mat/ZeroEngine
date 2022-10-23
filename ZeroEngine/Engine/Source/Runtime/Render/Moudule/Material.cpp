@@ -32,7 +32,7 @@ namespace Zero
 		Ref<IShaderBinder> ShaderBinder = m_Shader->GetBinder();
 		ShaderBinder->Bind();
 		ShaderBinder->BindConstantsBuffer(ERootParameters::MaterialCB, m_ConstantsBuffer.get());
-		UCameraActor* Camera = UWorld::GetCurrentWorld()->GetCameraActor();
+		UCameraActor* Camera = UWorld::GetCurrentWorld()->GetMainCamera();
 		ShaderBinder->BindConstantsBuffer(ERootParameters::CameraCB, Camera->GetConstantBuffer().get());
 		ShaderBinder->BindConstantsBuffer(ERootParameters::FrameConstantCB, m_FrameResourceBuffer.get());
 		m_Shader->Use();

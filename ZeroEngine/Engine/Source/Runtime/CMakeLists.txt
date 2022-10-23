@@ -16,6 +16,7 @@ target_link_libraries(${ProjectName}
     PUBLIC stb_image
 	PUBLIC assimp
 	PUBLIC imgui
+	PUBLIC ImGuizmo
 	PUBLIC Utils
 	PUBLIC headers
 )

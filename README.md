@@ -1,6 +1,6 @@
 # ZeroEngine
 
-- [LearningDX12](https://github.com/J-Mat/ZeroEngine/tree/main/LearningDX12 "LearningDX12")  龙书源码，用cmake整合在一起，方便自己看
+- [LearningDX12](https://github.com/J-Mat/ZeroEngine/tree/main/LearningDX12 "LearningDX12")  龙书源码，用cmake整合在一起，方便自己�?
 - [ZeroEngine](https://github.com/J-Mat/ZeroEngine/tree/main/ZeroEngine "ZeroEngine") 自制玩具
 
 ## MileStone
@@ -20,3 +20,9 @@
 ### Hello imgui  **2022-09-22**
 
 ![1663845620594](image/README/1663845620594.png)
+
+### Editor framework based imgui & ImGuizmo &  Code Reflection **2022-10-23**
+
+you can modify the objects' properties through DetailPanel  based code reflection (**reference to UE4**)
+
+![1666530959987](image/README/1666530959987.png)

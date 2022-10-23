@@ -13,6 +13,7 @@ namespace Zero
 		bool IsViewportFocusd() { return m_bViewportFocused; }
 		bool IsViewportHovered() { return m_bViewportHoverd; }
 		void OnGuiRender();
+		void OnRenderGizmo();
 		void OnMouseClick(int X, int Y);
 		ZMath::FRay GetProjectionRay();
 	private:

@@ -1,4 +1,5 @@
 #include "ViewportPanel.h"
+#include "Editor.h"
 
 namespace Zero
 {
@@ -23,6 +24,7 @@ namespace Zero
 		ViewportPanelSize.x = ZMath::max(ViewportPanelSize.x, 1600.0f / 2.0f);
 		ViewportPanelSize.y = ZMath::max(ViewportPanelSize.y, 900.0f /2.0f);
 		
+
 		if (m_ViewportSize != *((ZMath::vec2*)&ViewportPanelSize))
 		{
 			m_ViewportSize = { ViewportPanelSize.x, ViewportPanelSize.y };
@@ -31,19 +33,60 @@ namespace Zero
 				m_RenderTarget->Resize(uint32_t(m_ViewportSize.x), uint32_t(m_ViewportSize.y));
 			}
 			
-			UWorld::GetCurrentWorld()->GetCameraActor()->OnResizeViewport(uint32_t(m_ViewportSize.x), uint32_t(m_ViewportSize.y));
+			UWorld::GetCurrentWorld()->GetMainCamera()->OnResizeViewport(uint32_t(m_ViewportSize.x), uint32_t(m_ViewportSize.y));
 		}
 		
 		Ref<FTexture2D> Texture = m_RenderTarget->GetTexture(m_RenderTargetIndex);
 		ImGui::Image((ImTextureID)Texture->GetGuiShaderReseource(), ViewportPanelSize);
+
+		OnRenderGizmo();
+
 		ImGui::End();
 		ImGui::PopStyleVar();
+	}
+
+	void FViewportPanel::OnRenderGizmo()
+	{
+		if (FEditor::SelectedActor == nullptr)
+		{
+			return;
+		}
+
+		ImGuizmo::SetOrthographic(false);
+		ImGuizmo::SetDrawlist();
+		ImGuizmo::SetRect(m_WindowsPos.x, m_WindowsPos.y, m_ViewportSize.x, m_ViewportSize.y);
+
+		
+		UCameraActor* CameraActor = UWorld::GetCurrentWorld()->GetMainCamera();
+		UCameraComponent* CameraComponent = CameraActor->GetComponent<UCameraComponent>();
+		CLIENT_ASSERT(CameraComponent != nullptr, "CameraActor shoule be has CameraComponent");
+		ZMath::mat4 CameraProjection = CameraComponent->GetProjection();
+		ZMath::mat4 CameraView = CameraComponent->GetView();
+		ZMath::mat4 Transform = FEditor::SelectedActor->GetTransform();
+
+
+		ImGuizmo::Manipulate(ZMath::value_ptr(CameraView), ZMath::value_ptr(CameraProjection),
+			(ImGuizmo::OPERATION)ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::LOCAL, ZMath::value_ptr(Transform),
+			nullptr, nullptr);
+		
+		if (ImGuizmo::IsUsing())
+		{
+			ZMath::vec3 Translation, Rotation, Scale;
+			ZMath::DecomposeTransform(Transform, Translation, Rotation, Scale);
+
+			auto* TransformeComponent = FEditor::SelectedActor->GetComponent<UTransformComponent>();
+
+			ZMath::vec3 DeltaRotation = Rotation - TransformeComponent->m_Rotation;
+			TransformeComponent->m_Position = Translation;
+			TransformeComponent->m_Rotation += DeltaRotation;
+			TransformeComponent->m_Scale = Scale;
+		}
 	}
 
 
 	ZMath::FRay FViewportPanel::GetProjectionRay()
 	{
-		UCameraActor* CameraActor = UWorld::GetCurrentWorld()->GetCameraActor();
+		UCameraActor* CameraActor = UWorld::GetCurrentWorld()->GetMainCamera();
 		UCameraComponent* CameraComponent = CameraActor->GetComponent<UCameraComponent>();
 		CLIENT_ASSERT(CameraComponent != nullptr, "CameraActor shoule be has CameraComponent");
 		ZMath::mat4 Projection = CameraComponent->GetProjection();
@@ -64,7 +107,7 @@ namespace Zero
 		UActor* Actor = UWorld::GetCurrentWorld()->PickActorByMouse(Ray);
 		if (Actor != nullptr)
 		{
-			std::cout << Actor->GetName() << std::endl;
+			FEditor::SelectedActor = Actor;
 		}
 	}
 

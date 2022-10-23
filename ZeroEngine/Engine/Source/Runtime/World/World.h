@@ -28,7 +28,7 @@ namespace Zero
 		static  UWorld* GetCurrentWorld() { return s_CurrentWorld; }
 		static void  SetCurrentWorld(UWorld* World) { s_CurrentWorld = World; }
 		void SetCamera(UCameraActor* Camera) { m_MainCamera = Camera; }
-		UCameraActor* GetCameraActor() { return m_MainCamera; }
+		UCameraActor* GetMainCamera() { return m_MainCamera; }
 		std::vector<UActor*> GetActors() { return m_Actors; }
 
 		template<class T, typename ...ParamTypes>

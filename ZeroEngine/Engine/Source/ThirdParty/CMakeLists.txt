@@ -32,6 +32,12 @@ if(NOT TARGET imgui)
     NoWarning(stb_image)
 endif()
 
+if(NOT TARGET ImGuizmo)
+	  add_subdirectory(ImGuizmo)
+    set_target_properties(ImGuizmo PROPERTIES FOLDER ${ThirdPartyFolder})
+    NoWarning(ImGuizmo)
+endif()
+
 if(NOT TARGET assimp)
     OPTION( BUILD_SHARED_LIBS
       "Build package with shared libraries."

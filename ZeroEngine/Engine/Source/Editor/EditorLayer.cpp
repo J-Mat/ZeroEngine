@@ -28,7 +28,7 @@ namespace Zero
 		UCustomMeshActor* MeshActor = m_World->CreateActor<UCustomMeshActor>("sphere.fbx");
 		//UCubeMeshActor* MeshActor = UActor::Create<UCubeMeshActor>(m_World);
 
-		m_CameraController = CreateRef<FEditorCameraController>(m_World->GetCameraActor());
+		m_CameraController = CreateRef<FEditorCameraController>(m_World->GetMainCamera());
 
 		Ref<FRenderStage> ForwardRendering = FForwardStage::Create();
 		m_ScriptablePipeline->PushLayer(ForwardRendering);

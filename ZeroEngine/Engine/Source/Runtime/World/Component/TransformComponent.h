@@ -17,6 +17,7 @@ namespace Zero
 		virtual void SetRotation(const ZMath::vec3& Rotation);
 		virtual void SetScale(const ZMath::vec3& Scale) { m_Scale = Scale; };
 		ZMath::quat GetOrientation();
+		ZMath::mat4 GetRotationMatrix() const;
 		ZMath::mat4 GetTransform();
 
 		ZMath::vec3 GetPosition() const { return m_Position; }

@@ -14,6 +14,7 @@
 #include "Core/Events/MouseEvent.h"
 
 #include "imgui/imgui.h"
+#include <ImGuizmo.h>
 #include "GUI/GuiUtility.h"
 #if defined(_WIN32)
 #include "imgui/backends/imgui_impl_win32.h"
