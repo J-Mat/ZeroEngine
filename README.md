@@ -1,7 +1,7 @@
 # ZeroEngine
 
-- [LearningDX12](https://github.com/J-Mat/ZeroEngine/tree/main/LearningDX12 "LearningDX12")  榫欎功婧愮爜锛岀敤cmake鏁村悎鍦ㄤ竴璧凤紝鏂逛究鑷繁鐪?
-- [ZeroEngine](https://github.com/J-Mat/ZeroEngine/tree/main/ZeroEngine "ZeroEngine") 鑷埗鐜╁叿
+- [LearningDX12](https://github.com/J-Mat/ZeroEngine/tree/main/LearningDX12 "LearningDX12")  龙书源码，用cmake整合在一起， 方便自己看
+- [ZeroEngine](https://github.com/J-Mat/ZeroEngine/tree/main/ZeroEngine "ZeroEngine") 自制玩具
 
 ## MileStone
 
