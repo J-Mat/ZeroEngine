@@ -54,7 +54,7 @@ namespace Zero
 
 		ImGuizmo::SetOrthographic(false);
 		ImGuizmo::SetDrawlist();
-		ImGuizmo::SetRect(m_WindowsPos.x, m_WindowsPos.y, m_ViewportSize.x, m_ViewportSize.y);
+		ImGuizmo::SetRect(float(m_WindowsPos.x), float(m_WindowsPos.y), m_ViewportSize.x, m_ViewportSize.y);
 
 		
 		UCameraActor* CameraActor = UWorld::GetCurrentWorld()->GetMainCamera();

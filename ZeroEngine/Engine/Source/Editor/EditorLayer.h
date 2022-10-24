@@ -23,6 +23,9 @@ namespace Zero
 		virtual void OnGuiRender() override;
 		void OnEvent(FEvent& Event) override;
 
+		void SaveScene();
+		void OpenScene();
+		
 		
 		void BuildWorld() ;
 		void InitEditPanel();

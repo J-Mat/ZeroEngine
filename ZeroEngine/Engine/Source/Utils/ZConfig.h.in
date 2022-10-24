@@ -1,0 +1,50 @@
+#pragma once
+
+#include <filesystem>
+
+// version variable that will be substituted by cmake
+// This shows an example using the @ variable type
+
+namespace Zero
+{
+	namespace ZConfig
+	{
+		static const std::filesystem::path EngineSourceDir = "@EngineSourceDir@";
+		static const std::filesystem::path ProjectRootDir = "@ProjectRootDir@";
+		static const std::filesystem::path ConfigDir = ProjectRootDir / "Config";
+		static const std::string& ZBTFile = "ZBTConfig.ini";
+		static const std::filesystem::path AssetsDir = ProjectRootDir / "Assets";
+		static const std::filesystem::path ShaderDir = AssetsDir / "Shader";
+		static const std::filesystem::path ObjectDir = AssetsDir / "Obj";
+		static const std::filesystem::path TextureDir = AssetsDir / "Texture";
+		static const std::filesystem::path SceneDir = AssetsDir / "Scene";
+		static const std::filesystem::path IntermediateDir = ProjectRootDir / "Intermediate";
+		static const std::filesystem::path CodeReflectionLinkFile = EngineSourceDir / "CodeReflectionLinkFile.h";
+		static const std::filesystem::path EditorContentFolder = EngineSourceDir  / "Editor" / "Content";
+
+		static const std::filesystem::path GetShaderFullPath(const std::string& RelativePath)
+		{
+			return ShaderDir / RelativePath;
+		}
+
+		static const std::filesystem::path GetTextureFullPath(const std::string& RelativePath)
+		{
+			return TextureDir / RelativePath;
+		}
+
+		static const std::filesystem::path GetObjFullPath(const std::string& RelativePath)
+		{
+			return ObjectDir / RelativePath;
+		}
+
+		static const std::filesystem::path GetSceneFullPath(const std::string& RelativePath)
+		{
+			return SceneDir / RelativePath;
+		}
+
+		static const std::filesystem::path GetEditorContentFullPath(const std::string& RelativePath)
+		{
+			return EditorContentFolder / RelativePath;
+		}
+	}
+}

@@ -6,6 +6,8 @@
 #include "World/Actor/SphereMeshActor.h"
 #include "World/Actor/CubeMeshActor.h"
 #include "World/Actor/CustomMeshActor.h"
+#include "Dialog/DialogUtils.h"
+#include "Asset/WorldSerializer.h"
 
 namespace Zero
 {
@@ -127,15 +129,18 @@ namespace Zero
 			{
 				if (ImGui::MenuItem("New", "Ctrl+N"))
 				{
+					std::cout << "New\n";
 				}
 
 				if (ImGui::MenuItem("Save Scene", "Ctrl+Shift+S"))
 				{
+					SaveScene();
 				}
 
 				if (ImGui::MenuItem("Load Scene", "Ctrl+O"))
-				
-
+				{
+					std::cout << "Load\n";
+				}
 				ImGui::EndMenu();
 			}
 
@@ -157,6 +162,20 @@ namespace Zero
 	{
 		FEventDispatcher Dispatcher(Event);
 		Dispatcher.Dispatch<FMouseButtonReleasedEvent>(BIND_EVENT_FN(FEditorLayer::MouseButtonPressed));
+	}
+
+	void FEditorLayer::SaveScene()
+	{
+		std::string Filepath = FFileDialog::SaveFile("Zero Scene (*.scene)\0*.scene\0");
+		if (!Filepath.empty())
+		{
+			FWorldSerializer Serialzier(UWorld::GetCurrentWorld());
+			Serialzier.Serialize(Filepath);
+		}
+	}
+
+	void FEditorLayer::OpenScene()
+	{
 	}
 	
 	bool FEditorLayer::MouseButtonPressed(FMouseButtonReleasedEvent& Event)
