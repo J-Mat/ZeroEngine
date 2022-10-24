@@ -38,6 +38,26 @@ if(NOT TARGET ImGuizmo)
     NoWarning(ImGuizmo)
 endif()
 
+
+if(NOT TARGET yaml-cpp)
+  add_subdirectory(yaml-cpp)
+  set_target_properties(yaml-cpp PROPERTIES FOLDER "${ThirdPartyFolder}/yaml-cpp")
+  set_target_properties(yaml-cpp-read PROPERTIES FOLDER "${ThirdPartyFolder}/yaml-cpp")
+  set_target_properties(yaml-cpp-parse PROPERTIES FOLDER "${ThirdPartyFolder}/yaml-cpp")
+  set_target_properties(yaml-cpp-sandbox PROPERTIES FOLDER "${ThirdPartyFolder}/yaml-cpp")
+  NoWarning(yaml-cpp)
+endif()
+
+if(NOT TARGET crossguid)
+  option(BUILD_STATIC_LIBS "" ON)
+  option(BUILD_TESTING "" OFF)
+  option(GLM_TEST_ENABLE "" OFF)
+  add_subdirectory(crossguid)
+  set_target_properties(crossguid PROPERTIES FOLDER "${ThirdPartyFolder}/crossguid")
+  set_target_properties(crossguid-test PROPERTIES FOLDER "${ThirdPartyFolder}/crossguid")
+  NoWarningInterface(crossguid)
+endif()
+
 if(NOT TARGET assimp)
     OPTION( BUILD_SHARED_LIBS
       "Build package with shared libraries."
@@ -129,14 +149,6 @@ if(NOT TARGET glm)
 endif()
 
 
-if(NOT TARGET crossguid)
-  option(BUILD_STATIC_LIBS "" ON)
-  option(BUILD_TESTING "" OFF)
-  option(GLM_TEST_ENABLE "" OFF)
-  add_subdirectory(crossguid)
-  set_target_properties(crossguid PROPERTIES FOLDER ${ThirdPartyFolder})
-  NoWarningInterface(crossguid)
-endif()
 
 
 if(NOT TARGET headers)
