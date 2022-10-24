@@ -17,6 +17,7 @@ target_link_libraries(${ProjectName}
 	PUBLIC assimp
 	PUBLIC imgui
 	PUBLIC ImGuizmo
+	PUBLIC yaml-cpp
 	PUBLIC Utils
 	PUBLIC headers
 )
