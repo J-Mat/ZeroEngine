@@ -1,6 +1,6 @@
 set(ProjectName "Utils")
 
-configure_file(Config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/Config.h @ONLY)
+configure_file(ZConfig.h.in ${CMAKE_CURRENT_SOURCE_DIR}/ZConfig.h @ONLY)
 
 ConstructSolutionDirTree( ${CMAKE_CURRENT_SOURCE_DIR} HeadList SrcList)
 

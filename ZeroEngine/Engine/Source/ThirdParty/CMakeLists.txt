@@ -8,12 +8,6 @@ if(NOT TARGET spdlog)
 	NoWarning(spdlog)
 endif()
 
-if(NOT TARGET DirectXTex)
-	add_subdirectory(DirectXTex)
-	set_target_properties(DirectXTex PROPERTIES FOLDER ${ThirdPartyFolder})
-	NoWarning(DirectXTex)
-endif()
-
 if(NOT TARGET stb_image)
 	add_subdirectory(stb_image)
     set_target_properties(stb_image PROPERTIES FOLDER ${ThirdPartyFolder})

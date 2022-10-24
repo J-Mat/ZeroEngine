@@ -1,14 +1,14 @@
 #include "CustomMeshActor.h"
 #include "../Component/MeshVertexComponent.h"
 #include "Render/Moudule/MeshGenerator.h"
-#include "Core/Config.h"
+#include "Utils/ZConfig.h"
 #include "Render/RHI/VertexBuffer.h"
 
 namespace Zero
 {
 	UCustomMeshActor::UCustomMeshActor(const std::string& FileName)
 		: UMeshActor()
-		, m_FileName(FConfig::GetInstance().GetObjFullPath(FileName).string())
+		, m_FileName(ZConfig::GetObjFullPath(FileName).string())
 	{
 	}
 

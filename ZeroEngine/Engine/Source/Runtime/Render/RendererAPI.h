@@ -14,7 +14,7 @@
 #include "Platform/DX12/Shader/DX12ShaderBinder.h"
 #include "Platform/DX12/DX12RootSignature.h"
 #include "Core/Framework/Library.h"
-#include "Core/Config.h"
+#include "ZConfig.h"
 #include "Render/Moudule/ShaderRegister.h"
 
 namespace Zero
@@ -157,7 +157,7 @@ namespace Zero
 			Ref<IShader> Shader = TLibrary<IShader>::Fetch(FileName);
 			if (Shader == nullptr)
 			{
-				std::filesystem::path ShaderPath = FConfig::GetInstance().GetShaderFullPath(FileName);
+				std::filesystem::path ShaderPath = ZConfig::GetShaderFullPath(FileName);
 				Shader = CreateRef<FDX12Shader>(ShaderPath.string(), BinderDesc, ShaderDesc);
 				TLibrary<IShader>::Push(FileName, Shader);
 			}
@@ -176,7 +176,7 @@ namespace Zero
 			Ref<FTexture2D> Texture = TLibrary<FTexture2D>::Fetch(TextureFileName.stem().string());
 			if (Texture == nullptr)
 			{
-				std::filesystem::path TexturePath = FConfig::GetInstance().GetTextureFullPath(FileName);
+				std::filesystem::path TexturePath = ZConfig::GetTextureFullPath(FileName);
 				Ref<FImage> Image = CreateRef<FImage>(TexturePath.string());
 				Texture = CreateRef<FDX12Texture2D>(Image);
 				std::cout << TextureFileName.stem().string() << std::endl;

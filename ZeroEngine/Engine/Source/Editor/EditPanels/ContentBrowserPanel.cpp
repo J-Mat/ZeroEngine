@@ -1,4 +1,5 @@
 #include "ContentBrowserPanel.h"
+#include "ZConfig.h"
 
 namespace Zero
 {
@@ -8,7 +9,7 @@ namespace Zero
 
 	Ref<FTexture2D> FContentBrowserPanel::CreateIcon(const std::string&& FileName)
 	{
-		Ref<FImage> Image = CreateRef<FImage>(FConfig::GetInstance().GetEditorContentFullPath(FileName).string());
+		Ref<FImage> Image = CreateRef<FImage>(ZConfig::GetEditorContentFullPath(FileName).string());
 		auto Icon = FRenderer::GraphicFactroy->CreateTexture2D(Image);
 		Icon->RegistGuiShaderResource();
 		return Icon;
@@ -66,7 +67,7 @@ namespace Zero
 	{
 		auto CurPath = m_SelectedFolder;
 		std::vector<std::filesystem::path> Paths;
-		while (CurPath != FConfig::GetInstance().GetAssetsFolder() && !CurPath.empty())
+		while (CurPath != ZConfig::AssetsDir && !CurPath.empty())
 		{
 			Paths.push_back(CurPath);
 			CurPath = CurPath.parent_path();
@@ -176,7 +177,7 @@ namespace Zero
 
 	void FContentBrowserPanel::OnGuiRender()
 	{
-		std::filesystem::path AssetsFolder = FConfig::GetInstance().GetAssetsFolder();
+		std::filesystem::path AssetsFolder = ZConfig::AssetsDir;
 		if (ImGui::Begin("Assests"))
 		{
 			ProjectViewerSystemPrintChildren(AssetsFolder);

@@ -109,6 +109,10 @@ namespace Zero
 		{
 			FEditor::SelectedActor = Actor;
 		}
+		else
+		{
+			FEditor::SelectedActor = nullptr;
+		}
 	}
 
 

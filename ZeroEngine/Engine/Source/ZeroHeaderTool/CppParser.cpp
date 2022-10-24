@@ -2,7 +2,7 @@
 #include "StringUtils.h"
 #include "Log.h"
 #include <string>
-#include "Config.h"
+#include "ZConfig.h"
 #include "Utils.h"
 
 
@@ -373,9 +373,9 @@ namespace ZHT
 	void FFileParser::CollectClassInfo(FClassElement& ClassElement)
 	{
 		ClassElement.OriginFilePath = m_CurFilePath;
-		ClassElement.HeaderPath = Zero::Config::IntermediateDir / Zero::Utils::StringUtils::Format("{0}.reflection.h", m_CurFilePath.filename().stem().string());
+		ClassElement.HeaderPath = Zero::ZConfig::IntermediateDir / Zero::Utils::StringUtils::Format("{0}.reflection.h", m_CurFilePath.filename().stem().string());
 
-		ClassElement.CppPath = Zero::Config::IntermediateDir / Zero::Utils::StringUtils::Format("{0}.reflection.cpp", m_CurFilePath.filename().stem().string()); 
+		ClassElement.CppPath = Zero::ZConfig::IntermediateDir / Zero::Utils::StringUtils::Format("{0}.reflection.cpp", m_CurFilePath.filename().stem().string()); 
 		CLIENT_ASSERT(m_Tokens[m_ClassTagIndex + 2].TokenName == "class", "Semantic Faild!");
 		ClassElement.ClassName = m_Tokens[m_ClassTagIndex + 3].TokenName;
 		ClassElement.ClassTagName = ClassElement.ClassName.substr(1);

@@ -16,7 +16,7 @@ namespace Zero
 		for (int i = 0; i < Actors.size(); ++i)
 		{
 			UActor* Actor = Actors[i];
-			if (ImGui::Selectable(Actor->GetName().c_str(), SelectedIndex == i))
+			if (ImGui::Selectable(Actor->GetName().c_str(), FEditor::SelectedActor == Actor))
 			{
 				SelectedIndex = i;
 				FEditor::SelectedActor = Actor;

@@ -1,6 +1,6 @@
 #include <iostream> 
 #include "StringUtils.h"
-#include "Config.h"
+#include "ZConfig.h"
 #include "Log.h"
 #include "mini/ini.h"
 #include "CppParser.h"
@@ -45,20 +45,20 @@ void WriteLinkReflectionFile()
 	}
 	std::string WholeContent = Zero::Utils::StringUtils::Join(Contents, "\n", true);
 	std::cout << WholeContent;
-	std::string OriginFile = Zero::Utils::StringUtils::ReadFile(Zero::Config::CodeReflectionLinkFile.string());
+	std::string OriginFile = Zero::Utils::StringUtils::ReadFile(Zero::ZConfig::CodeReflectionLinkFile.string());
 	
 	if (OriginFile != WholeContent)
 	{
-		Zero::Utils::StringUtils::WriteFile(Zero::Config::CodeReflectionLinkFile.string(), WholeContent);
+		Zero::Utils::StringUtils::WriteFile(Zero::ZConfig::CodeReflectionLinkFile.string(), WholeContent);
 	}
 }
 
 int main()
 {
 	Zero::FLog::Init();
-	std::filesystem::path Path = Zero::Config::ConfigDir / Zero::Config::ZBTFile;
+	std::filesystem::path Path = Zero::ZConfig::ConfigDir / Zero::ZConfig::ZBTFile;
 	// Removeo all files first
-	Zero::Utils::RemoveFilesInDir(Zero::Config::IntermediateDir.string());
+	Zero::Utils::RemoveFilesInDir(Zero::ZConfig::IntermediateDir.string());
 	std::cout << Path.string() << std::endl;
 	mINI::INIFile File(Path.string());
 	mINI::INIStructure Ini;
@@ -69,7 +69,7 @@ int main()
 	for (auto const& Iter : Modules)
 	{
 		//std::cout << Iter.second << std::endl;
-		std::filesystem::path PathModule = Zero::Config::EngineSourceDir / Iter.second;
+		std::filesystem::path PathModule = Zero::ZConfig::EngineSourceDir / Iter.second;
 		CLIENT_LOG_INFO("Parse Module {0}", PathModule.string());
 		if (std::filesystem::exists(PathModule))
 		{
