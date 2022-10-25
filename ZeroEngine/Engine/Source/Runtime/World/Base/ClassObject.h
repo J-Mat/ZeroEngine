@@ -5,7 +5,8 @@
 namespace Zero
 {
 	class UClass;
-	static std::map<std::string, UClass*> g_AllUObjectClasses;
+	using FClassID = std::pair<std::string, UClass*>;
+	static std::map<std::string, FClassID> g_AllUObjectClasses;
 	DEFINITION_SIMPLE_SINGLE_DELEGATE(FRegisterClassObjectDelegate, UCoreObject*);
 	class UClass : public UField
 	{

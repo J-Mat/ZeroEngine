@@ -20,3 +20,8 @@
 #include "imgui/backends/imgui_impl_win32.h"
 #include "imgui/backends/imgui_impl_dx12.h"
 #endif
+
+#include "World/Base/CoreObject.h"
+#include "World/Base/ClassObject.h"
+#include "World/Base/VariateProperty.h"
+#include "World/Base/ClassProperty.h"

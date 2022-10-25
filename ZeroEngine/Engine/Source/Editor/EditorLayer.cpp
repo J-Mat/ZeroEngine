@@ -166,7 +166,7 @@ namespace Zero
 
 	void FEditorLayer::SaveScene()
 	{
-		std::string Filepath = FFileDialog::SaveFile("Zero Scene (*.scene)\0*.scene\0");
+		std::string Filepath = FFileDialog::SaveFile("Zero Scene (*.scene)\0*.scene\0", "scene");
 		if (!Filepath.empty())
 		{
 			FWorldSerializer Serialzier(UWorld::GetCurrentWorld());

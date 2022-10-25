@@ -6,14 +6,14 @@ namespace Zero
 {
 	UVariableProperty* FClassInfoCollection::AddVariableProperty(const std::string& ClassName, const std::string& PropertyName, void* Data, const std::string& PropertyType, uint32_t PropertySize)
     {
-		UVariableProperty* Property = ConstructProperty<UVariableProperty>(PropertyName, Data, PropertySize, PropertyType);
+		UVariableProperty* Property = ConstructProperty<UVariableProperty>(ClassName, PropertyName, Data, PropertySize, PropertyType);
 		Property->GetClassCollection().AddMeta("Category", ClassName);
 		return Property;
     }
 
 	UClassProperty* FClassInfoCollection::AddClassProperty(const std::string& ClassName, const std::string& PropertyName, void* Data, const std::string& PropertyType, uint32_t PropertySize)
 	{
-        auto* Property =  ConstructProperty<UClassProperty>(Data, PropertySize, PropertyType);
+        auto* Property =  ConstructProperty<UClassProperty>(ClassName, Data, PropertySize, PropertyType);
 		Property->GetClassCollection().AddMeta("Category", ClassName);
 		return Property;
 	}

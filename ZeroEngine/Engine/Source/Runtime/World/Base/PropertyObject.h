@@ -4,13 +4,11 @@
 
 namespace Zero
 {
-
-
 	class UProperty : public UField
 	{
 		using Supper = UField;
 	public: 
-		UProperty(std::string PropertyName, void* Data, uint32_t DataSize, const std::string PropertyType);
+		UProperty(const std::string& ClassName, std::string PropertyName, void* Data, uint32_t DataSize, const std::string PropertyType);
 
 		template<class T>
 		T* GetData() const
@@ -25,13 +23,12 @@ namespace Zero
 
 		void InitializeValue(void* InDest) { m_Data = (char*)InDest; }
 		void SetDataSize(uint32_t InSize) {  m_DataSize = InSize; }
-
+		const std::string& GetBelongClassName() { return m_BelongClassName; }
 	protected:
 		void* m_Data = nullptr;
 		uint32_t m_DataSize = 0;
+		const std::string m_BelongClassName;
 		std::string m_PropertyType;
 		std::string m_PropertyName;
 	};
-	
-	
 }

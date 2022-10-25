@@ -7,6 +7,6 @@ namespace Zero
 	class UClassProperty : public UProperty
 	{
 	public:
-		UClassProperty(void* Data, uint32_t DataSize, const std::string PropertyType);
+		UClassProperty(std::string ClassName, void* Data, uint32_t DataSize, const std::string PropertyType);
 	};
 }

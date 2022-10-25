@@ -32,7 +32,7 @@ namespace ZHT
 		std::string ClassName;
 		std::string ClassTagName;
 		std::vector<FPropertyElement> Properties;
-		std::vector<std::string> InheritNames;
+		std::string InheritName = "";
 		uint32_t LineIndex;
 		std::filesystem::path OriginFilePath;
 		std::filesystem::path HeaderPath;
@@ -77,7 +77,6 @@ namespace ZHT
 		void GenerateReflectionHeaderFile(FClassElement& ClassElement);
 
 		std::string WriteAddPropertyCode(const FClassElement& ClassElement);
-		std::string MakeInheritLink(const FClassElement& ClassElement);
 		void GenerateReflectionCppFile(const FClassElement& ClassElement);
 		
 	private:

@@ -1,5 +1,6 @@
 #include "WorldSerializer.h"
 #include "Utils/StringUtils.h"
+#include "SerializeUtility.h"
 
 namespace Zero
 {
@@ -21,7 +22,8 @@ namespace Zero
 		{
 			UActor* Actor = Actors[i];
 			Out << YAML::BeginMap;
-			
+			Out << YAML::Key << "Name" << YAML::Value << Actor->GetName();
+			Out << YAML::Key << "Pos" << YAML::Value << Actor->GetPosition();
 			Out << YAML::EndMap;
 		}
 		

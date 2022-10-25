@@ -1,6 +1,5 @@
 #include "DetailsMappingManager.h"
-
-
+#include "ZeroEngine.h"
 
 namespace Zero
 {
@@ -25,11 +24,9 @@ namespace Zero
     {
         while (Property != nullptr)
         {
-            std::string CurrentCategory;
-            bool bFindMetas = Property->GetClassCollection().FindMetas("Category", CurrentCategory);
-            CLIENT_ASSERT(bFindMetas,  "Property Must have Category!");
+            std::string CurrentClassName = Property->GetBelongClassName();
             
-            if (CurrentCategory != Category)
+            if (CurrentClassName != Category)
             {
                 break;
             }
@@ -54,16 +51,23 @@ namespace Zero
     bool FDetailMappingManager::UpdateClassWidgets(UCoreObject* CoreObject)
     {
         m_CurrentProperty = CoreObject->GetClassCollection().HeadProperty;
-        const std::vector<std::string>& Link = CoreObject->GetClassCollection().GetInheritLink();
-        for (auto& ClassName : CoreObject->GetClassCollection().GetInheritLink())
+
+        std::list<std::string> InheritLink;
+        std::string ClassName = CoreObject->GetObjectName();
+        auto Iter = g_AllUObjectClasses.find(ClassName);
+        for (; Iter->first != ""; ClassName = Iter->first)
+        {
+            InheritLink.push_front(ClassName);
+        }
+
+        for (auto& ClassName : InheritLink)
         {
             if (m_CurrentProperty == nullptr)
             {
                 break;
             }
-            std::string CurrentCategory;
-            bool bFindMetas = m_CurrentProperty->GetClassCollection().FindMetas("Category", CurrentCategory);
-            if (CurrentCategory == ClassName)
+            const std::string& CurrentClassName = m_CurrentProperty->GetBelongClassName();
+            if (CurrentClassName == ClassName)
             {
                 if (ImGui::TreeNodeEx(ClassName.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
                 {

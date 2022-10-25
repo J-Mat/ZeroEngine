@@ -4,15 +4,18 @@
 #include "GUIDInterface.h"
 #include "ObjectMacros.h"
 #include "ClassInfoCollection.h"
+#include "CoreObject.reflection.h"
 
 namespace Zero
 {
 	static std::set<std::string> g_AllUObjects;
+	UCLASS()
 	class UCoreObject : public IGUIDInterface
 	{
 	private:
 		static std::map<std::string, uint32_t> s_ObjectNameIndex;
 	public:
+		GENERATED_BODY()
 		UCoreObject();
 		virtual ~UCoreObject();
 		static std::map<Utils::Guid, UCoreObject*> s_ObjectsCollection;
@@ -22,7 +25,7 @@ namespace Zero
 		virtual void PostInit() {}
 		virtual void Tick() {}
 		
-		void SetName(std::string Name) 
+		void SetName(const std::string& Name) 
 		{ 
 			auto Iter = s_ObjectNameIndex.find(Name);
 			if (Iter == s_ObjectNameIndex.end())
@@ -36,12 +39,16 @@ namespace Zero
 				m_Name = std::format("{0}_{1}",Name, Index);
 			}
 		}
-		const std::string& GetName() const { return m_Name; }
+		const std::string& GetName() 
+		{
+			if (m_Name == "")
+			{
+				SetName(GetObjectName());
+			}
+			return m_Name;
+		}
 		UCoreObject* GetOuter() { return m_Outer; }
 		
-
-	public:
-		virtual void InitReflectionContent() {};
 
 #ifdef EDITOR_MODE 
 		virtual void PostEdit(UProperty* Property) {};
@@ -54,6 +61,8 @@ namespace Zero
 	protected:
 		bool m_bTick = true;
 		UCoreObject* m_Outer;
-		std::string m_Name;
+	public:
+		UPROPERTY()
+		std::string m_Name = "";
 	};
 }

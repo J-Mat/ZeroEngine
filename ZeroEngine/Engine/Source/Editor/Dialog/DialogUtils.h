@@ -8,6 +8,6 @@ namespace Zero
 	{
 	public:
 		static std::string OpenFile(const char* Filter);
-		static std::string SaveFile(const char* Filter);
+		static std::string SaveFile(const char* Filter, const char* Extension);
 	};
 }

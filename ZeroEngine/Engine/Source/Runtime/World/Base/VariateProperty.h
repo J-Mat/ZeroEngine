@@ -21,7 +21,7 @@ namespace Zero
 	class UVariableProperty : public UProperty
 	{
 	public:
-		UVariableProperty(std::string PropertyName, void* Data, uint32_t DataSize, const std::string PropertyType);
+		UVariableProperty(std::string ClassName, std::string PropertyName, void* Data, uint32_t DataSize, const std::string PropertyType);
 	private:
 		EPropertyType m_VariableType = PT_Unknown;
 	};

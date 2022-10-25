@@ -384,7 +384,8 @@ namespace ZHT
 		CLIENT_ASSERT(m_Tokens[CurIndex].TokenName == ":", "Semantic Faild!");
 		CLIENT_ASSERT(m_Tokens[CurIndex + 1].TokenName == "public", "Semantic Faild!");
 	
-		ClassElement.InheritNames.push_back(m_Tokens[CurIndex + 2].TokenName);
+		std::string InhritClassName = m_Tokens[CurIndex + 2].TokenName;
+		ClassElement.InheritName = InhritClassName.starts_with("U") ? InhritClassName : "";
 
 		while (LocatePropertyTag())
 		{
@@ -398,10 +399,7 @@ namespace ZHT
 	void FFileParser::LogClassInfo(FClassElement& ClassElement)
 	{
 		CLIENT_LOG_INFO("Class Name : {0}", ClassElement.ClassName);
-		for (const auto& ClassName : ClassElement.InheritNames)
-		{
-			CLIENT_LOG_INFO("Inherit : {0}", ClassName);
-		}
+		CLIENT_LOG_INFO("Inherit : {0}", ClassElement.InheritName);
 		CLIENT_LOG_INFO("Line : {0}", ClassElement.LineIndex);
 		
 		
@@ -423,7 +421,7 @@ namespace ZHT
 
 	void FFileParser::GenerateReflectionHeaderFile(FClassElement& ClassElement)
 	{
-
+		std::stringstream Stream;
 		std::vector<std::string> Contents;
 		Contents.push_back("#pragma once\n\n\n");
 
@@ -435,25 +433,33 @@ namespace ZHT
 		Contents.push_back("#undef TAG_LINE");
 		Contents.push_back("#endif //TAG_LINE\n\n");
 
-		Contents.push_back( Zero::Utils:: StringUtils::Format("#define REFLECTION_FILE_NAME {0}", ClassElement.ClassName));
-		Contents.push_back( Zero::Utils::StringUtils::Format("#define TAG_LINE {0}", ClassElement.LineIndex));
+		Contents.push_back(Zero::Utils::StringUtils::Format("#define REFLECTION_FILE_NAME {0}", ClassElement.ClassName));
+		Contents.push_back(Zero::Utils::StringUtils::Format("#define TAG_LINE {0}", ClassElement.LineIndex));
 
-		Contents.push_back( Zero::Utils::StringUtils::Format("#define {0}_{1}_Internal_BODY \\",
-			ClassElement.ClassName, 
+		Contents.push_back(Zero::Utils::StringUtils::Format("#define {0}_{1}_Internal_BODY \\",
+			ClassElement.ClassName,
 			ClassElement.LineIndex
 		));
 		Contents.push_back("private: \\");
 		Contents.push_back(Zero::Utils::StringUtils::Format("static int s_{0}ClassIndex; \\", ClassElement.ClassName));;
-		
+
 
 		Contents.push_back("public: \\");
-		if (ClassElement.InheritNames.size() > 0)
+		if (ClassElement.InheritName != "")
 		{
-			Contents.push_back(Zero::Utils::StringUtils::Format("using Supper = {0}; \\", ClassElement.InheritNames[0]));
+			Contents.push_back(Zero::Utils::StringUtils::Format("using Supper = {0}; \\", ClassElement.InheritName));
 		}
 		Contents.push_back("static class UClass* GetClass();\\");
 		Contents.push_back("public: \\");
-		Contents.push_back("\tvirtual void InitReflectionContent() override;");
+
+		Stream << "virtual constexpr std::string & GetObjectName() {"
+			<< std::format("return std::string(\"{0}\"); \\", ClassElement.ClassName)
+		<< "}";
+		PUSH_TO_CONTENT
+
+
+
+		Contents.push_back("\tvirtual void InitReflectionContent();");
 		
 		Contents.push_back( Zero::Utils::StringUtils::Format("#define {0}_{1}_GENERATED_BODY \\",
 			ClassElement.ClassName, 
@@ -511,13 +517,6 @@ namespace ZHT
 		return Stream.str();
 	}
 
-	std::string FFileParser::MakeInheritLink(const FClassElement& ClassElement)
-	{
-		std::stringstream Stream;
-		Stream << Zero::Utils::StringUtils::Format("\t\tm_ClassInfoCollection.PushBackInheritClass(\"{0}\");\n", ClassElement.ClassName);
-		return Stream.str();
-	}
-
 	void FFileParser::GenerateReflectionCppFile(const FClassElement& ClassElement)
 	{
 		std::vector<std::string> Contents;
@@ -536,7 +535,7 @@ namespace ZHT
 			<< "{";
 		PUSH_TO_CONTENT
 
-			Stream << Zero::Utils::StringUtils::Format("\tUClass* {0}::GetClass()\n", ClassElement.ClassName)
+		Stream << Zero::Utils::StringUtils::Format("\tUClass* {0}::GetClass()\n", ClassElement.ClassName)
 			<< "\t{\n"
 			<< "\t\tstatic UClass* ClassObject = nullptr;\n"
 			<< "\t\tif (ClassObject != nullptr)\n"
@@ -553,25 +552,18 @@ namespace ZHT
 
 		Stream << Zero::Utils::StringUtils::Format("\tvoid {0}::InitReflectionContent()\n", ClassElement.ClassName)
 			<< "\t{\n"
-			<< "\t\tSupper::InitReflectionContent();\n"
-			<< std::format("\t\tSetName(\"{0}\");\n", ClassElement.ClassTagName)
+			<< (ClassElement.InheritName != "" ? "\t\tSupper::InitReflectionContent();\n" : "\n")
 			<< WriteAddPropertyCode(ClassElement)
-			<< "\n";
-		PUSH_TO_CONTENT
-
-		Stream << "#ifdef EDITOR_MODE\n"
-			<< MakeInheritLink(ClassElement)
-			<< "#endif\n"
 			<< "\t}\n";
 		PUSH_TO_CONTENT
 
-			Stream << std::format("\tint Register_{0}()\n", ClassElement.ClassName)
-			<< "\t{\n"
-			<< "\t\tg_AllUObjectClasses.insert({"
-			<< Zero::Utils::StringUtils::Format("\"{0}\", {0}::GetClass()});\n", ClassElement.ClassName)
-			<< "\t\treturn 1;\n"
-			<< "\t}\n"
-			<< Zero::Utils::StringUtils::Format(" int {0}::s_{0}ClassIndex = Register_{0}();", ClassElement.ClassName);
+		Stream << std::format("\tint Register_{0}()\n", ClassElement.ClassName)
+		<< "\t{\n"
+		<< "\t\tg_AllUObjectClasses.insert({"
+		<< Zero::Utils::StringUtils::Format("\"{1}\", std::make_pair<std::string, UClass*>(\"{0}\",{1}::GetClass()) });\n", ClassElement.InheritName, ClassElement.ClassName)
+		<< "\t\treturn 1;\n"
+		<< "\t}\n"
+		<< Zero::Utils::StringUtils::Format(" int {0}::s_{0}ClassIndex = Register_{0}();", ClassElement.ClassName);
 		PUSH_TO_CONTENT
 
 		Stream << "}\n";

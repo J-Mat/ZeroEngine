@@ -2,8 +2,8 @@
 
 namespace Zero
 {
-	UVariableProperty::UVariableProperty(std::string PropertyName, void* Data, uint32_t DataSize, const std::string PropertyType)
-		: UProperty(PropertyName, Data, DataSize, PropertyType)
+	UVariableProperty::UVariableProperty(std::string ClassName, std::string PropertyName, void* Data, uint32_t DataSize, const std::string PropertyType)
+		: UProperty(ClassName, PropertyName, Data, DataSize, PropertyType)
 	{
 		if (PropertyType == "int" || PropertyType == "int32_t")
 		{
