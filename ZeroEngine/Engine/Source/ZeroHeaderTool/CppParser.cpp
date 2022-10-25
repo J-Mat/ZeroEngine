@@ -452,9 +452,9 @@ namespace ZHT
 		Contents.push_back("static class UClass* GetClass();\\");
 		Contents.push_back("public: \\");
 
-		Stream << "virtual constexpr std::string & GetObjectName() {"
-			<< std::format("return std::string(\"{0}\"); \\", ClassElement.ClassName)
-		<< "}";
+		Stream << "\tvirtual const char* GetObjectName() {"
+			   << std::format("return \"{0}\";", ClassElement.ClassName)
+			   << "} \\";
 		PUSH_TO_CONTENT
 
 

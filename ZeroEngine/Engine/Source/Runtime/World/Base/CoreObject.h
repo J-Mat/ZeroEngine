@@ -12,10 +12,10 @@ namespace Zero
 	UCLASS()
 	class UCoreObject : public IGUIDInterface
 	{
+		GENERATED_BODY()
 	private:
 		static std::map<std::string, uint32_t> s_ObjectNameIndex;
 	public:
-		GENERATED_BODY()
 		UCoreObject();
 		virtual ~UCoreObject();
 		static std::map<Utils::Guid, UCoreObject*> s_ObjectsCollection;
@@ -62,7 +62,6 @@ namespace Zero
 		bool m_bTick = true;
 		UCoreObject* m_Outer;
 	public:
-		UPROPERTY()
 		std::string m_Name = "";
 	};
 }
