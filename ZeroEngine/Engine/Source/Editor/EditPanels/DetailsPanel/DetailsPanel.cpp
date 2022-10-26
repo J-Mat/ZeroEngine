@@ -5,6 +5,7 @@
 #include "Widgets/Mappings/Vector4DetailsMapping.h"
 #include "Widgets/Mappings/StringDetailsMapping.h"
 #include "Widgets/Mappings/Rotation3DetailsMapping.h"
+#include "Widgets/Mappings/FloatDetailsMapping.h"
 #include "Editor.h"
 
 namespace Zero
@@ -14,6 +15,7 @@ namespace Zero
 		FDetailMappingManager::GetInstance().RegisterVariableMapping("ZMath::vec3", FVector3DDetailsMapping::MakeDetailMapping());
 		FDetailMappingManager::GetInstance().RegisterVariableMapping("std::string",FStringDetailsMapping::MakeDetailMapping());
 		FDetailMappingManager::GetInstance().RegisterVariableMapping("ZMath::FRotation",FRotation3DetailsMapping::MakeDetailMapping());
+		FDetailMappingManager::GetInstance().RegisterVariableMapping("float",FFloatDetailsMapping::MakeDetailMapping());
 	}
 	void FDetailPanel::OnGuiRender()
 	{

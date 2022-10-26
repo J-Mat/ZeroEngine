@@ -73,25 +73,25 @@ namespace Zero
 			if (Iter == s_ObjectNameIndex.end())
 			{
 				s_ObjectNameIndex.insert({Name, 1});
-				m_TagName = Name;
+				m_Tag = Name;
 			}
 			else
 			{
 				uint32_t Index = Iter->second++;
-				m_TagName = std::format("{0}_{1}",Name, Index);
+				m_Tag = std::format("{0}_{1}",Name, Index);
 			}
 		}
 		const std::string& GetTagName() 
 		{
-			if (m_TagName == "")
+			if (m_Tag == "")
 			{
 				SetTagName(GetObjectName());
 			}
-			return m_TagName;
+			return m_Tag;
 		}
 	public:
 		UPROPERTY()
-		std::string m_TagName = "";
+		std::string m_Tag = "";
 
 		UPROPERTY()
 		UTransformComponent* m_TransformationComponent = nullptr;

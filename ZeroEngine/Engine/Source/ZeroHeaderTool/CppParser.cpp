@@ -473,11 +473,11 @@ namespace ZHT
 
 		std::string WholeContent = Zero::Utils::StringUtils::Join(Contents, "\n", true);
 
-		std::string OriginContent = Zero::Utils::StringUtils::ReadFile(ClassElement.CppPath.string());
+		std::string OriginContent = Zero::Utils::StringUtils::ReadFile(ClassElement.HeaderPath.string());
 		if (OriginContent != WholeContent)
 		{
 			std::cout << WholeContent;
-			Zero::Utils::StringUtils::WriteFile(ClassElement.CppPath.string(), WholeContent);
+			Zero::Utils::StringUtils::WriteFile(ClassElement.HeaderPath.string(), WholeContent);
 		}
 	}
 

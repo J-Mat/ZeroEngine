@@ -40,6 +40,7 @@ namespace Zero
 		ZMath::mat4 m_ProjectionView;
 		Ref<IShaderConstantsBuffer> m_ShaderConstantsBuffer = nullptr;
 
+		UPROPERTY()
 		float m_Fov = 90.0f;
 
 		float m_Aspect = 16.0f / 9.0f;
