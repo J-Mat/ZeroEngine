@@ -153,5 +153,20 @@ namespace Zero
 			RemoveDir(path);
 			return MKDIR(path.c_str()) == 0  ? true : false;;
 		}
+
+		static void RemoveOtherFilesInDir(const std::filesystem::path& Folder, std::set<std::filesystem::path>& RemainFiles)
+		{
+			for (auto& Child : std::filesystem::directory_iterator(Folder))
+			{
+				if (std::filesystem::is_directory(Child))
+				{
+					RemoveOtherFilesInDir(Child.path(), RemainFiles);
+				}
+				else if (!RemainFiles.contains(Child))
+				{
+					remove(Child.path().filename().string().c_str());
+				}
+			}
+		}
 	};
 }

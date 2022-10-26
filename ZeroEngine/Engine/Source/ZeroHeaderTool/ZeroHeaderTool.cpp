@@ -8,7 +8,7 @@
 
 
 ZHT::FFileParser g_FileParser;
-std::vector<std::filesystem::path> g_AllLinkCppFiles;
+std::set<std::filesystem::path> g_AllLinkCppFiles;
 
 
 void ParseDir(const std::filesystem::path& Folder)
@@ -29,7 +29,7 @@ void ParseDir(const std::filesystem::path& Folder)
 				g_FileParser.LogClassInfo(ClassElement);
 				g_FileParser.GenerateReflectionHeaderFile(ClassElement);
 				g_FileParser.GenerateReflectionCppFile(ClassElement);
-				g_AllLinkCppFiles.push_back(ClassElement.CppPath);
+				g_AllLinkCppFiles.insert(ClassElement.CppPath);
 			}
 		}
 	}
@@ -44,12 +44,13 @@ void WriteLinkReflectionFile()
 		Contents.push_back(Zero::Utils::StringUtils::Format("#include \"{0}\"", Path.string()));
 	}
 	std::string WholeContent = Zero::Utils::StringUtils::Join(Contents, "\n", true);
-	std::cout << WholeContent;
 	std::string OriginFile = Zero::Utils::StringUtils::ReadFile(Zero::ZConfig::CodeReflectionLinkFile.string());
 	
 	if (OriginFile != WholeContent)
 	{
+		std::cout << WholeContent << std::endl;
 		Zero::Utils::StringUtils::WriteFile(Zero::ZConfig::CodeReflectionLinkFile.string(), WholeContent);
+		Zero::Utils::RemoveOtherFilesInDir(Zero::ZConfig::IntermediateDir.string(), g_AllLinkCppFiles);
 	}
 }
 
@@ -58,7 +59,6 @@ int main()
 	Zero::FLog::Init();
 	std::filesystem::path Path = Zero::ZConfig::ConfigDir / Zero::ZConfig::ZBTFile;
 	// Removeo all files first
-	Zero::Utils::RemoveFilesInDir(Zero::ZConfig::IntermediateDir.string());
 	std::cout << Path.string() << std::endl;
 	mINI::INIFile File(Path.string());
 	mINI::INIStructure Ini;
@@ -77,6 +77,7 @@ int main()
 		}
 	}
 	
+
 	WriteLinkReflectionFile();
 	//file.generate(ini);
 	return 0;

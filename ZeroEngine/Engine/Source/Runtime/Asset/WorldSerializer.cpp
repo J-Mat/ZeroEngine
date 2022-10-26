@@ -22,7 +22,7 @@ namespace Zero
 		{
 			UActor* Actor = Actors[i];
 			Out << YAML::BeginMap;
-			Out << YAML::Key << "Name" << YAML::Value << Actor->GetName();
+			Out << YAML::Key << "Name" << YAML::Value << Actor->GetTagName();
 			Out << YAML::Key << "Pos" << YAML::Value << Actor->GetPosition();
 			Out << YAML::EndMap;
 		}

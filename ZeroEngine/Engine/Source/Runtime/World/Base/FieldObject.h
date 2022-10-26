@@ -10,6 +10,5 @@ namespace Zero
 		UField();
 
 		UField* Next = nullptr;
-		
 	};
 }

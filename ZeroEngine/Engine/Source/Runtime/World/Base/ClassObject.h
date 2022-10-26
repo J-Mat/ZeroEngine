@@ -3,10 +3,18 @@
 #include "Delegate.h"
 
 namespace Zero
-{
+{	
 	class UClass;
-	using FClassID = std::pair<std::string, UClass*>;
-	static std::map<std::string, FClassID> g_AllUObjectClasses;
+	struct FClassID
+	{
+		FClassID() = default;
+		FClassID(std::string _ClassName, UClass* _Class)
+			: DerivedClassName(_ClassName)
+			, Class(_Class)
+		{}
+		std::string DerivedClassName = "";
+		UClass* Class = nullptr;
+	};
 	DEFINITION_SIMPLE_SINGLE_DELEGATE(FRegisterClassObjectDelegate, UCoreObject*);
 	class UClass : public UField
 	{
@@ -17,7 +25,6 @@ namespace Zero
 		UCoreObject* GetDefaultObject();
 
 		FRegisterClassObjectDelegate m_RegisterClassObjectDelegate;
-		
 	private:
 		UCoreObject* m_DefaultObject = nullptr;
 	};

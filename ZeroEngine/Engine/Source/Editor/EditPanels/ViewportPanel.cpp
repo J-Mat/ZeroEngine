@@ -83,6 +83,15 @@ namespace Zero
 		}
 	}
 
+	bool FViewportPanel::IsMouseOutOfVeiwport()
+	{
+		if (m_MousePos.x < 0 || m_MousePos.y < 0 || m_MousePos.x > m_ViewportSize.x || m_MousePos.y > m_ViewportSize.y)
+		{
+			return true;
+		}
+		return false;
+	}
+
 
 	ZMath::FRay FViewportPanel::GetProjectionRay()
 	{
@@ -103,6 +112,12 @@ namespace Zero
 	void FViewportPanel::OnMouseClick(int X, int Y)
 	{
 		m_MousePos = { X - m_WindowsPos.x, Y - m_WindowsPos.y };
+		
+		if (IsMouseOutOfVeiwport())
+		{
+			return;
+		}
+		
 		ZMath::FRay Ray = GetProjectionRay();
 		UActor* Actor = UWorld::GetCurrentWorld()->PickActorByMouse(Ray);
 		if (Actor != nullptr)

@@ -14,6 +14,7 @@
 #include "Core/Events/MouseEvent.h"
 
 #include "imgui/imgui.h"
+#include <imgui/imgui_internal.h>
 #include <ImGuizmo.h>
 #include "GUI/GuiUtility.h"
 #if defined(_WIN32)
@@ -25,3 +26,4 @@
 #include "World/Base/ClassObject.h"
 #include "World/Base/VariateProperty.h"
 #include "World/Base/ClassProperty.h"
+#include "World/Base/ObjectGlobal.h"

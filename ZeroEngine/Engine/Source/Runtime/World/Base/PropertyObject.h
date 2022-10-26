@@ -19,7 +19,17 @@ namespace Zero
 		uint32_t GetDataSize() { return m_DataSize; }
 		void* GetData() const { return m_Data; }
 		const std::string& GetPropertyType() const { return m_PropertyType; }
-		const std::string& GetPropertyName() const { return m_PropertyName; }
+		const char* GetPropertyName(bool bTrimString = true) const 
+		{ 
+			if (bTrimString)
+			{
+				if (m_PropertyName.starts_with("m_"))
+				{
+					return m_PropertyName.c_str() + 2;
+				}
+			}
+			return m_PropertyName.c_str();
+		}
 
 		void InitializeValue(void* InDest) { m_Data = (char*)InDest; }
 		void SetDataSize(uint32_t InSize) {  m_DataSize = InSize; }

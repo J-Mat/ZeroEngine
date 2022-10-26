@@ -4,11 +4,11 @@
 
 namespace Zero
 {
-	class FVector3DDetailsMapping : public FVariableDetailsMapping
+	class FRotation3DetailsMapping : public FVariableDetailsMapping
 	{
 	public:
 		virtual bool UpdateDetailsWidget(UProperty* Property);
-		static Ref<FVariableDetailsMapping> MakeDetailMapping() { return CreateRef<FVector3DDetailsMapping>(); }
+		static Ref<FVariableDetailsMapping> MakeDetailMapping() { return CreateRef<FRotation3DetailsMapping>(); }
 	private:
 		float m_ColumnWidth = 100.0f;
 	};

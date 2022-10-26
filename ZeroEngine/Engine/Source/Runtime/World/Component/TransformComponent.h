@@ -32,7 +32,7 @@ namespace Zero
 		ZMath::vec3 m_Position = {0.0f, 0.0f, 0.0f};
 
 		UPROPERTY()
-		ZMath::vec3 m_Rotation = { 0.0f, 0.0f, 0.0f };
+		ZMath::FRotation m_Rotation = { 0.0f, 0.0f, 0.0f };
 
 		UPROPERTY()
 		ZMath::vec3 m_Scale = { 1.0f, 1.0f, 1.0f };

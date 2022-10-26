@@ -19,7 +19,7 @@ namespace Zero
         
         //FDetailMappingManager::GetInstance().UpdatePropertyWidgets(Component->GetClassCollection().HeadProperty);
 
-        if (ImGui::TreeNode(Component->GetGuidString().c_str(), "%s", Component->GetName().c_str()))
+        if (ImGui::TreeNode(Component->GetGuidString().c_str(), "%s", Component->GetObjectName()))
         {
             for (auto* Child : Component->GetChidren())
             {

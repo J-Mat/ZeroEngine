@@ -4,6 +4,7 @@
 
 namespace Zero
 {
+	std::map<std::string, uint32_t> UActor::s_ObjectNameIndex;
 	UActor::UActor()
 		: UCoreObject()
 	{

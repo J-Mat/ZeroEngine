@@ -14,6 +14,8 @@ namespace ZMath
     
     using FColor = glm::vec4;
     
+    using FRotation = glm::vec3;
+    
     struct FEulerAngle
     {
         FEulerAngle() = default;

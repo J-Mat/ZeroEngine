@@ -23,7 +23,7 @@ namespace Zero
 		UProperty* Property = HeadProperty;
 		while (Property != nullptr)
 		{
-			if (Property->GetName() == PropertyName)
+			if (Property->GetObjectName() == PropertyName)
 			{
 				return Property;
 			}

@@ -281,7 +281,7 @@ namespace ZHT
 			return { Stream.str(), LineIndex };
 		}
 
-		static std::set<std::string> SimpleType = { "int", "std::string", "string", "uint32_t", "int32_t", "ZMath::vec3", "ZMath::vec4", "ZMath::FColor", "float", "double"};
+		static std::set<std::string> SimpleType = { "int", "std::string", "string", "uint32_t", "int32_t", "ZMath::vec3", "ZMath::vec4", "ZMath::FColor", "ZMath::FRotation","float", "double"};
 		if (SimpleType.contains(CurTokenName))
 		{
 			return m_Tokens[TokenIndex];
@@ -471,10 +471,14 @@ namespace ZHT
 			ClassElement.LineIndex
 		));
 
-
 		std::string WholeContent = Zero::Utils::StringUtils::Join(Contents, "\n", true);
-		std::cout << WholeContent;
-		Zero::Utils::StringUtils::WriteFile(ClassElement.HeaderPath.string(), WholeContent);
+
+		std::string OriginContent = Zero::Utils::StringUtils::ReadFile(ClassElement.CppPath.string());
+		if (OriginContent != WholeContent)
+		{
+			std::cout << WholeContent;
+			Zero::Utils::StringUtils::WriteFile(ClassElement.CppPath.string(), WholeContent);
+		}
 	}
 
 	std::string FFileParser::WriteAddPropertyCode(const FClassElement& ClassElement)
@@ -523,22 +527,23 @@ namespace ZHT
 		Contents.push_back(Zero::Utils::StringUtils::Format("#include \"{0}\"", ClassElement.OriginFilePath.string()));
 		Contents.push_back("#include \"World/Base/ObjectGenerator.h\"");
 		Contents.push_back("#include \"World/Base/ClassObject.h\"");
+		Contents.push_back("#include \"World/Base/ObjectGlobal.h\"");
 		std::stringstream Stream;
 		Stream << "#ifdef _MSC_VER\n"
 			<< "#pragma warning (push)\n"
 			<< "#pragma warning (disable : 4883)\n"
 			<< "#endif\n";
 		PUSH_TO_CONTENT
-		
 
-		Stream << "namespace Zero\n"
-			<< "{";
+
+			Stream << "namespace Zero\n"
+			<< "{\n";
 		PUSH_TO_CONTENT
 
 		Stream << Zero::Utils::StringUtils::Format("\tUClass* {0}::GetClass()\n", ClassElement.ClassName)
 			<< "\t{\n"
 			<< "\t\tstatic UClass* ClassObject = nullptr;\n"
-			<< "\t\tif (ClassObject != nullptr)\n"
+			<< "\t\tif (ClassObject == nullptr)\n"
 			<< "\t\t{\n"
 			<< "\t\t\tClassObject = CreateObject<UClass>(nullptr);\n"
 			<< "\t\t\tClassObject->m_RegisterClassObjectDelegate.BindLambda([&]()->UCoreObject*\n"
@@ -559,8 +564,8 @@ namespace ZHT
 
 		Stream << std::format("\tint Register_{0}()\n", ClassElement.ClassName)
 		<< "\t{\n"
-		<< "\t\tg_AllUObjectClasses.insert({"
-		<< Zero::Utils::StringUtils::Format("\"{1}\", std::make_pair<std::string, UClass*>(\"{0}\",{1}::GetClass()) });\n", ClassElement.InheritName, ClassElement.ClassName)
+		<< "\t\tGetClassInfoMap().insert({"
+		<< Zero::Utils::StringUtils::Format("\"{1}\", FClassID(\"{0}\",{1}::GetClass()) });\n", ClassElement.InheritName, ClassElement.ClassName)
 		<< "\t\treturn 1;\n"
 		<< "\t}\n"
 		<< Zero::Utils::StringUtils::Format(" int {0}::s_{0}ClassIndex = Register_{0}();", ClassElement.ClassName);
@@ -576,7 +581,12 @@ namespace ZHT
 
 
 		std::string WholeContent = Zero::Utils::StringUtils::Join(Contents, "\n", true);
-		std::cout << WholeContent;
-		Zero::Utils::StringUtils::WriteFile(ClassElement.CppPath.string(), WholeContent);
+
+		std::string OriginContent = Zero::Utils::StringUtils::ReadFile(ClassElement.CppPath.string());
+		if (OriginContent != WholeContent)
+		{
+			std::cout << WholeContent;
+			Zero::Utils::StringUtils::WriteFile(ClassElement.CppPath.string(), WholeContent);
+		}
 	}
 }

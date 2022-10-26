@@ -3,7 +3,7 @@
 
 namespace Zero
 {
-
+    extern std::map<std::string, FClassID> g_ClassInfo;
     void FDetailMappingManager::RegisterVariableMapping(std::string PropertyType, Ref<FVariableDetailsMapping> PropertyDetailsMapping)
     {
         m_VariableMapping.insert({ PropertyType, PropertyDetailsMapping });
@@ -54,10 +54,14 @@ namespace Zero
 
         std::list<std::string> InheritLink;
         std::string ClassName = CoreObject->GetObjectName();
-        auto Iter = g_AllUObjectClasses.find(ClassName);
-        for (; Iter->first != ""; ClassName = Iter->first)
+        std::string DerivedClassName;
+        for (auto Iter = GetClassInfoMap().find(ClassName); 
+            Iter != GetClassInfoMap().end();
+            Iter = Iter = GetClassInfoMap().find(ClassName)
+            )
         {
             InheritLink.push_front(ClassName);
+            ClassName = Iter->second.DerivedClassName;
         }
 
         for (auto& ClassName : InheritLink)

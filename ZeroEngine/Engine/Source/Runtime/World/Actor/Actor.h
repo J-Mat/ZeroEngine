@@ -17,6 +17,7 @@ namespace Zero
 	{
 		GENERATED_BODY()
 	public:
+		static std::map<std::string, uint32_t> s_ObjectNameIndex;
 		UActor();
 
 		UComponent* m_RootComponent;
@@ -66,7 +67,32 @@ namespace Zero
 		void AddComponent(UComponent* Component) { m_Components.push_back(Component); }
 		void SetWorld(UWorld* World) { m_World = World; }
 		UWorld* GetWorld() { return m_World; }
+		void SetTagName(const std::string& Name) 
+		{ 
+			auto Iter = s_ObjectNameIndex.find(Name);
+			if (Iter == s_ObjectNameIndex.end())
+			{
+				s_ObjectNameIndex.insert({Name, 1});
+				m_TagName = Name;
+			}
+			else
+			{
+				uint32_t Index = Iter->second++;
+				m_TagName = std::format("{0}_{1}",Name, Index);
+			}
+		}
+		const std::string& GetTagName() 
+		{
+			if (m_TagName == "")
+			{
+				SetTagName(GetObjectName());
+			}
+			return m_TagName;
+		}
 	public:
+		UPROPERTY()
+		std::string m_TagName = "";
+
 		UPROPERTY()
 		UTransformComponent* m_TransformationComponent = nullptr;
 	protected:
