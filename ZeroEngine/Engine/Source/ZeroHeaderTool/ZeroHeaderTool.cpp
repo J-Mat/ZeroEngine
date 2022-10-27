@@ -35,24 +35,6 @@ void ParseDir(const std::filesystem::path& Folder)
 	}
 }
 
-void WriteLinkReflectionFile()
-{
-	std::vector<std::string> Contents;
-	Contents.push_back("#pragma once\n\n\n");
-	for (const auto& Path : g_AllLinkCppFiles)
-	{
-		Contents.push_back(Zero::Utils::StringUtils::Format("#include \"{0}\"", Path.string()));
-	}
-	std::string WholeContent = Zero::Utils::StringUtils::Join(Contents, "\n", true);
-	std::string OriginFile = Zero::Utils::StringUtils::ReadFile(Zero::ZConfig::CodeReflectionLinkFile.string());
-	
-	if (OriginFile != WholeContent)
-	{
-		std::cout << WholeContent << std::endl;
-		Zero::Utils::StringUtils::WriteFile(Zero::ZConfig::CodeReflectionLinkFile.string(), WholeContent);
-		Zero::Utils::RemoveOtherFilesInDir(Zero::ZConfig::IntermediateDir.string(), g_AllLinkCppFiles);
-	}
-}
 
 int main()
 {
@@ -78,7 +60,7 @@ int main()
 	}
 	
 
-	WriteLinkReflectionFile();
+	g_FileParser.WriteLinkReflectionFile(g_AllLinkCppFiles);
 	//file.generate(ini);
 	return 0;
 }

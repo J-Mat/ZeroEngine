@@ -32,7 +32,7 @@ namespace ZHT
 		std::string ClassName;
 		std::string ClassTagName;
 		std::vector<FPropertyElement> Properties;
-		std::string InheritName = "";
+		std::string DerivedName = "";
 		uint32_t LineIndex;
 		std::filesystem::path OriginFilePath;
 		std::filesystem::path HeaderPath;
@@ -76,10 +76,15 @@ namespace ZHT
 		void LogClassInfo(FClassElement& ClassElement);
 		void GenerateReflectionHeaderFile(FClassElement& ClassElement);
 
+		bool IsDerived(std::string DerivedClass, std::string BasedClass);
+
 		std::string WriteAddPropertyCode(const FClassElement& ClassElement);
 		void GenerateReflectionCppFile(const FClassElement& ClassElement);
+		void WriteLinkReflectionFile(std::set<std::filesystem::path>& AllLinkCppFiles);
 		
 	private:
+		std::map<std::string, std::string> m_DerivedRelation;
+		std::vector<FClassElement> m_AllClassElements; 
 		std::string m_Content;
 		std::filesystem::path m_CurFilePath;
 		size_t m_ContentSize;

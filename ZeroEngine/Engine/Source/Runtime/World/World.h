@@ -41,6 +41,8 @@ namespace Zero
 			AddActor(Actor);
 			return Actor;
 		}
+		
+		void ClearAllActors();
 
 
 		template<class T>

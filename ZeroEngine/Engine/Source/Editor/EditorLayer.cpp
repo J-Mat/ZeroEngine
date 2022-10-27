@@ -26,9 +26,7 @@ namespace Zero
 		m_World->SetDevice(FRenderer::GetDevice());
 		UWorld::SetCurrentWorld(m_World);
 		
-		//UCustomMeshActor* MeshActor = UActor::Create<UCustomMeshActor>(m_World, "cat", "backpack.obj");
 		UCustomMeshActor* MeshActor = m_World->CreateActor<UCustomMeshActor>("sphere.fbx");
-		//UCubeMeshActor* MeshActor = UActor::Create<UCubeMeshActor>(m_World);
 
 		m_CameraController = CreateRef<FEditorCameraController>(m_World->GetMainCamera());
 
@@ -139,7 +137,7 @@ namespace Zero
 
 				if (ImGui::MenuItem("Load Scene", "Ctrl+O"))
 				{
-					std::cout << "Load\n";
+					OpenScene();
 				}
 				ImGui::EndMenu();
 			}
@@ -165,7 +163,7 @@ namespace Zero
 	}
 
 	void FEditorLayer::SaveScene()
-	{
+		{
 		std::string Filepath = FFileDialog::SaveFile("Zero Scene (*.scene)\0*.scene\0", "scene");
 		if (!Filepath.empty())
 		{
@@ -176,6 +174,7 @@ namespace Zero
 
 	void FEditorLayer::OpenScene()
 	{
+		UWorld::GetCurrentWorld()->ClearAllActors();
 	}
 	
 	bool FEditorLayer::MouseButtonPressed(FMouseButtonReleasedEvent& Event)

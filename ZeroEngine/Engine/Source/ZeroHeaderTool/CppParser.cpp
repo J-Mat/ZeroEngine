@@ -385,7 +385,9 @@ namespace ZHT
 		CLIENT_ASSERT(m_Tokens[CurIndex + 1].TokenName == "public", "Semantic Faild!");
 	
 		std::string InhritClassName = m_Tokens[CurIndex + 2].TokenName;
-		ClassElement.InheritName = InhritClassName.starts_with("U") ? InhritClassName : "";
+		ClassElement.DerivedName = InhritClassName.starts_with("U") ? InhritClassName : "";
+		
+		m_DerivedRelation.insert({ClassElement.ClassName, ClassElement.DerivedName});
 
 		while (LocatePropertyTag())
 		{
@@ -394,12 +396,13 @@ namespace ZHT
 			CollectProperty(PropertyElement);
 			ClassElement.Properties.push_back(PropertyElement);
 		}
+		m_AllClassElements.push_back(ClassElement);
 	}
 
 	void FFileParser::LogClassInfo(FClassElement& ClassElement)
 	{
 		CLIENT_LOG_INFO("Class Name : {0}", ClassElement.ClassName);
-		CLIENT_LOG_INFO("Inherit : {0}", ClassElement.InheritName);
+		CLIENT_LOG_INFO("Inherit : {0}", ClassElement.DerivedName);
 		CLIENT_LOG_INFO("Line : {0}", ClassElement.LineIndex);
 		
 		
@@ -445,9 +448,9 @@ namespace ZHT
 
 
 		Contents.push_back("public: \\");
-		if (ClassElement.InheritName != "")
+		if (ClassElement.DerivedName != "")
 		{
-			Contents.push_back(Zero::Utils::StringUtils::Format("using Supper = {0}; \\", ClassElement.InheritName));
+			Contents.push_back(Zero::Utils::StringUtils::Format("using Supper = {0}; \\", ClassElement.DerivedName));
 		}
 		Contents.push_back("static class UClass* GetClass();\\");
 		Contents.push_back("public: \\");
@@ -479,6 +482,19 @@ namespace ZHT
 			std::cout << WholeContent;
 			Zero::Utils::StringUtils::WriteFile(ClassElement.HeaderPath.string(), WholeContent);
 		}
+	}
+
+	bool FFileParser::IsDerived(std::string DerivedClass, std::string BasedClass)
+	{
+		for (auto Iter = m_DerivedRelation.find(DerivedClass); Iter != m_DerivedRelation.end(); Iter = m_DerivedRelation.find(DerivedClass))
+		{
+			if (BasedClass == Iter->second)
+			{
+				return true;
+			}
+			DerivedClass = Iter->second;
+		}
+		return false;
 	}
 
 	std::string FFileParser::WriteAddPropertyCode(const FClassElement& ClassElement)
@@ -557,7 +573,7 @@ namespace ZHT
 
 		Stream << Zero::Utils::StringUtils::Format("\tvoid {0}::InitReflectionContent()\n", ClassElement.ClassName)
 			<< "\t{\n"
-			<< (ClassElement.InheritName != "" ? "\t\tSupper::InitReflectionContent();\n" : "\n")
+			<< (ClassElement.DerivedName != "" ? "\t\tSupper::InitReflectionContent();\n" : "\n")
 			<< WriteAddPropertyCode(ClassElement)
 			<< "\t}\n";
 		PUSH_TO_CONTENT
@@ -565,7 +581,7 @@ namespace ZHT
 		Stream << std::format("\tint Register_{0}()\n", ClassElement.ClassName)
 		<< "\t{\n"
 		<< "\t\tGetClassInfoMap().insert({"
-		<< Zero::Utils::StringUtils::Format("\"{1}\", FClassID(\"{0}\",{1}::GetClass()) });\n", ClassElement.InheritName, ClassElement.ClassName)
+		<< Zero::Utils::StringUtils::Format("\"{1}\", FClassID(\"{0}\",{1}::GetClass()) });\n", ClassElement.DerivedName, ClassElement.ClassName)
 		<< "\t\treturn 1;\n"
 		<< "\t}\n"
 		<< Zero::Utils::StringUtils::Format(" int {0}::s_{0}ClassIndex = Register_{0}();", ClassElement.ClassName);
@@ -587,6 +603,50 @@ namespace ZHT
 		{
 			std::cout << WholeContent;
 			Zero::Utils::StringUtils::WriteFile(ClassElement.CppPath.string(), WholeContent);
+		}
+	}
+	
+	
+	void FFileParser::WriteLinkReflectionFile(std::set<std::filesystem::path>& AllLinkCppFiles)
+	{
+		std::vector<std::string> Contents;
+		std::stringstream Stream;
+		Contents.push_back("#pragma once\n\n\n");
+	
+		std::vector<std::string> ActorClassNames;
+		for (const auto& ClassElement : m_AllClassElements)
+		{
+			if (IsDerived(ClassElement.ClassName, "UActor"))
+			{
+				Contents.push_back(Zero::Utils::StringUtils::Format("#include \"{0}\"", ClassElement.OriginFilePath.string()));
+				ActorClassNames.push_back(ClassElement.ClassName);
+			}
+		}
+
+		Stream << "\n\nnamespace Zero\n"
+			<< "{\n"
+			<< "\tstatic UActor* CreateActorByName(const string& ClassName)\n"
+			<< "\t{\n"
+			<< "\t\t"
+			<< W
+			<< "\t{\n"
+			<< "}\n";
+		PUSH_TO_CONTENT
+
+
+		for (const auto& Path : AllLinkCppFiles)
+		{
+			Contents.push_back(Zero::Utils::StringUtils::Format("#include \"{0}\"", Path.string()));
+		}
+		
+		std::string WholeContent = Zero::Utils::StringUtils::Join(Contents, "\n", true);
+		std::string OriginFile = Zero::Utils::StringUtils::ReadFile(Zero::ZConfig::CodeReflectionLinkFile.string());
+	
+		if (OriginFile != WholeContent)
+		{
+			std::cout << WholeContent << std::endl;
+			Zero::Utils::StringUtils::WriteFile(Zero::ZConfig::CodeReflectionLinkFile.string(), WholeContent);
+			Zero::Utils::RemoveOtherFilesInDir(Zero::ZConfig::IntermediateDir.string(), AllLinkCppFiles);
 		}
 	}
 }

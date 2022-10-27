@@ -1,4 +1,5 @@
 #include "World.h"
+#include "World.h"
 #include "Render/RHI/RenderItem.h"
 #include "Actor/MeshActor.h"
 
@@ -24,6 +25,16 @@ namespace Zero
 			Actor->Tick();
 		}
 	}
+	void UWorld::ClearAllActors()
+	{
+		for (int i = 1; i < m_Actors.size(); ++i)
+		{
+			delete m_Actors[i];
+		}
+		m_Actors.clear();
+		m_Actors.push_back(m_MainCamera);
+	}
+
 	UActor* UWorld::PickActorByMouse(ZMath::FRay Ray)
 	{
 		float MinT = std::numeric_limits<float>::max();

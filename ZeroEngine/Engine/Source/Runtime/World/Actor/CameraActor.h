@@ -26,11 +26,5 @@ namespace Zero
 	private:
 		UPROPERTY()
 		UCameraComponent* m_CameraComponent = nullptr;
-		UPROPERTY()
-		std::string TTT;
-		UPROPERTY()
-		float bbb;
-		UPROPERTY()
-		ZMath::vec3 kkk;
 	};
 }

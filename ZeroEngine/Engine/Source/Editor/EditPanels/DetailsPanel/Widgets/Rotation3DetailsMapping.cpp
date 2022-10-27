@@ -1,5 +1,4 @@
 #include "Rotation3DetailsMapping.h"
-#include "../NumberWidget.h"
 
 namespace Zero
 {

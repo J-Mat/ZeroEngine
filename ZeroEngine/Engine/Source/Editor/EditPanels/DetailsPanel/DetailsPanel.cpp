@@ -1,11 +1,11 @@
 #include "DetailsPanel.h"
-#include "Widgets/Mappings/DetailsMappingManager.h"
-#include "Widgets/Mappings/BoolDetailsMapping.h"
-#include "Widgets/Mappings/Vector3DetailsMapping.h"
-#include "Widgets/Mappings/Vector4DetailsMapping.h"
-#include "Widgets/Mappings/StringDetailsMapping.h"
-#include "Widgets/Mappings/Rotation3DetailsMapping.h"
-#include "Widgets/Mappings/FloatDetailsMapping.h"
+#include "Widgets/DetailsMappingManager.h"
+#include "Widgets/BoolDetailsMapping.h"
+#include "Widgets/Vector3DetailsMapping.h"
+#include "Widgets/Vector4DetailsMapping.h"
+#include "Widgets/StringDetailsMapping.h"
+#include "Widgets/Rotation3DetailsMapping.h"
+#include "Widgets/FloatDetailsMapping.h"
 #include "Editor.h"
 
 namespace Zero

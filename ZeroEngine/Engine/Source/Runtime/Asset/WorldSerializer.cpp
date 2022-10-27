@@ -126,7 +126,7 @@ namespace Zero
 		YAML::Emitter Emitter;
 		Emitter << YAML::BeginMap;
 		
-		Emitter << YAML::Key << "Scene" << YAML::Value << "Untitled";
+		Emitter << YAML::Key << "Scene" << YAML::Value << Path.filename().stem().c_str();
 		Emitter << YAML::Key << "Actors" << YAML::Value << YAML::BeginSeq;
 		
 		std::vector<UActor*> Actors = m_World->GetActors();
@@ -144,5 +144,10 @@ namespace Zero
 		Emitter << YAML::EndMap;
 		Utils::StringUtils::WriteFile(Path.string(), Emitter.c_str());
 	}
+
+	void FWorldSerializer::Deserialize(const std::filesystem::path Path)
+	{
+	}
 	
+
 }

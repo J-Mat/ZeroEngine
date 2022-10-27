@@ -8,14 +8,14 @@ namespace Zero
 {
 	UCustomMeshActor::UCustomMeshActor(const std::string& FileName)
 		: UMeshActor()
-		, m_FileName(ZConfig::GetObjFullPath(FileName).string())
+		, m_FileName(FileName)
 	{
 	}
 
 	void UCustomMeshActor::BuildMesh()
 	{
 		auto& MeshDatas =  m_MeshVertexComponent->GetMeshDatas();
-		FMeshGenerator::GetInstance().CreateCustomModel(MeshDatas, m_FileName, FVertexBufferLayout::s_DefaultVertexLayout);
+		FMeshGenerator::GetInstance().CreateCustomModel(MeshDatas, ZConfig::GetObjFullPath(m_FileName).string(), FVertexBufferLayout::s_DefaultVertexLayout);
 		
 		m_MeshVertexComponent->CreateMesh();
 	}

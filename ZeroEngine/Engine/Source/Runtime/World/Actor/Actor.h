@@ -19,6 +19,7 @@ namespace Zero
 	public:
 		static std::map<std::string, uint32_t> s_ObjectNameIndex;
 		UActor();
+		virtual ~UActor();
 
 		UComponent* m_RootComponent;
 

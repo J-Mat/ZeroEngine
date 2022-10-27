@@ -19,6 +19,7 @@ namespace Zero
 		void SerializeCoreObject(YAML::Emitter& Out, UCoreObject* Actor);
 		void Serialize(const std::filesystem::path Path);
 		
+		void Deserialize(const std::filesystem::path Path);
 	private:
 		static std::set<std::string> s_AllSimpleType;
 		UWorld* m_World;

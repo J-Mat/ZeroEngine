@@ -1,5 +1,4 @@
 #include "Vector3DetailsMapping.h"
-#include "../NumberWidget.h"
 
 namespace Zero
 {
@@ -78,6 +77,5 @@ namespace Zero
 		ImGui::EndColumns();
 
 		return true;
-		//return NumberWidget::ConstructFloat3Widget(Property);
 	}
 }

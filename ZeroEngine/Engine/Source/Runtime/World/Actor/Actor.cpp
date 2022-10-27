@@ -11,6 +11,14 @@ namespace Zero
 		m_TransformationComponent = CreateComponent<UTransformComponent>(this, nullptr);
 		SetRootComponent(m_TransformationComponent);
 	}
+	UActor::~UActor()
+	{
+		for (auto* Component : m_Components)
+		{ 
+			delete Component;
+		}
+		m_Components.clear();
+	}
 	void UActor::PostInit()
 	{
 	}
