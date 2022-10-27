@@ -63,7 +63,7 @@ namespace Zero
             InheritLink.push_front(ClassName);
             ClassName = Iter->second.DerivedClassName;
         }
-
+       
         for (auto& ClassName : InheritLink)
         {
             if (m_CurrentProperty == nullptr)

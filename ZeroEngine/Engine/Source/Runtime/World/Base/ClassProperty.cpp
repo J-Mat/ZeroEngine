@@ -2,8 +2,8 @@
 
 namespace Zero
 {
-	UClassProperty::UClassProperty(std::string ClassName, void* Data, uint32_t DataSize, const std::string PropertyType)
-		: UProperty(ClassName, PropertyType, Data, DataSize, PropertyType)
+	UClassProperty::UClassProperty(std::string ClassName, std::string PropertyName, void* Data, uint32_t DataSize, const std::string PropertyType)
+		: UProperty(ClassName, PropertyName, Data, DataSize, PropertyType)
 	{
 	}
 }
