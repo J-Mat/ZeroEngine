@@ -625,7 +625,7 @@ namespace ZHT
 
 		Stream << "\n\nnamespace Zero\n"
 			<< "{\n"
-			<< "\tstatic UActor* CreateActorByName(const string& ClassName)\n"
+			<< "\tstatic UActor* CreateActorByName(const std::string& ClassName)\n"
 			<< "\t{\n"
 			<< "\t}\n"
 			<< "}\n";
