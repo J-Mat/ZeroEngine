@@ -5,28 +5,34 @@ namespace Zero
 {
     void FActorDetailsMapping::UpdateDetailsWidget(UCoreObject* CoreObject)
     {
-        UActor* Actor = static_cast<UActor*>(CoreObject);
-        UComponent* RootComponpent = Actor->GetRootComponent();
+        UProperty* Property = CoreObject->GetClassCollection().HeadProperty;
+        if (ImGui::TreeNodeEx("Properties", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            ImGui::TreePop();
+        }
+        UComponent* RootComponpent = static_cast<UActor*>(CoreObject)->GetRootComponent();
         if (RootComponpent != nullptr)
         {
             ShowComponentObject(RootComponpent, 0);
         }
     }
 
-    void FActorDetailsMapping::ShowComponentObject(UComponent* Component, int ID)
+    void FActorDetailsMapping::ShowComponentObject(UComponent* Component)
     {
-        ImGui::PushID(ID);
-        
-        //FDetailMappingManager::GetInstance().UpdatePropertyWidgets(Component->GetClassCollection().HeadProperty);
-
-        if (ImGui::TreeNode(Component->GetGuidString().c_str(), "%s", Component->GetObjectName()))
+        UProperty* Property = Component->GetClassCollection().HeadProperty;
+        if (ImGui::TreeNodeEx(Component->GetObjectName(), ImGuiTreeNodeFlags_DefaultOpen))
         {
-            for (auto* Child : Component->GetChidren())
+            while (Property != nullptr)
             {
-                ShowComponentObject(Child, ++ID);
+                Ref<FVariableDetailsMapping> VariableDetailsMapping =  FDetailMappingManager::GetInstance().FindPropertyMapping(Property->GetPropertyType());
+                if (VariableDetailsMapping != nullptr)
+                {
+                    VariableDetailsMapping->UpdateDetailsWidget(Property);
+                    Property->GetOuter()->PostEdit(Property);
+                }
+                Property = dynamic_cast<UProperty*>(Property->Next);
             }
+            ImGui::TreePop();
         }
-
-        ImGui::PopID();
     }
 }

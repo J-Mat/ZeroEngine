@@ -9,7 +9,7 @@ namespace Zero
 		: UCoreObject()
 	{
 		m_TransformationComponent = CreateComponent<UTransformComponent>(this, nullptr);
-		SetRootComponent(m_TransformationComponent);
+		m_Components.push_back(m_TransformationComponent);
 	}
 	UActor::~UActor()
 	{

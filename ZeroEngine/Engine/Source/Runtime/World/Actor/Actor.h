@@ -21,10 +21,8 @@ namespace Zero
 		UActor();
 		virtual ~UActor();
 
-		UComponent* m_RootComponent;
 
-		UComponent* GetRootComponent() const { return m_RootComponent; }
-		void SetRootComponent(UComponent* Component) { m_RootComponent = Component; }
+		UComponent* GetRootComponent() const { return m_Components[0]; }
 
 
 		template<class T>
@@ -32,9 +30,10 @@ namespace Zero
 		{
 			for (UComponent* Component : m_Components)
 			{
-				if (Component->GetEventType() == T::GetStaticType())
+				T* SpecificedComponent = dynamic_cast<T*>(Component))
+				if (SpecificedComponent != nullptr)
 				{
-					return static_cast<T*>(Component);
+					return SpecificedComponent;
 				}
 			}
 			return nullptr;

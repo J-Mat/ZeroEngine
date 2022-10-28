@@ -10,6 +10,6 @@ namespace Zero
 		virtual void UpdateDetailsWidget(UCoreObject* CoreObject);
 		static Ref<FClassDetailsMapping> MakeDetailMapping() { return CreateRef<FActorDetailsMapping>(); }
 	private:
-		void ShowComponentObject(UComponent* Component, int ID);
+		void ShowComponentObject(UComponent* Component);
 	};
 }
