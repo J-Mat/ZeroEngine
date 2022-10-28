@@ -9,13 +9,14 @@ namespace Zero
 	{
 	public:
 		void RegisterVariableMapping(std::string PropertyType, Ref<FVariableDetailsMapping> PropertyDetailsMapping);
+		void RegisterClassMapping(Ref<FClassDetailsMapping> ActorDetailsMapping);
 		Ref<FVariableDetailsMapping> FindPropertyMapping(std::string PrpertyType);
 		
-		bool UpdatePropertyWidgets(const std::string& Category, UProperty * Property);
 		bool UpdateClassWidgets(UCoreObject* CoreObject);
 
 	private:
 		std::map<std::string, Ref<FVariableDetailsMapping>> m_VariableMapping;
+		Ref<FClassDetailsMapping> m_ActorDetailsMapping;
 		UProperty* m_CurrentProperty = nullptr;
 	};
 	

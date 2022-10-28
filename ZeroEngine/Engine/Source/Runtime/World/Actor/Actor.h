@@ -30,7 +30,7 @@ namespace Zero
 		{
 			for (UComponent* Component : m_Components)
 			{
-				T* SpecificedComponent = dynamic_cast<T*>(Component))
+				T* SpecificedComponent = dynamic_cast<T*>(Component);
 				if (SpecificedComponent != nullptr)
 				{
 					return SpecificedComponent;

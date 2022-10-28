@@ -13,7 +13,7 @@ namespace Zero
         UComponent* RootComponpent = static_cast<UActor*>(CoreObject)->GetRootComponent();
         if (RootComponpent != nullptr)
         {
-            ShowComponentObject(RootComponpent, 0);
+            ShowComponentObject(RootComponpent);
         }
     }
 

@@ -627,9 +627,7 @@ namespace ZHT
 			<< "{\n"
 			<< "\tstatic UActor* CreateActorByName(const string& ClassName)\n"
 			<< "\t{\n"
-			<< "\t\t"
-			<< W
-			<< "\t{\n"
+			<< "\t}\n"
 			<< "}\n";
 		PUSH_TO_CONTENT
 
