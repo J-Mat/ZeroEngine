@@ -6,8 +6,13 @@ namespace Zero
 	UCameraActor::UCameraActor()
 		: UActor()
 	{
-		m_CameraComponent = CreateComponent<UCameraComponent>(this, GetRootComponent());
+		CreateComponent<UCameraComponent>(this);
 		m_TransformationComponent->SetPosition({ 0.0f, 0.0f, -3.35f });
+	}
+
+	void UCameraActor::PostInit()
+	{
+		m_CameraComponent = GetComponent<UCameraComponent>();
 	}
 
 	void UCameraActor::Tick()

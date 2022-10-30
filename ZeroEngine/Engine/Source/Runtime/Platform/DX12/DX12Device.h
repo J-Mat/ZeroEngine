@@ -62,7 +62,7 @@ namespace Zero
 		*/
 		std::shared_ptr<FAdapter> GetAdapter() const { return m_Adapter; }
 		
-		void Flush();
+		virtual void Flush() override;
 		
 		virtual void CreateSwapChain(HWND hWnd) override;
 		virtual Ref<FSwapChain>  GetSwapChain() { return m_SwapChain; }

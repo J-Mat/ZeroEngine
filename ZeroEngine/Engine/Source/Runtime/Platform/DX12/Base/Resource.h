@@ -40,7 +40,7 @@ namespace Zero
 
 	protected:
 
-		virtual ~IResource() = default;
+		virtual ~IResource();
 
 
 

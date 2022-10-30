@@ -11,7 +11,8 @@ namespace Zero
 	{
 		GENERATED_BODY()
 	public:
-		UCustomMeshActor(const std::string& FileName = "cat.fbx");
+		UCustomMeshActor() = default;
+		UCustomMeshActor(const std::string& FileName);
 		virtual void BuildMesh();
 	protected:
 		UPROPERTY()

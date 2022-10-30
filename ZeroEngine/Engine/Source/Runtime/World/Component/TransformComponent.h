@@ -37,8 +37,13 @@ namespace Zero
 		UPROPERTY()
 		ZMath::vec3 m_Scale = { 1.0f, 1.0f, 1.0f };
 
+		UPROPERTY(Invisible)
 		ZMath::vec3 m_ForwardVector = { 0.0f, 0.0f, 1.0f };
+
+		UPROPERTY(Invisible)
 		ZMath::vec3 m_RightVector = { 1.0f, 0.0f, 0.0f };
+
+		UPROPERTY(Invisible)
 		ZMath::vec3 m_UpVector = { 0.0f, 1.0f, 0.0f };
 	};
 }

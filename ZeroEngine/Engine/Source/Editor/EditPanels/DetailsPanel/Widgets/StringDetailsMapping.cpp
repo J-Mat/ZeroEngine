@@ -8,7 +8,7 @@ namespace Zero
 		memset(Buffer, 0, sizeof(Buffer));
 		std::string& Tag = *InProperty->GetData<std::string>();
 		strcpy_s(Buffer, sizeof(Buffer), Tag.c_str());
-		if (ImGui::InputText(InProperty->GetPropertyName(), Buffer, sizeof(Buffer)))
+		if (ImGui::InputText(InProperty->GetEditorPropertyName(), Buffer, sizeof(Buffer)))
 		{
 			Tag = Buffer;		
 		}

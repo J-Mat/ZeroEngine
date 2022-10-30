@@ -2,13 +2,16 @@
 
 #include "Render/RendererAPI.h"
 #include "Component.h"
+#include "MeshRenderComponent.reflection.h"
 
 
 namespace Zero
 {
 	class FMaterial;
+	UCLASS()
 	class UMeshRenderComponent : public UComponent
 	{
+		GENERATED_BODY()
 	public:
 		friend class UMeshActor;
 		UMeshRenderComponent();

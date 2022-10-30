@@ -13,18 +13,15 @@ namespace Zero
 		GENERATED_BODY()
 	public:
 		UCameraActor();
+		virtual void PostInit() override;
 		virtual void Tick();
 		virtual void SetRotation(const ZMath::vec3& Rotation);
 		Ref<IShaderConstantsBuffer> GetConstantBuffer() { return m_CameraComponent->GetConstantBuffer(); }
 		void OnResizeViewport(uint32_t Width, uint32_t Height);
 
-		template<class UCameraComponent>
-		UCameraComponent* GetComponent() 
-		{
-			return m_CameraComponent;
-		}
 	private:
-		UPROPERTY()
 		UCameraComponent* m_CameraComponent = nullptr;
+		UPROPERTY()
+		bool m_bool = true;
 	};
 }

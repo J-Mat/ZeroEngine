@@ -29,7 +29,7 @@ namespace Zero
 				return Str.find(Item) != std::string::npos;
 			}
 
-			static inline std::vector<std::string> Split(const std::string& str, const std::string& delim, const bool trim_empty = false)
+			static inline std::vector<std::string> Split(const std::string& str, const std::string& delim, const bool trim_empty = true)
 			{
 				size_t pos, last_pos = 0, len;
 				std::vector<std::string> tokens;

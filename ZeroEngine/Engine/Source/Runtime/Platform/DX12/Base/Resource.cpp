@@ -52,6 +52,12 @@ namespace Zero
 		CheckFeatureSupport();
 	}
 
+	IResource::~IResource()
+	{ 
+		FDX12Device::Get()->Flush();
+		m_D3DResource.Reset();
+	}
+
 	void IResource::CheckFeatureSupport()
 	{
     	auto Desc              = m_D3DResource->GetDesc();

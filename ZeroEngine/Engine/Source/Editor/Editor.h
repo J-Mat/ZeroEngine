@@ -2,6 +2,7 @@
 
 #include <ZeroEngine.h>
 
+#define ASSEST_PANEL "Assests"
 
 namespace Zero
 {

@@ -21,4 +21,17 @@ namespace Zero
 		
 		return m_DefaultObject;
 	}
+
+	UCoreObject* UClass::CreateDefaultObject()
+	{
+		UCoreObject* Obj = nullptr;
+		if (m_DefaultObject == nullptr)
+		{
+			if (m_RegisterClassObjectDelegate.IsBound())
+			{
+				Obj = m_RegisterClassObjectDelegate.Execute();
+			}
+		}
+		return Obj;
+	}
 }

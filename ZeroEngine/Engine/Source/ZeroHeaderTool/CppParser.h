@@ -24,6 +24,8 @@ namespace ZHT
 	{
 		bool bStatic = false;
 		std::string Value;
+		std::set<std::string> Fields;
+		std::map<std::string, std::string> Metas;
 		FPropertyElement() = default;
 	};
 
@@ -70,6 +72,7 @@ namespace ZHT
 		void Parse(std::filesystem::path Path);
 		bool CheckNeedGenerateReflection();
 		FToken GetType(uint32_t& TokenIndex, bool& bIsClass);
+		void CollectMetaAndField(FPropertyElement& PropertyElement);
 		void CollectProperty(FPropertyElement& PropertyElement);
 		bool LocatePropertyTag();
 		void CollectClassInfo(FClassElement& ClassElement);
@@ -80,7 +83,9 @@ namespace ZHT
 
 		std::string WriteAddPropertyCode(const FClassElement& ClassElement);
 		void GenerateReflectionCppFile(const FClassElement& ClassElement);
+		std::string WriteGenerateActors(std::vector<std::string>& ActorClassNames);
 		void WriteLinkReflectionFile(std::set<std::filesystem::path>& AllLinkCppFiles);
+		void WriteInitActorGeneratedFile();
 		
 	private:
 		std::map<std::string, std::string> m_DerivedRelation;

@@ -4,6 +4,6 @@ namespace Zero
 {
 	bool FBoolDetailsMapping::UpdateDetailsWidget(UProperty* InProperty)
 	{
-		return ImGui::Checkbox(InProperty->GetPropertyName(), InProperty->GetData<bool>());
+		return ImGui::Checkbox(InProperty->GetEditorPropertyName(), InProperty->GetData<bool>());
 	}
 }

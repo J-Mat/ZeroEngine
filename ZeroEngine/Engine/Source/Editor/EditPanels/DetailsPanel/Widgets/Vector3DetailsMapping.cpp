@@ -11,7 +11,7 @@ namespace Zero
 
 		ImGui::Columns(2, nullptr, false);
 		ImGui::SetColumnWidth(0, m_ColumnWidth);
-		ImGui::Text(Property->GetPropertyName());
+		ImGui::Text(Property->GetEditorPropertyName());
 		ImGui::NextColumn();
 
 

@@ -20,6 +20,7 @@ namespace Zero
 		static const std::filesystem::path SceneDir = AssetsDir / "Scene";
 		static const std::filesystem::path IntermediateDir = ProjectRootDir / "Intermediate";
 		static const std::filesystem::path CodeReflectionLinkFile = EngineSourceDir / "CodeReflectionLinkFile.h";
+		static const std::filesystem::path InitActorGeneratedFile = EngineSourceDir / "Runtime" / "InitActorGeneratedFile.h";
 		static const std::filesystem::path EditorContentFolder = EngineSourceDir  / "Editor" / "Content";
 
 		static const std::filesystem::path GetShaderFullPath(const std::string& RelativePath)

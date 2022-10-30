@@ -23,6 +23,7 @@ namespace Zero
 		UClass();
 	
 		UCoreObject* GetDefaultObject();
+		UCoreObject* CreateDefaultObject();
 
 		FRegisterClassObjectDelegate m_RegisterClassObjectDelegate;
 	private:

@@ -281,7 +281,7 @@ namespace ZHT
 			return { Stream.str(), LineIndex };
 		}
 
-		static std::set<std::string> SimpleType = { "int", "std::string", "string", "uint32_t", "int32_t", "ZMath::vec3", "ZMath::vec4", "ZMath::FColor", "ZMath::FRotation","float", "double"};
+		static std::set<std::string> SimpleType = { "bool","int", "std::string", "string", "uint32_t", "int32_t", "ZMath::vec3", "ZMath::vec4", "ZMath::FColor", "ZMath::FRotation","float", "double"};
 		if (SimpleType.contains(CurTokenName))
 		{
 			return m_Tokens[TokenIndex];
@@ -296,9 +296,29 @@ namespace ZHT
 		return FToken();
 	}
 
+	void FFileParser::CollectMetaAndField(FPropertyElement& PropertyElement)
+	{
+		const auto& CurToken = m_Tokens[m_PropertyIndex];
+		CLIENT_ASSERT(CurToken.TokenName.starts_with("(") && CurToken.TokenName.ends_with(")"), "Semantic Faild!");
+		std::string RawString = CurToken.TokenName.substr(1, CurToken.TokenName.length() - 2);
+		std::vector<std::string> Features = Zero::Utils::StringUtils::Split(RawString, ",");
+		for (const std::string& Feature : Features)
+		{
+			std::vector<std::string> KeyValue = Zero::Utils::StringUtils::Split(Feature, "=");
+			if (KeyValue.size() == 1)
+			{
+				PropertyElement.Fields.insert(KeyValue[0]);
+			}
+			else
+			{
+				PropertyElement.Metas.insert({ KeyValue[0], KeyValue[1] });
+			}
+		}
+	}
+
 	void FFileParser::CollectProperty(FPropertyElement& PropertyElement)
 	{
-		uint32_t CurIndex = uint32_t(m_PropertyIndex + 2);
+		uint32_t CurIndex = uint32_t(m_PropertyIndex + 1);
 		bool bHasEqual = false;
 		uint32_t EqualTokenIndex = -1;
 		bool bHasParsedType = false;
@@ -363,7 +383,7 @@ namespace ZHT
 			
 			if (CurToken.TokenName == "UPROPERTY" && NextToken.TokenName.starts_with("("))
 			{
-				m_PropertyIndex = i;
+				m_PropertyIndex = i + 1;
 				return true;;
 			}
 		}
@@ -391,8 +411,8 @@ namespace ZHT
 
 		while (LocatePropertyTag())
 		{
-			
 			FPropertyElement PropertyElement;
+			CollectMetaAndField(PropertyElement);
 			CollectProperty(PropertyElement);
 			ClassElement.Properties.push_back(PropertyElement);
 		}
@@ -533,7 +553,16 @@ namespace ZHT
 					<< "\"" << PropertyElement.DataType << "\", "
 					<< Zero::Utils::StringUtils::Format("sizeof({0})", PropertyElement.DataType) << ");\n";
 			}
+			for (const std::string& Field : PropertyElement.Fields)
+			{
+				Stream << std::format("\t\tm_ClassInfoCollection.AddField(\"{0}\", \"{1}\");\n", PropertyElement.Name, Field);
+			}
+			for (const auto& Iter : PropertyElement.Metas)
+			{
+				Stream << std::format("\t\tm_ClassInfoCollection.AddMeta(\"{0}\", \"{1}\", \"{2}\");\n", PropertyElement.Name, Iter.first, Iter.second);
+			}
 		}
+	
 		return Stream.str();
 	}
 
@@ -561,10 +590,10 @@ namespace ZHT
 			<< "\t\tstatic UClass* ClassObject = nullptr;\n"
 			<< "\t\tif (ClassObject == nullptr)\n"
 			<< "\t\t{\n"
-			<< "\t\t\tClassObject = CreateObject<UClass>(nullptr);\n"
+			<< "\t\t\tClassObject = CreateObjectRaw<UClass>(nullptr);\n"
 			<< "\t\t\tClassObject->m_RegisterClassObjectDelegate.BindLambda([&]()->UCoreObject*\n"
 			<< "\t\t\t{\n"
-			<< "\t\t\t\treturn CreateObject<" << ClassElement.ClassName << ">(nullptr);\n"
+			<< "\t\t\t\treturn CreateObjectRaw<" << ClassElement.ClassName << ">(nullptr);\n"
 			<< "\t\t\t});\n"
 			<< "\t\t}\n"
 			<< "\t\treturn ClassObject;\n"
@@ -584,7 +613,7 @@ namespace ZHT
 		<< Zero::Utils::StringUtils::Format("\"{1}\", FClassID(\"{0}\",{1}::GetClass()) });\n", ClassElement.DerivedName, ClassElement.ClassName)
 		<< "\t\treturn 1;\n"
 		<< "\t}\n"
-		<< Zero::Utils::StringUtils::Format(" int {0}::s_{0}ClassIndex = Register_{0}();", ClassElement.ClassName);
+		<< Zero::Utils::StringUtils::Format(" static int s_{0}ClassIndex = Register_{0}();", ClassElement.ClassName);
 		PUSH_TO_CONTENT
 
 		Stream << "}\n";
@@ -605,32 +634,35 @@ namespace ZHT
 			Zero::Utils::StringUtils::WriteFile(ClassElement.CppPath.string(), WholeContent);
 		}
 	}
-	
+
+	std::string FFileParser::WriteGenerateActors(std::vector<std::string>& ActorClassNames)
+	{
+		std::stringstream Stream;
+		for (int i = 0; i < ActorClassNames.size(); ++i)
+		{ 
+			const std::string& ClassName = ActorClassNames[i];
+			if (i == 0)
+			{
+				Stream << std::format("\t\tif (ClassName == \"{0}\")\n", ClassName);
+			}
+			else
+			{
+				Stream << std::format("\t\telse if (ClassName == \"{0}\")\n", ClassName);
+			}
+			Stream << "\t\t{\n";
+			Stream << std::format("\t\t\treturn World->CreateActorRaw<{0}>();\n", ClassName);
+			Stream << "\t\t}\n";
+		}
+		Stream << "\t\treturn nullptr;\n";
+		return Stream.str();
+	}
 	
 	void FFileParser::WriteLinkReflectionFile(std::set<std::filesystem::path>& AllLinkCppFiles)
 	{
 		std::vector<std::string> Contents;
 		std::stringstream Stream;
-		Contents.push_back("#pragma once\n\n\n");
+		Contents.push_back("#pragma once\n");
 	
-		std::vector<std::string> ActorClassNames;
-		for (const auto& ClassElement : m_AllClassElements)
-		{
-			if (IsDerived(ClassElement.ClassName, "UActor"))
-			{
-				Contents.push_back(Zero::Utils::StringUtils::Format("#include \"{0}\"", ClassElement.OriginFilePath.string()));
-				ActorClassNames.push_back(ClassElement.ClassName);
-			}
-		}
-
-		Stream << "\n\nnamespace Zero\n"
-			<< "{\n"
-			<< "\tstatic UActor* CreateActorByName(const std::string& ClassName)\n"
-			<< "\t{\n"
-			<< "\t}\n"
-			<< "}\n";
-		PUSH_TO_CONTENT
-
 
 		for (const auto& Path : AllLinkCppFiles)
 		{
@@ -645,6 +677,42 @@ namespace ZHT
 			std::cout << WholeContent << std::endl;
 			Zero::Utils::StringUtils::WriteFile(Zero::ZConfig::CodeReflectionLinkFile.string(), WholeContent);
 			Zero::Utils::RemoveOtherFilesInDir(Zero::ZConfig::IntermediateDir.string(), AllLinkCppFiles);
+		}
+	}
+	void FFileParser::WriteInitActorGeneratedFile()
+	{
+		std::vector<std::string> Contents;
+		std::stringstream Stream;
+		Contents.push_back("#pragma once");
+		Contents.push_back("#include \"World/World.h\"");
+	
+		std::vector<std::string> ActorClassNames;
+		for (const auto& ClassElement : m_AllClassElements)
+		{
+			if (IsDerived(ClassElement.ClassName, "UActor"))
+			{
+				Contents.push_back(Zero::Utils::StringUtils::Format("#include \"{0}\"", ClassElement.OriginFilePath.string()));
+				ActorClassNames.push_back(ClassElement.ClassName);
+			}
+		}
+
+		Stream << "\n\nnamespace Zero\n"
+			<< "{\n"
+			<< "\tstatic UActor* CreateActorByName(UWorld* World, const std::string& ClassName)\n"
+			<< "\t{\n"
+			<< WriteGenerateActors(ActorClassNames)
+			<< "\t}\n"
+			<< "}\n";
+		PUSH_TO_CONTENT
+
+
+		std::string WholeContent = Zero::Utils::StringUtils::Join(Contents, "\n", true);
+		std::string OriginFile = Zero::Utils::StringUtils::ReadFile(Zero::ZConfig::InitActorGeneratedFile.string());
+	
+		if (OriginFile != WholeContent)
+		{
+			std::cout << WholeContent << std::endl;
+			Zero::Utils::StringUtils::WriteFile(Zero::ZConfig::InitActorGeneratedFile.string(), WholeContent);
 		}
 	}
 }

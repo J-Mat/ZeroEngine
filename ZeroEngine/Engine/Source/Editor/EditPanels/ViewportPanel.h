@@ -14,6 +14,7 @@ namespace Zero
 		bool IsViewportHovered() { return m_bViewportHoverd; }
 		void OnGuiRender();
 		void OnRenderGizmo();
+		void AcceptDragDropEvent();
 		bool IsMouseOutOfVeiwport();
 		void OnMouseClick(int X, int Y);
 		ZMath::FRay GetProjectionRay();

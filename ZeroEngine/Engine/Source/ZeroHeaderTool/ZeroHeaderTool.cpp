@@ -61,6 +61,7 @@ int main()
 	
 
 	g_FileParser.WriteLinkReflectionFile(g_AllLinkCppFiles);
+	g_FileParser.WriteInitActorGeneratedFile();
 	//file.generate(ini);
 	return 0;
 }

@@ -11,12 +11,14 @@ namespace Zero
 	UMeshActor::UMeshActor()
 		: UActor()
 	{
-		m_MeshVertexComponent = CreateComponent<UMeshVertexComponent>(this, GetRootComponent());
-		m_MeshRenderComponent = CreateComponent<UMeshRenderComponent>(this, GetRootComponent());
+		CreateComponent<UMeshVertexComponent>(this);
+		CreateComponent<UMeshRenderComponent>(this);
 	}
 
 	void UMeshActor::PostInit()
 	{
+		m_MeshVertexComponent = GetComponent<UMeshVertexComponent>();
+		m_MeshRenderComponent = GetComponent<UMeshRenderComponent>();
 		BuildMesh();
 		m_MeshVertexComponent->GenerateAABB();
 

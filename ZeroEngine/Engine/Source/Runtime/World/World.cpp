@@ -1,5 +1,6 @@
 #include "World.h"
 #include "World.h"
+#include "World.h"
 #include "Render/RHI/RenderItem.h"
 #include "Actor/MeshActor.h"
 
@@ -27,6 +28,7 @@ namespace Zero
 	}
 	void UWorld::ClearAllActors()
 	{
+		m_Device->Flush();
 		for (int i = 1; i < m_Actors.size(); ++i)
 		{
 			delete m_Actors[i];
@@ -62,5 +64,12 @@ namespace Zero
 			}
 		}
 		return Result;
+	}
+	ZMath::vec3 UWorld::GetRayWorldPos(ZMath::FRay& Ray, float Distance)
+	{
+		const auto& ViewMat = m_MainCamera->GetComponent<UCameraComponent>()->GetView();
+		const auto& InvView = ZMath::inverse(ViewMat);
+		ZMath::FRay ViewRay =  Ray.TransformRay(InvView);
+		return ViewRay.GetPos(Distance);
 	}
 }

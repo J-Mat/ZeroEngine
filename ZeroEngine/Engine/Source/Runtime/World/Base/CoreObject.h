@@ -7,9 +7,14 @@
 
 namespace Zero
 {
+	struct FRawInitFlag 
+	{
+		FRawInitFlag() = default;
+	};
 	class UCoreObject : public IGUIDInterface
 	{
 	public:
+		UCoreObject(FRawInitFlag Flag) {};
 		UCoreObject();
 		virtual ~UCoreObject();
 		static UCoreObject* GetObjByGuid(const Utils::Guid& Guid);

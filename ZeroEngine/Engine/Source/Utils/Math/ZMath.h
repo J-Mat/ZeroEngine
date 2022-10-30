@@ -5,6 +5,7 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
+#include <iostream>
 
 namespace Zero
 {
@@ -15,7 +16,7 @@ namespace ZMath
     using FColor = glm::vec4;
     
     using FRotation = glm::vec3;
-    
+
     struct FEulerAngle
     {
         FEulerAngle() = default;
@@ -199,8 +200,19 @@ namespace ZMath
 			Rotation.z = 0;
 		}
 
-
 		return true;
 	}
 }
+static std::ostream& operator<<(std::ostream& os, ZMath::vec3& pt)
+{
+	os << std::format("[{0}, {1}, {2}]", pt.x, pt.y, pt.z);
+	return os;
+}
+
+static std::ostream& operator<<(std::ostream& os, ZMath::vec4& pt)
+{
+	os << std::format("[{0}, {1}, {2}, {3}]", pt.x, pt.y, pt.z, pt.w);
+	return os;
+}
+
 }

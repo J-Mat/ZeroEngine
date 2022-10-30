@@ -5,6 +5,7 @@
 #include "Core/Base/PublicSingleton.h"
 #include "Render/RHI/ShaderBinder.h"
 #include "Render/Moudule/MeshGenerator.h"
+#include "MeshVertexComponent.reflection.h"
 
 
 namespace Zero
@@ -18,8 +19,10 @@ namespace Zero
 		std::queue<Ref<IShaderConstantsBuffer>> m_IdleConstantsBuffer;
 	};
 	class FMesh;
+	UCLASS()
 	class UMeshVertexComponent : public UComponent
 	{
+		GENERATED_BODY()
 	public:
 		friend class UMeshActor;
 		UMeshVertexComponent();

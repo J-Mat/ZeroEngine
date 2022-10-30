@@ -1,5 +1,6 @@
 #include "ContentBrowserPanel.h"
 #include "ZConfig.h"
+#include "Editor.h"
 
 namespace Zero
 {
@@ -134,37 +135,47 @@ namespace Zero
 
 		for (size_t i = 0; i < Paths.size(); ++i)
 		{
-			auto& Child = Paths[i];
-			ImGui::PushID(Child.c_str());
 			ImGui::BeginGroup();
-			{
-				ImTextureID TextureID = std::filesystem::is_directory(Child) ? (ImTextureID)m_FolderIcon->GetGuiShaderReseource() : (ImTextureID)GetIcon(Child)->GetGuiShaderReseource();
-				ImVec4 Tint = m_SelectedFile == Child ? ImVec4{ 0.65f, 0.65f, 1.0f, 1.f } : ImVec4{ 1,1,1,1 };
-				if (m_SelectedFile == Child)
-					ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 1));
-				else
-					ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 1));
+			auto& Child = Paths[i];
+			std::string FilePathStr = Child.filename().string();
+			ImGui::PushID(FilePathStr.c_str());
+			ImTextureID TextureID = std::filesystem::is_directory(Child) ? (ImTextureID)m_FolderIcon->GetGuiShaderReseource() : (ImTextureID)GetIcon(Child)->GetGuiShaderReseource();
+			ImVec4 Tint = m_SelectedFile == Child ? ImVec4{ 0.65f, 0.65f, 1.0f, 1.f } : ImVec4{ 1,1,1,1 };
+			if (m_SelectedFile == Child)
+				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 1));
+			else
+				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 1));
 						
+			ImGui::ImageButton(TextureID, ButtonSize, { 0,0 }, { 1,1 }, 0, Style.Colors[ImGuiCol_WindowBg], Tint);
+			std::string FileName = Child.stem().string();
+
+			if (ImGui::BeginDragDropSource())
+			{
 				ImGui::ImageButton(TextureID, ButtonSize, { 0,0 }, { 1,1 }, 0, Style.Colors[ImGuiCol_WindowBg], Tint);
-				std::string FileName = Child.stem().string();
-				Utils::NameShrink(FileName, 9);
+				ImGui::TextWrapped(FileName.c_str());
+				const char* ItemPath = FilePathStr.c_str();
+				ImGui::SetDragDropPayload(ASSEST_PANEL, ItemPath, FilePathStr.length() + 1);
+				ImGui::EndDragDropSource();
+			}
 
+			Utils::NameShrink(FileName, 9);
 
-				if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && std::filesystem::is_directory(Child))
+			if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+			{
+				if (std::filesystem::is_directory(Child))
 				{
 					m_SelectedFile = "";
 					m_SelectedFolder = Child;
 				}
-				if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
-				{
-					std::cout << Child.string() << std::endl;
-					m_SelectedFile = Child;
-				}
-
-
-				ImGui::TextWrapped(FileName.c_str());
-				ImGui::PopStyleColor();
 			}
+			if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+			{
+				m_SelectedFile = Child;
+			}
+
+
+			ImGui::TextWrapped(FileName.c_str());
+			ImGui::PopStyleColor();
 			ImGui::EndGroup();
 
 			float LastX = ImGui::GetItemRectMax().x;
@@ -178,14 +189,14 @@ namespace Zero
 	void FContentBrowserPanel::OnGuiRender()
 	{
 		std::filesystem::path AssetsFolder = ZConfig::AssetsDir;
-		if (ImGui::Begin("Assests"))
+		if (ImGui::Begin("Folders"))
 		{
 			ProjectViewerSystemPrintChildren(AssetsFolder);
 		}
 		ImGui::End();
 		
 		
-		if (ImGui::Begin("Folder"))
+		if (ImGui::Begin(ASSEST_PANEL))
 		{
 			if (!m_SelectedFolder.empty())
 			{

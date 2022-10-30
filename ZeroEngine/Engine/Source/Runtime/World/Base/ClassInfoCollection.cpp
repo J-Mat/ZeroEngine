@@ -23,7 +23,7 @@ namespace Zero
 		UProperty* Property = HeadProperty;
 		while (Property != nullptr)
 		{
-			if (Property->GetObjectName() == PropertyName)
+			if (Property->GetPropertyName() == PropertyName)
 			{
 				return Property;
 			}
@@ -64,7 +64,7 @@ namespace Zero
 		return false;
 	}
 
-	bool FClassInfoCollection::ExitField(const std::string Field)
+	bool FClassInfoCollection::HasField(const std::string Field)
 	{
 		return m_Fields.contains(Field);
 	}

@@ -8,6 +8,6 @@ namespace Zero
 	{
 	public:
 		virtual bool UpdateDetailsWidget(UProperty* InProperty);
-		static Ref<FVariableDetailsMapping> MakeDetailMapping() { return CreateRef<FVariableDetailsMapping>(); }
+		static Ref<FVariableDetailsMapping> MakeDetailMapping() { return CreateRef<FBoolDetailsMapping>(); }
 	};
 }

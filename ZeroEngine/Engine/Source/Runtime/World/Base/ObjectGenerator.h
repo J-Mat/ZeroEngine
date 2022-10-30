@@ -19,15 +19,23 @@ namespace Zero
 		return Obj;
 	}
 
+	template<typename T>
+	T* CreateObjectRaw(UCoreObject* Outer)
+	{
+		T* Obj = new T();
+		Obj->InitReflectionContent();
+		Obj->SetOuter(Outer);
+		return Obj;
+	}
 
 	template<typename T, typename ... Args>
-	T* CreateComponent(UActor* Actor, UComponent* RootComponent, Args&&...Params)
+	T* CreateComponent(UActor* Actor, Args&&...Params)
 	{
 		T* Component = new T(std::forward<Args>(args)...);
 		Component->InitReflectionContent();
 		Component->SetOuter(Actor);
 		Actor->AddComponent(Component);
-		Component->SetParentComponent(RootComponent);
+		Component->SetParentComponent(Actor->GetRootComponent());
 		Component->PostInit();
 		return Component;
 	}

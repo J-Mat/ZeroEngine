@@ -17,6 +17,11 @@ namespace Zero
                 m_Origin = _Origin;
                 m_Direction = _Direction;
             }
+            
+            ZMath::vec3 GetPos(float Distance)
+            {
+                return m_Origin + m_Direction * Distance;
+            }
 
             static FRay Zero()
             {

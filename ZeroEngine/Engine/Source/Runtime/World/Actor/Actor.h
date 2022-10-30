@@ -8,6 +8,17 @@
 
 namespace Zero
 {
+	
+	template<class T>
+	class ComponentIndex
+	{
+	public:	
+		static size_t Value;
+	};
+
+	template<class T>
+	size_t ComponentIndex<T>::Value = -1;
+
 	class UTransformComponent;
 	class UTagComponent;
 	class UComponent;
@@ -28,15 +39,7 @@ namespace Zero
 		template<class T>
 		T* GetComponent()
 		{
-			for (UComponent* Component : m_Components)
-			{
-				T* SpecificedComponent = dynamic_cast<T*>(Component);
-				if (SpecificedComponent != nullptr)
-				{
-					return SpecificedComponent;
-				}
-			}
-			return nullptr;
+			return static_cast<T*>(m_Components[ComponentIndex<T>::Value]);
 		}
 
 		template<>
@@ -64,7 +67,14 @@ namespace Zero
 		ZMath::vec3& GetRightVector();
 		ZMath::vec3& GetUPVector();
 		std::vector<UComponent*>& GetAllComponents() { return m_Components; }
-		void AddComponent(UComponent* Component) { m_Components.push_back(Component); }
+		
+		template<class T>
+		void AddComponent(T* Component) 
+		{ 
+			m_Components.push_back(Component); 
+			ComponentIndex<T>::Value = m_Components.size() - 1;
+		}
+
 		void SetWorld(UWorld* World) { m_World = World; }
 		UWorld* GetWorld() { return m_World; }
 		void SetTagName(const std::string& Name) 
@@ -93,7 +103,6 @@ namespace Zero
 		UPROPERTY()
 		std::string m_Tag = "";
 
-		UPROPERTY()
 		UTransformComponent* m_TransformationComponent = nullptr;
 	protected:
 		UWorld* m_World;

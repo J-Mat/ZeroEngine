@@ -3,7 +3,7 @@
 
 namespace Zero
 {
-    std::string FFileDialog::OpenFile(const char* Filter)
+    std::string FFileDialog::OpenFile(const char* Filter, const char* Extension)
     {
 		OPENFILENAMEA Ofn;
 		CHAR szFile[260] = { 0 };
@@ -22,6 +22,7 @@ namespace Zero
 		Ofn.nMaxFile = sizeof(szFile);
 		Ofn.lpstrFilter = Filter;
 		Ofn.nFilterIndex = 1;
+		Ofn.lpstrDefExt = Extension;
 		Ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
 		if (GetOpenFileNameA(&Ofn) == TRUE)
 		{

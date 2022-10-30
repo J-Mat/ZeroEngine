@@ -19,14 +19,16 @@ namespace Zero
 		uint32_t GetDataSize() { return m_DataSize; }
 		void* GetData() const { return m_Data; }
 		const std::string& GetPropertyType() const { return m_PropertyType; }
-		const char* GetPropertyName(bool bTrimString = true) const 
+		const char* GetPropertyName() const 
 		{ 
-			if (bTrimString)
+			return m_PropertyName.c_str();
+		}
+		
+		const char* GetEditorPropertyName() const
+		{
+			if (m_PropertyName.starts_with("m_"))
 			{
-				if (m_PropertyName.starts_with("m_"))
-				{
-					return m_PropertyName.c_str() + 2;
-				}
+				return m_PropertyName.c_str() + 2;
 			}
 			return m_PropertyName.c_str();
 		}

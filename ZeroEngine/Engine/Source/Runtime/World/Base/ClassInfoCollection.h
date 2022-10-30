@@ -26,7 +26,7 @@ namespace Zero
 		
 
 		bool FindMetas(const std::string Key, std::string& Value);
-		bool ExitField(const std::string Field);
+		bool HasField(const std::string Field);
 
 		void AddMeta(const std::string& PropertyName, const std::string& Key, const std::string& Value);
 		void AddMeta(const std::string& Key, const std::string& Value);

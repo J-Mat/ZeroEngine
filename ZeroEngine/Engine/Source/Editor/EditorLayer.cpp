@@ -3,9 +3,6 @@
 #include "Platform/Windows/WinWindow.h"
 #include "Render/RendererAPI.h"
 #include "EditorCameraController.h"
-#include "World/Actor/SphereMeshActor.h"
-#include "World/Actor/CubeMeshActor.h"
-#include "World/Actor/CustomMeshActor.h"
 #include "Dialog/DialogUtils.h"
 #include "Asset/WorldSerializer.h"
 
@@ -175,6 +172,9 @@ namespace Zero
 	void FEditorLayer::OpenScene()
 	{
 		UWorld::GetCurrentWorld()->ClearAllActors();
+		std::string Filepath = FFileDialog::OpenFile("Zero Scene (*.scene)\0*.scene\0", "scene");
+		FWorldSerializer Serialzier(UWorld::GetCurrentWorld());
+		std::cout << Serialzier.Deserialize(Filepath) << std::endl;
 	}
 	
 	bool FEditorLayer::MouseButtonPressed(FMouseButtonReleasedEvent& Event)

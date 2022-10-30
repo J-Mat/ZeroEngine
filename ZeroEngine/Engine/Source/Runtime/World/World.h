@@ -41,17 +41,29 @@ namespace Zero
 			AddActor(Actor);
 			return Actor;
 		}
+
+		template<class T>
+		T* CreateActorRaw()
+		{
+			T* Actor = new T();
+			Actor->SetWorld(this);
+			Actor->InitReflectionContent();
+			AddActor(Actor);
+			return Actor;
+		}
 		
 		void ClearAllActors();
 
-
-		template<class T>
-		void AddActor(T* Actor)
+		void AddActor(UActor* Actor)
 		{
 			m_Actors.push_back(Actor);
-		}
+		}		
 		
 		UActor* PickActorByMouse(ZMath::FRay Ray);
+		ZMath::vec3 GetRayWorldPos(ZMath::FRay& Ray, float Distance = 2.0f);
+		
+		void SetSceneName(std::string SceneName) { m_SceneName = SceneName; }
+		const std::string& GetSceneName() { return m_SceneName; }
 
 	private:
 		static UWorld* s_CurrentWorld;
@@ -60,5 +72,6 @@ namespace Zero
 		Ref<IDevice> m_Device;
 		std::vector<UActor*> m_Actors;
 		std::vector<UMeshActor*> m_MeshActors;
+		std::string m_SceneName;
 	};
 }

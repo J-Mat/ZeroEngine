@@ -40,6 +40,7 @@ namespace Zero
 		ImGui::Image((ImTextureID)Texture->GetGuiShaderReseource(), ViewportPanelSize);
 
 		OnRenderGizmo();
+		AcceptDragDropEvent();
 
 		ImGui::End();
 		ImGui::PopStyleVar();
@@ -80,6 +81,26 @@ namespace Zero
 			TransformeComponent->m_Position = Translation;
 			TransformeComponent->m_Rotation += DeltaRotation;
 			TransformeComponent->m_Scale = Scale;
+		}
+	}
+
+	void FViewportPanel::AcceptDragDropEvent()
+	{
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* Payload = ImGui::AcceptDragDropPayload(ASSEST_PANEL))
+			{
+				std::string Path = (const char*)Payload->Data;
+				std::cout << Path << std::endl;
+				ZMath::FRay Ray = GetProjectionRay();
+				ZMath::vec3 Pos = UWorld::GetCurrentWorld()->GetRayWorldPos(Ray, 5.0f);
+				std::cout << Pos << std::endl;
+				UCustomMeshActor* Actor = UWorld::GetCurrentWorld()->CreateActor<UCustomMeshActor>(Path);
+				Actor->SetPosition(Pos);
+				
+				
+			}
+			ImGui::EndDragDropTarget();
 		}
 	}
 

@@ -8,8 +8,7 @@ namespace Zero
 	UActor::UActor()
 		: UCoreObject()
 	{
-		m_TransformationComponent = CreateComponent<UTransformComponent>(this, nullptr);
-		m_Components.push_back(m_TransformationComponent);
+		m_TransformationComponent = CreateComponent<UTransformComponent>(this);
 	}
 	UActor::~UActor()
 	{

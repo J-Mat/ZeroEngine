@@ -13,7 +13,7 @@ namespace Zero
 		HINSTANCE hAppInst;
 		bool bScreenMaxSize = true;
 
-		FWindowsConfig(HINSTANCE InhAppInst, const std::string& InTitle = "HEngine",
+		FWindowsConfig(HINSTANCE InhAppInst, const std::string& InTitle = "ZeroEngine",
 			uint32_t InWidth = 1600,
 			uint32_t InHeight = 900,
 			bool _bScreenMaxSize = true)

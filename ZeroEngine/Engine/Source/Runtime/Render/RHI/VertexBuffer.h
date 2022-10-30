@@ -42,11 +42,12 @@ namespace Zero
 			}
 		}
 
-		static FVertexBufferLayout s_DefaultVertexLayout;
 	private:
 		std::vector<FBufferElement> ElementsList;
 		uint32_t Stride = 0;
 	};
+
+	static FVertexBufferLayout s_DefaultVertexLayout;
 
 	class IVertexBuffer
 	{
