@@ -141,7 +141,6 @@ namespace Zero
 
 		virtual Ref<IShaderConstantsBuffer> CreateShaderConstantBuffer(FShaderConstantsDesc& Desc)
 		{
-			
 			return CreateRef<FDX12ShaderConstantsBuffer>(Desc);
 		}
 
@@ -153,7 +152,6 @@ namespace Zero
 
 		virtual Ref<IShader> CreateShader(const std::string& FileName, const FShaderBinderDesc& BinderDesc, const FShaderDesc& ShaderDesc)
 		{
-			
 			Ref<IShader> Shader = TLibrary<IShader>::Fetch(FileName);
 			if (Shader == nullptr)
 			{
