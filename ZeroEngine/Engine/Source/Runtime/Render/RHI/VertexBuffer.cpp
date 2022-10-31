@@ -2,11 +2,11 @@
 
 namespace Zero
 {
-	static FVertexBufferLayout s_DefaultVertexLayout
+	FVertexBufferLayout FVertexBufferLayout::s_DefaultVertexLayout = 
 	{
-		FBufferElement::s_Pos,
-		FBufferElement::s_Normal,
-		FBufferElement::s_Tangent,
-		FBufferElement::s_Tex
+		{ EShaderDataType::Float3, "POSITION" },
+		{ EShaderDataType::Float3, "NORMAL", true },
+		{ EShaderDataType::Float3, "TANGENT", true },
+		{ EShaderDataType::Float2, "TEXCOORD" }
 	};
 }

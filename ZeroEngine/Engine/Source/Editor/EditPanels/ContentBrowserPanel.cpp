@@ -139,7 +139,9 @@ namespace Zero
 			auto& Child = Paths[i];
 			std::string FilePathStr = Child.filename().string();
 			ImGui::PushID(FilePathStr.c_str());
-			ImTextureID TextureID = std::filesystem::is_directory(Child) ? (ImTextureID)m_FolderIcon->GetGuiShaderReseource() : (ImTextureID)GetIcon(Child)->GetGuiShaderReseource();
+			
+			Ref<FTexture2D> IconTexture = std::filesystem::is_directory(Child) ? m_FileIcon : GetIcon(Child);
+			ImTextureID TextureID = (ImTextureID)IconTexture->GetGuiShaderReseource();
 			ImVec4 Tint = m_SelectedFile == Child ? ImVec4{ 0.65f, 0.65f, 1.0f, 1.f } : ImVec4{ 1,1,1,1 };
 			if (m_SelectedFile == Child)
 				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 1));
@@ -149,12 +151,19 @@ namespace Zero
 			ImGui::ImageButton(TextureID, ButtonSize, { 0,0 }, { 1,1 }, 0, Style.Colors[ImGuiCol_WindowBg], Tint);
 			std::string FileName = Child.stem().string();
 
+			char* DropDragType = "";
+			if (IconTexture == m_ModelIcon)
+			{
+				DropDragType = ASSEST_PANEL_OBJ;
+			}
+			
+			
 			if (ImGui::BeginDragDropSource())
 			{
 				ImGui::ImageButton(TextureID, ButtonSize, { 0,0 }, { 1,1 }, 0, Style.Colors[ImGuiCol_WindowBg], Tint);
 				ImGui::TextWrapped(FileName.c_str());
 				const char* ItemPath = FilePathStr.c_str();
-				ImGui::SetDragDropPayload(ASSEST_PANEL, ItemPath, FilePathStr.length() + 1);
+				ImGui::SetDragDropPayload(DropDragType, ItemPath, FilePathStr.length() + 1);
 				ImGui::EndDragDropSource();
 			}
 
@@ -196,7 +205,7 @@ namespace Zero
 		ImGui::End();
 		
 		
-		if (ImGui::Begin(ASSEST_PANEL))
+		if (ImGui::Begin("Assest"))
 		{
 			if (!m_SelectedFolder.empty())
 			{
