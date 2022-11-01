@@ -28,7 +28,7 @@ namespace Zero
 		{}
 		virtual TReturn Execute(ParamTypes ...Params)
 		{
-			return (m_Object->*m_Funciton)(Params...);
+			return (m_Object->*m_Function)(Params...);
 		}
 	private:
 		TObjectType* m_Object;
@@ -170,7 +170,7 @@ namespace Zero
 		}
 
 		template<class TObjectType>
-		const FDelegateHandle AddFuncion(TObjectType* Object, TReturn(TObjectType::* Funcation)(ParamTypes ...))
+		const FDelegateHandle AddFunction(TObjectType* Object, TReturn(TObjectType::* Funcation)(ParamTypes ...))
 		{
 			FDelegateHandle Handle;
 			TDelegate Delegate;
@@ -180,7 +180,7 @@ namespace Zero
 			return Handle;
 		}
 
-		const FDelegateHandle& AddFunction(TReturn(*InFuncation)(ParamTypes...))
+		const FDelegateHandle AddFunction(TReturn(*InFuncation)(ParamTypes...))
 		{
 			FDelegateHandle Handle;
 			TDelegate Delegate;

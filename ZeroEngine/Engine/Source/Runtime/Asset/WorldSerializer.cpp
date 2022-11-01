@@ -17,7 +17,8 @@ namespace Zero
 		"int32_t",
 		"ZMath::vec3",
 		"ZMath::vec4",
-		"ZMath::FColor",
+		"ZMath::FColor4",
+		"ZMath::FColor3",
 		"ZMath::FRotation",
 		"float",
 		"double"
@@ -47,8 +48,10 @@ namespace Zero
 			Out << YAML::Key << "Value" << YAML::Value << *Property->GetData<ZMath::vec3>();
 		else if (Type == "ZMath::vec4")
 			Out << YAML::Key << "Value" << YAML::Value << *Property->GetData<ZMath::vec4>();
-		else if (Type == "ZMath::FColor")
-			Out << YAML::Key << "Value" << YAML::Value << *Property->GetData<ZMath::FColor>();
+		else if (Type == "ZMath::FColor4")
+			Out << YAML::Key << "Value" << YAML::Value << *Property->GetData<ZMath::FColor4>();
+		else if (Type == "ZMath::FColor3")
+			Out << YAML::Key << "Value" << YAML::Value << *Property->GetData<ZMath::FColor3>();
 		else if (Type == "ZMath::FRotation")
 			Out << YAML::Key << "Value" << YAML::Value << *Property->GetData<ZMath::FRotation>();
 		else if (Type == "float")
@@ -81,8 +84,8 @@ namespace Zero
 			*((ZMath::vec3*)PropertyData) = PropertyNode["Value"].as<ZMath::vec3>();
 		else if (Type == "ZMath::vec4")
 			*((ZMath::vec4*)PropertyData) = PropertyNode["Value"].as<ZMath::vec4>();
-		else if (Type == "ZMath::FColor")
-			*((ZMath::FColor*)PropertyData) = PropertyNode["Value"].as<ZMath::FColor>();
+		else if (Type == "ZMath::FColor4")
+			*((ZMath::FColor4*)PropertyData) = PropertyNode["Value"].as<ZMath::FColor4>();
 		else if (Type == "ZMath::FRotation")
 			*((ZMath::FRotation*)PropertyData) = PropertyNode["Value"].as<ZMath::FRotation>();
 		else if (Type == "float")

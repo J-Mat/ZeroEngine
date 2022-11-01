@@ -42,12 +42,6 @@ namespace Zero
 			return static_cast<T*>(m_Components[ComponentIndex<T>::Value]);
 		}
 
-		template<>
-		UTransformComponent* GetComponent()
-		{
-			return m_TransformationComponent;
-		}
-
 		virtual void PostInit();
 		virtual void MoveLocal(const ZMath::vec3& Offset);
 		virtual void RotateLocal(const ZMath::FEulerAngle& Offset);

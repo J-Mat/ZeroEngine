@@ -1,10 +1,13 @@
 #pragma once
 #include "../Base/ObjectMacros.h"
 #include "Component.h"
+#include "Delegate.h"
 #include "TransformComponent.reflection.h"
 
 namespace Zero
 {
+	class UTransformComponent;
+	DEFINITION_MULTICAST_SINGLE_DELEGATE(FOnTransformChanged, void, UTransformComponent*)
 	UCLASS()
 	class UTransformComponent : public UComponent
 	{	
@@ -13,9 +16,9 @@ namespace Zero
 		UTransformComponent();
 		virtual void MoveLocal(const ZMath::vec3& Offset);
 		virtual void RotateLocal(const ZMath::FEulerAngle& Offset);
-		virtual void SetPosition(const ZMath::vec3& Position) { m_Position = Position; };
+		virtual void SetPosition(const ZMath::vec3& Position);
 		virtual void SetRotation(const ZMath::vec3& Rotation);
-		virtual void SetScale(const ZMath::vec3& Scale) { m_Scale = Scale; };
+		virtual void SetScale(const ZMath::vec3& Scale);
 		ZMath::quat GetOrientation();
 		ZMath::mat4 GetRotationMatrix() const;
 		ZMath::mat4 GetTransform();
@@ -37,13 +40,17 @@ namespace Zero
 		UPROPERTY()
 		ZMath::vec3 m_Scale = { 1.0f, 1.0f, 1.0f };
 
-		UPROPERTY(Invisible)
 		ZMath::vec3 m_ForwardVector = { 0.0f, 0.0f, 1.0f };
-
-		UPROPERTY(Invisible)
 		ZMath::vec3 m_RightVector = { 1.0f, 0.0f, 0.0f };
-
-		UPROPERTY(Invisible)
 		ZMath::vec3 m_UpVector = { 0.0f, 1.0f, 0.0f };
+
+
+#ifdef EDITOR_MODE 
+		virtual void PostEdit(UProperty* Property);
+#endif
+	public:
+		FOnTransformChanged& GetTransformChange() { return m_OnTransformChanged; }
+	private:
+		FOnTransformChanged m_OnTransformChanged;
 	};
 }

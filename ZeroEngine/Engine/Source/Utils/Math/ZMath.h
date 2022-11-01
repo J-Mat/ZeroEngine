@@ -13,7 +13,9 @@ namespace ZMath
 {
     using namespace glm;
     
-    using FColor = glm::vec4;
+    using FColor4 = glm::vec4;
+
+    using FColor3 = glm::vec3;
     
     using FRotation = glm::vec3;
 

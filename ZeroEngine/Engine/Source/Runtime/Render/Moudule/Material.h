@@ -21,7 +21,6 @@ namespace Zero
 	class FTextureCubemap;
 	class IShaderConstantsBuffer;
 	class IShaderResourcesBuffer;
-	class FFrameConstants;
 	class FMaterial
 	{
 	public:
@@ -56,8 +55,5 @@ namespace Zero
 
 		Ref<IShaderConstantsBuffer> m_ConstantsBuffer;
 		Ref<IShaderResourcesBuffer> m_ResourcesBuffer;
-
-		Ref<FFrameConstants> m_FrameConstants;
-		Ref<IShaderConstantsBuffer> m_FrameResourceBuffer;
 	};
 }

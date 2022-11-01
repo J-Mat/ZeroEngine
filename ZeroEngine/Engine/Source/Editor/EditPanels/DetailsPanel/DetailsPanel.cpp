@@ -7,6 +7,8 @@
 #include "Widgets/Rotation3DetailsMapping.h"
 #include "Widgets/FloatDetailsMapping.h"
 #include "Widgets/ActorDetailsMapping.h"
+#include "Widgets/Color3DetailsMapping.h"
+#include "Widgets/Color4DetailsMapping.h"
 #include "Editor.h"
 
 namespace Zero
@@ -18,6 +20,8 @@ namespace Zero
 		FDetailMappingManager::GetInstance().RegisterVariableMapping("ZMath::FRotation",FRotation3DetailsMapping::MakeDetailMapping());
 		FDetailMappingManager::GetInstance().RegisterVariableMapping("bool", FBoolDetailsMapping::MakeDetailMapping());
 		FDetailMappingManager::GetInstance().RegisterVariableMapping("float",FFloatDetailsMapping::MakeDetailMapping());
+		FDetailMappingManager::GetInstance().RegisterVariableMapping("ZMath::FColor3", FColor3DetailsMapping::MakeDetailMapping());
+		FDetailMappingManager::GetInstance().RegisterVariableMapping("ZMath::FColor4", FColor4DetailsMapping::MakeDetailMapping());
 		FDetailMappingManager::GetInstance().RegisterClassMapping(FActorDetailsMapping::MakeDetailMapping());
 	}
 	void FDetailPanel::OnGuiRender()

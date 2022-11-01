@@ -88,13 +88,11 @@ namespace Zero
 	{
 		if (ImGui::BeginDragDropTarget())
 		{
-			if (const ImGuiPayload* Payload = ImGui::AcceptDragDropPayload(ASSEST_PANEL))
+			if (const ImGuiPayload* Payload = ImGui::AcceptDragDropPayload(ASSEST_PANEL_OBJ))
 			{
 				std::string Path = (const char*)Payload->Data;
-				std::cout << Path << std::endl;
 				ZMath::FRay Ray = GetProjectionRay();
 				ZMath::vec3 Pos = UWorld::GetCurrentWorld()->GetRayWorldPos(Ray, 5.0f);
-				std::cout << Pos << std::endl;
 				UCustomMeshActor* Actor = UWorld::GetCurrentWorld()->CreateActor<UCustomMeshActor>(Path);
 				Actor->SetPosition(Pos);
 				

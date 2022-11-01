@@ -6,18 +6,15 @@
 #include "World/World.h"
 #include "World/Actor/CameraActor.h"
 #include "Core/Framework/Library.h"
-#include "Render/Moudule/FrameConstants.h"
 #include "Core/Framework/Application.h"
 #include "Core/Base/FrameTimer.h"
-#include "Render/Moudule/FrameConstants.h"
+#include "Render/Moudule/FrameConstantsManager.h"
 
 namespace Zero
 {
 
 	FMaterial::FMaterial()
 	{
-		m_FrameConstants = CreateRef<FFrameConstants>();
-		m_FrameResourceBuffer = m_FrameConstants->GetShaderConstantBuffer();
 		SetShader(TLibrary<IShader>::Fetch("Color.hlsl"));
 	}
 
@@ -34,7 +31,7 @@ namespace Zero
 		ShaderBinder->BindConstantsBuffer(ERootParameters::MaterialCB, m_ConstantsBuffer.get());
 		UCameraActor* Camera = UWorld::GetCurrentWorld()->GetMainCamera();
 		ShaderBinder->BindConstantsBuffer(ERootParameters::CameraCB, Camera->GetConstantBuffer().get());
-		ShaderBinder->BindConstantsBuffer(ERootParameters::FrameConstantCB, m_FrameResourceBuffer.get());
+		ShaderBinder->BindConstantsBuffer(ERootParameters::FrameConstantCB, FFrameConstantsManager::GetInstance().GetShaderConstantBuffer().get());
 		m_Shader->Use();
 	}
 
@@ -42,7 +39,7 @@ namespace Zero
 	{
 		m_ConstantsBuffer->UploadDataIfDirty();
 		m_ResourcesBuffer->UploadDataIfDirty();
-		m_FrameResourceBuffer->UploadDataIfDirty();
+		FFrameConstantsManager::GetInstance().GetShaderConstantBuffer()->UploadDataIfDirty();
 	}
 	void FMaterial::SetShader(Ref<IShader> Shader)
 	{
