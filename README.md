@@ -26,3 +26,7 @@
 you can modify the objects' properties through DetailPanel  based code reflection (**reference to UE4**)
 
 ![1666530959987](image/README/1666530959987.png)
+
+### Save scnen based dode reflection (using yaml) **2022-10-31**
+
+![1667201681377](image/README/1667201681377.png)
