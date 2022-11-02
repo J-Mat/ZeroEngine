@@ -38,6 +38,8 @@ void ParseDir(const std::filesystem::path& Folder)
 
 int main()
 {
+	Zero::Utils::CreateFolerIfNotExits(Zero::ZConfig::IntermediateDir);
+
 	Zero::FLog::Init();
 	std::filesystem::path Path = Zero::ZConfig::ConfigDir / Zero::ZConfig::ZBTFile;
 	// Removeo all files first

@@ -8,24 +8,16 @@ namespace Zero
 	{
 	}
 
-	Ref<FTexture2D> FContentBrowserPanel::CreateIcon(const std::string&& FileName)
-	{
-		Ref<FImage> Image = CreateRef<FImage>(ZConfig::GetEditorContentFullPath(FileName).string());
-		auto Icon = FRenderer::GraphicFactroy->CreateTexture2D(Image);
-		Icon->RegistGuiShaderResource();
-		return Icon;
-	}
-
 	void FContentBrowserPanel::Init()
 	{
 		m_SelectedFolder.clear();
 		m_SelectedFile.clear();
 
-		m_FolderIcon = CreateIcon("folder.png");
-		m_ShaderIcon = CreateIcon("shader.png");
-		m_ImageIcon = CreateIcon("image.png");
-		m_ModelIcon = CreateIcon("model.png");
-		m_FileIcon = CreateIcon("file.png");
+		m_FolderIcon = FEditor::CreateIcon("folder.png");
+		m_ShaderIcon = FEditor::CreateIcon("shader.png");
+		m_ImageIcon = FEditor::CreateIcon("image.png");
+		m_ModelIcon = FEditor::CreateIcon("model.png");
+		m_FileIcon = FEditor::CreateIcon("file.png");
 	}
 	void FContentBrowserPanel::ProjectViewerSystemPrintChildren(std::filesystem::path Folder)
 	{
@@ -160,7 +152,7 @@ namespace Zero
 			
 			if (ImGui::BeginDragDropSource())
 			{
-				ImGui::ImageButton(TextureID, ButtonSize, { 0,0 }, { 1,1 }, 0, Style.Colors[ImGuiCol_WindowBg], Tint);
+				ImGui::Image(TextureID, ButtonSize, { 0,0 }, { 1,1 }	, Style.Colors[ImGuiCol_WindowBg], Tint);
 				ImGui::TextWrapped(FileName.c_str());
 				const char* ItemPath = FilePathStr.c_str();
 				ImGui::SetDragDropPayload(DropDragType, ItemPath, FilePathStr.length() + 1);

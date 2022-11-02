@@ -9,11 +9,19 @@ namespace Zero
 	{
 	}
 
+	USphereMeshActor::USphereMeshActor(float Radius, uint32_t NumSubdivisions)
+		: UMeshActor()
+		, m_Radius(Radius)
+		, m_NumSubdivisions(NumSubdivisions)
+	{
+	}
+	
+
 	void USphereMeshActor::BuildMesh()
 	{
 		std::vector<FMeshData>& MeshDatas = m_MeshVertexComponent->GetMeshDatas();
 		FMeshData MeshData;
-		FMeshGenerator::GetInstance().CreateSphere(MeshData, m_Radius, 3);
+		FMeshGenerator::GetInstance().CreateSphere(MeshData, m_Radius, m_NumSubdivisions);
 		MeshDatas.push_back(MeshData);
 
 		m_MeshVertexComponent->CreateMesh();

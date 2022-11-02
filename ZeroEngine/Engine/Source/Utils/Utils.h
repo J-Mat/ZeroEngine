@@ -151,7 +151,15 @@ namespace Zero
 		static bool RemoveFilesInDir(const std::string& path)
 		{
 			RemoveDir(path);
-			return MKDIR(path.c_str()) == 0  ? true : false;;
+			return MKDIR(path.c_str()) == 0  ? true : false;
+		}
+
+		static void CreateFolerIfNotExits(const std::filesystem::path& Folder)
+		{
+			if (!std::filesystem::exists(Folder))
+			{
+				MKDIR(Folder.string().c_str());
+			}
 		}
 
 		static void RemoveOtherFilesInDir(const std::filesystem::path& Folder, std::set<std::filesystem::path>& RemainFiles)

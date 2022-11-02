@@ -671,7 +671,7 @@ namespace ZHT
 		
 		std::string WholeContent = Zero::Utils::StringUtils::Join(Contents, "\n", true);
 		std::string OriginFile = Zero::Utils::StringUtils::ReadFile(Zero::ZConfig::CodeReflectionLinkFile.string());
-	
+
 		if (OriginFile != WholeContent)
 		{
 			std::cout << WholeContent << std::endl;

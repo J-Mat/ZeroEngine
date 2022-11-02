@@ -36,6 +36,7 @@ namespace Zero
 	void FEditorLayer::InitEditPanel()
 	{
 		m_ContentBrowserPanel.Init();
+		m_PlaceActorPanel.Init();
 	}
 
 	
@@ -148,6 +149,7 @@ namespace Zero
 		m_ViewportPanel.OnGuiRender();
 		m_ContentBrowserPanel.OnGuiRender();
 		m_DetailPanel.OnGuiRender();
+		m_PlaceActorPanel.OnGuiRender();
 		
 
 		ImGui::End();

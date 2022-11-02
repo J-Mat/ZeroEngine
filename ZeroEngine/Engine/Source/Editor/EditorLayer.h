@@ -5,6 +5,7 @@
 #include "EditPanels/ContentBrowserPanel.h"
 #include "EditPanels/OutlinePanel.h"
 #include "EditPanels/DetailsPanel/DetailsPanel.h"
+#include "EditPanels/PlaceActorsPanel.h"
 
 namespace Zero
 {
@@ -41,6 +42,7 @@ namespace Zero
 		FContentBrowserPanel m_ContentBrowserPanel;
 		FOutlinePanel m_OutlinePanel;
 		FDetailPanel m_DetailPanel;
+		FPlaceActorsPanel m_PlaceActorPanel;
 	
 	};
 }
