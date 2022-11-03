@@ -25,6 +25,35 @@ namespace Zero
 		m_OnTransformChanged.Broadcast(this);
 	}
 
+	void UTransformComponent::PostInit()
+	{
+	}
+
+	void UTransformComponent::UpdateDirection()
+	{
+		//m_ForwardVector =  ZMath::normalize(ZMath::eulerAngles(ZMath::quat(m_Rotation)));
+		m_ForwardVector.x = ZMath::cos(m_Rotation.x) * ZMath::sin(m_Rotation.y);
+		m_ForwardVector.y = ZMath::sin(m_Rotation.x);
+		m_ForwardVector.z = ZMath::cos(m_Rotation.x) * ZMath::cos(m_Rotation.y);
+
+		m_RightVector.x = ZMath::cos(m_Rotation.z) * ZMath::cos(-m_Rotation.y);
+		m_RightVector.y = ZMath::sin(m_Rotation.z);
+		m_RightVector.z = ZMath::cos(m_Rotation.z) * ZMath::sin(-m_Rotation.y);
+		
+		m_UpVector = ZMath::cross(m_ForwardVector, m_RightVector);
+
+
+		
+		ZMath::mat4 mat =	glm::toMat4(glm::quat(m_Rotation));
+
+		m_ForwardVector = mat[2];
+		m_RightVector = mat[0];
+		m_UpVector = mat[1];
+		
+		
+		//std::cout << m_ForwardVector << "-----" << ZMath::vec3(test) << std::endl;
+	}
+
 	void UTransformComponent::SetRotation(const ZMath::vec3& Rotation)
 	{
 		m_Rotation = {
@@ -34,14 +63,7 @@ namespace Zero
 		};
 	
 		
-		m_ForwardVector =  ZMath::normalize(ZMath::eulerAngles(ZMath::quat(m_Rotation)));
-
-		
-		m_RightVector.x = ZMath::cos(m_Rotation.z) * ZMath::cos(-m_Rotation.y);
-		m_RightVector.y = ZMath::sin(m_Rotation.z);
-		m_RightVector.z = ZMath::cos(m_Rotation.z) * ZMath::sin(-m_Rotation.y);
-		
-		m_UpVector = ZMath::cross(m_ForwardVector, m_RightVector);
+		UpdateDirection();
 
 		m_OnTransformChanged.Broadcast(this);
 	}
@@ -59,12 +81,13 @@ namespace Zero
 
 	ZMath::mat4 UTransformComponent::GetRotationMatrix() const
 	{
-		return glm::toMat4(glm::quat(m_Rotation));
+		ZMath::mat4 mat =  glm::toMat4(glm::quat(m_Rotation));
+		return mat;
 	}
 
 	ZMath::mat4 UTransformComponent::GetTransform()
 	{
-		return ZMath::translate(ZMath::mat4(1.0f), m_Position) * GetRotationMatrix() * ZMath::scale(ZMath::mat4(1.0f), m_Scale);
+		return ZMath::translate(ZMath::mat4(1.0f), m_Position) * GetRotationMatrix()* ZMath::scale(ZMath::mat4(1.0f), m_Scale);
 	}
 	void UTransformComponent::PostEdit(UProperty* Property)
 	{

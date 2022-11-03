@@ -1,12 +1,14 @@
 #pragma once
 
 #include <ZeroEngine.h>
+#include "EditPanels/BasePanel.h"
 
 #define ASSEST_PANEL_OBJ "Assests_Obj"
 #define PLACEOBJ_PANEL "PlaceActor"
 
 namespace Zero
 {
+	class FBasePanel;
 	class FEditor
 	{
 	public:
@@ -18,5 +20,10 @@ namespace Zero
 			return Icon;
 		}
 		static UActor* SelectedActor;
+		static std::map<std::string, Ref<FBasePanel>> AllPanels;
+		static Ref<FBasePanel> GetPanelByName(const std::string& PanelName);
+		static void RegisterPanel(const std::string& PanelName, Ref<FBasePanel> Panel);
+		static void DrawAllPanels();
+
 	};
 }

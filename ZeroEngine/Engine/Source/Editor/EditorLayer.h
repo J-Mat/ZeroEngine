@@ -29,7 +29,7 @@ namespace Zero
 		
 		
 		void BuildWorld() ;
-		void InitEditPanel();
+		void RegisterEditPanel();
 
 	private:
 		bool MouseButtonPressed(FMouseButtonReleasedEvent& Event);
@@ -38,11 +38,11 @@ namespace Zero
 		Ref<FRenderPipeline> m_ScriptablePipeline;
 		UWorld* m_World = nullptr;
 		Ref<FEditorCameraController> m_CameraController;
-		FViewportPanel m_ViewportPanel;
-		FContentBrowserPanel m_ContentBrowserPanel;
-		FOutlinePanel m_OutlinePanel;
-		FDetailPanel m_DetailPanel;
-		FPlaceActorsPanel m_PlaceActorPanel;
+		Ref<FViewportPanel> m_ViewportPanel;
+		Ref<FContentBrowserPanel> m_ContentBrowserPanel;
+		Ref<FOutlinePanel> m_OutlinePanel;
+		Ref<FDetailPanel> m_DetailPanel;
+		Ref<FPlaceActorsPanel> m_PlaceActorPanel;
 	
 	};
 }

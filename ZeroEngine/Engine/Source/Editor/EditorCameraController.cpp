@@ -65,7 +65,7 @@ namespace Zero
 				m_CameraEulerAngle.Yaw = DiffY * m_MouseSensitivity;
 				
 				ZMath::vec3 CurRotation(
-					PreRotaiton.x + m_CameraEulerAngle.Pitch, 
+					PreRotaiton.x - m_CameraEulerAngle.Pitch, 
 					PreRotaiton.y - m_CameraEulerAngle.Yaw,
 					0.0f);
 				

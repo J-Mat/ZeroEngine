@@ -3,10 +3,6 @@
 
 namespace Zero
 {
-	FPlaceActorsPanel::FPlaceActorsPanel()
-	{
-	}
-    
     void FPlaceActorsPanel::Init()
     {
         m_ActroItems.push_back({ FEditor::CreateIcon("cube.png"), "UCubeMeshActor" });

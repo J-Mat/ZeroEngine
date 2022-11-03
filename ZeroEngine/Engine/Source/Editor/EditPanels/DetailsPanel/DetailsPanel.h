@@ -1,14 +1,15 @@
 #pragma once
 
 #include <ZeroEngine.h>
+#include "EditPanels/BasePanel.h"
 
 
 namespace Zero
 {
-	class FDetailPanel
+	class FDetailPanel : public FBasePanel
 	{
 	public:
 		FDetailPanel();
-		void OnGuiRender();
+		virtual void OnGuiRender() override;
 	};
 }

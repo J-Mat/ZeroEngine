@@ -4,10 +4,6 @@
 
 namespace Zero
 {
-	FContentBrowserPanel::FContentBrowserPanel()
-	{
-	}
-
 	void FContentBrowserPanel::Init()
 	{
 		m_SelectedFolder.clear();

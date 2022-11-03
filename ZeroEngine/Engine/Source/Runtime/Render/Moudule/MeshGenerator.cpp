@@ -364,6 +364,7 @@ namespace Zero
 			MeshData.Vertices.push_back(Vertex.Position.x);
 			MeshData.Vertices.push_back(Vertex.Position.y);
 			MeshData.Vertices.push_back(Vertex.Position.z);
+			MeshData.AABB.Merge(Vertex.Position);
 			
 			MeshData.Vertices.push_back(Vertex.Normal.x);
 			MeshData.Vertices.push_back(Vertex.Normal.y);

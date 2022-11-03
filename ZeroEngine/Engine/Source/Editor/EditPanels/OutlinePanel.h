@@ -1,14 +1,15 @@
 #pragma once
 
 #include <ZeroEngine.h>
+#include "BasePanel.h"
 
 
 namespace Zero
 {
-	class FOutlinePanel
+	class FOutlinePanel : public FBasePanel
 	{
 	public:
-		FOutlinePanel();
-		void OnGuiRender();
+		FOutlinePanel() = default;
+		virtual void OnGuiRender() override;
 	};
 }

@@ -13,7 +13,7 @@ namespace Zero
 		FRenderTargetDesc Desc;
 		Desc.Format = {
 			ETextureFormat::R8G8B8A8,
-			ETextureFormat::INT32, //   For Picking
+			ETextureFormat::None, //   For Picking
 			ETextureFormat::None,
 			ETextureFormat::None,
 			ETextureFormat::None,

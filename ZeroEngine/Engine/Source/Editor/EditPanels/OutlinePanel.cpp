@@ -3,9 +3,6 @@
 
 namespace Zero
 {
-	FOutlinePanel::FOutlinePanel()
-	{
-	}
 	void FOutlinePanel::OnGuiRender()
 	{
 		static int SelectedIndex = -1;

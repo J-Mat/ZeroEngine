@@ -5,6 +5,7 @@
 #include "EditorCameraController.h"
 #include "Dialog/DialogUtils.h"
 #include "Asset/WorldSerializer.h"
+#include "Editor.h"
 
 namespace Zero
 {
@@ -13,7 +14,7 @@ namespace Zero
 	{
 		m_ScriptablePipeline = CreateRef<FRenderPipeline>();
 		FRenderer::GetDevice()->PreInitWorld();
-		InitEditPanel();
+		RegisterEditPanel();
 		BuildWorld();
 	}
 
@@ -23,7 +24,7 @@ namespace Zero
 		m_World->SetDevice(FRenderer::GetDevice());
 		UWorld::SetCurrentWorld(m_World);
 		
-		UCustomMeshActor* MeshActor = m_World->CreateActor<UCustomMeshActor>("sphere.fbx");
+	//	UCustomMeshActor* MeshActor = m_World->CreateActor<UCustomMeshActor>("sphere.fbx");
 
 		m_CameraController = CreateRef<FEditorCameraController>(m_World->GetMainCamera());
 
@@ -33,10 +34,13 @@ namespace Zero
 		FShaderRegister::GetInstance().RegisterDefaultShader();
 	}
 
-	void FEditorLayer::InitEditPanel()
+	void FEditorLayer::RegisterEditPanel()
 	{
-		m_ContentBrowserPanel.Init();
-		m_PlaceActorPanel.Init();
+		FEditor::RegisterPanel("Content", m_ContentBrowserPanel =  CreateRef<FContentBrowserPanel>());
+		FEditor::RegisterPanel("Outline", m_OutlinePanel =  CreateRef<FOutlinePanel>());
+		FEditor::RegisterPanel("PlaceActor", m_PlaceActorPanel = CreateRef<FPlaceActorsPanel>());
+		FEditor::RegisterPanel("Viewport", m_ViewportPanel = CreateRef<FViewportPanel>());
+		FEditor::RegisterPanel("Detail",  m_DetailPanel = CreateRef<FDetailPanel>());
 	}
 
 	
@@ -46,7 +50,7 @@ namespace Zero
 		FRenderer::GetDevice()->FlushInitCommandList();
 		
 		auto RenderTarget = TLibrary<FRenderTarget>::Fetch(FORWARD_STAGE);
-		m_ViewportPanel.SetRenderTarget(RenderTarget);
+		m_ViewportPanel->SetRenderTarget(RenderTarget);
 	}
 	
 	void FEditorLayer::OnDetach()
@@ -144,13 +148,8 @@ namespace Zero
 		}
 		bool showdemo = true;
 		ImGui::ShowDemoWindow();
-		
-		m_OutlinePanel.OnGuiRender();
-		m_ViewportPanel.OnGuiRender();
-		m_ContentBrowserPanel.OnGuiRender();
-		m_DetailPanel.OnGuiRender();
-		m_PlaceActorPanel.OnGuiRender();
-		
+
+		FEditor::DrawAllPanels();
 
 		ImGui::End();
 	}
@@ -181,7 +180,10 @@ namespace Zero
 	
 	bool FEditorLayer::MouseButtonPressed(FMouseButtonReleasedEvent& Event)
 	{
-		m_ViewportPanel.OnMouseClick(Event.GetX(), Event.GetY());
+		for (auto Panel : FEditor::AllPanels)
+		{
+			Panel.second->OnMouseClick(Event.GetX(), Event.GetY());
+		}
 		return true;
 	}
 	

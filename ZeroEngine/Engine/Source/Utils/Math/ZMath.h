@@ -205,16 +205,34 @@ namespace ZMath
 		return true;
 	}
 }
+static std::ostream& operator<<(std::ostream& os, ZMath::vec2& pt)
+{
+    os << std::format("[{0}, {1}]", pt.x, pt.y);
+    return os;
+}
 static std::ostream& operator<<(std::ostream& os, ZMath::vec3& pt)
 {
 	os << std::format("[{0}, {1}, {2}]", pt.x, pt.y, pt.z);
 	return os;
 }
-
 static std::ostream& operator<<(std::ostream& os, ZMath::vec4& pt)
 {
 	os << std::format("[{0}, {1}, {2}, {3}]", pt.x, pt.y, pt.z, pt.w);
 	return os;
 }
-
+static std::ostream& operator<<(std::ostream& os, ZMath::ivec2& pt)
+{
+    os << std::format("[{0}, {1}]", pt.x, pt.y);
+    return os;
+}
+static std::ostream& operator<<(std::ostream& os, ZMath::ivec3& pt)
+{
+    os << std::format("[{0}, {1}, {2}]", pt.x, pt.y, pt.z);
+    return os;
+}
+static std::ostream& operator<<(std::ostream& os, ZMath::ivec4& pt)
+{
+    os << std::format("[{0}, {1}, {2}, {3}]", pt.x, pt.y, pt.z, pt.w);
+    return os;
+}
 }

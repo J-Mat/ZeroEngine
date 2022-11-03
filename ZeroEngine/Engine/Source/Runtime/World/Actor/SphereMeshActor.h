@@ -2,11 +2,14 @@
 
 #include "Core.h"
 #include "MeshActor.h"
+#include "SphereMeshActor.reflection.h"
 
 namespace Zero
 {
+	UCLASS()
 	class USphereMeshActor : public UMeshActor
 	{
+		GENERATED_BODY()
 	public:
 		USphereMeshActor();
 		USphereMeshActor(float Radius, uint32_t NumSubdivisions);

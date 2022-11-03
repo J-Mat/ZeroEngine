@@ -17,6 +17,8 @@ namespace Zero
 		virtual void MoveLocal(const ZMath::vec3& Offset);
 		virtual void RotateLocal(const ZMath::FEulerAngle& Offset);
 		virtual void SetPosition(const ZMath::vec3& Position);
+		virtual void PostInit();
+		void UpdateDirection();
 		virtual void SetRotation(const ZMath::vec3& Rotation);
 		virtual void SetScale(const ZMath::vec3& Scale);
 		ZMath::quat GetOrientation();

@@ -69,7 +69,7 @@ namespace Zero
 			auto* Texture = static_cast<FDX12Texture2D*>(m_Textures[i].get());
 			if (Texture != nullptr)
 			{
-				CommandList->ClearTexture(Texture, Utils::Colors::AliceBlue);
+				CommandList->ClearTexture(Texture, Utils::Colors::Transparent);
 			}
 		}
 		auto* DepthStencilTexture = static_cast<FDX12Texture2D*>(m_Textures[EAttachmentIndex::DepthStencil].get());

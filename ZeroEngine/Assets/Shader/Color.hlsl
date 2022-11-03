@@ -49,7 +49,6 @@ struct VertexOut
 struct PixelOutput
 {
     float4 BaseColor    : SV_TARGET0;
-	uint OutAcotorID     : SV_TARGET1;
 };
 
 VertexOut VS(VertexIn vin)
@@ -71,6 +70,6 @@ PixelOutput PS(VertexOut pin)
 	PixelOutput Out;
 	//float3 diffuseAlbedo = gDiffuseMap.Sample(gSamAnisotropicWarp, pin.TexC);
 	Out.BaseColor = float4(pin.Normal, 1.0f);
-	Out.OutAcotorID = 2;
+	//Out.BaseColor = float4(1.0f, 0.0f, 0.0f, 1.0f);
 	return Out;
 }

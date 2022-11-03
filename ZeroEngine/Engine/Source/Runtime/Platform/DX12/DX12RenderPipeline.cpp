@@ -31,8 +31,8 @@ namespace Zero
 
 		FApplication::Get().PostDraw();
 
-		SwapChain->Present();
 		CommandQueue.ExecuteCommandList(FDX12Device::Get()->GetInitWorldCommandList());
+		SwapChain->Present();
 	}
 	
 }

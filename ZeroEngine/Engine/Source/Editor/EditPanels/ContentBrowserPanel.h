@@ -1,17 +1,18 @@
 #pragma once
 
 #include <ZeroEngine.h>
+#include "BasePanel.h"
 
 
 namespace Zero
 {
-	class FContentBrowserPanel
+	class FContentBrowserPanel : public FBasePanel
 	{
 	public:
-		FContentBrowserPanel();
-		void Init();
+		FContentBrowserPanel() = default;
+		virtual void Init() override;
+		virtual void OnGuiRender() override;
 		void ProjectViewerSystemPrintChildren(std::filesystem::path Foler);
-		void OnGuiRender();
 	private:
 		std::filesystem::path m_SelectedFolder;
 		std::filesystem::path m_SelectedFile;

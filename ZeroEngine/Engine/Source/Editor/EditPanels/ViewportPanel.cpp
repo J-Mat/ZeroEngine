@@ -13,27 +13,19 @@ namespace Zero
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2({ 0,0 }));
 		ImGui::Begin("Scene", 0, ImGuiWindowFlags_MenuBar);
 		
-		ImVec2 WindowsPos = ImGui::GetWindowPos();
-		m_WindowsPos.x = int(WindowsPos.x);
-		m_WindowsPos.y = int(WindowsPos.y);
-		
-		m_bViewportFocused = ImGui::IsWindowFocused();
-		m_bViewportHoverd = ImGui::IsWindowHovered();
-		
-		ImVec2 ViewportPanelSize = ImGui::GetContentRegionAvail();
-		ViewportPanelSize.x = ZMath::max(ViewportPanelSize.x, 1600.0f / 2.0f);
-		ViewportPanelSize.y = ZMath::max(ViewportPanelSize.y, 900.0f /2.0f);
-		
+		UpdateWindowsInfo();
 
-		if (m_ViewportSize != *((ZMath::vec2*)&ViewportPanelSize))
+		m_WindowsSize.x = ZMath::max(m_WindowsSize.x, int(1600.0f / 2.0f));
+		m_WindowsSize.y = ZMath::max(m_WindowsSize.y, int(900.0f /2.0f));	
+		ImVec2 ViewportPanelSize = { float(m_WindowsSize.x), float(m_WindowsSize.y) };
+		if (m_WindowsSize != m_LastWindowsSize)
 		{
-			m_ViewportSize = { ViewportPanelSize.x, ViewportPanelSize.y };
 			if (m_RenderTarget != nullptr)
 			{
-				m_RenderTarget->Resize(uint32_t(m_ViewportSize.x), uint32_t(m_ViewportSize.y));
+				m_RenderTarget->Resize(uint32_t(m_WindowsSize.x), uint32_t(m_WindowsSize.y));
 			}
 			
-			UWorld::GetCurrentWorld()->GetMainCamera()->OnResizeViewport(uint32_t(m_ViewportSize.x), uint32_t(m_ViewportSize.y));
+			UWorld::GetCurrentWorld()->GetMainCamera()->OnResizeViewport(uint32_t(m_WindowsSize.x), uint32_t(m_WindowsSize.y));
 		}
 		
 		Ref<FTexture2D> Texture = m_RenderTarget->GetTexture(m_RenderTargetIndex);
@@ -55,7 +47,7 @@ namespace Zero
 
 		ImGuizmo::SetOrthographic(false);
 		ImGuizmo::SetDrawlist();
-		ImGuizmo::SetRect(float(m_WindowsPos.x), float(m_WindowsPos.y), m_ViewportSize.x, m_ViewportSize.y);
+		ImGuizmo::SetRect(float(m_WindowsPos.x), float(m_WindowsPos.y), float(m_WindowsSize.x), float(m_WindowsSize.y));
 
 		
 		UCameraActor* CameraActor = UWorld::GetCurrentWorld()->GetMainCamera();
@@ -86,31 +78,44 @@ namespace Zero
 
 	void FViewportPanel::AcceptDragDropEvent()
 	{
+		UWorld* World = UWorld::GetCurrentWorld();
 		if (ImGui::BeginDragDropTarget())
 		{
 			if (const ImGuiPayload* Payload = ImGui::AcceptDragDropPayload(ASSEST_PANEL_OBJ))
 			{
 				std::string Path = (const char*)Payload->Data;
 				ZMath::FRay Ray = GetProjectionRay();
-				ZMath::vec3 Pos = UWorld::GetCurrentWorld()->GetRayWorldPos(Ray, 5.0f);
-				UCustomMeshActor* Actor = UWorld::GetCurrentWorld()->CreateActor<UCustomMeshActor>(Path);
+				ZMath::vec3 Pos = World->GetRayWorldPos(Ray, 5.0f);
+				UCustomMeshActor* Actor = World->CreateActor<UCustomMeshActor>(Path);
 				Actor->SetPosition(Pos);
 				
 				
 			}
+			else if (const ImGuiPayload* Payload = ImGui::AcceptDragDropPayload(PLACEOBJ_PANEL))
+			{
+				std::string ActorName = (const char*)Payload->Data;
+
+				CLIENT_LOG_TRACE("Actor Name '{0}'", ActorName);
+				auto Iter = GetClassInfoMap().find(ActorName);
+				if (Iter != GetClassInfoMap().end())
+				{
+					UActor* Actor = nullptr;
+					Actor = static_cast<UActor*>(Iter->second.Class->CreateDefaultObject());
+					if (Actor != nullptr)
+					{
+						World->AddActor(Actor);
+						Actor->SetWorld(World);
+						Actor->PostInit();
+						ZMath::FRay Ray = GetProjectionRay();
+						ZMath::vec3 Pos = World->GetRayWorldPos(Ray, 5.0f);
+						Actor->SetPosition(Pos);
+					}
+				}
+			}
+		
 			ImGui::EndDragDropTarget();
 		}
 	}
-
-	bool FViewportPanel::IsMouseOutOfVeiwport()
-	{
-		if (m_MousePos.x < 0 || m_MousePos.y < 0 || m_MousePos.x > m_ViewportSize.x || m_MousePos.y > m_ViewportSize.y)
-		{
-			return true;
-		}
-		return false;
-	}
-
 
 	ZMath::FRay FViewportPanel::GetProjectionRay()
 	{
@@ -119,8 +124,8 @@ namespace Zero
 		CLIENT_ASSERT(CameraComponent != nullptr, "CameraActor shoule be has CameraComponent");
 		ZMath::mat4 Projection = CameraComponent->GetProjection();
 
-		float ViewX = (+2.0f * m_MousePos.x / m_ViewportSize.x - 1.0f) / Projection[0][0];
-		float ViewY = (-2.0f * m_MousePos.y / m_ViewportSize.y + 1.0f) / Projection[1][1];
+		float ViewX = (+2.0f * m_MousePos.x / m_WindowsSize.x - 1.0f) / Projection[0][0];
+		float ViewY = (-2.0f * m_MousePos.y / m_WindowsSize.y + 1.0f) / Projection[1][1];
 		
 		ZMath::vec3 m_Origin(0.0f);
 		ZMath::vec3 m_Direction(ViewX, ViewY, 1.0f);
@@ -131,10 +136,16 @@ namespace Zero
 	void FViewportPanel::OnMouseClick(int X, int Y)
 	{
 		m_MousePos = { X - m_WindowsPos.x, Y - m_WindowsPos.y };
+
 		
-		if (IsMouseOutOfVeiwport())
+		if (IsMouseOutOfWindow())
 		{
+			std::cout << "out" << std::endl;
 			return;
+		}
+		else
+		{
+			std::cout << m_MousePos << std::endl;
 		}
 		
 		ZMath::FRay Ray = GetProjectionRay();

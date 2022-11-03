@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ZeroEngine.h>
-
+#include "BasePanel.h"
 
 namespace Zero
 {
@@ -10,12 +10,12 @@ namespace Zero
 		Ref<FTexture2D> IconTexture;
 		std::string ActorName;	
 	};
-	class FPlaceActorsPanel
+	class FPlaceActorsPanel : public FBasePanel
 	{
 	public:
-		FPlaceActorsPanel();	
-		void OnGuiRender();
-		void Init();
+		FPlaceActorsPanel() = default;
+		virtual	void OnGuiRender() override;
+		virtual void Init();
 	private:
 		std::vector<FPlaceActorItem> m_ActroItems;
 	};
