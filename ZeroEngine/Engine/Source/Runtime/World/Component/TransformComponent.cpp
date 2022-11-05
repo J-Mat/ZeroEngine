@@ -1,4 +1,5 @@
 #include "TransformComponent.h"
+#include "TransformComponent.h"
 #include "Math/ZMath.h"
 
 namespace Zero
@@ -74,6 +75,17 @@ namespace Zero
 		m_OnTransformChanged.Broadcast(this);
 	}
 
+	void UTransformComponent::SetTransfrom(ZMath::mat4& Transform)
+	{
+		ZMath::vec3 Translation, Rotation,	Scale;
+		ZMath::DecomposeTransform(Transform, Translation, Rotation, Scale);
+		m_Position = Translation;
+		m_Rotation = Rotation;	
+		m_Scale = Scale;
+		UpdateDirection();	
+		m_OnTransformChanged.Broadcast(this);
+	}
+
 	ZMath::quat UTransformComponent::GetOrientation()
 	{
 		return ZMath::quat(m_Rotation);
@@ -91,6 +103,10 @@ namespace Zero
 	}
 	void UTransformComponent::PostEdit(UProperty* Property)
 	{
+		if (Property->GetPropertyName() == "m_Rotation")
+		{
+			UpdateDirection();
+		}
 		m_OnTransformChanged.Broadcast(this);
 	}
 }

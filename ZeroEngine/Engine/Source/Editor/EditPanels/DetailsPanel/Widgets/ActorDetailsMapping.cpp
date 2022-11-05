@@ -42,8 +42,10 @@ namespace Zero
                 Ref<FVariableDetailsMapping> VariableDetailsMapping =  FDetailMappingManager::GetInstance().FindPropertyMapping(Property->GetPropertyType());
                 if (VariableDetailsMapping != nullptr && !Property->GetClassCollection().HasField("Invisible"))
                 {
-                    VariableDetailsMapping->UpdateDetailsWidget(Property);
-                    Property->GetOuter()->PostEdit(Property);
+                    if (VariableDetailsMapping->UpdateDetailsWidget(Property))
+                    {
+                        Property->GetOuter()->PostEdit(Property);
+                    }
                 }
                 Property = dynamic_cast<UProperty*>(Property->Next);
             }

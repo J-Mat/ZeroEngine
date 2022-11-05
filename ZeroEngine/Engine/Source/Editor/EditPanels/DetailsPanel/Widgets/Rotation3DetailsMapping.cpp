@@ -5,6 +5,8 @@ namespace Zero
 
 	bool FRotation3DetailsMapping::UpdateDetailsWidget(UProperty* Property)
 	{
+		bool bEdited = false;
+
 		ZMath::FRotation* Value = Property->GetData<ZMath::FRotation>();
 		
 		ZMath::FRotation ValueDegree = ZMath::degrees(*Value);
@@ -35,12 +37,15 @@ namespace Zero
 
 
 		if (ImGui::Button("Pitch", buttonSize))
+		{
 			ValueDegree.x = 0;
+			bEdited = true;
+		}
 		ImGui::PopFont();
 		ImGui::PopStyleColor(3);
 
 		ImGui::SameLine();
-		ImGui::DragFloat("##Pitch", &ValueDegree.x, 0.1f, 0.0f, 0.0f, "%.2f");
+		bEdited |= ImGui::DragFloat("##Pitch", &ValueDegree.x, 0.1f, 0.0f, 0.0f, "%.2f");
 		ImGui::SameLine();
 
 		ImGui::TableSetColumnIndex(1);
@@ -51,12 +56,15 @@ namespace Zero
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
 		ImGui::PushFont(BoldFont);
 		if (ImGui::Button("Yaw", buttonSize))
+		{
 			ValueDegree.y = 0.0f;
+			bEdited = true;
+		}
 		ImGui::PopFont();
 		ImGui::PopStyleColor(3);
 
 		ImGui::SameLine();
-		ImGui::DragFloat("##Yaw", &ValueDegree.y, 0.1f, 0.0f, 0.0f, "%.2f");
+		bEdited |= ImGui::DragFloat("##Yaw", &ValueDegree.y, 0.1f, 0.0f, 0.0f, "%.2f");
 		ImGui::SameLine();
 
 		ImGui::TableSetColumnIndex(2);
@@ -66,12 +74,15 @@ namespace Zero
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
 		ImGui::PushFont(BoldFont);
 		if (ImGui::Button("Roll", buttonSize))
+		{
 			ValueDegree.z = 0.0f;
+			bEdited = true;
+		}
 		ImGui::PopFont();
 		ImGui::PopStyleColor(3);
 
 		ImGui::SameLine();
-		ImGui::DragFloat("##Roll", &ValueDegree.z, 0.1f, 0.0f, 0.0f, "%.2f");
+		bEdited |= ImGui::DragFloat("##Roll", &ValueDegree.z, 0.1f, 0.0f, 0.0f, "%.2f");
 
 		ImGui::PopStyleVar();
 
@@ -84,7 +95,9 @@ namespace Zero
 		Value->y = ValueRadian.y;
 		Value->z = ValueRadian.z;
 
-		return true;
-		//return NumberWidget::ConstructFloat3Widget(Property);
+		if (bEdited)
+			std::cout << bEdited << std::endl;
+
+		return bEdited;
 	}
 }

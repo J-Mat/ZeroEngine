@@ -19,9 +19,9 @@ namespace Zero
 		uint32_t GetDataSize() { return m_DataSize; }
 		void* GetData() const { return m_Data; }
 		const std::string& GetPropertyType() const { return m_PropertyType; }
-		const char* GetPropertyName() const 
+		const std::string& GetPropertyName() const 
 		{ 
-			return m_PropertyName.c_str();
+			return m_PropertyName;
 		}
 		
 		const char* GetEditorPropertyName() const

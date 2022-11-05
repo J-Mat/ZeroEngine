@@ -21,6 +21,7 @@ namespace Zero
 		void UpdateDirection();
 		virtual void SetRotation(const ZMath::vec3& Rotation);
 		virtual void SetScale(const ZMath::vec3& Scale);
+		virtual void SetTransfrom(ZMath::mat4& Transform);
 		ZMath::quat GetOrientation();
 		ZMath::mat4 GetRotationMatrix() const;
 		ZMath::mat4 GetTransform();

@@ -5,6 +5,8 @@ namespace Zero
 
 	bool FVector3DDetailsMapping::UpdateDetailsWidget(UProperty* Property)
 	{
+		bool bEdited = false;
+
 		ZMath::vec3* Value = Property->GetData<ZMath::vec3>();
 		ImGuiIO& io = ImGui::GetIO();
 		auto BoldFont = io.Fonts->Fonts[0];
@@ -32,12 +34,15 @@ namespace Zero
 
 
 		if (ImGui::Button("X", buttonSize))
+		{
 			Value->x = 0;
+			bEdited = true;
+		}
 		ImGui::PopFont();
 		ImGui::PopStyleColor(3);
 
 		ImGui::SameLine();
-		ImGui::DragFloat("##X", &Value->x, 0.1f, 0.0f, 0.0f, "%.2f");
+		bEdited |= ImGui::DragFloat("##X", &Value->x, 0.1f, 0.0f, 0.0f, "%.2f");
 		ImGui::SameLine();
 
 		ImGui::TableSetColumnIndex(1);
@@ -48,12 +53,15 @@ namespace Zero
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
 		ImGui::PushFont(BoldFont);
 		if (ImGui::Button("Y", buttonSize))
+		{
 			Value->y = 0.0f;
+			bEdited = true;
+		}
 		ImGui::PopFont();
 		ImGui::PopStyleColor(3);
 
 		ImGui::SameLine();
-		ImGui::DragFloat("##Y", &Value->y, 0.1f, 0.0f, 0.0f, "%.2f");
+		bEdited |= ImGui::DragFloat("##Y", &Value->y, 0.1f, 0.0f, 0.0f, "%.2f");
 		ImGui::SameLine();
 
 		ImGui::TableSetColumnIndex(2);
@@ -63,12 +71,15 @@ namespace Zero
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
 		ImGui::PushFont(BoldFont);
 		if (ImGui::Button("Z", buttonSize))
+		{
 			Value->z = 0.0f;
+			bEdited = true;
+		}
 		ImGui::PopFont();
 		ImGui::PopStyleColor(3);
 
 		ImGui::SameLine();
-		ImGui::DragFloat("##Z", &Value->z, 0.1f, 0.0f, 0.0f, "%.2f");
+		bEdited |= ImGui::DragFloat("##Z", &Value->z, 0.1f, 0.0f, 0.0f, "%.2f");
 
 		ImGui::PopStyleVar();
 
@@ -76,6 +87,6 @@ namespace Zero
 
 		ImGui::EndColumns();
 
-		return true;
+		return bEdited;
 	}
 }

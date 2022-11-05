@@ -76,15 +76,8 @@ namespace Zero
 		
 		if (ImGuizmo::IsUsing())
 		{
-			ZMath::vec3 Translation, Rotation, Scale;
-			ZMath::DecomposeTransform(Transform, Translation, Rotation, Scale);
-
 			auto* TransformeComponent = FEditor::SelectedActor->GetComponent<UTransformComponent>();
-
-			ZMath::vec3 DeltaRotation = Rotation - TransformeComponent->m_Rotation;
-			TransformeComponent->m_Position = Translation;
-			TransformeComponent->m_Rotation += DeltaRotation;
-			TransformeComponent->m_Scale = Scale;
+			TransformeComponent->SetTransfrom(Transform);
 		}
 	}
 

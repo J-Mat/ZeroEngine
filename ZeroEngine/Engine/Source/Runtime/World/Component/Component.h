@@ -2,6 +2,7 @@
 
 #include "Core.h"
 #include "../Base/CoreObject.h"
+#include "../Base/PropertyObject.h"
 
 namespace Zero
 {

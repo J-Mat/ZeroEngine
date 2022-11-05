@@ -30,3 +30,7 @@ you can modify the objects' properties through DetailPanel  based code reflectio
 ### Save scnen based dode reflection (using yaml) **2022-10-31**
 
 ![1667201681377](image/README/1667201681377.png)
+
+### **DirectLight Control 2022-11-5**
+
+![1667651908997](image/README/1667651908997.png)

@@ -37,6 +37,7 @@ namespace  Zero
 
 			PropertyStr = std::format("DirectLights[{0}].{1}", i, m_DirectLightProperties[PropertyIndex++]);
 			Buffer->SetFloat3(PropertyStr, TransformComponent->GetForwardVector());
+		//std::cout << "dir: " << TransformComponent->GetForwardVector() <<
 		}
 	}
 }

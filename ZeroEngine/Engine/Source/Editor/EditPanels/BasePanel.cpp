@@ -43,7 +43,7 @@ namespace Zero
 			for (int i = 0; i < 3; ++i)
 			{
 				m_MouseButtonDown[i] = ImGui::IsMouseDown(i);
-				m_MouseButtonClicked[i] = ImGui::IsMouseClicked(i);
+				m_MouseButtonClicked[i] = ImGui::IsMouseReleased(i);
 			}
 		}
 		else
