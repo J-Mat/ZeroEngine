@@ -26,10 +26,6 @@ cbuffer cbMaterial : register(b2)
 };
 
 
-cbuffer cbConstBuffer : register(b3)
-{
-	int ActorID;
-};
 
 struct VertexIn
 {

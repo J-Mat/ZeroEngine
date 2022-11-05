@@ -13,7 +13,7 @@ namespace Zero
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2({ 0,0 }));
 		ImGui::Begin("Scene", 0, ImGuiWindowFlags_MenuBar);
 		
-		UpdateWindowsInfo();
+		PreInitWindow();
 
 		m_WindowsSize.x = ZMath::max(m_WindowsSize.x, int(1600.0f / 2.0f));
 		m_WindowsSize.y = ZMath::max(m_WindowsSize.y, int(900.0f /2.0f));	
@@ -31,6 +31,7 @@ namespace Zero
 		Ref<FTexture2D> Texture = m_RenderTarget->GetTexture(m_RenderTargetIndex);
 		ImGui::Image((ImTextureID)Texture->GetGuiShaderReseource(), ViewportPanelSize);
 
+		OnMouseClick();
 		OnRenderGizmo();
 		AcceptDragDropEvent();
 
@@ -57,9 +58,20 @@ namespace Zero
 		ZMath::mat4 CameraView = CameraComponent->GetView();
 		ZMath::mat4 Transform = FEditor::SelectedActor->GetTransform();
 
+		static std::vector<ImGuizmo::OPERATION> VecOperation =
+		{ 
+			ImGuizmo::OPERATION::TRANSLATE,
+			ImGuizmo::OPERATION::ROTATE,
+			ImGuizmo::OPERATION::SCALE,
+			ImGuizmo::OPERATION::SCALEU,
+			ImGuizmo::OPERATION::UNIVERSAL
+		};
+		static int OperationIndex = 0;
+		if (ImGui::IsKeyPressed(ImGuiKey_::ImGuiKey_M))
+			OperationIndex = (OperationIndex + 1) % VecOperation.size();
 
 		ImGuizmo::Manipulate(ZMath::value_ptr(CameraView), ZMath::value_ptr(CameraProjection),
-			(ImGuizmo::OPERATION)ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::LOCAL, ZMath::value_ptr(Transform),
+			VecOperation[OperationIndex], ImGuizmo::WORLD, ZMath::value_ptr(Transform),
 			nullptr, nullptr);
 		
 		if (ImGuizmo::IsUsing())
@@ -88,8 +100,6 @@ namespace Zero
 				ZMath::vec3 Pos = World->GetRayWorldPos(Ray, 5.0f);
 				UCustomMeshActor* Actor = World->CreateActor<UCustomMeshActor>(Path);
 				Actor->SetPosition(Pos);
-				
-				
 			}
 			else if (const ImGuiPayload* Payload = ImGui::AcceptDragDropPayload(PLACEOBJ_PANEL))
 			{
@@ -124,8 +134,8 @@ namespace Zero
 		CLIENT_ASSERT(CameraComponent != nullptr, "CameraActor shoule be has CameraComponent");
 		ZMath::mat4 Projection = CameraComponent->GetProjection();
 
-		float ViewX = (+2.0f * m_MousePos.x / m_WindowsSize.x - 1.0f) / Projection[0][0];
-		float ViewY = (-2.0f * m_MousePos.y / m_WindowsSize.y + 1.0f) / Projection[1][1];
+		float ViewX = (+2.0f * m_MouseLocalPos.x / m_WindowsSize.x - 1.0f) / Projection[0][0];
+		float ViewY = (-2.0f * m_MouseLocalPos.y / m_WindowsSize.y + 1.0f) / Projection[1][1];
 		
 		ZMath::vec3 m_Origin(0.0f);
 		ZMath::vec3 m_Direction(ViewX, ViewY, 1.0f);
@@ -133,32 +143,20 @@ namespace Zero
 		return { m_Origin, m_Direction };
 	}
 
-	void FViewportPanel::OnMouseClick(int X, int Y)
+	void FViewportPanel::OnMouseClick()
 	{
-		m_MousePos = { X - m_WindowsPos.x, Y - m_WindowsPos.y };
-
-		
-		if (IsMouseOutOfWindow())
+		if (MouseButtonCliked(ImGuiMouseButton_::ImGuiMouseButton_Left))
 		{
-			std::cout << "out" << std::endl;
-			return;
-		}
-		else
-		{
-			std::cout << m_MousePos << std::endl;
-		}
-		
-		ZMath::FRay Ray = GetProjectionRay();
-		UActor* Actor = UWorld::GetCurrentWorld()->PickActorByMouse(Ray);
-		if (Actor != nullptr)
-		{
-			FEditor::SelectedActor = Actor;
-		}
-		else
-		{
-			FEditor::SelectedActor = nullptr;
+			ZMath::FRay Ray = GetProjectionRay();
+			UActor* Actor = UWorld::GetCurrentWorld()->PickActorByMouse(Ray);
+			if (Actor != nullptr)
+			{
+				FEditor::SelectedActor = Actor;
+			}
+			else
+			{
+				FEditor::SelectedActor = nullptr;
+			}
 		}
 	}
-
-
 }

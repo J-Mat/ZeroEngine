@@ -6,7 +6,7 @@ namespace Zero
     void FPlaceActorsPanel::Init()
     {
         m_ActroItems.push_back({ FEditor::CreateIcon("cube.png"), "UCubeMeshActor" });
-        m_ActroItems.push_back({ FEditor::CreateIcon("sphere.png"), "USphereActor" });
+        m_ActroItems.push_back({ FEditor::CreateIcon("sphere.png"), "USphereMeshActor" });
         m_ActroItems.push_back({ FEditor::CreateIcon("direct_light.png"), "ULightActor" });
     }
 

@@ -157,7 +157,7 @@ namespace Zero
 	void FEditorLayer::OnEvent(FEvent& Event)
 	{
 		FEventDispatcher Dispatcher(Event);
-		Dispatcher.Dispatch<FMouseButtonReleasedEvent>(BIND_EVENT_FN(FEditorLayer::MouseButtonPressed));
+		//Dispatcher.Dispatch<FMouseButtonReleasedEvent>(BIND_EVENT_FN(FEditorLayer::MouseButtonPressed));
 	}
 
 	void FEditorLayer::SaveScene()
@@ -180,10 +180,6 @@ namespace Zero
 	
 	bool FEditorLayer::MouseButtonPressed(FMouseButtonReleasedEvent& Event)
 	{
-		for (auto Panel : FEditor::AllPanels)
-		{
-			Panel.second->OnMouseClick(Event.GetX(), Event.GetY());
-		}
 		return true;
 	}
 	

@@ -1,4 +1,5 @@
 #include "EditorCameraController.h"
+#include "Editor.h"
 
 namespace Zero
 {
@@ -9,43 +10,47 @@ namespace Zero
 
 	void FEditorCameraController::Tick()
 	{
+		auto ViewportPanel = FEditor::GetPanelByName("Viewport");
 		if (m_CameraActor == nullptr)
 		{
 			return;
 		}
-		float DeltaTime = FApplication::Get().GetFrameTimer()->GetDeltaTime();
-		if (FInput::IsKeyPressed(Zero_KEY_W))
+		if (ViewportPanel->MouseButtonDown(ImGuiMouseButton_::ImGuiMouseButton_Right))
 		{
-			m_CameraActor->MoveLocal({0.0f, 0.0f, DeltaTime * m_Speed});
-		}
-		if (FInput::IsKeyPressed(Zero_KEY_S))
-		{
-			m_CameraActor->MoveLocal({0.0f, 0.0f, -DeltaTime * m_Speed});
-		}
+			float DeltaTime = FApplication::Get().GetFrameTimer()->GetDeltaTime();
+			if (FInput::IsKeyPressed(Zero_KEY_W))
+			{
+				m_CameraActor->MoveLocal({ 0.0f, 0.0f, DeltaTime * m_Speed });
+			}
+			if (FInput::IsKeyPressed(Zero_KEY_S))
+			{
+				m_CameraActor->MoveLocal({ 0.0f, 0.0f, -DeltaTime * m_Speed });
+			}
 
-		if (FInput::IsKeyPressed(Zero_KEY_A))
-		{
-			m_CameraActor->MoveLocal({ -DeltaTime * m_Speed, 0.0f, 0.0f});
-		}
-		if (FInput::IsKeyPressed(Zero_KEY_D))
-		{
-			m_CameraActor->MoveLocal({ DeltaTime * m_Speed, 0.0f, 0.0f});
-		}
+			if (FInput::IsKeyPressed(Zero_KEY_A))
+			{
+				m_CameraActor->MoveLocal({ -DeltaTime * m_Speed, 0.0f, 0.0f });
+			}
+			if (FInput::IsKeyPressed(Zero_KEY_D))
+			{
+				m_CameraActor->MoveLocal({ DeltaTime * m_Speed, 0.0f, 0.0f });
+			}
 
-		if (FInput::IsKeyPressed(Zero_KEY_Q))
-		{
-			m_CameraActor->MoveLocal({0.0f, -DeltaTime * m_Speed, 0.0f});
-		}
-		if (FInput::IsKeyPressed(Zero_KEY_E))
-		{
-			m_CameraActor->MoveLocal({ 0.0f, DeltaTime * m_Speed, 0.0f});
+			if (FInput::IsKeyPressed(Zero_KEY_Q))
+			{
+				m_CameraActor->MoveLocal({ 0.0f, -DeltaTime * m_Speed, 0.0f });
+			}
+			if (FInput::IsKeyPressed(Zero_KEY_E))
+			{
+				m_CameraActor->MoveLocal({ 0.0f, DeltaTime * m_Speed, 0.0f });
+			}
 		}
 		
 		static int32_t PreX = 0, PreY = 0;
 		static bool bMouseMove;
 		static ZMath::vec3 PreRotaiton;
 
-		if (FInput::IsMouseButtonPressed(Zero_MOUSE_BUTTON_RIGHT))
+		if (ViewportPanel->MouseButtonDown(ImGuiMouseButton_::ImGuiMouseButton_Right))
 		{
 			if (!bMouseMove)
 			{

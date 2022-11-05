@@ -17,10 +17,13 @@ namespace Zero
 		UMeshRenderComponent();
 		virtual ~UMeshRenderComponent();
 
+		void SetShader(const std::string& ShaderFile) { m_ShaderFile = ShaderFile; }
 		std::vector<Ref<FMaterial>>& GetPassMaterials(const EMeshRenderLayerType& LayerType);
 		void SetSubmeshNum(uint32_t Num) { m_SubmeshNum = Num; }
 	private:
 		std::unordered_map<EMeshRenderLayerType, std::vector<Ref<FMaterial>>> m_Materials;
 		uint32_t m_SubmeshNum = 0;
+		
+		std::string m_ShaderFile = "ForwardLit.hlsl";
 	};
 }

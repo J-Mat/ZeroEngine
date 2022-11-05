@@ -173,19 +173,18 @@ namespace Zero
 		const FDelegateHandle AddFunction(TObjectType* Object, TReturn(TObjectType::* Funcation)(ParamTypes ...))
 		{
 			FDelegateHandle Handle;
-			TDelegate Delegate;
+			this->insert({Handle, TDelegate()});
+			TDelegate& Delegate = this->at(Handle);
 			Delegate.Bind(Object, Funcation);
-			this->insert({Handle, Delegate});
-		
 			return Handle;
 		}
 
 		const FDelegateHandle AddFunction(TReturn(*InFuncation)(ParamTypes...))
 		{
 			FDelegateHandle Handle;
-			TDelegate Delegate;
+			this->insert({Handle, TDelegate()});
+			TDelegate& Delegate = this->at(Handle);
 			Delegate.Bind(Funcation);
-			this->insert({Handle, Delegate});
 
 			return Handle;
 		}

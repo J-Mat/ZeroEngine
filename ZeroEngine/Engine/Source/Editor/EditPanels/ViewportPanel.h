@@ -16,13 +16,12 @@ namespace Zero
 		virtual void OnGuiRender();
 		void OnRenderGizmo();
 		void AcceptDragDropEvent();
-		virtual void OnMouseClick(int X, int Y) override;
+		virtual void OnMouseClick() override;
 		ZMath::FRay GetProjectionRay();
 	private:
 		bool m_bWindowsFocused;
 		bool m_bWindowsHoverd;
-
-
+		
 		Ref<FRenderTarget> m_RenderTarget;
 		EAttachmentIndex m_RenderTargetIndex = EAttachmentIndex::Color0;
 	};

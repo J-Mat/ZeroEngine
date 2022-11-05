@@ -1,11 +1,12 @@
 #include "FrameResource.h"
 #include "../DX12Device.h"
 #include "UploadBuffer.h"
+#include "Utils.h"
 
 namespace Zero
 {
 	FFrameResourceBuffer::FFrameResourceBuffer(uint32_t Size)
-		: m_SizeByte(Size)
+		: m_SizeByte(ZMath::CalcConstantBufferByteSize(Size))
 	{
 		FFrameResourcesManager::GetInstance().RegistFrameResource(this);
 	}

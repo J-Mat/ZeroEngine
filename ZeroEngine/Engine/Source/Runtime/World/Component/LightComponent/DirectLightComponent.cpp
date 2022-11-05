@@ -5,7 +5,8 @@ namespace Zero
 	void UDirectLightComponnet::PostInit()
 	{
 		ULightComponent::PostInit();
-		m_TransformCompent->GetTransformChange().AddFunction(this, &UDirectLightComponnet::OnTransfromChanged);
+		FOnTransformChanged& OnTransformChanged = m_TransformCompent->GetTransformChange();
+		OnTransformChanged.AddFunction(this, &UDirectLightComponnet::OnTransfromChanged);
 	}
 
 	ZMath::mat4 UDirectLightComponnet::GetViewProject()

@@ -20,6 +20,7 @@ namespace Zero
 			for (size_t i = m_Materials[LayerType].size(); i < m_SubmeshNum; i++)
 			{
 				Ref<FMaterial> Material = CreateRef<FMaterial>();
+				Material->SetShader(m_ShaderFile);
 				m_Materials[LayerType].emplace_back(Material);
 			}
 		}

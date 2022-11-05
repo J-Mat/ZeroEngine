@@ -3,7 +3,6 @@
 #include <ZeroEngine.h>
 #include "BasePanel.h"
 
-
 namespace Zero
 {
 	class FContentBrowserPanel : public FBasePanel

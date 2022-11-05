@@ -2,5 +2,5 @@
 
 bool Zero::FColor4DetailsMapping::UpdateDetailsWidget(UProperty* Property)
 {
-    return false;
+    return ImGui::ColorEdit3(Property->GetEditorPropertyName(), (float*)Property->GetData<ZMath::FColor4>());
 }

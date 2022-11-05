@@ -3,6 +3,7 @@
 #include "World/Component/LightComponent/DirectLightComponent.h"
 #include "World/Component/MeshRenderComponent.h"
 #include "World/Component/MeshVertexComponent.h"
+#include "LightActor.reflection.h"
 
 namespace Zero
 {
@@ -11,17 +12,18 @@ namespace Zero
 		LT_Direct,
 		LT_Point
 	};
+	UCLASS()
 	class ULightActor : public UMeshActor
 	{
+		GENERATED_BODY()
 	public:
-		ULightActor(ELightType LightType);
-		virtual void BuildMesh();
-		virtual void PostInit() override;
+		void PostInit();
+		ULightActor();
+		virtual void BuildMesh() override;
 		
 
 	private:
 		ULightComponent* m_LightComponnet = nullptr;
-		UMeshVertexComponent* m_MeshVertexComponent = nullptr;
 		ELightType m_LightType = ELightType::LT_Direct;
 	};
 }

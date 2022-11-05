@@ -37,6 +37,7 @@ namespace Zero
 
 		FShaderDesc ShaderDessc = { false, FVertexBufferLayout::s_DefaultVertexLayout, 2, Formats};
 		
-		FRenderer::GraphicFactroy->CreateShader("Color.hlsl", {CBLayouts, ResourceLayout}, ShaderDessc);
+		FRenderer::GraphicFactroy->CreateShader("ForwardLit.hlsl", {CBLayouts, ResourceLayout}, ShaderDessc);
+		FRenderer::GraphicFactroy->CreateShader("DirectLight.hlsl", {CBLayouts, ResourceLayout}, ShaderDessc);
 	}
 }

@@ -679,40 +679,4 @@ namespace ZHT
 			Zero::Utils::RemoveOtherFilesInDir(Zero::ZConfig::IntermediateDir.string(), AllLinkCppFiles);
 		}
 	}
-	void FFileParser::WriteInitActorGeneratedFile()
-	{
-		std::vector<std::string> Contents;
-		std::stringstream Stream;
-		Contents.push_back("#pragma once");
-		Contents.push_back("#include \"World/World.h\"");
-	
-		std::vector<std::string> ActorClassNames;
-		for (const auto& ClassElement : m_AllClassElements)
-		{
-			if (IsDerived(ClassElement.ClassName, "UActor"))
-			{
-				Contents.push_back(Zero::Utils::StringUtils::Format("#include \"{0}\"", ClassElement.OriginFilePath.string()));
-				ActorClassNames.push_back(ClassElement.ClassName);
-			}
-		}
-
-		Stream << "\n\nnamespace Zero\n"
-			<< "{\n"
-			<< "\tstatic UActor* CreateActorByName(UWorld* World, const std::string& ClassName)\n"
-			<< "\t{\n"
-			<< WriteGenerateActors(ActorClassNames)
-			<< "\t}\n"
-			<< "}\n";
-		PUSH_TO_CONTENT
-
-
-		std::string WholeContent = Zero::Utils::StringUtils::Join(Contents, "\n", true);
-		std::string OriginFile = Zero::Utils::StringUtils::ReadFile(Zero::ZConfig::InitActorGeneratedFile.string());
-	
-		if (OriginFile != WholeContent)
-		{
-			std::cout << WholeContent << std::endl;
-			Zero::Utils::StringUtils::WriteFile(Zero::ZConfig::InitActorGeneratedFile.string(), WholeContent);
-		}
-	}
 }

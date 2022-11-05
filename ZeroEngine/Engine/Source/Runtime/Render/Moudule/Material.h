@@ -30,6 +30,7 @@ namespace Zero
 		void SetPass();
 		void OnDrawCall();
 		void SetShader(Ref<IShader> Shader);
+		void SetShader(const std::string& ShaderFile);
 		Ref<IShader> GetShader() { return m_Shader; }
 
 		void SetFloat(const std::string& Name, const float& Value);

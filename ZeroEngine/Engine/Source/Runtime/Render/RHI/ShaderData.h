@@ -37,7 +37,7 @@ namespace Zero
 		case Zero::EShaderDataType::Float2: return 4 * 2;
 		case Zero::EShaderDataType::Float3: return 4 * 3;
 		case Zero::EShaderDataType::Float4: return 4 * 4;
-		case Zero::EShaderDataType::Mat3:   return 4 * 3 * 3;
+		case Zero::EShaderDataType::Mat3:   return 4 * 3 * 4;
 		case Zero::EShaderDataType::Mat4:   return 4 * 4 * 4;
 		case Zero::EShaderDataType::Int:    return 4;
 		case Zero::EShaderDataType::Int2:   return 4 * 2;

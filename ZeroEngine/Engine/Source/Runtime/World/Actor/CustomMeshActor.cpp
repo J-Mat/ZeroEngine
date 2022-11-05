@@ -3,6 +3,7 @@
 #include "Render/Moudule/MeshGenerator.h"
 #include "Utils/ZConfig.h"
 #include "Render/RHI/VertexBuffer.h"
+#include "../Component/MeshRenderComponent.h"
 
 namespace Zero
 {
@@ -10,6 +11,7 @@ namespace Zero
 		: UMeshActor()
 		, m_FileName(FileName)
 	{
+		GetComponent<UMeshRenderComponent>()->SetShader("ForwardLit.hlsl");
 	}
 
 	void UCustomMeshActor::BuildMesh()

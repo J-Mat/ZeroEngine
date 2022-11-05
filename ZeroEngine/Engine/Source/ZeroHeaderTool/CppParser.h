@@ -85,7 +85,6 @@ namespace ZHT
 		void GenerateReflectionCppFile(const FClassElement& ClassElement);
 		std::string WriteGenerateActors(std::vector<std::string>& ActorClassNames);
 		void WriteLinkReflectionFile(std::set<std::filesystem::path>& AllLinkCppFiles);
-		void WriteInitActorGeneratedFile();
 		
 	private:
 		std::map<std::string, std::string> m_DerivedRelation;

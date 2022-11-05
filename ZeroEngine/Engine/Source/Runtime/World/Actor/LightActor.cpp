@@ -1,33 +1,37 @@
 #include "LightActor.h"
+#include "World/LightManager.h"
 
 
 namespace Zero
 {
-	ULightActor::ULightActor(ELightType LightType)
-		: UMeshActor(),
-		m_LightType(LightType)
-	{
-	}
-
-	void ULightActor::PostInit()
+	ULightActor::ULightActor()
+		:UMeshActor()
+		,m_LightType(ELightType::LT_Direct)
 	{
 		switch (m_LightType)
 		{
-		case Zero::ELightType::LT_Direct:
+		case ELightType::LT_Direct:
 			m_LightComponnet = CreateComponent<UDirectLightComponnet>(this);
 			break;
-		case Zero::ELightType::LT_Point:
+		case ELightType::LT_Point:
 			break;
 		default:
 			break;
 		}
+		GetComponent<UMeshRenderComponent>()->SetShader("DirectLight.hlsl");
+	}
+
+	void ULightActor::PostInit()
+	{
+		Supper::PostInit();
+		FLightManager::GetInstance().AddDirectLight(this);
 	}
 	
 
 	void ULightActor::BuildMesh()
 	{
 		auto& MeshDatas =  m_MeshVertexComponent->GetMeshDatas();
-		FMeshGenerator::GetInstance().CreateCustomModel(MeshDatas, ZConfig::GetObjFullPath("Sphere.fbx").string(), FVertexBufferLayout::s_DefaultVertexLayout);
+		FMeshGenerator::GetInstance().CreateCustomModel(MeshDatas, ZConfig::GetObjFullPath("direct_light.fbx").string(), FVertexBufferLayout::s_DefaultVertexLayout);
 		
 		m_MeshVertexComponent->CreateMesh();
 	}

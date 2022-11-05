@@ -14,8 +14,7 @@ namespace Zero
 {
 
 	FMaterial::FMaterial()
-	{
-		SetShader(TLibrary<IShader>::Fetch("Color.hlsl"));
+	{	
 	}
 
 	FMaterial::~FMaterial()
@@ -52,6 +51,13 @@ namespace Zero
 			*m_ResourcesDesc.get(), 
 			m_Shader->GetBinder()->GetRootSignature()
 		);
+	}
+
+	void FMaterial::SetShader(const std::string& ShaderFile)
+	{
+		Ref<IShader> Shader = TLibrary<IShader>::Fetch(ShaderFile);
+		CORE_ASSERT(Shader != nullptr, "Shader Not Found!")
+		SetShader(Shader);
 	}
 
 	void FMaterial::SetFloat(const std::string& Name, const float& Value)

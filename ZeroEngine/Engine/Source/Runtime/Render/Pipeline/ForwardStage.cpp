@@ -4,6 +4,7 @@
 #include "Render/RHI/SwapChain.h"
 #include "Render/RHI/RenderTarget.h"
 #include "World/World.h"
+#include "World/LightManager.h"
 
 namespace Zero
 {
@@ -34,6 +35,7 @@ namespace Zero
 	{
 		m_RenderTarget->ClearBuffer();
 		m_RenderTarget->Bind();
+		FLightManager::GetInstance().Tick();
 		FRenderItemPool& RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool();
 		for (Ref<FRenderItem> RenderItem : RenderItemPool)
 		{
