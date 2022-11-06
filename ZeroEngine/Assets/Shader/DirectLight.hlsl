@@ -36,7 +36,7 @@ VertexOut VS(VertexIn vin)
 };
 
 
-PixelOutput PS(VertexOut pin)
+PixelOutput PS(VertexOut Pin)
 {
 	PixelOutput Out;
 	//float3 diffuseAlbedo = gDiffuseMap.Sample(gSamAnisotropicWarp, pin.TexC);
