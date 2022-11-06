@@ -43,7 +43,7 @@ namespace Zero
 			for (int i = 0; i < 3; ++i)
 			{
 				m_MouseButtonDown[i] = ImGui::IsMouseDown(i);
-				m_MouseButtonClicked[i] = ImGui::IsMouseReleased(i);
+				m_MouseButtonReleased[i] = ImGui::IsMouseReleased(i);
 			}
 		}
 		else
@@ -51,7 +51,7 @@ namespace Zero
 			for (int i = 0; i < 3; ++i)
 			{
 				m_MouseButtonDown[i] = false;
-				m_MouseButtonClicked[i] = false;
+				m_MouseButtonReleased[i] = false;
 			}
 		}
 	}

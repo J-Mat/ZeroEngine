@@ -15,14 +15,15 @@ namespace Zero
 {
 	FDetailPanel::FDetailPanel()
 	{
-		FDetailMappingManager::GetInstance().RegisterVariableMapping("ZMath::vec3", FVector3DDetailsMapping::MakeDetailMapping());
-		FDetailMappingManager::GetInstance().RegisterVariableMapping("std::string",FStringDetailsMapping::MakeDetailMapping());
-		FDetailMappingManager::GetInstance().RegisterVariableMapping("ZMath::FRotation",FRotation3DetailsMapping::MakeDetailMapping());
-		FDetailMappingManager::GetInstance().RegisterVariableMapping("bool", FBoolDetailsMapping::MakeDetailMapping());
-		FDetailMappingManager::GetInstance().RegisterVariableMapping("float",FFloatDetailsMapping::MakeDetailMapping());
-		FDetailMappingManager::GetInstance().RegisterVariableMapping("ZMath::FColor3", FColor3DetailsMapping::MakeDetailMapping());
-		FDetailMappingManager::GetInstance().RegisterVariableMapping("ZMath::FColor4", FColor4DetailsMapping::MakeDetailMapping());
-		FDetailMappingManager::GetInstance().RegisterClassMapping(FActorDetailsMapping::MakeDetailMapping());
+		auto& DetailMappingManager = FDetailMappingManager::GetInstance();
+		DetailMappingManager.RegisterVariableMapping("ZMath::vec3", FVector3DDetailsMapping::MakeDetailMapping());
+		DetailMappingManager.RegisterVariableMapping("std::string",FStringDetailsMapping::MakeDetailMapping());
+		DetailMappingManager.RegisterVariableMapping("ZMath::FRotation",FRotation3DetailsMapping::MakeDetailMapping());
+		DetailMappingManager.RegisterVariableMapping("bool", FBoolDetailsMapping::MakeDetailMapping());
+		DetailMappingManager.RegisterVariableMapping("float",FFloatDetailsMapping::MakeDetailMapping());
+		DetailMappingManager.RegisterVariableMapping("ZMath::FColor3", FColor3DetailsMapping::MakeDetailMapping());
+		DetailMappingManager.RegisterVariableMapping("ZMath::FColor4", FColor4DetailsMapping::MakeDetailMapping());
+		DetailMappingManager.RegisterClassMapping(FActorDetailsMapping::MakeDetailMapping());
 	}
 	void FDetailPanel::OnGuiRender()
 	{

@@ -47,5 +47,10 @@ namespace Zero
 		{
 			return EditorContentFolder / RelativePath;
 		}
+
+		static const std::filesystem::path GetAssestsFullPath(const std::string& RelativePath)
+		{
+			return AssetsDir / RelativePath;
+		}
 	}
 }

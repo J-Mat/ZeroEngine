@@ -37,3 +37,4 @@
 #include <Windows.h>
 #include <wincodec.h>
 #include <windowsx.h>
+#include "json.hpp"

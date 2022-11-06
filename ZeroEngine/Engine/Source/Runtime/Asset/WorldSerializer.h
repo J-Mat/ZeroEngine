@@ -24,7 +24,6 @@ namespace Zero
 		bool DeserializeComponents(YAML::Node& Data, UActor* Actor);
 		bool Deserialize(const std::filesystem::path Path);
 	private:
-		static std::set<std::string> s_AllSimpleType;
 		UWorld* m_World;
 		UProperty* m_CurrentProperty;
 	};

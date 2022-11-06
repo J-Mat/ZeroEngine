@@ -33,6 +33,44 @@ namespace Zero
 		return nullptr;
 	}
 
+	bool FClassInfoCollection::RemoveTailProperty()
+	{
+		UProperty* Property = HeadProperty;
+		
+		if (Property != nullptr)
+		{
+			if (Property == TailProprty)
+			{
+				delete Property;
+				HeadProperty = TailProprty = nullptr;
+				return true;
+			}
+			else
+			{
+				while (Property->Next != TailProprty)
+				{
+					Property = static_cast<UProperty*>(Property->Next);
+				}
+				delete TailProprty;
+				TailProprty = Property;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	void FClassInfoCollection::RemoveAllProperties()
+	{
+		UProperty* Property = HeadProperty;
+		while (Property != nullptr)
+		{
+			UProperty* NextProperty = static_cast<UProperty*>(Property->Next);
+			delete Property;
+			Property = NextProperty;
+		}
+		HeadProperty = TailProprty = nullptr;
+	}
+
 
 	template<class T, typename ... Args>
 	inline T* FClassInfoCollection::ConstructProperty(Args&& ... args)

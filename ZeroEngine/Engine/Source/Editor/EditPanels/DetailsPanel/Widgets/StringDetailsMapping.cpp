@@ -11,6 +11,7 @@ namespace Zero
 		if (ImGui::InputText(InProperty->GetEditorPropertyName(), Buffer, sizeof(Buffer)))
 		{
 			Tag = Buffer;		
+			return true;
 		}
 		return false;
 	}

@@ -42,17 +42,12 @@ namespace Zero
 		m_RightVector.z = ZMath::cos(m_Rotation.z) * ZMath::sin(-m_Rotation.y);
 		
 		m_UpVector = ZMath::cross(m_ForwardVector, m_RightVector);
-
-
 		
 		ZMath::mat4 mat =	glm::toMat4(glm::quat(m_Rotation));
 
 		m_ForwardVector = mat[2];
 		m_RightVector = mat[0];
 		m_UpVector = mat[1];
-		
-		
-		//std::cout << m_ForwardVector << "-----" << ZMath::vec3(test) << std::endl;
 	}
 
 	void UTransformComponent::SetRotation(const ZMath::vec3& Rotation)
@@ -63,7 +58,6 @@ namespace Zero
 			ZMath::radians(Rotation.z),
 		};
 	
-		
 		UpdateDirection();
 
 		m_OnTransformChanged.Broadcast(this);
@@ -93,14 +87,14 @@ namespace Zero
 
 	ZMath::mat4 UTransformComponent::GetRotationMatrix() const
 	{
-		ZMath::mat4 mat =  glm::toMat4(glm::quat(m_Rotation));
-		return mat;
+		return glm::toMat4(glm::quat(m_Rotation));
 	}
 
 	ZMath::mat4 UTransformComponent::GetTransform()
 	{
-		return ZMath::translate(ZMath::mat4(1.0f), m_Position) * GetRotationMatrix()* ZMath::scale(ZMath::mat4(1.0f), m_Scale);
+		return ZMath::translate(ZMath::mat4(1.0f), m_Position) * GetRotationMatrix() * ZMath::scale(ZMath::mat4(1.0f), m_Scale);
 	}
+
 	void UTransformComponent::PostEdit(UProperty* Property)
 	{
 		if (Property->GetPropertyName() == "m_Rotation")

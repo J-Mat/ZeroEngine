@@ -15,7 +15,7 @@ namespace Zero
 		ZMath::ivec2 GetWindowsSize() { return m_WindowsSize;}
 		virtual void OnMouseClick() {}
 		bool MouseButtonDown(ImGuiMouseButton Button) { return m_MouseButtonDown[Button];}
-		bool MouseButtonCliked(ImGuiMouseButton Button) { return m_MouseButtonClicked[Button];}
+		bool MouseButtonReleased(ImGuiMouseButton Button) { return m_MouseButtonReleased[Button];}
 	protected:
 		void UpdateMouseEvent();
 		void PreInitWindow();
@@ -27,6 +27,6 @@ namespace Zero
 		bool m_bWindowsFocused = false;
 		bool m_bWindowsHoverd = false;
 		bool m_MouseButtonDown[3] = {false, false, false};
-		bool m_MouseButtonClicked[3] = {false, false, false};
+		bool m_MouseButtonReleased[3] = {false, false, false};
 	};
 }	

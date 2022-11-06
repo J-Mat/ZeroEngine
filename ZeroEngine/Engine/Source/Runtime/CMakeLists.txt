@@ -15,6 +15,7 @@ target_include_directories(${ProjectName}
 
 target_link_libraries(${ProjectName}
     PUBLIC stb_image
+	PUBLIC tinyxml2
 	PUBLIC assimp
 	PUBLIC imgui
 	PUBLIC ImGuizmo

@@ -138,7 +138,7 @@ namespace Zero
 
 	void FViewportPanel::OnMouseClick()
 	{
-		if (MouseButtonCliked(ImGuiMouseButton_::ImGuiMouseButton_Left))
+		if (MouseButtonReleased(ImGuiMouseButton_::ImGuiMouseButton_Left))
 		{
 			ZMath::FRay Ray = GetProjectionRay();
 			UActor* Actor = UWorld::GetCurrentWorld()->PickActorByMouse(Ray);

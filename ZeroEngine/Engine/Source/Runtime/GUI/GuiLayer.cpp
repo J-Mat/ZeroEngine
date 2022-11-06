@@ -42,13 +42,13 @@ namespace Zero
 		ImGui::NewFrame();
 		ImGuizmo::BeginFrame();
 
-		FApplication::Get().OnGuiRender();
-
-		ImGui::Render();
 	}
 
 	void FGuiLayer::OnDraw()
 	{
+		FApplication::Get().OnGuiRender();
+
+		ImGui::Render();
 		DrawCall();
 		//ImGui::EndFrame();
 	}

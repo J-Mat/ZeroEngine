@@ -23,8 +23,6 @@ namespace Zero
 		m_World = UWorld::CreateWorld();
 		m_World->SetDevice(FRenderer::GetDevice());
 		UWorld::SetCurrentWorld(m_World);
-		
-	//	UCustomMeshActor* MeshActor = m_World->CreateActor<UCustomMeshActor>("sphere.fbx");
 
 		m_CameraController = CreateRef<FEditorCameraController>(m_World->GetMainCamera());
 

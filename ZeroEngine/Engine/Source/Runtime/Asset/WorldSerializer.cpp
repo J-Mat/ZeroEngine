@@ -6,24 +6,6 @@
 
 namespace Zero
 {
-
-	std::set<std::string> FWorldSerializer::s_AllSimpleType =
-	{
-		"bool",
-		"int",  
-		"std::string",
-		"string",
-		"uint32_t",
-		"int32_t",
-		"ZMath::vec3",
-		"ZMath::vec4",
-		"ZMath::FColor4",
-		"ZMath::FColor3",
-		"ZMath::FRotation",
-		"float",
-		"double"
-	};
-
 	FWorldSerializer::FWorldSerializer(UWorld* World)
 		: m_World(World)
 	{
@@ -102,7 +84,7 @@ namespace Zero
 		Out << YAML::Key << "Properties" << YAML::Value << YAML::BeginMap;
 		while (Property != nullptr)
 		{
-			if (s_AllSimpleType.contains(Property->GetPropertyType()))
+			if (Utils::CodeReflectionTypes.contains(Property->GetPropertyType()))
 			{
 				std::string PropertyNameWithClassName = std::format("{0}:{1}", Property->GetPropertyName(), Property->GetBelongClassName());
 				Out << YAML::Key << PropertyNameWithClassName << YAML::Value << YAML::BeginMap;
@@ -122,7 +104,7 @@ namespace Zero
 		UProperty* Property = Componnet->GetClassCollection().HeadProperty;
 		while (Property != nullptr)
 		{
-			if (s_AllSimpleType.contains(Property->GetPropertyType()))
+			if (Utils::CodeReflectionTypes.contains(Property->GetPropertyType()))
 			{
 				std::string PropertyNameWithClassName = std::format("{0}:{1}", Property->GetPropertyName(), Property->GetBelongClassName());
 				Out << YAML::Key << PropertyNameWithClassName << YAML::Value << YAML::BeginMap;

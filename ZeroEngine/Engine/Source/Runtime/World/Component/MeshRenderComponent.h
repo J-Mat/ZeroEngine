@@ -25,5 +25,8 @@ namespace Zero
 		uint32_t m_SubmeshNum = 0;
 		
 		std::string m_ShaderFile = "ForwardLit.hlsl";
+		
+		UPROPERTY()
+		FMaterialConfig m_MaterialConfig;
 	};
 }

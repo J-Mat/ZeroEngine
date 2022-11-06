@@ -17,6 +17,7 @@ namespace Zero
 		UCoreObject(FRawInitFlag Flag) {};
 		UCoreObject();
 		virtual ~UCoreObject();
+		virtual void Destroy() {};
 		static UCoreObject* GetObjByGuid(const Utils::Guid& Guid);
 		bool IsTick()const { return m_bTick; }
 		virtual inline void SetOuter(UCoreObject* InNewOuter);

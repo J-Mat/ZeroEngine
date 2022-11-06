@@ -19,11 +19,13 @@ namespace Zero
 		UClassProperty* AddClassProperty(const std::string& ClassName, const std::string& PropertyName, void* Data, const std::string& PropertyType, uint32_t PropertySize);
 		
 		UProperty* FindProperty(const std::string PropertyName);
+		
+		bool RemoveTailProperty();
+		
+		void RemoveAllProperties();
 
 		template<class T, typename ... Args>
 		inline T* ConstructProperty(Args&& ... args);
-		
-		
 
 		bool FindMetas(const std::string Key, std::string& Value);
 		bool HasField(const std::string Field);

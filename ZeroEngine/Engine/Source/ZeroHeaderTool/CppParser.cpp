@@ -281,8 +281,7 @@ namespace ZHT
 			return { Stream.str(), LineIndex };
 		}
 
-		static std::set<std::string> SimpleType = { "bool","int", "std::string", "string", "uint32_t", "int32_t", "ZMath::vec3", "ZMath::vec4", "ZMath::FColor4", "ZMath::FColor3", "ZMath::FRotation","float", "double"};
-		if (SimpleType.contains(CurTokenName))
+		if (Zero::Utils::CodeReflectionTypes.contains(CurTokenName))
 		{
 			return m_Tokens[TokenIndex];
 		}
