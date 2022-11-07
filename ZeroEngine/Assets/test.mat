@@ -1,0 +1,7 @@
+{
+    "ShaderFile": "ForwardList.hlsl",
+    "Textures": {
+        "gDiffuseMap": null,
+        "gNormalMap": null
+    }
+}
