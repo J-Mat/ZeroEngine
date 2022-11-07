@@ -6,6 +6,7 @@
 #include "Dialog/DialogUtils.h"
 #include "Asset/WorldSerializer.h"
 #include "Editor.h"
+#include "Colors.h"
 
 namespace Zero
 {
@@ -16,6 +17,7 @@ namespace Zero
 		FRenderer::GetDevice()->PreInitWorld();
 		RegisterEditPanel();
 		BuildWorld();
+		
 	}
 
 	void FEditorLayer::BuildWorld()
@@ -30,6 +32,10 @@ namespace Zero
 		m_ScriptablePipeline->PushLayer(ForwardRendering);
 
 		FShaderRegister::GetInstance().RegisterDefaultShader();
+
+		Ref<FImage> Image = CreateRef<FImage>(64, 64, 4, Utils::Colors::White);
+		FRenderer::GraphicFactroy->CreateTexture2D(Image, "default");
+		//FRenderer::GraphicFactroy->CreateTexture2D("yayi.png");
 	}
 
 	void FEditorLayer::RegisterEditPanel()

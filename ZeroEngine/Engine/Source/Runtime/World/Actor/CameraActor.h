@@ -22,6 +22,6 @@ namespace Zero
 	private:
 		UCameraComponent* m_CameraComponent = nullptr;
 		UPROPERTY()
-		bool m_bool = true;
+		FTextureHandle m_Texture = "";
 	};
 }

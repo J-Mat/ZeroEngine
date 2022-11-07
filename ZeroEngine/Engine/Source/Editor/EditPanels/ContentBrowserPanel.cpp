@@ -9,11 +9,11 @@ namespace Zero
 		m_SelectedFolder.clear();
 		m_SelectedFile.clear();
 
-		m_FolderIcon = FEditor::CreateIcon("folder.png");
-		m_ShaderIcon = FEditor::CreateIcon("shader.png");
-		m_ImageIcon = FEditor::CreateIcon("image.png");
-		m_ModelIcon = FEditor::CreateIcon("model.png");
-		m_FileIcon = FEditor::CreateIcon("file.png");
+		m_FolderIcon = FEditor::CreateIcon("Content/folder.png");
+		m_ShaderIcon = FEditor::CreateIcon("Content/shader.png");
+		m_ImageIcon = FEditor::CreateIcon("Content/image.png");
+		m_ModelIcon = FEditor::CreateIcon("Content/model.png");
+		m_FileIcon = FEditor::CreateIcon("Content/file.png");
 	}
 	void FContentBrowserPanel::ProjectViewerSystemPrintChildren(std::filesystem::path Folder)
 	{
@@ -83,6 +83,12 @@ namespace Zero
 		ImGui::Separator();
 	}
 
+	bool FContentBrowserPanel::IsTexture(const std::filesystem::path& File)
+	{
+		const std::string FileName = File.string();
+		return FileName.ends_with(".png") || FileName.ends_with(".jpg") || FileName.ends_with(".tga");
+	}
+
 	Ref<FTexture2D> FContentBrowserPanel::GetIcon(const std::filesystem::path& File)
 	{
 		const std::string FileName = File.string();
@@ -96,7 +102,6 @@ namespace Zero
 		if (FileName.ends_with(".png") || FileName.ends_with(".jpg") || FileName.ends_with(".tga"))
 		{
 			auto Texture = FRenderer::GraphicFactroy->CreateTexture2D(File.filename().string());
-			Texture->RegistGuiShaderResource();
 			return Texture;
 		}
 		return m_FileIcon;
@@ -128,7 +133,7 @@ namespace Zero
 			std::string FilePathStr = Child.filename().string();
 			ImGui::PushID(FilePathStr.c_str());
 			
-			Ref<FTexture2D> IconTexture = std::filesystem::is_directory(Child) ? m_FileIcon : GetIcon(Child);
+			Ref<FTexture2D> IconTexture = std::filesystem::is_directory(Child) ? m_FolderIcon : GetIcon(Child);
 			ImTextureID TextureID = (ImTextureID)IconTexture->GetGuiShaderReseource();
 			ImVec4 Tint = m_SelectedFile == Child ? ImVec4{ 0.65f, 0.65f, 1.0f, 1.f } : ImVec4{ 1,1,1,1 };
 			if (m_SelectedFile == Child)
@@ -144,11 +149,19 @@ namespace Zero
 			{
 				DropDragType = ASSEST_PANEL_OBJ;
 			}
+			else if (IsTexture(Child))
+			{
+				DropDragType = ASSEST_PANEL_IMAGE;
+			}
+			else
+			{
+				DropDragType = ASSEST_PANEL_FILE;
+			}
 			
 			
 			if (ImGui::BeginDragDropSource())
 			{
-				ImGui::Image(TextureID, ButtonSize, { 0,0 }, { 1,1 }	, Style.Colors[ImGuiCol_WindowBg], Tint);
+				//ImGui::Image(TextureID, ButtonSize, { 0,0 }, { 1,1 });
 				ImGui::TextWrapped(FileName.c_str());
 				const char* ItemPath = FilePathStr.c_str();
 				ImGui::SetDragDropPayload(DropDragType, ItemPath, FilePathStr.length() + 1);

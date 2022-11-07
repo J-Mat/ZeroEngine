@@ -9,6 +9,7 @@
 #include "Widgets/ActorDetailsMapping.h"
 #include "Widgets/Color3DetailsMapping.h"
 #include "Widgets/Color4DetailsMapping.h"
+#include "Widgets/TextureDetailsMapping.h"	
 #include "Editor.h"
 
 namespace Zero
@@ -23,6 +24,7 @@ namespace Zero
 		DetailMappingManager.RegisterVariableMapping("float",FFloatDetailsMapping::MakeDetailMapping());
 		DetailMappingManager.RegisterVariableMapping("ZMath::FColor3", FColor3DetailsMapping::MakeDetailMapping());
 		DetailMappingManager.RegisterVariableMapping("ZMath::FColor4", FColor4DetailsMapping::MakeDetailMapping());
+		DetailMappingManager.RegisterVariableMapping("FTextureHandle", FTextureDetailsMapping::MakeDetailMapping());
 		DetailMappingManager.RegisterClassMapping(FActorDetailsMapping::MakeDetailMapping());
 	}
 	void FDetailPanel::OnGuiRender()

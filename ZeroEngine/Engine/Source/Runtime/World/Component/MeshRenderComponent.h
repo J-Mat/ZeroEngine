@@ -27,6 +27,6 @@ namespace Zero
 		std::string m_ShaderFile = "ForwardLit.hlsl";
 		
 		UPROPERTY()
-		FMaterialConfig m_MaterialConfig;
+		FMaterialHandle m_MaterialHandle;
 	};
 }

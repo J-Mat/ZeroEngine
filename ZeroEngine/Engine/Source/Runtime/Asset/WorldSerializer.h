@@ -14,17 +14,9 @@ namespace Zero
 	{
 	public:
 		FWorldSerializer(UWorld* World);
-		void ImportValue(YAML::Emitter& Out, UProperty* CurrentProperty);
-		void ExporttValue(YAML::Node& Data, UProperty* CurrentProperty);
-		void SerializeVariableProperties(YAML::Emitter& Out, UCoreObject* Actor);
-		void SerializeComponent(YAML::Emitter& Out, UComponent* Componnet);
 		void Serialize(const std::filesystem::path Path);
-		
-		void DeserializeVariablePrperties(YAML::Node& Data, UCoreObject* CoreObject);
-		bool DeserializeComponents(YAML::Node& Data, UActor* Actor);
 		bool Deserialize(const std::filesystem::path Path);
 	private:
 		UWorld* m_World;
-		UProperty* m_CurrentProperty;
 	};
 }

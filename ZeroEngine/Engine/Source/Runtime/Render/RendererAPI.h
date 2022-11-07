@@ -91,7 +91,7 @@ namespace Zero
 		virtual Ref<IShaderResourcesBuffer> CreateShaderResourceBuffer(FShaderResourcesDesc& Desc, IRootSignature* RootSignature) = 0;
 		virtual Ref<IShader> CreateShader(const std::string& FileName, const FShaderBinderDesc& BinderDesc, const FShaderDesc& ShaderDesc) = 0;
 		virtual Ref<FTexture2D> CreateTexture2D(const std::string& FileName) = 0;
-		virtual Ref<FTexture2D> CreateTexture2D(Ref<FImage> Image) = 0;
+		virtual Ref<FTexture2D> CreateTexture2D(Ref<FImage> Image, std::string ImageName) = 0;
 		virtual Ref<FRenderTarget> CreateRenderTarget(FRenderTargetDesc Desc) = 0;
 		virtual Ref<FTexture2D> CreateDepthStencilTexture(uint32_t Width, uint32_t Height, const std::string& Name) = 0;
 	};
@@ -163,22 +163,37 @@ namespace Zero
 		}
 
 
-		virtual Ref<FTexture2D> CreateTexture2D(Ref<FImage> Image)
+		virtual Ref<FTexture2D> CreateTexture2D(Ref<FImage> Image, std::string ImageName)
 		{
-			return CreateRef<FDX12Texture2D>(Image);
+			Ref<FTexture2D> Texture = CreateRef<FDX12Texture2D>(Image);
+#if	EDITOR_MODE
+			Texture->RegistGuiShaderResource();
+#endif
+			TLibrary<FTexture2D>::Push(ImageName, Texture);
+			return Texture;
 		}
 
 		virtual Ref<FTexture2D> CreateTexture2D(const std::string& FileName)
 		{
 			std::filesystem::path TextureFileName = FileName;
-			Ref<FTexture2D> Texture = TLibrary<FTexture2D>::Fetch(TextureFileName.stem().string());
+			Ref<FTexture2D> Texture = TLibrary<FTexture2D>::Fetch(FileName);
 			if (Texture == nullptr)
 			{
 				std::filesystem::path TexturePath = ZConfig::GetTextureFullPath(FileName);
-				Ref<FImage> Image = CreateRef<FImage>(TexturePath.string());
-				Texture = CreateRef<FDX12Texture2D>(Image);
-				std::cout << TextureFileName.stem().string() << std::endl;
-				TLibrary<FTexture2D>::Push(TextureFileName.stem().string(), Texture);
+				if (std::filesystem::exists(TexturePath))
+				{
+					Ref<FImage> Image = CreateRef<FImage>(TexturePath.string());
+					Texture = CreateRef<FDX12Texture2D>(Image);
+					std::cout << FileName << std::endl;
+					TLibrary<FTexture2D>::Push(FileName, Texture);
+#if	EDITOR_MODE
+					Texture->RegistGuiShaderResource();
+#endif
+				}
+				else
+				{
+					return nullptr;
+				}
 			}
 			return Texture;
 		}

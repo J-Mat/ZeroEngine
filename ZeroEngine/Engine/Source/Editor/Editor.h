@@ -4,6 +4,8 @@
 #include "EditPanels/BasePanel.h"
 
 #define ASSEST_PANEL_OBJ "Assests_Obj"
+#define ASSEST_PANEL_IMAGE "Assests_Image"
+#define ASSEST_PANEL_FILE "Assests_File"
 #define PLACEOBJ_PANEL "PlaceActor"
 
 namespace Zero
@@ -14,9 +16,7 @@ namespace Zero
 	public:
 		static Ref<FTexture2D> CreateIcon(const std::string&& FileName)
 		{
-			Ref<FImage> Image = CreateRef<FImage>(ZConfig::GetEditorContentFullPath(FileName).string());
-			auto Icon = FRenderer::GraphicFactroy->CreateTexture2D(Image);
-			Icon->RegistGuiShaderResource();
+			auto Icon = FRenderer::GraphicFactroy->CreateTexture2D(FileName);
 			return Icon;
 		}
 		static UActor* SelectedActor;

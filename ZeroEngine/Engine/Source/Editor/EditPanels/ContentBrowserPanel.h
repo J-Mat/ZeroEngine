@@ -21,6 +21,7 @@ namespace Zero
 		Ref<FTexture2D> m_ModelIcon;
 		Ref<FTexture2D> m_FileIcon;
 	private:
+		bool IsTexture(const std::filesystem::path& File);
 		Ref<FTexture2D> GetIcon(const std::filesystem::path& File);
 		void PrintFolder();
 		void PrintFiles();

@@ -10,7 +10,7 @@ namespace Zero
         {
             while (Property != nullptr)
             {
-                Ref<FVariableDetailsMapping> VariableDetailsMapping =  FDetailMappingManager::GetInstance().FindPropertyMapping(Property->GetPropertyType());
+                Ref<FVariableDetailsMapping> VariableDetailsMapping = FDetailMappingManager::GetInstance().FindPropertyMapping(Property->GetPropertyType());
                 if (VariableDetailsMapping != nullptr && !Property->GetClassCollection().HasField("Invisible"))
                 {
                     VariableDetailsMapping->UpdateDetailsWidget(Property);

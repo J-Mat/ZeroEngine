@@ -44,7 +44,9 @@ namespace Zero
 			"ZMath::FRotation",
 			"float",
 			"double",
-			"FMaterialConfig"
+			"FTextureHandle",
+			"FMaterialHandle",
+			"std::filesystem::path",
 		};
 
 		static inline std::string WString2String(const std::wstring& Input)

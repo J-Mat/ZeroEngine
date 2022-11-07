@@ -79,5 +79,6 @@ namespace Zero
 		return std::make_shared<T>(std::forward<Args>(args)...);
 	}
 	using FJsonObj = nlohmann::json;
-	using FImagePath = std::string;
+	using FTextureHandle = std::string;
+	using FMaterialHandle = std::string;
 }

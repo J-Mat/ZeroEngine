@@ -2,6 +2,9 @@
 
 #include "yaml-cpp/yaml.h"
 #include "Utils/Math/ZMath.h"
+#include "World/Base/PropertyObject.h"
+#include "World/Actor/Actor.h"
+#include "World/Component/Component.h"
 
 
 namespace YAML
@@ -59,8 +62,6 @@ namespace YAML
 
 namespace Zero
 {
-	//class TriangleMesh;
-
 	static YAML::Emitter& operator<<(YAML::Emitter& out, const Zero::ZMath::vec3& v)
 	{
 		out << YAML::Flow;
@@ -74,6 +75,18 @@ namespace Zero
 		out << YAML::BeginSeq << v.x << v.y << v.z << v.w << YAML::EndSeq;
 		return out;
 	}
+}
 
-	//YAML::Emitter& operator<<(YAML::Emitter& out, Ref<TriangleMesh> mesh);
+namespace Zero
+{
+	class FSerializeUtility
+	{
+	public:
+		static void ImportValue(YAML::Emitter& Out, UProperty* Property);
+		static void ExporttValue(YAML::Node& Data, UProperty* CurrentProperty);
+		static void SerializeVariableProperties(YAML::Emitter& Out, UCoreObject* CoreObject);
+		static void SerializeComponent(YAML::Emitter& Out, UComponent* Componnet);
+		static void DeserializeVariablePrperties(YAML::Node& Data, UCoreObject* CoreObject);
+		static bool DeserializeComponents(YAML::Node& Data, UActor* Actor);
+	};
 }

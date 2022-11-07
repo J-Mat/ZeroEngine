@@ -9,21 +9,6 @@ namespace Zero
 		AlphaBlend,
 	};
 
-	class FMaterialConfig :public FJsonObj
-	{
-	public:
-		FMaterialConfig() {};
-		FMaterialConfig(FJsonObj& JsonObj)
-		{
-			
-		}
-	private:
-		std::string GetShaderFile() { return (*this)["ShaderFile"].get<std::string>(); }
-		FMaterialConfig& GetTextures() {return  (*this)["Textures"] };
-		std::map<std::string, FYoe g on>
-	};
-
-
 	struct FPipelineStateDesc
 	{
 		EAlphaState AlphaState;

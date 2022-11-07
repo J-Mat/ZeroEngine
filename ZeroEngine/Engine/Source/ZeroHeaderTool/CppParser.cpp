@@ -85,6 +85,10 @@ namespace ZHT
 				}
 			}
 			INCREASE_INDEX;
+			if (Steam.str() == "<<")
+			{
+				break;
+			}
 		}
 		m_Tokens.push_back({ Steam.str(), m_CurLineIndex });
 	}
