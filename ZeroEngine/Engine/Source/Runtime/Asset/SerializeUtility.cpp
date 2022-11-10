@@ -36,6 +36,8 @@ namespace Zero
 			Out << YAML::Key << "Value" << YAML::Value << *Property->GetData<float>();
 		else if (Type == "double")
 			Out << YAML::Key << "Value" << YAML::Value << *Property->GetData<double>();
+		else if (Type == "FAssetHandle")
+			Out << YAML::Key << "Value" << YAML::Value << *Property->GetData<FAssetHandle>();
 	}
 
 	void FSerializeUtility::ExporttValue(YAML::Node& Data, UProperty* Property)
@@ -52,12 +54,14 @@ namespace Zero
 			*((bool*)PropertyData) = PropertyNode["Value"].as<bool>();
 		else if (Type == "int")
 			*((int*)PropertyData) = PropertyNode["Value"].as<int>();
-		else if (Type == "string" || 
-			Type == "std::string" || 
-			Type == "FTextureHandle" || 
+		else if (Type == "string" ||
+			Type == "std::string" ||
+			Type == "FTextureHandle" ||
 			Type == "FMaterialHandle" ||
-			Type == "std::filesystem::path")
+			Type == "std::filesystem::path" )
+		{
 			*((std::string*)PropertyData) = PropertyNode["Value"].as<std::string>();
+		}
 		else if (Type == "uint32_t")
 			*((uint32_t*)PropertyData) = PropertyNode["Value"].as<uint32_t>();
 		else if (Type == "int32_t")
@@ -74,6 +78,8 @@ namespace Zero
 			*((float*)PropertyData) = PropertyNode["Value"].as<float>();
 		else if (Type == "double")
 			*((double*)PropertyData) = PropertyNode["Value"].as<double>();
+		else if (Type == "FAssetHandle")
+			*((FAssetHandle*)PropertyData) = FAssetHandle(PropertyNode["Value"].as<std::string>());
 	}
 
 	void FSerializeUtility::SerializeVariableProperties(YAML::Emitter& Out, UCoreObject* CoreObject)

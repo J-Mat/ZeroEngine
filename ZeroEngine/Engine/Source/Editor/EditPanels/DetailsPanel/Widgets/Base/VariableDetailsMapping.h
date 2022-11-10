@@ -7,7 +7,7 @@ namespace Zero
 	class FVariableDetailsMapping : public FDetailsMapping
 	{
 	public:
-		virtual bool UpdateDetailsWidget(UProperty* InProperty) { return false; }
+		virtual bool UpdateDetailsWidget(UProperty* InProperty);
 		static Ref<FVariableDetailsMapping> MakeDetailMapping() { return nullptr; }
 	};
 }

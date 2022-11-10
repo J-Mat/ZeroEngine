@@ -47,6 +47,7 @@ namespace Zero
 			"FTextureHandle",
 			"FMaterialHandle",
 			"std::filesystem::path",
+			"FAssetHandle"
 		};
 
 		static inline std::string WString2String(const std::wstring& Input)

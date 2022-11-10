@@ -1,6 +1,10 @@
 #include "Color3DetailsMapping.h"
 
-bool Zero::FColor3DetailsMapping::UpdateDetailsWidget(UProperty* Property)
+namespace Zero
 {
-    return ImGui::ColorEdit3(Property->GetEditorPropertyName(), (float*)Property->GetData<ZMath::FColor3>());
+	bool FColor3DetailsMapping::UpdateDetailsWidget(UProperty* Property)
+	{
+		FVariableDetailsMapping::UpdateDetailsWidget(Property);
+		return ImGui::ColorEdit3(Property->GetEditorPropertyName(), (float*)Property->GetData<ZMath::FColor3>());
+	}
 }

@@ -81,4 +81,5 @@ namespace Zero
 	using FJsonObj = nlohmann::json;
 	using FTextureHandle = std::string;
 	using FMaterialHandle = std::string;
+	using FAssetHandle = Utils::Guid;
 }

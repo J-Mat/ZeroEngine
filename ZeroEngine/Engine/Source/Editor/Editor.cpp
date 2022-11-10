@@ -5,6 +5,8 @@
 
 namespace Zero
 {
+	Ref<FTexture2D> FEditor::m_HasMaterialtexutre = nullptr;
+	Ref<FTexture2D> FEditor::m_NullMaterialtexutre = nullptr;
 	UActor* FEditor::SelectedActor = nullptr;
 	std::map<std::string, Ref<FBasePanel>> FEditor::AllPanels;
 	Ref<FBasePanel> FEditor::GetPanelByName(const std::string& PanelName)

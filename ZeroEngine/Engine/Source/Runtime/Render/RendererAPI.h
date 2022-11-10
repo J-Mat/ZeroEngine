@@ -155,7 +155,7 @@ namespace Zero
 			Ref<IShader> Shader = TLibrary<IShader>::Fetch(FileName);
 			if (Shader == nullptr)
 			{
-				std::filesystem::path ShaderPath = ZConfig::GetShaderFullPath(FileName);
+				std::filesystem::path ShaderPath = ZConfig::GetAssestsFullPath(FileName);
 				Shader = CreateRef<FDX12Shader>(ShaderPath.string(), BinderDesc, ShaderDesc);
 				TLibrary<IShader>::Push(FileName, Shader);
 			}
@@ -179,7 +179,7 @@ namespace Zero
 			Ref<FTexture2D> Texture = TLibrary<FTexture2D>::Fetch(FileName);
 			if (Texture == nullptr)
 			{
-				std::filesystem::path TexturePath = ZConfig::GetTextureFullPath(FileName);
+				std::filesystem::path TexturePath = ZConfig::GetAssestsFullPath(FileName);
 				if (std::filesystem::exists(TexturePath))
 				{
 					Ref<FImage> Image = CreateRef<FImage>(TexturePath.string());

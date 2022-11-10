@@ -86,7 +86,7 @@ namespace Zero
 		UWorld* World = UWorld::GetCurrentWorld();
 		if (ImGui::BeginDragDropTarget())
 		{
-			if (const ImGuiPayload* Payload = ImGui::AcceptDragDropPayload(ASSEST_PANEL_OBJ))
+			if (const ImGuiPayload* Payload = ImGui::AcceptDragDropPayload(ASSET_PANEL_OBJ))
 			{
 				std::string Path = (const char*)Payload->Data;
 				ZMath::FRay Ray = GetProjectionRay();

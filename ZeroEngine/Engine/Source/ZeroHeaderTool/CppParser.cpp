@@ -20,8 +20,7 @@ Stream.str("");
 
 namespace ZHT
 {
-	void FFileParser::ParseWhiteSpace()
-	{
+	void FFileParser::ParseWhiteSpace() {
 		while (CUR_CHAR == ' ' || CUR_CHAR == '\t' || CUR_CHAR == '\n' || CUR_CHAR == '\r')
 		{
 			if (CUR_CHAR == '\n')

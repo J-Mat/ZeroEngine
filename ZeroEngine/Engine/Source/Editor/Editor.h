@@ -3,9 +3,12 @@
 #include <ZeroEngine.h>
 #include "EditPanels/BasePanel.h"
 
-#define ASSEST_PANEL_OBJ "Assests_Obj"
-#define ASSEST_PANEL_IMAGE "Assests_Image"
-#define ASSEST_PANEL_FILE "Assests_File"
+#define ASSET_PANEL_OBJ "Assests_Obj"
+#define ASSET_PANEL_IMAGE "Assests_Image"
+#define ASSET_PANEL_SHADER "Assests_Shader"
+#define ASSET_PANEL_FILE "Assests_File"
+#define ASSET_PANEL_SCENE "Assests_Scene"
+#define ASSET_PANEL_MATERIAL "Assests_Material"
 #define PLACEOBJ_PANEL "PlaceActor"
 
 namespace Zero
@@ -24,6 +27,8 @@ namespace Zero
 		static Ref<FBasePanel> GetPanelByName(const std::string& PanelName);
 		static void RegisterPanel(const std::string& PanelName, Ref<FBasePanel> Panel);
 		static void DrawAllPanels();
-
+		static Ref<FTexture2D> GetMaterialSlotTexture(bool bHasMaterial) { return bHasMaterial ? m_HasMaterialtexutre : m_NullMaterialtexutre; }
+		static Ref<FTexture2D> m_HasMaterialtexutre;
+		static Ref<FTexture2D> m_NullMaterialtexutre;
 	};
 }

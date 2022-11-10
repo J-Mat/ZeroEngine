@@ -1,0 +1,13 @@
+AssetName: Texture\NewMaterial.mtl
+ObjectName: UMaterialAsset
+AssetFormat: mat
+Properties:
+  m_AssetHandle:UAsset:
+    Type: FAssetHandle
+    Value: 4464a471-f53a-40fe-a3fc-96847e56b5d3
+  m_AssetName:UAsset:
+    Type: std::string
+    Value: Texture\NewMaterial.mtl
+  m_Diffuse:UMaterialAsset:
+    Type: FTextureHandle
+    Value: default

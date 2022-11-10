@@ -17,6 +17,6 @@ namespace Zero
 
 	public:
 		UPROPERTY()
-		FTextureHandle m_Diffuse = "";
+		FTextureHandle m_Diffuse = "default";
 	};
 }

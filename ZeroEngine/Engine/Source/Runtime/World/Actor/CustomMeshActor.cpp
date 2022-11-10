@@ -17,7 +17,7 @@ namespace Zero
 	void UCustomMeshActor::BuildMesh()
 	{
 		auto& MeshDatas =  m_MeshVertexComponent->GetMeshDatas();
-		FMeshGenerator::GetInstance().CreateCustomModel(MeshDatas, ZConfig::GetObjFullPath(m_FileName).string(), FVertexBufferLayout::s_DefaultVertexLayout);
+		FMeshGenerator::GetInstance().CreateCustomModel(MeshDatas, ZConfig::GetAssestsFullPath(m_FileName).string(), FVertexBufferLayout::s_DefaultVertexLayout);
 		
 		m_MeshVertexComponent->CreateMesh();
 	}

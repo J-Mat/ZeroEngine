@@ -1,19 +1,27 @@
 #include "ContentBrowserPanel.h"
 #include "ZConfig.h"
 #include "Editor.h"
+#include "Asset/AssetManager.h"
+#include "Asset/AssetObject/MaterialAsset.h"
 
 namespace Zero
 {
-	void FContentBrowserPanel::Init()
+	FContentBrowserPanel::FContentBrowserPanel()
 	{
 		m_SelectedFolder.clear();
 		m_SelectedFile.clear();
 
-		m_FolderIcon = FEditor::CreateIcon("Content/folder.png");
-		m_ShaderIcon = FEditor::CreateIcon("Content/shader.png");
-		m_ImageIcon = FEditor::CreateIcon("Content/image.png");
-		m_ModelIcon = FEditor::CreateIcon("Content/model.png");
-		m_FileIcon = FEditor::CreateIcon("Content/file.png");
+		m_FolderIcon = FEditor::CreateIcon("EditorRes/folder.png");
+		m_ShaderIcon = FEditor::CreateIcon("EditorRes/shader.png");
+		m_ImageIcon = FEditor::CreateIcon("EditorRes/image.png");
+		m_ModelIcon = FEditor::CreateIcon("EditorRes/model.png");
+		m_FileIcon = FEditor::CreateIcon("EditorRes/file.png");
+		m_SceneIcon = FEditor::CreateIcon("EditorRes/scene.png");
+		FEditor::m_HasMaterialtexutre =  m_MaterialIcon = FEditor::CreateIcon("EditorRes/material.png");
+		FEditor::m_NullMaterialtexutre = FEditor::CreateIcon("EditorRes/none.png");
+	}
+	void FContentBrowserPanel::Init()
+	{
 	}
 	void FContentBrowserPanel::ProjectViewerSystemPrintChildren(std::filesystem::path Folder)
 	{
@@ -52,7 +60,7 @@ namespace Zero
 		}
 	}
 
-	void FContentBrowserPanel::PrintFolder()
+	void FContentBrowserPanel::DisplayFolder()
 	{
 		auto CurPath = m_SelectedFolder;
 		std::vector<std::filesystem::path> Paths;
@@ -93,21 +101,40 @@ namespace Zero
 	{
 		const std::string FileName = File.string();
 		if (FileName.ends_with(".hlsl"))
+		{
+			m_DragType = ASSET_PANEL_SHADER;
 			return m_ShaderIcon;
+		}
 
 		if (FileName.ends_with(".obj") || FileName.ends_with(".fbx"))
+		{
+			m_DragType = ASSET_PANEL_OBJ;
 			return m_ModelIcon;
+		}
+
+		if (FileName.ends_with(".scene"))
+		{
+			m_DragType = ASSET_PANEL_FILE;
+			return m_SceneIcon;
+		}
+		if (FileName.ends_with(".mtl"))
+		{
+			m_DragType = ASSET_PANEL_MATERIAL;
+			return m_MaterialIcon;
+		}
 	
 
 		if (FileName.ends_with(".png") || FileName.ends_with(".jpg") || FileName.ends_with(".tga"))
 		{
-			auto Texture = FRenderer::GraphicFactroy->CreateTexture2D(File.filename().string());
+			m_DragType = ASSET_PANEL_IMAGE;
+			auto Texture = FRenderer::GraphicFactroy->CreateTexture2D(m_AssetPath.string());
 			return Texture;
 		}
 		return m_FileIcon;
 	}
 
-	void FContentBrowserPanel::PrintFiles()
+
+	void FContentBrowserPanel::DisplayFiles()
 	{
 		ImGuiStyle& Style = ImGui::GetStyle();
 		static ImVec2 ButtonSize(64, 64);
@@ -129,42 +156,29 @@ namespace Zero
 		for (size_t i = 0; i < Paths.size(); ++i)
 		{
 			ImGui::BeginGroup();
-			auto& Child = Paths[i];
-			std::string FilePathStr = Child.filename().string();
-			ImGui::PushID(FilePathStr.c_str());
+			auto& Path = Paths[i];
+			std::string FileName = Path.filename().string();
+			ImGui::PushID(FileName.c_str());
 			
-			Ref<FTexture2D> IconTexture = std::filesystem::is_directory(Child) ? m_FolderIcon : GetIcon(Child);
+			m_DragType = "";
+			m_AssetPath = ZConfig::GetAssetReletivePath(Path);
+			Ref<FTexture2D> IconTexture = std::filesystem::is_directory(Path) ? m_FolderIcon : GetIcon(Path);
 			ImTextureID TextureID = (ImTextureID)IconTexture->GetGuiShaderReseource();
-			ImVec4 Tint = m_SelectedFile == Child ? ImVec4{ 0.65f, 0.65f, 1.0f, 1.f } : ImVec4{ 1,1,1,1 };
-			if (m_SelectedFile == Child)
+			ImVec4 Tint = m_SelectedFile == Path ? ImVec4{ 0.65f, 0.65f, 1.0f, 1.f } : ImVec4{ 1,1,1,1 };
+			if (m_SelectedFile == Path)
 				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 1));
 			else
 				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 1));
 						
 			ImGui::ImageButton(TextureID, ButtonSize, { 0,0 }, { 1,1 }, 0, Style.Colors[ImGuiCol_WindowBg], Tint);
-			std::string FileName = Child.stem().string();
-
-			char* DropDragType = "";
-			if (IconTexture == m_ModelIcon)
+	
+			std::string AssetPathStr = m_AssetPath.string();
+			if (m_DragType != "" && ImGui::BeginDragDropSource())
 			{
-				DropDragType = ASSEST_PANEL_OBJ;
-			}
-			else if (IsTexture(Child))
-			{
-				DropDragType = ASSEST_PANEL_IMAGE;
-			}
-			else
-			{
-				DropDragType = ASSEST_PANEL_FILE;
-			}
-			
-			
-			if (ImGui::BeginDragDropSource())
-			{
-				//ImGui::Image(TextureID, ButtonSize, { 0,0 }, { 1,1 });
-				ImGui::TextWrapped(FileName.c_str());
-				const char* ItemPath = FilePathStr.c_str();
-				ImGui::SetDragDropPayload(DropDragType, ItemPath, FilePathStr.length() + 1);
+				ImGui::Image(TextureID, ButtonSize);
+				ImGui::TextWrapped(m_AssetPath.filename().string().c_str());
+				const char* ItemPath = AssetPathStr.c_str();
+				ImGui::SetDragDropPayload(m_DragType.c_str() , ItemPath, strlen(ItemPath) + 1);
 				ImGui::EndDragDropSource();
 			}
 
@@ -172,15 +186,15 @@ namespace Zero
 
 			if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 			{
-				if (std::filesystem::is_directory(Child))
+				if (std::filesystem::is_directory(Path))
 				{
 					m_SelectedFile = "";
-					m_SelectedFolder = Child;
+					m_SelectedFolder = Path;
 				}
 			}
 			if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
 			{
-				m_SelectedFile = Child;
+				m_SelectedFile = Path;
 			}
 
 
@@ -196,6 +210,87 @@ namespace Zero
 		}
 	}
 
+	void FContentBrowserPanel::DisplayAssetMenu()
+	{
+		static bool bShowContentMenu = false;
+		static bool bShowNewMaterial = false;
+		if (!IsMouseOutOfWindow())
+		{
+			if (MouseButtonReleased(ImGuiMouseButton_::ImGuiMouseButton_Right))
+			{
+				bShowContentMenu = true;
+			}
+		}
+		if (bShowContentMenu)
+		{
+			ImGui::OpenPopup("ContentMenu");
+		}
+		if (ImGui::BeginPopup("ContentMenu"))
+		{
+            ImGui::Text("New Asset");
+			ImGui::Separator();
+			if (ImGui::BeginMenu("New"))
+			{
+				if (ImGui::MenuItem("Material"))
+				{
+					bShowNewMaterial = true;
+				}
+				ImGui::EndMenu();
+			}
+			ImGui::Separator();
+			ImGui::EndPopup();
+		}
+		if (MouseButtonReleased(ImGuiMouseButton_::ImGuiMouseButton_Right))
+		{
+			bShowContentMenu = false;
+		}
+
+		if (bShowNewMaterial)
+		{
+			ImGui::OpenPopup("New Material");
+			if (ImGui::BeginPopupModal("New Material"))
+			{
+				ImGui::Text("Type Matrial Name");
+				static char Buffer[256] = "NewMaterial";
+				ImGui::Text("Material Name:");
+				ImGui::SameLine();
+				ImGui::InputText(" ", Buffer, sizeof(Buffer));
+				if (ImGui::Button("OK"))
+				{
+					CreateDefaultMaterial(Buffer);
+					bShowNewMaterial = false;
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::SameLine();
+				if (ImGui::Button("Cancel"))
+				{
+					bShowNewMaterial = false;
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::EndPopup();
+			}
+		}
+	}
+
+	void FContentBrowserPanel::CreateDefaultMaterial(char* AssetTempName)
+	{
+		std::stringstream Stream;
+		Stream << AssetTempName;
+		
+		std::filesystem::path TempAssetPath = m_SelectedFolder / (Stream.str() + ".mtl");
+		while (std::filesystem::exists(TempAssetPath))
+		{
+			Stream.str("");
+			Stream << AssetTempName << "_1";
+			TempAssetPath = m_SelectedFolder / (Stream.str() + ".mtl");
+		}
+		std::filesystem::path AssetPath = ZConfig::GetAssetReletivePath(TempAssetPath);
+		auto* MaterialAsset = FAssetManager::GetInstance().NewAsset<UMaterialAsset>(AssetPath.string());
+		FAssetManager::GetInstance().Serialize(MaterialAsset);
+		auto* Asset = FAssetManager::GetInstance().Remove(AssetPath.string());
+		delete Asset;
+	}
+
 	void FContentBrowserPanel::OnGuiRender()
 	{
 		std::filesystem::path AssetsFolder = ZConfig::AssetsDir;
@@ -208,10 +303,12 @@ namespace Zero
 		
 		if (ImGui::Begin("Assest"))
 		{
+			PreInitWindow();
 			if (!m_SelectedFolder.empty())
 			{
-				PrintFolder();
-				PrintFiles();
+				DisplayFolder();
+				DisplayFiles();
+				DisplayAssetMenu();
 			}
 		}
 		ImGui::End();

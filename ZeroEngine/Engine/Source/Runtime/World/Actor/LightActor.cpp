@@ -18,7 +18,7 @@ namespace Zero
 		default:
 			break;
 		}
-		GetComponent<UMeshRenderComponent>()->SetShader("DirectLight.hlsl");
+		GetComponent<UMeshRenderComponent>()->SetShader("Shader/DirectLight.hlsl");
 	}
 
 	void ULightActor::PostInit()
@@ -31,7 +31,7 @@ namespace Zero
 	void ULightActor::BuildMesh()
 	{
 		auto& MeshDatas =  m_MeshVertexComponent->GetMeshDatas();
-		FMeshGenerator::GetInstance().CreateCustomModel(MeshDatas, ZConfig::GetObjFullPath("direct_light.fbx").string(), FVertexBufferLayout::s_DefaultVertexLayout);
+		FMeshGenerator::GetInstance().CreateCustomModel(MeshDatas, ZConfig::GetAssestsFullPath("Obj/direct_light.fbx").string(), FVertexBufferLayout::s_DefaultVertexLayout);
 		
 		m_MeshVertexComponent->CreateMesh();
 	}

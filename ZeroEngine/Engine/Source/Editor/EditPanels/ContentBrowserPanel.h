@@ -8,7 +8,7 @@ namespace Zero
 	class FContentBrowserPanel : public FBasePanel
 	{
 	public:
-		FContentBrowserPanel() = default;
+		FContentBrowserPanel();
 		virtual void Init() override;
 		virtual void OnGuiRender() override;
 		void ProjectViewerSystemPrintChildren(std::filesystem::path Foler);
@@ -20,10 +20,16 @@ namespace Zero
 		Ref<FTexture2D> m_ImageIcon;
 		Ref<FTexture2D> m_ModelIcon;
 		Ref<FTexture2D> m_FileIcon;
+		Ref<FTexture2D> m_SceneIcon;
+		Ref<FTexture2D> m_MaterialIcon;
+		std::string m_DragType = "";
+		std::filesystem::path m_AssetPath;
 	private:
 		bool IsTexture(const std::filesystem::path& File);
 		Ref<FTexture2D> GetIcon(const std::filesystem::path& File);
-		void PrintFolder();
-		void PrintFiles();
+		void DisplayFolder();
+		void DisplayFiles();
+		void DisplayAssetMenu();
+		void CreateDefaultMaterial(char* AssetTempName);
 	};
 }

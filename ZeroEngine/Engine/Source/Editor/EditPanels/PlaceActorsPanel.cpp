@@ -5,9 +5,9 @@ namespace Zero
 {
     void FPlaceActorsPanel::Init()
     {
-        m_ActroItems.push_back({ FEditor::CreateIcon("Content/cube.png"), "UCubeMeshActor" });
-        m_ActroItems.push_back({ FEditor::CreateIcon("Content/sphere.png"), "USphereMeshActor" });
-        m_ActroItems.push_back({ FEditor::CreateIcon("Content/direct_light.png"), "ULightActor" });
+        m_ActroItems.push_back({ FEditor::CreateIcon("EditorRes/cube.png"), "UCubeMeshActor" });
+        m_ActroItems.push_back({ FEditor::CreateIcon("EditorRes/sphere.png"), "USphereMeshActor" });
+        m_ActroItems.push_back({ FEditor::CreateIcon("EditorRes/direct_light.png"), "ULightActor" });
     }
 
 	void FPlaceActorsPanel::OnGuiRender()

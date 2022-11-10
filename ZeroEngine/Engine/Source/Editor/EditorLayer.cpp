@@ -33,9 +33,8 @@ namespace Zero
 
 		FShaderRegister::GetInstance().RegisterDefaultShader();
 
-		Ref<FImage> Image = CreateRef<FImage>(64, 64, 4, Utils::Colors::White);
+		Ref<FImage> Image = CreateRef<FImage>(ZConfig::GetAssestsFullPath("Texture/DefaultTexture.png").string());
 		FRenderer::GraphicFactroy->CreateTexture2D(Image, "default");
-		//FRenderer::GraphicFactroy->CreateTexture2D("yayi.png");
 	}
 
 	void FEditorLayer::RegisterEditPanel()

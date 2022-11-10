@@ -1,10 +1,11 @@
-#include "TextureDetailsMapping.h"
+#include "TextureHandleDetailsMapping.h"
 #include "Editor.h"
 
 namespace Zero
 {
-	bool FTextureDetailsMapping::UpdateDetailsWidget(UProperty* InProperty)
+	bool FTextureHandleDetailsMapping::UpdateDetailsWidget(UProperty* InProperty)
 	{
+		FVariableDetailsMapping::UpdateDetailsWidget(InProperty);
 		static ImVec2 ButtonSize(64, 64);
 		ImGuiStyle& Style = ImGui::GetStyle();
 		FTextureHandle* TextureHandlePtr = InProperty->GetData<FTextureHandle>();
@@ -22,11 +23,10 @@ namespace Zero
 
 		if (ImGui::BeginDragDropTarget())
 		{
-			if (const ImGuiPayload* Payload = ImGui::AcceptDragDropPayload(ASSEST_PANEL_FILE))
+			if (const ImGuiPayload* Payload = ImGui::AcceptDragDropPayload(ASSET_PANEL_IMAGE))
 			{
 				std::string Path = (const char*)Payload->Data;
-				std::cout << Path << std::endl;
-				//*TextureHandlePtr = Path;
+				*TextureHandlePtr = Path;
 			}
 			ImGui::EndDragDropTarget();
 		}

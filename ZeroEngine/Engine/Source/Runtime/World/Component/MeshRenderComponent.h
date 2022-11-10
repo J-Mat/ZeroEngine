@@ -24,7 +24,7 @@ namespace Zero
 		std::unordered_map<EMeshRenderLayerType, std::vector<Ref<FMaterial>>> m_Materials;
 		uint32_t m_SubmeshNum = 0;
 		
-		std::string m_ShaderFile = "ForwardLit.hlsl";
+		std::string m_ShaderFile = "Shader/ForwardLit.hlsl";
 		
 		UPROPERTY()
 		FMaterialHandle m_MaterialHandle;
