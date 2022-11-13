@@ -4,7 +4,7 @@
 namespace Zero
 {
 
-	void FClassDetailsMapping::UpdateDetailsWidget(UCoreObject* CoreObject)
+	void FClassDetailsMapping::UpdateDetailsWidgetImpl(UCoreObject* CoreObject)
 	{
 	}
 

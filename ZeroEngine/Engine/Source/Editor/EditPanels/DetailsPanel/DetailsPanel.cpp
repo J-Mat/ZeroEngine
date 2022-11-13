@@ -11,6 +11,7 @@
 #include "Widgets/Color4DetailsMapping.h"
 #include "Widgets/TextureHandleDetailsMapping.h"	
 #include "Widgets/MaterialHandleDetailsMapping.h"
+#include "Widgets/AssignedFileDetailsMapping.h"
 #include "Editor.h"
 
 namespace Zero
@@ -27,6 +28,7 @@ namespace Zero
 		DetailMappingManager.RegisterVariableMapping("ZMath::FColor4", FColor4DetailsMapping::MakeDetailMapping());
 		DetailMappingManager.RegisterVariableMapping("FTextureHandle", FTextureHandleDetailsMapping::MakeDetailMapping());
 		DetailMappingManager.RegisterVariableMapping("FMaterialHandle", FMaterialHandleDetailsMapping::MakeDetailMapping());
+		DetailMappingManager.RegisterVariableMapping("FAssignedFile", FAssignedFileDetailsMapping::MakeDetailMapping());
 		DetailMappingManager.RegisterClassMapping(FActorDetailsMapping::MakeDetailMapping());
 	}
 	void FDetailPanel::OnGuiRender()

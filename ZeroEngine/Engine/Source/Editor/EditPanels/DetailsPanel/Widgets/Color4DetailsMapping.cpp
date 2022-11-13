@@ -2,9 +2,8 @@
 
 namespace Zero
 {
-	bool FColor4DetailsMapping::UpdateDetailsWidget(UProperty* Property)
+	void FColor4DetailsMapping::UpdateDetailsWidgetImpl(UProperty* Property)
 	{
-		FVariableDetailsMapping::UpdateDetailsWidget(Property);
-		return ImGui::ColorEdit3(" ", (float*)Property->GetData<ZMath::FColor4>());
+		m_bEdited = ImGui::ColorEdit3(" ", (float*)Property->GetData<ZMath::FColor4>());
 	}
 }

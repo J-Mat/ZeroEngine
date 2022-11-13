@@ -8,8 +8,10 @@ namespace Zero
 	class FMaterialHandleDetailsMapping : public FVariableDetailsMapping
 	{
 	public:
-		virtual bool UpdateDetailsWidget(UProperty* InProperty);
 		static Ref<FVariableDetailsMapping> MakeDetailMapping() { return CreateRef<FMaterialHandleDetailsMapping>(); }
+	private: 
+		virtual void UpdateDetailsWidgetImpl(UProperty* InProperty) override;
+		void CheckMaterialAsset(FMaterialHandle* MaterialHandle);
 	private:
 		UMaterialAsset* m_MaterialAsset = nullptr;
 	};

@@ -214,6 +214,7 @@ namespace Zero
 			FDX12Texture2D* D3DTexture = static_cast<FDX12Texture2D*>(Texture.get());
 			m_SrvDynamicDescriptorHeap->StageDescriptors(Item.SRTIndex, Item.Offset, 1, D3DTexture->GetShaderResourceView());
 			m_Desc.Mapper.SetTextureID(Name); 
+			m_bIsDirty = true;
 		}
 	}
 

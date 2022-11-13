@@ -20,9 +20,11 @@ namespace Zero
 	FMaterial::~FMaterial()
 	{
 	}
+
 	void FMaterial::Tick()
 	{
 	}
+
 	void FMaterial::SetPass()
 	{
 		Ref<IShaderBinder> ShaderBinder = m_Shader->GetBinder();
@@ -40,17 +42,21 @@ namespace Zero
 		m_ResourcesBuffer->UploadDataIfDirty();
 		FFrameConstantsManager::GetInstance().GetShaderConstantBuffer()->UploadDataIfDirty();
 	}
+
 	void FMaterial::SetShader(Ref<IShader> Shader)
 	{
-		m_Shader = Shader;
-		m_ConstantsDesc = m_Shader->GetBinder()->GetShaderConstantsDesc(ERootParameters::MaterialCB);
-		m_ResourcesDesc = m_Shader->GetBinder()->GetShaderResourcesDesc();
-		
-		m_ConstantsBuffer = FRenderer::GraphicFactroy->CreateShaderConstantBuffer(*m_ConstantsDesc.get());
-		m_ResourcesBuffer = FRenderer::GraphicFactroy->CreateShaderResourceBuffer(
-			*m_ResourcesDesc.get(), 
-			m_Shader->GetBinder()->GetRootSignature()
-		);
+		if (m_Shader != Shader)
+		{
+			m_Shader = Shader;
+			m_ConstantsDesc = m_Shader->GetBinder()->GetShaderConstantsDesc(ERootParameters::MaterialCB);
+			m_ResourcesDesc = m_Shader->GetBinder()->GetShaderResourcesDesc();
+
+			m_ConstantsBuffer = FRenderer::GraphicFactroy->CreateShaderConstantBuffer(*m_ConstantsDesc.get());
+			m_ResourcesBuffer = FRenderer::GraphicFactroy->CreateShaderResourceBuffer(
+				*m_ResourcesDesc.get(),
+				m_Shader->GetBinder()->GetRootSignature()
+			);
+		}
 	}
 
 	void FMaterial::SetShader(const std::string& ShaderFile)

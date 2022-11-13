@@ -16,7 +16,8 @@ namespace Zero
 			Type == "std::string" || 
 			Type == "FTextureHandle" || 
 			Type == "FMaterialHandle" ||
-			Type == "std::filesystem::path")
+			Type == "std::filesystem::path"||
+			Type == "FAssignedFile")
 			Out << YAML::Key << "Value" << YAML::Value << *Property->GetData<std::string>();
 		else if (Type == "uint32_t")
 			Out << YAML::Key << "Value" << YAML::Value << *Property->GetData<uint32_t>();
@@ -44,6 +45,11 @@ namespace Zero
 	{
 		std::string PropertyNameWithClassName = std::format("{0}:{1}", Property->GetPropertyName(), Property->GetBelongClassName());
 		YAML::Node PropertyNode = Data[PropertyNameWithClassName];
+		if (PropertyNode.Type() == YAML::NodeType::Undefined)
+		{
+			return;
+		}
+
 		const std::string& Type = Property->GetPropertyType();
 		void* PropertyData = Property->GetData();
 		if (PropertyNode["Type"].as<std::string>() != Type)
@@ -58,7 +64,8 @@ namespace Zero
 			Type == "std::string" ||
 			Type == "FTextureHandle" ||
 			Type == "FMaterialHandle" ||
-			Type == "std::filesystem::path" )
+			Type == "std::filesystem::path" ||
+			Type == "FAssignedFile")
 		{
 			*((std::string*)PropertyData) = PropertyNode["Value"].as<std::string>();
 		}

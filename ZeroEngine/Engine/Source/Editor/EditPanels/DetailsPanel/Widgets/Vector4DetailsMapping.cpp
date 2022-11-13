@@ -2,8 +2,8 @@
 
 namespace Zero
 {
-	bool FVector4DDetailsMapping::UpdateDetailsWidget(UProperty* Property)
+	void FVector4DDetailsMapping::UpdateDetailsWidgetImpl(UProperty* Property)
 	{
-		return ImGui::DragFloat4(Property->GetEditorPropertyName(), (float*)Property->GetData());
+		m_bEdited = ImGui::DragFloat4(Property->GetEditorPropertyName(), (float*)Property->GetData());
 	}
 }

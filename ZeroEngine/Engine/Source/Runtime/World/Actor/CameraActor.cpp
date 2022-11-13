@@ -32,5 +32,4 @@ namespace Zero
 	{
 		m_CameraComponent->OnResizeViewport(Width, Height);
 	}
-
 }

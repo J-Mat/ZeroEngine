@@ -7,7 +7,12 @@ namespace Zero
 	class FClassDetailsMapping : public FDetailsMapping
 	{
 	public:
-		virtual void UpdateDetailsWidget(UCoreObject* CoreObject);
+		void UpdateDetailsWidget(UCoreObject* CoreObject)
+		{
+			UpdateDetailsWidgetImpl(CoreObject);
+		}
 		static Ref<FClassDetailsMapping> MakeDetailMapping();
+	private:
+		virtual void UpdateDetailsWidgetImpl(UCoreObject* CoreObject);
 	};
 }

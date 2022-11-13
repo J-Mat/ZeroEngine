@@ -49,7 +49,7 @@ namespace Zero
 			FDescriptorTableCache& DescriptorTableCache = m_DescriptorTableCache[RootIndex];
 			DescriptorTableCache.NumDescriptors = NumDescriptors;
 			DescriptorTableCache.m_BaseDescriptor = m_DescriptorHandleCache.get() + CurrentOffset;
-
+			
 			CurrentOffset += NumDescriptors;
 
 			DescriptorTableBitMask ^= (1 << RootIndex);
@@ -132,6 +132,7 @@ namespace Zero
 		}
 		CommandList.SetDescriptorHeap(m_DescriptorHeapType, m_CurrentDescriptorHeap.Get());
 
+		m_RecordGPUDescriptorHandle = m_CurrentGPUDescriptorHandle;
 		DWORD RootIndex;
 		// Scan from LSB to MSB for a bit set in staleDescriptorsBitMask
 		while (_BitScanForward(&RootIndex, m_StaleDescriptorTableBitMask))
@@ -206,7 +207,7 @@ namespace Zero
 
 		if (m_CurrentDescriptorHeap != nullptr)
 		{
-			m_CurrentGPUDescriptorHandle = m_CurrentDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+			m_CurrentGPUDescriptorHandle = m_RecordGPUDescriptorHandle;
 
 			// Scan from LSB to MSB for a bit set in staleDescriptorsBitMask
 			while (_BitScanForward(&RootIndex, TableBitMask))

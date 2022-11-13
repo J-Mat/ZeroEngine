@@ -7,8 +7,9 @@ namespace Zero
 	class FVector3DDetailsMapping : public FVariableDetailsMapping
 	{
 	public:
-		virtual bool UpdateDetailsWidget(UProperty* Property);
 		static Ref<FVariableDetailsMapping> MakeDetailMapping() { return CreateRef<FVector3DDetailsMapping>(); }
+	private:
+		virtual void UpdateDetailsWidgetImpl(UProperty* Property) override;
 	private:
 		float m_ColumnWidth = 100.0f;
 	};

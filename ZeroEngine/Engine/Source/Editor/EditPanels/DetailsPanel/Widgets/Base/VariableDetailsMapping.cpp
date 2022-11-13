@@ -4,8 +4,10 @@ namespace Zero
 {
     bool FVariableDetailsMapping::UpdateDetailsWidget(UProperty* InProperty)
     {
+        m_bEdited = false;
         ImGui::Text(InProperty->GetEditorPropertyName());
         ImGui::SameLine();
-        return false;
+        UpdateDetailsWidgetImpl(InProperty);
+        return m_bEdited;
     }
 }

@@ -3,7 +3,7 @@
 
 namespace Zero
 {
-    void FAssetDetailsMapping::UpdateDetailsWidget(UCoreObject* CoreObject)
+    void FAssetDetailsMapping::UpdateDetailsWidgetImpl(UCoreObject* CoreObject)
     {
         UProperty* Property = CoreObject->GetClassCollection().HeadProperty;
         if (ImGui::TreeNodeEx("Properties", ImGuiTreeNodeFlags_DefaultOpen))

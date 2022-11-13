@@ -70,7 +70,11 @@ namespace Zero
 		template<class T>
 		T* LoadAsset(std::filesystem::path Path)
 		{
-			UAsset* Asset = Deserialize(ZConfig::GetAssestsFullPath(Path.string()));
+			UAsset* Asset = Fetch(Path.string());
+			if (Asset == nullptr)
+			{
+				Asset = Deserialize(ZConfig::GetAssestsFullPath(Path.string()));
+			}
 			T* SpecifiedAsset = dynamic_cast<T*>(Asset);
 			if (SpecifiedAsset != nullptr)
 			{

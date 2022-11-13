@@ -4,13 +4,8 @@
 
 namespace Zero
 {
-    bool FMaterialHandleDetailsMapping::UpdateDetailsWidget(UProperty* InProperty)
-    {
-		FVariableDetailsMapping::UpdateDetailsWidget(InProperty);
-		static ImVec2 ButtonSize(64, 64);
-		FMaterialHandle* MaterialHandle = InProperty->GetData<FMaterialHandle>();
-
-
+	void FMaterialHandleDetailsMapping::CheckMaterialAsset(FMaterialHandle* MaterialHandle)
+	{
 		if (m_MaterialAsset == nullptr || m_MaterialAsset->GetAssetName() != std::string(*MaterialHandle))
 		{
 			if (*MaterialHandle != "")
@@ -18,7 +13,13 @@ namespace Zero
 				m_MaterialAsset = FAssetManager::GetInstance().LoadAsset<UMaterialAsset>(*MaterialHandle);
 			}
 		}
+	}
 
+    void FMaterialHandleDetailsMapping::UpdateDetailsWidgetImpl(UProperty* InProperty)
+    {
+		static ImVec2 ButtonSize(64, 64);
+		FMaterialHandle* MaterialHandle = InProperty->GetData<FMaterialHandle>();
+		CheckMaterialAsset(MaterialHandle);
 		ImTextureID TextureID = (ImTextureID)FEditor::GetMaterialSlotTexture(m_MaterialAsset != nullptr)->GetGuiShaderReseource();
 		ImGui::Image(TextureID, ButtonSize, { 0,0 }, { 1,1 });
 
@@ -28,22 +29,16 @@ namespace Zero
 			{
 				std::string Path = (const char*)Payload->Data;
 				*MaterialHandle = Path;
-				if (m_MaterialAsset == nullptr || m_MaterialAsset->GetAssetName() != std::string(*MaterialHandle))
-				{
-					if (*MaterialHandle != "")
-					{
-						m_MaterialAsset = FAssetManager::GetInstance().LoadAsset<UMaterialAsset>(*MaterialHandle);
-					}
-				}
+				CheckMaterialAsset(MaterialHandle);
+				m_bEdited = true;
 			}
 			ImGui::EndDragDropTarget();
 		}
 		
 		if (*MaterialHandle == "\0")
 		{
-			return false;
+			return;
 		}
-		
 		
 		UProperty* Property = m_MaterialAsset->GetClassCollection().HeadProperty;
         if (ImGui::TreeNodeEx("Properties", ImGuiTreeNodeFlags_DefaultOpen))
@@ -56,12 +51,12 @@ namespace Zero
 					if (VariableDetailsMapping->UpdateDetailsWidget(Property))
 					{
 						Property->GetOuter()->PostEdit(Property);
+						m_bEdited = true;
 					}
                 }
                 Property = dynamic_cast<UProperty*>(Property->Next);
             }
             ImGui::TreePop();
         }
-        return true;
     }
 }

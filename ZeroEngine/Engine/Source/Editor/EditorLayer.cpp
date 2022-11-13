@@ -164,7 +164,7 @@ namespace Zero
 	}
 
 	void FEditorLayer::SaveScene()
-		{
+	{
 		std::string Filepath = FFileDialog::SaveFile("Zero Scene (*.scene)\0*.scene\0", "scene");
 		if (!Filepath.empty())
 		{

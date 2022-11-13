@@ -7,7 +7,8 @@ namespace Zero
 	class FVector4DDetailsMapping : public FVariableDetailsMapping
 	{
 	public:
-		virtual bool UpdateDetailsWidget(UProperty* Property);
 		static Ref<FVariableDetailsMapping> MakeDetailMapping() { return CreateRef<FVector4DDetailsMapping>(); }
+	private:
+		virtual void UpdateDetailsWidgetImpl(UProperty* Property) override;
 	};
 }

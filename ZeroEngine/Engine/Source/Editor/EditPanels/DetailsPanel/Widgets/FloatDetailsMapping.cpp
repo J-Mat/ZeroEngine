@@ -2,9 +2,8 @@
 
 namespace Zero
 {
-	bool FFloatDetailsMapping::UpdateDetailsWidget(UProperty* Property)
+	void FFloatDetailsMapping::UpdateDetailsWidgetImpl(UProperty* Property)
 	{
-		FVariableDetailsMapping::UpdateDetailsWidget(Property);
-		return ImGui::DragFloat(" ", Property->GetData<float>());
+		m_bEdited = ImGui::DragFloat(" ", Property->GetData<float>());
 	}
 }

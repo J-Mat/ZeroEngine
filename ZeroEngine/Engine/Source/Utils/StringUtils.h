@@ -29,6 +29,19 @@ namespace Zero
 				return Str.find(Item) != std::string::npos;
 			}
 
+
+			static std::string& Trim(std::string& s)
+			{
+				if (s.empty())
+				{
+					return s;
+				}
+
+				s.erase(0, s.find_first_not_of(" "));
+				s.erase(s.find_last_not_of(" ") + 1);
+				return s;
+			}
+
 			static inline std::vector<std::string> Split(const std::string& str, const std::string& delim, const bool trim_empty = true)
 			{
 				size_t pos, last_pos = 0, len;
@@ -42,9 +55,11 @@ namespace Zero
 						pos = str.size();
 					}
 
+					
 					len = pos - last_pos;
 					if (!trim_empty || len != 0) {
-						tokens.push_back(str.substr(last_pos, len));
+						std::string Value = str.substr(last_pos, len);
+						tokens.push_back(Trim(Value));
 					}
 
 					if (pos == str.size())

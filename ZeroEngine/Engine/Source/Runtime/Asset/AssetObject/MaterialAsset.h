@@ -16,6 +16,9 @@ namespace Zero
 		virtual const char* GetAssetExtention() override { return "mat"; };
 
 	public:
+		UPROPERTY(Format = hlsl)
+		FAssignedFile m_ShaderFile = "Shader/ForwardLit.hlsl";
+
 		UPROPERTY()
 		FTextureHandle m_Diffuse = "default";
 	};

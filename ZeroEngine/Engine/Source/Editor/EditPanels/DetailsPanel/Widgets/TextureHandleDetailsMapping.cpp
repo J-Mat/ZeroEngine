@@ -3,9 +3,8 @@
 
 namespace Zero
 {
-	bool FTextureHandleDetailsMapping::UpdateDetailsWidget(UProperty* InProperty)
+	void FTextureHandleDetailsMapping::UpdateDetailsWidgetImpl(UProperty* InProperty)
 	{
-		FVariableDetailsMapping::UpdateDetailsWidget(InProperty);
 		static ImVec2 ButtonSize(64, 64);
 		ImGuiStyle& Style = ImGui::GetStyle();
 		FTextureHandle* TextureHandlePtr = InProperty->GetData<FTextureHandle>();
@@ -27,9 +26,9 @@ namespace Zero
 			{
 				std::string Path = (const char*)Payload->Data;
 				*TextureHandlePtr = Path;
+				m_bEdited = true;
 			}
 			ImGui::EndDragDropTarget();
 		}
-		return true;
 	}
 }
