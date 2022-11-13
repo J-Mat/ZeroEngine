@@ -24,6 +24,7 @@ namespace ZHT
 	{
 		bool bStatic = false;
 		std::string Value;
+		std::string InnerValue = "";
 		std::set<std::string> Fields;
 		std::map<std::string, std::string> Metas;
 		FPropertyElement() = default;
@@ -34,6 +35,7 @@ namespace ZHT
 		std::string ClassName;
 		std::string ClassTagName;
 		std::vector<FPropertyElement> Properties;
+		std::vector<FPropertyElement> ArrayProperties;
 		std::string DerivedName = "";
 		uint32_t LineIndex;
 		std::filesystem::path OriginFilePath;
@@ -82,6 +84,7 @@ namespace ZHT
 		bool IsDerived(std::string DerivedClass, std::string BasedClass);
 
 		std::string WriteAddPropertyCode(const FClassElement& ClassElement);
+		std::string WriteUpdateContainerCode(const FClassElement& ClassElement);
 		void GenerateReflectionCppFile(const FClassElement& ClassElement);
 		std::string WriteGenerateActors(std::vector<std::string>& ActorClassNames);
 		void WriteLinkReflectionFile(std::set<std::filesystem::path>& AllLinkCppFiles);

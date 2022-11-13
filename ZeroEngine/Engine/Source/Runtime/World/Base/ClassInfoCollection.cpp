@@ -18,6 +18,12 @@ namespace Zero
 		return Property;
 	}
 
+	UArrayProperty* FClassInfoCollection::AddArrayProperty(const std::string& ClassName, const std::string& PropertyName, void* Data, const std::string PropertyType, uint32_t PropertySize, std::string ValueType, uint32_t InValueSize)
+	{
+        auto* Property =  ConstructProperty<UArrayProperty>(ClassName, PropertyName, Data, PropertySize, PropertyType, ValueType, InValueSize);
+		return Property;
+	}
+
 	UProperty* FClassInfoCollection::FindProperty(const std::string PropertyName)
 	{
 		UProperty* Property = HeadProperty;
@@ -35,6 +41,7 @@ namespace Zero
 
 	bool FClassInfoCollection::RemoveTailProperty()
 	{
+
 		UProperty* Property = HeadProperty;
 		
 		if (Property != nullptr)
@@ -57,6 +64,18 @@ namespace Zero
 			}
 		}
 		return false;
+	}
+
+	uint32_t FClassInfoCollection::GetPropertyNum()
+	{
+		uint32_t Counter = 0;
+		UProperty* Property = HeadProperty;
+		while (Property != nullptr)
+		{
+			++Counter;
+			Property = static_cast<UProperty*>(Property->Next);
+		}
+		return Counter;
 	}
 
 	void FClassInfoCollection::RemoveAllProperties()

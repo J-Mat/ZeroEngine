@@ -29,6 +29,7 @@ namespace Zero
 		
 #ifdef EDITOR_MODE 
 		virtual void PostEdit(UProperty* Property) {};
+		virtual bool UpdateEditorPropertyDetails(UProperty* Property) { return false; }
 #endif
 	public:
 		FClassInfoCollection m_ClassInfoCollection;

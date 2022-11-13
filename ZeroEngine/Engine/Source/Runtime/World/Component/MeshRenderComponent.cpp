@@ -11,9 +11,11 @@ namespace Zero
 		: UComponent()
 	{
 	}
+
 	UMeshRenderComponent::~UMeshRenderComponent()
 	{
 	}
+
 	std::vector<Ref<FMaterial>>& UMeshRenderComponent::GetPassMaterials(const EMeshRenderLayerType& LayerType)
 	{
 		//Ref<FTexture2D> Texture = TLibrary<FTexture2D>::Fetch("default");

@@ -21,5 +21,8 @@ namespace Zero
 
 		UPROPERTY()
 		FTextureHandle m_Diffuse = "default";
+
+		UPROPERTY()
+		std::vector<int> m_vector;
 	};
 }

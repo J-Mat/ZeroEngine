@@ -8,6 +8,7 @@ namespace Zero
 	class UCoreObject;
 	class UProperty;
 	class UVariableProperty;
+	class UArrayProperty;
 	class UClassProperty;
 	class FClassInfoCollection
 	{
@@ -18,9 +19,14 @@ namespace Zero
 
 		UClassProperty* AddClassProperty(const std::string& ClassName, const std::string& PropertyName, void* Data, const std::string& PropertyType, uint32_t PropertySize);
 		
+		UArrayProperty* AddArrayProperty(const std::string& ClassName, const std::string& PropertyName, void* Data, const std::string PropertyType, uint32_t PropertySize, std::string ValueType, uint32_t InValueSize);
+	
+	
 		UProperty* FindProperty(const std::string PropertyName);
 		
 		bool RemoveTailProperty();
+		
+		uint32_t GetPropertyNum();
 		
 		void RemoveAllProperties();
 

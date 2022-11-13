@@ -356,6 +356,14 @@ namespace ZHT
 				{
 					PropertyElement.DataType = Token.TokenName;
 					PropertyElement.LineIndex = Token.LineIndex;
+
+					if (PropertyElement.DataType.starts_with("std::vector"))
+					{
+						size_t StartPos = PropertyElement.DataType.find('<') + 1;
+						std::string InnerValue = PropertyElement.DataType.substr(StartPos);
+						InnerValue.pop_back();
+						PropertyElement.InnerValue = InnerValue;
+					}
 				}
 			}
 			else if (!bHasEqual && bHasParsedType)
@@ -417,6 +425,10 @@ namespace ZHT
 			CollectMetaAndField(PropertyElement);
 			CollectProperty(PropertyElement);
 			ClassElement.Properties.push_back(PropertyElement);
+			if (PropertyElement.InnerValue != "")
+			{
+				ClassElement.ArrayProperties.push_back(PropertyElement);
+			}
 		}
 		m_AllClassElements.push_back(ClassElement);
 	}
@@ -484,7 +496,8 @@ namespace ZHT
 
 
 
-		Contents.push_back("\tvirtual void InitReflectionContent();");
+		Contents.push_back("\tvirtual void InitReflectionContent(); \\");
+		Contents.push_back("\tvirtual void UpdateEditorContainerPropertyDetails(UProperty* Property);");
 		
 		Contents.push_back( Zero::Utils::StringUtils::Format("#define {0}_{1}_GENERATED_BODY \\",
 			ClassElement.ClassName, 
@@ -548,12 +561,26 @@ namespace ZHT
 			}
 			else
 			{
-				Stream << "\t\tm_ClassInfoCollection.AddVariableProperty("
-					<< "\"" << ClassElement.ClassName << "\", "
-					<< "\"" << PropertyElement.Name << "\", "
-					<< "&" << PropertyElement.Name << ", "
-					<< "\"" << PropertyElement.DataType << "\", "
-					<< Zero::Utils::StringUtils::Format("sizeof({0})", PropertyElement.DataType) << ");\n";
+				if (PropertyElement.DataType.starts_with("std::vector"))
+				{
+					Stream << "\t\tm_ClassInfoCollection.AddArrayProperty("
+						<< "\"" << ClassElement.ClassName << "\", "
+						<< "\"" << PropertyElement.Name << "\", "
+						<< "&" << PropertyElement.Name << ", "
+						<< "\"" << PropertyElement.DataType << "\", "
+						<< Zero::Utils::StringUtils::Format("sizeof({0}), ", PropertyElement.DataType)
+						<< "\"" << PropertyElement.InnerValue << "\", "
+						<< Zero::Utils::StringUtils::Format("sizeof({0})", PropertyElement.InnerValue) << ");\n";
+				}
+				else
+				{
+					Stream << "\t\tm_ClassInfoCollection.AddVariableProperty("
+						<< "\"" << ClassElement.ClassName << "\", "
+						<< "\"" << PropertyElement.Name << "\", "
+						<< "&" << PropertyElement.Name << ", "
+						<< "\"" << PropertyElement.DataType << "\", "
+						<< Zero::Utils::StringUtils::Format("sizeof({0})", PropertyElement.DataType) << ");\n";
+				}
 			}
 			for (const std::string& Field : PropertyElement.Fields)
 			{
@@ -565,6 +592,28 @@ namespace ZHT
 			}
 		}
 	
+		return Stream.str();
+	}
+
+	std::string FFileParser::WriteUpdateContainerCode(const FClassElement& ClassElement)
+	{
+		std::stringstream Stream;
+		Stream << "\t\tSuper::UpdateEditorContainerPropertyDetails(Property); \n";
+		bool bFirst = true;
+		for (const FPropertyElement& PropertyElement : ClassElement.ArrayProperties)
+		{
+			if (bFirst)
+			{
+				Stream << std::format("\t\tif Property->GetPropertyName() == \"{0}\")\n", PropertyElement.Name);
+				bFirst = false;
+			}
+			else
+			{
+				Stream << std::format("\t\telse if Property->GetPropertyName() == \"{0}\")\n", PropertyElement.Name);
+			}
+			Stream << "\t\t{\n";
+			Stream << "\t\t}\n";
+		}
 		return Stream.str();
 	}
 
@@ -608,6 +657,13 @@ namespace ZHT
 			<< WriteAddPropertyCode(ClassElement)
 			<< "\t}\n";
 		PUSH_TO_CONTENT
+
+		Stream << Zero::Utils::StringUtils::Format("\tvoid {0}::UpdateEditorContainerPropertyDetails(UProperty* Property)\n", ClassElement.ClassName)
+			<< "\t{\n"
+			<< WriteUpdateContainerCode(ClassElement)
+			<< "\t}\n";
+		PUSH_TO_CONTENT
+			
 
 		Stream << std::format("\tint Register_{0}()\n", ClassElement.ClassName)
 		<< "\t{\n"
