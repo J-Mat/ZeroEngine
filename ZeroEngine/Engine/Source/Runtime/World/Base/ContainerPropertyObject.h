@@ -8,40 +8,25 @@ namespace Zero
 	class UContainerProperty : public UProperty
 	{
 	public:
-		UContainerProperty(const std::string& ClassName, const std::string& PropertyName, void* Data, const std::string PropertyType, uint32_t PropertySize, std::string ValueType, uint32_t InValueSize);
+		UContainerProperty(const std::string& ClassName, const std::string& PropertyName, void* Data, const std::string PropertyType, uint32_t PropertySize);
 	public:
-		virtual void* AddItem() { return NULL; }
+		virtual UProperty* AddItem() = 0;
 		virtual bool RemoveTailItem() { return false; }
 		virtual bool RemoveAllItem() { return false; }
 
-		virtual bool AddProterty(void* Data, const std::string& Type, uint32_t ValueSize);
 		virtual bool RemoveTailProperty();
 		virtual void RemoveAllPreperties();
 		
-		virtual void UpdateProperty();
+		virtual void UpdateProperty() = 0;
 
-		void SetValueType(const std::string& Type) { m_ValueType = Type; }
-		void SetValueSize(uint32_t Size) { m_ValueSize = Size; }
-
-		uint32_t GetValueCount() const { return m_ValueCount; }
-		void SetValueCount(uint32_t ValueCount) { m_ValueCount = ValueCount; }
-
-		const std::string& GetValueType() const { return m_ValueType; }
-		uint32_t GetValueSize() const { return m_ValueSize; }
-
-#ifdef EDITOR_MODE 
-		virtual bool UpdateEditorPropertyDetails(UProperty* Property);
-#endif
-
+		virtual UProperty* AddProperty(void* Data, const std::string& Type, uint32_t ValueSize) = 0;
 	protected:
 		char* m_Data = nullptr;
-		virtual void* AllocateData();//添加数据
-		virtual bool RemoveTopData();
-		virtual bool RemoveAllData();
+		virtual void* AllocateData(uint32_t ValueSize, const std::string& ValueType);//添加数据
+		virtual void RemoveTailData(uint32_t ValueSize);
+		virtual void RemoveAllData();
 
-		std::string m_ValueType = "";
-		uint32_t m_ValueSize = 0;
 
-		uint32_t m_ValueCount = 0;
+		uint32_t m_WholeDataSize = 0;
 	};
 }

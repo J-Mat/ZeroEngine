@@ -4,14 +4,14 @@
 
 namespace Zero
 {
-	void FAssignedFileDetailsMapping::UpdateDetailsWidgetImpl(UProperty* InProperty)
+	void FAssignedFileDetailsMapping::UpdateDetailsWidgetImpl(UProperty* Property, const char* ProperyTag)
 	{
 		static char Buffer[256] = {0};
-		std::string* AssignedFilePtr = InProperty->GetData<FAssignedFile>();
+		std::string* AssignedFilePtr = Property->GetData<FAssignedFile>();
 		strcpy_s(Buffer, sizeof(Buffer), AssignedFilePtr->c_str());
 		ImGui::TextDisabled(Buffer);
 		std::string FormatValue;
-		if (InProperty->GetClassCollection().FindMetas("Format", FormatValue))
+		if (Property->GetClassCollection().FindMetas("Format", FormatValue))
 		{
 			ImGui::SameLine();
 			if (ImGui::Button("..."))

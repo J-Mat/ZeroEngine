@@ -3,22 +3,25 @@
 
 namespace Zero
 {
-	void FSerializeUtility::ImportValue(YAML::Emitter& Out, UProperty* Property)
+	void FSerializeUtility::ExportValue(YAML::Emitter& Out, UProperty* Property)
 	{
 		Out << YAML::Key << "Type" << YAML::Value << Property->GetPropertyType();
 		const std::string& Type = Property->GetPropertyType();
 		std::cout << "type:" << Type << std::endl;
 		if (Type == "bool")
 			Out << YAML::Key << "Value" << YAML::Value << *Property->GetData<bool>();
-		else if (Type == "int")
+		else if (Type == "int" || Type == "int32_t")
 			Out << YAML::Key << "Value" << YAML::Value << *Property->GetData<int>();
-		else if (Type == "string" || 
-			Type == "std::string" || 
-			Type == "FTextureHandle" || 
+		else if (Type == "string" ||
+			Type == "std::string" ||
+			Type == "FTextureHandle" ||
 			Type == "FMaterialHandle" ||
-			Type == "std::filesystem::path"||
+			Type == "std::filesystem::path" ||
 			Type == "FAssignedFile")
-			Out << YAML::Key << "Value" << YAML::Value << *Property->GetData<std::string>();
+		{
+			std::string Str = *Property->GetData<std::string>();
+			Out << YAML::Key << "Value" << YAML::Value << Str;
+		}
 		else if (Type == "uint32_t")
 			Out << YAML::Key << "Value" << YAML::Value << *Property->GetData<uint32_t>();
 		else if (Type == "int32_t")
@@ -39,9 +42,61 @@ namespace Zero
 			Out << YAML::Key << "Value" << YAML::Value << *Property->GetData<double>();
 		else if (Type == "FAssetHandle")
 			Out << YAML::Key << "Value" << YAML::Value << *Property->GetData<FAssetHandle>();
+		else if (Type == "FFloatSlider")
+			Out << YAML::Key << "Value" << YAML::Value << *Property->GetData<FFloatSlider>();
+		else if (Type == "std::vector")
+			ExportVectorValue(Out, Property);
+		else if (Type == "std::map")
+			ExportMapValue(Out, Property);
 	}
 
-	void FSerializeUtility::ExporttValue(YAML::Node& Data, UProperty* Property)
+	void FSerializeUtility::ExportVectorValue(YAML::Emitter& Out, UProperty* Property)
+	{
+		UArrayProperty* ArrayProperty = dynamic_cast<UArrayProperty*>(Property);
+		Out << YAML::Key << "InValueType" << YAML::Value << ArrayProperty->GetValueType();
+		Out << YAML::Key << "Value" << YAML::Value << YAML::BeginSeq;
+
+		UProperty* ValueProperty = ArrayProperty->GetClassCollection().HeadProperty;
+		while (ValueProperty)
+		{
+			Out << YAML::BeginMap;
+			ExportValue(Out, ValueProperty);
+			Out << YAML::EndMap;
+			ValueProperty = dynamic_cast<UProperty*>(ValueProperty->Next);
+		}
+			
+		Out << YAML::EndSeq;
+	}
+
+	void FSerializeUtility::ExportMapValue(YAML::Emitter& Out, UProperty* Property)
+	{
+		UMapProperty* MapProperty = dynamic_cast<UMapProperty*>(Property);
+		Out << YAML::Key << "KeyType" << YAML::Value << MapProperty->GetKeyType();
+		Out << YAML::Key << "ValueType" << YAML::Value << MapProperty->GetValueType();
+		Out << YAML::Key << "Value" << YAML::Value << YAML::BeginSeq;
+
+		UProperty* KeyProperty = MapProperty->GetClassCollection().HeadProperty;
+		while (KeyProperty)
+		{
+			Out << YAML::BeginMap;
+
+			Out << YAML::Key << "Map-Key" << YAML::Value << YAML::BeginMap;
+			ExportValue(Out, KeyProperty);
+			Out << YAML::EndMap;
+
+			Out << YAML::Key << "Map-Value" << YAML::Value << YAML::BeginMap;
+			UProperty* ValueProperty = dynamic_cast<UProperty*>(KeyProperty->Next);
+			ExportValue(Out, ValueProperty);
+			Out << YAML::EndMap;
+
+			Out << YAML::EndMap;
+			KeyProperty = dynamic_cast<UProperty*>(ValueProperty->Next);
+		}
+
+		Out << YAML::EndSeq;
+	}
+
+	void FSerializeUtility::ImportValue(YAML::Node& Data, UProperty* Property)
 	{
 		std::string PropertyNameWithClassName = std::format("{0}:{1}", Property->GetPropertyName(), Property->GetBelongClassName());
 		YAML::Node PropertyNode = Data[PropertyNameWithClassName];
@@ -56,9 +111,14 @@ namespace Zero
 		{
 			return;
 		}
+		ParseValue(PropertyNode, PropertyData, Type, Property);
+	}
+
+	void FSerializeUtility::ParseValue(YAML::Node& PropertyNode, void* PropertyData, const std::string Type, UProperty* Property)
+	{
 		if (Type == "bool")
 			*((bool*)PropertyData) = PropertyNode["Value"].as<bool>();
-		else if (Type == "int")
+		else if (Type == "int" || Type == "int32_t")
 			*((int*)PropertyData) = PropertyNode["Value"].as<int>();
 		else if (Type == "string" ||
 			Type == "std::string" ||
@@ -67,7 +127,8 @@ namespace Zero
 			Type == "std::filesystem::path" ||
 			Type == "FAssignedFile")
 		{
-			*((std::string*)PropertyData) = PropertyNode["Value"].as<std::string>();
+			std::string Str = PropertyNode["Value"].as<std::string>();
+			*((std::string*)PropertyData) = Str;
 		}
 		else if (Type == "uint32_t")
 			*((uint32_t*)PropertyData) = PropertyNode["Value"].as<uint32_t>();
@@ -81,12 +142,72 @@ namespace Zero
 			*((ZMath::FColor4*)PropertyData) = PropertyNode["Value"].as<ZMath::FColor4>();
 		else if (Type == "ZMath::FRotation")
 			*((ZMath::FRotation*)PropertyData) = PropertyNode["Value"].as<ZMath::FRotation>();
+		else if (Type == "FFloatSlider")
+			*((FFloatSlider*)PropertyData) = PropertyNode["Value"].as<FFloatSlider>();
 		else if (Type == "float")
 			*((float*)PropertyData) = PropertyNode["Value"].as<float>();
 		else if (Type == "double")
 			*((double*)PropertyData) = PropertyNode["Value"].as<double>();
 		else if (Type == "FAssetHandle")
 			*((FAssetHandle*)PropertyData) = FAssetHandle(PropertyNode["Value"].as<std::string>());
+		else if (Type == "std::vector")
+			ImportVectorValue(PropertyNode, Property);
+		else if (Type == "std::map")
+			ImportMapValue(PropertyNode, Property);
+	}
+
+
+	void FSerializeUtility::ImportVectorValue(YAML::Node& Data, UProperty* Property)
+	{
+		UArrayProperty* ArrayProperty = static_cast<UArrayProperty*>(Property);
+		std::string InValueType =  Data["InValueType"].as<std::string>(); 
+		ArrayProperty->SetValueType(InValueType);
+		auto Iter = Utils::CodeReflectionTypes.find(InValueType);
+		CORE_ASSERT(Iter != Utils::CodeReflectionTypes.end(), "Can not find Code Reflection Type");
+		uint32_t ValueSize = uint32_t(Iter->second);
+		ArrayProperty->SetValueSize(ValueSize);
+		auto ValueNode = Data["Value"];
+		for (auto EachValue : ValueNode)
+		{
+			UProperty* ValueProperty = ArrayProperty->AddItem();
+			std::string Type = EachValue["Type"].as<std::string>();
+			void* PropertyData = ValueProperty->GetData();
+			ParseValue(EachValue, PropertyData, Type, ValueProperty);
+		}
+		Property->GetOuter()->UpdateEditorContainerPropertyDetails(Property);
+	}
+
+	void FSerializeUtility::ImportMapValue(YAML::Node& Data, UProperty* Property)
+	{
+		UMapProperty* MapProperty = static_cast<UMapProperty*>(Property);
+
+		std::string KeyType =  Data["KeyType"].as<std::string>(); 
+		auto Iter = Utils::CodeReflectionTypes.find(KeyType);
+		CORE_ASSERT(Iter != Utils::CodeReflectionTypes.end(), "Can not find Code Reflection Type");
+		uint32_t KeySize = uint32_t(Iter->second);
+		MapProperty->SetKeySize(KeySize);
+
+		std::string ValueType =  Data["ValueType"].as<std::string>(); 
+		Iter = Utils::CodeReflectionTypes.find(ValueType);
+		CORE_ASSERT(Iter != Utils::CodeReflectionTypes.end(), "Can not find Code Reflection Type");
+		uint32_t ValueSize = uint32_t(Iter->second);
+		MapProperty->SetValueSize(ValueSize);
+
+		auto ValueNode = Data["Value"];
+		for (auto EachValue : ValueNode)
+		{
+			UProperty* KeyProperty = MapProperty->AddItem();
+			std::string KeyType = EachValue["Map-Key"]["Type"].as<std::string>();
+			void* KeyPropertyData = KeyProperty->GetData();
+			ParseValue(EachValue["Map-Key"], KeyPropertyData, KeyType, KeyProperty);
+
+			UProperty* ValueProperty = dynamic_cast<UProperty*>(KeyProperty->Next);
+			std::string ValueType = EachValue["Map-Value"]["Type"].as<std::string>();
+			void* ValuePropertyData = ValueProperty->GetData();
+			ParseValue(EachValue["Map-Value"], ValuePropertyData, ValueType, ValueProperty);
+
+		}
+		Property->GetOuter()->UpdateEditorContainerPropertyDetails(Property);
 	}
 
 	void FSerializeUtility::SerializeVariableProperties(YAML::Emitter& Out, UCoreObject* CoreObject)
@@ -96,14 +217,11 @@ namespace Zero
 		Out << YAML::Key << "Properties" << YAML::Value << YAML::BeginMap;
 		while (Property != nullptr)
 		{
-			if (Utils::CodeReflectionTypes.contains(Property->GetPropertyType()))
-			{
-				std::string PropertyNameWithClassName = std::format("{0}:{1}", Property->GetPropertyName(), Property->GetBelongClassName());
-				Out << YAML::Key << PropertyNameWithClassName << YAML::Value << YAML::BeginMap;
-				ImportValue(Out, Property);
-				Out << YAML::EndMap;
-			}
-			Property = Property = dynamic_cast<UProperty*>(Property->Next);
+			std::string PropertyNameWithClassName = std::format("{0}:{1}", Property->GetPropertyName(), Property->GetBelongClassName());
+			Out << YAML::Key << PropertyNameWithClassName << YAML::Value << YAML::BeginMap;
+			ExportValue(Out, Property);
+			Out << YAML::EndMap;
+			Property = dynamic_cast<UProperty*>(Property->Next);
 		}
 		Out << YAML::EndMap;
 	}
@@ -114,7 +232,7 @@ namespace Zero
 		UProperty* Property = CoreObject->GetClassCollection().HeadProperty;
 		while (Property != nullptr)
 		{
-			ExporttValue(PropertiesNode, Property);
+			ImportValue(PropertiesNode, Property);
 			Property = Property = dynamic_cast<UProperty*>(Property->Next);
 		}
 	}
@@ -127,13 +245,10 @@ namespace Zero
 		UProperty* Property = Componnet->GetClassCollection().HeadProperty;
 		while (Property != nullptr)
 		{
-			if (Utils::CodeReflectionTypes.contains(Property->GetPropertyType()))
-			{
-				std::string PropertyNameWithClassName = std::format("{0}:{1}", Property->GetPropertyName(), Property->GetBelongClassName());
-				Out << YAML::Key << PropertyNameWithClassName << YAML::Value << YAML::BeginMap;
-				FSerializeUtility::ImportValue(Out, Property);
-				Out << YAML::EndMap;
-			}
+			std::string PropertyNameWithClassName = std::format("{0}:{1}", Property->GetPropertyName(), Property->GetBelongClassName());
+			Out << YAML::Key << PropertyNameWithClassName << YAML::Value << YAML::BeginMap;
+			FSerializeUtility::ExportValue(Out, Property);
+			Out << YAML::EndMap;
 			Property = Property = dynamic_cast<UProperty*>(Property->Next);
 		}
 		Out << YAML::EndMap;
@@ -153,6 +268,7 @@ namespace Zero
 			}
 			DeserializeVariablePrperties(*NodeIter, Component);
 			NodeIter++;
+			Component->PostInit();
 		}
 		return true;
 	}

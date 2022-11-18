@@ -12,6 +12,10 @@
 #include "Widgets/TextureHandleDetailsMapping.h"	
 #include "Widgets/MaterialHandleDetailsMapping.h"
 #include "Widgets/AssignedFileDetailsMapping.h"
+#include "Widgets/FloatSliderDetailsMapping.h"
+#include "Widgets/ArrayObjectDetailsMapping.h"
+#include "Widgets/MapObjectDetailsMapping.h"
+#include "Widgets/IntDetailsMapping.h"
 #include "Editor.h"
 
 namespace Zero
@@ -29,6 +33,11 @@ namespace Zero
 		DetailMappingManager.RegisterVariableMapping("FTextureHandle", FTextureHandleDetailsMapping::MakeDetailMapping());
 		DetailMappingManager.RegisterVariableMapping("FMaterialHandle", FMaterialHandleDetailsMapping::MakeDetailMapping());
 		DetailMappingManager.RegisterVariableMapping("FAssignedFile", FAssignedFileDetailsMapping::MakeDetailMapping());
+		DetailMappingManager.RegisterVariableMapping("FFloatSlider", FFloatSliderDetailsMapping::MakeDetailMapping());
+		DetailMappingManager.RegisterVariableMapping("std::vector", FArrayObjectDetailsMapping::MakeDetailMapping());
+		DetailMappingManager.RegisterVariableMapping("std::map", FMapObjectDetailsMapping::MakeDetailMapping());
+		DetailMappingManager.RegisterVariableMapping("int", FIntDetailsMapping::MakeDetailMapping());
+		DetailMappingManager.RegisterVariableMapping("int32_t", FIntDetailsMapping::MakeDetailMapping());
 		DetailMappingManager.RegisterClassMapping(FActorDetailsMapping::MakeDetailMapping());
 	}
 	void FDetailPanel::OnGuiRender()

@@ -3,11 +3,11 @@
 
 namespace Zero
 {
-	void FTextureHandleDetailsMapping::UpdateDetailsWidgetImpl(UProperty* InProperty)
+	void FTextureHandleDetailsMapping::UpdateDetailsWidgetImpl(UProperty* Property, const char* ProperyTag)
 	{
 		static ImVec2 ButtonSize(64, 64);
 		ImGuiStyle& Style = ImGui::GetStyle();
-		FTextureHandle* TextureHandlePtr = InProperty->GetData<FTextureHandle>();
+		FTextureHandle* TextureHandlePtr = Property->GetData<FTextureHandle>();
 		if (*TextureHandlePtr == "")
 		{
 			*TextureHandlePtr = "default";
@@ -15,7 +15,7 @@ namespace Zero
 		Ref<FTexture2D> Texture = TLibrary<FTexture2D>::Fetch(*TextureHandlePtr);
 		if (Texture == nullptr)
 		{
-			Texture = FRenderer::GraphicFactroy->CreateTexture2D(*TextureHandlePtr);
+			Texture = FRenderer::GraphicFactroy->GetOrCreateTexture2D(*TextureHandlePtr);
 		}		
 		ImTextureID TextureID = (ImTextureID)Texture->GetGuiShaderReseource();
 		ImGui::Image(TextureID, ButtonSize, { 0,0 }, { 1,1 });

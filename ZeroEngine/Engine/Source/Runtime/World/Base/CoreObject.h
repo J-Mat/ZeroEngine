@@ -28,8 +28,8 @@ namespace Zero
 		virtual const char* GetObjectName() { return "UCoreObject"; } 
 		
 #ifdef EDITOR_MODE 
-		virtual void PostEdit(UProperty* Property) {};
-		virtual bool UpdateEditorPropertyDetails(UProperty* Property) { return false; }
+		virtual void PostEdit(UProperty* Property) { UpdateEditorContainerPropertyDetails(Property); };
+		virtual void UpdateEditorContainerPropertyDetails(UProperty* Property) {}
 #endif
 	public:
 		FClassInfoCollection m_ClassInfoCollection;
@@ -37,6 +37,6 @@ namespace Zero
 
 	protected:
 		bool m_bTick = true;
-		UCoreObject* m_Outer;
+		UCoreObject* m_Outer = nullptr;
 	};
 }

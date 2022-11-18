@@ -2,18 +2,9 @@
 
 namespace Zero
 {
-	UContainerProperty::UContainerProperty(const std::string& ClassName, const std::string& PropertyName, void* Data, const std::string PropertyType, uint32_t PropertySize, std::string ValueType, uint32_t InValueSize)
-		: UProperty(ClassName, PropertyName, Data, PropertySize, PropertyType)
+	UContainerProperty::UContainerProperty(const std::string& ClassName, const std::string& PropertyName, void* Data, const std::string PropertyType, uint32_t PropertySize)
+		: UProperty(ClassName, PropertyName, Data, PropertyType, PropertySize)
 	{
-	}
-
-	bool UContainerProperty::AddProterty(void* Data, const std::string& Type, uint32_t ValueSize)
-	{
-		uint32_t PropertyNum = GetClassCollection().GetPropertyNum();	
-		
-		std::string ObjectName = std::format("{0}", PropertyNum);
-		
-		return GetClassCollection().AddVariableProperty("Container", ObjectName, Data, Type, ValueSize) != nullptr;
 	}
 
 	bool UContainerProperty::RemoveTailProperty()
@@ -26,73 +17,62 @@ namespace Zero
 		m_ClassInfoCollection.RemoveAllProperties();
 	}
 
-	void UContainerProperty::UpdateProperty()
+	void* UContainerProperty::AllocateData(uint32_t ValueSize, const std::string& ValueType)
 	{
-		uint32_t Index = 0;
-		
-		UProperty* Property = GetClassCollection().HeadProperty;
-		while (Property)
-		{
-			void* Ptr = &m_Data[Index * m_ValueSize];
-			Property->InitializeValue((char*)Ptr);
-			UProperty* NextProperty = static_cast<UProperty*>(Property->Next);
-			++Index;
-		}
-	}
-
-	bool UContainerProperty::UpdateEditorPropertyDetails(UProperty* Property)
-	{
-		return false;
-	}
-
-	void* UContainerProperty::AllocateData()
-	{
-		uint32_t CurrentIndex = m_ValueSize * m_ValueCount;
+		uint32_t CurrentIndex = m_WholeDataSize;
 		
 		if (!m_Data)
 		{
-			m_Data = (char*)malloc(m_ValueSize);
+			m_Data = (char*)malloc(ValueSize);
 		}
 		else
 		{
-			m_Data = (char*)realloc(m_Data, m_ValueSize * m_ValueCount + m_ValueSize);
+			m_Data = (char*)realloc(m_Data, m_WholeDataSize + ValueSize);
 		}
 		
-		memset(&m_Data[CurrentIndex], 0, m_ValueSize);
+		memset(&m_Data[CurrentIndex], 0, ValueSize);
 
-		m_ValueCount++;
+		if (ValueType == "std::string") 
+		{
+			new (&m_Data[CurrentIndex])std::string();
+		}
+		else if (ValueType == "FTextureHandle")
+		{
+			new (&m_Data[CurrentIndex])FTextureHandle();
+		}
+		else if (ValueType == "FFloatSlider")
+		{
+			new (&m_Data[CurrentIndex])FFloatSlider();
+		}
+
+		m_WholeDataSize += ValueSize;
 		
 		return &m_Data[CurrentIndex];
 	}
-	bool UContainerProperty::RemoveTopData()
+
+
+	void UContainerProperty::RemoveTailData(uint32_t ValueSize)
 	{
-		if (m_ValueCount > 0)
-		{
-			--m_ValueCount;
-			if (m_ValueCount == 0)
-			{
-				free(m_Data);
-				m_Data = nullptr;
-			}
-			else
-			{
-				m_Data = (char*)realloc(m_Data, m_ValueSize * m_ValueCount);
-			}
-			return true;
-		}
-		
-		return false;
-	}
-	bool UContainerProperty::RemoveAllData()
-	{
-		if (m_ValueCount > 0)
+		CORE_ASSERT(m_WholeDataSize >= ValueSize, "Ivalid Memory Free!");
+		m_WholeDataSize -= ValueSize;
+		if (m_WholeDataSize == 0)
 		{
 			free(m_Data);
 			m_Data = nullptr;
-			m_ValueCount = 0;
-			
-			return true;
 		}
-		return false;
+		else
+		{
+			m_Data = (char*)realloc(m_Data, m_WholeDataSize);
+		}
+	}
+
+	void UContainerProperty::RemoveAllData()
+	{
+		if (m_WholeDataSize > 0)
+		{
+			free(m_Data);
+			m_Data = nullptr;
+			m_WholeDataSize = 0;
+		}
 	}
 }

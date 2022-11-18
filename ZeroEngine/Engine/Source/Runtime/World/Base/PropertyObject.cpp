@@ -3,7 +3,7 @@
 
 namespace Zero
 {
-	UProperty::UProperty(const std::string& ClassName, std::string PropertyName, void* Data, uint32_t DataSize, const std::string PropertyType)
+	UProperty::UProperty(const std::string& ClassName, std::string PropertyName, void* Data, const std::string PropertyType, uint32_t DataSize)
 		: UField()
 		, m_BelongClassName(ClassName)
 		, m_PropertyName(PropertyName)

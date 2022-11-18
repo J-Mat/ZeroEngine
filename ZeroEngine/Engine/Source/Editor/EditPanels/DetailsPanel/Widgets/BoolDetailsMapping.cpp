@@ -2,8 +2,8 @@
 
 namespace Zero
 {
-	void FBoolDetailsMapping::UpdateDetailsWidgetImpl(UProperty* InProperty)
+	void FBoolDetailsMapping::UpdateDetailsWidgetImpl(UProperty* Property, const char* ProperyTag)
 	{
-		 m_bEdited = ImGui::Checkbox(InProperty->GetEditorPropertyName(), InProperty->GetData<bool>());
+		 m_bEdited = ImGui::Checkbox(ProperyTag, Property->GetData<bool>());
 	}
 }

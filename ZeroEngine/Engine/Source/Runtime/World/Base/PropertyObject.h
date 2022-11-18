@@ -8,7 +8,7 @@ namespace Zero
 	{
 		using Supper = UField;
 	public: 
-		UProperty(const std::string& ClassName, std::string PropertyName, void* Data, uint32_t DataSize, const std::string PropertyType);
+		UProperty(const std::string& ClassName, std::string PropertyName, void* Data, const std::string PropertyType, uint32_t DataSize);
 
 		template<class T>
 		T* GetData() const

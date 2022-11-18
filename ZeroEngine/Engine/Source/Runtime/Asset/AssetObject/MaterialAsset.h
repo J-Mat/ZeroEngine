@@ -20,9 +20,12 @@ namespace Zero
 		FAssignedFile m_ShaderFile = "Shader/ForwardLit.hlsl";
 
 		UPROPERTY()
-		FTextureHandle m_Diffuse = "default";
+		std::map<std::string, FTextureHandle> m_Textures;
+		
+		UPROPERTY()
+		FFloatSlider m_Sider;
 
 		UPROPERTY()
-		std::vector<int> m_vector;
+		ZMath::FColor4 m_Color;
 	};
 }

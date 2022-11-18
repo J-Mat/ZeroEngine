@@ -42,7 +42,6 @@ namespace Zero
 			return static_cast<T*>(m_Components[ComponentIndex<T>::Value]);
 		}
 
-		virtual void PostInit();
 		virtual void MoveLocal(const ZMath::vec3& Offset);
 		virtual void RotateLocal(const ZMath::FEulerAngle& Offset);
 		virtual void SetPosition(const ZMath::vec3& Position);

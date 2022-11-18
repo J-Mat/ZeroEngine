@@ -9,6 +9,6 @@ namespace Zero
 	public:
 		static Ref<FVariableDetailsMapping> MakeDetailMapping() { return CreateRef<FFloatDetailsMapping>(); }
 	private:
-		virtual void UpdateDetailsWidgetImpl(UProperty* InProperty) override;
+		virtual void UpdateDetailsWidgetImpl(UProperty* Property, const char* ProperyTag) override;
 	};
 }

@@ -28,6 +28,7 @@ namespace Zero
 
 	void UTransformComponent::PostInit()
 	{
+		UpdateDirection();
 	}
 
 	void UTransformComponent::UpdateDirection()
@@ -97,6 +98,7 @@ namespace Zero
 
 	void UTransformComponent::PostEdit(UProperty* Property)
 	{
+		Supper::PostEdit(Property);
 		if (Property->GetPropertyName() == "m_Rotation")
 		{
 			UpdateDirection();

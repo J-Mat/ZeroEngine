@@ -19,6 +19,7 @@ namespace Zero
 			break;
 		}
 		GetComponent<UMeshRenderComponent>()->SetShader("Shader/DirectLight.hlsl");
+		GetComponent<UMeshRenderComponent>()->SetEnableMaterial(false);
 	}
 
 	void ULightActor::PostInit()

@@ -43,6 +43,7 @@ namespace ZHT
 		m_Tokens.push_back({ TokenName, m_CurLineIndex });
 	}
 
+
 	void FFileParser::AcceptQuotationToken(const char& LeftChar)
 	{
 		std::stringstream Steam;
@@ -269,7 +270,7 @@ namespace ZHT
 		return false;
 	}
 
-	FToken FFileParser::GetType(uint32_t& TokenIndex,bool& bIsClass)
+	FToken FFileParser::GetType(uint32_t& TokenIndex, bool& bIsClass)
 	{
 		int32_t LineIndex = m_Tokens[TokenIndex].LineIndex;
 		std::stringstream Stream;
@@ -284,18 +285,11 @@ namespace ZHT
 			return { Stream.str(), LineIndex };
 		}
 
-		if (Zero::Utils::CodeReflectionTypes.contains(CurTokenName))
-		{
-			return m_Tokens[TokenIndex];
-		}
-		
 		if (CurTokenName.starts_with("U"))
 		{
 			bIsClass = true;
-			return m_Tokens[TokenIndex];
 		}
-
-		return FToken();
+		return m_Tokens[TokenIndex];
 	}
 
 	void FFileParser::CollectMetaAndField(FPropertyElement& PropertyElement)
@@ -363,6 +357,15 @@ namespace ZHT
 						std::string InnerValue = PropertyElement.DataType.substr(StartPos);
 						InnerValue.pop_back();
 						PropertyElement.InnerValue = InnerValue;
+					}
+					else if (PropertyElement.DataType.starts_with("std::map"))
+					{
+						size_t StartPos = PropertyElement.DataType.find('<') + 1;
+						std::string KeyValue = PropertyElement.DataType.substr(StartPos);
+						KeyValue.pop_back();
+						std::vector<std::string> Values = Zero::Utils::StringUtils::Split(KeyValue, ",");
+						PropertyElement.InnerKey = Values[0];
+						PropertyElement.InnerValue = Values[1];
 					}
 				}
 			}
@@ -567,8 +570,21 @@ namespace ZHT
 						<< "\"" << ClassElement.ClassName << "\", "
 						<< "\"" << PropertyElement.Name << "\", "
 						<< "&" << PropertyElement.Name << ", "
-						<< "\"" << PropertyElement.DataType << "\", "
+						<< "\"std::vector\""  << ", "
 						<< Zero::Utils::StringUtils::Format("sizeof({0}), ", PropertyElement.DataType)
+						<< "\"" << PropertyElement.InnerValue << "\", "
+						<< Zero::Utils::StringUtils::Format("sizeof({0})", PropertyElement.InnerValue) << ");\n";
+				}
+				else if (PropertyElement.DataType.starts_with("std::map"))
+				{
+					Stream << "\t\tm_ClassInfoCollection.AddMapProperty("
+						<< "\"" << ClassElement.ClassName << "\", "
+						<< "\"" << PropertyElement.Name << "\", "
+						<< "&" << PropertyElement.Name << ", "
+						<< "\"std::map\""  << ", "
+						<< Zero::Utils::StringUtils::Format("sizeof({0}), ", PropertyElement.DataType)
+						<< "\"" << PropertyElement.InnerKey << "\", "
+						<< Zero::Utils::StringUtils::Format("sizeof({0})", PropertyElement.InnerKey) << ", "
 						<< "\"" << PropertyElement.InnerValue << "\", "
 						<< Zero::Utils::StringUtils::Format("sizeof({0})", PropertyElement.InnerValue) << ");\n";
 				}
@@ -598,20 +614,46 @@ namespace ZHT
 	std::string FFileParser::WriteUpdateContainerCode(const FClassElement& ClassElement)
 	{
 		std::stringstream Stream;
-		Stream << "\t\tSuper::UpdateEditorContainerPropertyDetails(Property); \n";
+		Stream << "\t\tSupper::UpdateEditorContainerPropertyDetails(ContainerProperty); \n";
 		bool bFirst = true;
 		for (const FPropertyElement& PropertyElement : ClassElement.ArrayProperties)
 		{
 			if (bFirst)
 			{
-				Stream << std::format("\t\tif Property->GetPropertyName() == \"{0}\")\n", PropertyElement.Name);
+				Stream << std::format("\t\tif (ContainerProperty->GetPropertyName() == \"{0}\")\n", PropertyElement.Name);
 				bFirst = false;
 			}
 			else
 			{
-				Stream << std::format("\t\telse if Property->GetPropertyName() == \"{0}\")\n", PropertyElement.Name);
+				Stream << std::format("\t\telse if (ContainerProperty->GetPropertyName() == \"{0}\")\n", PropertyElement.Name);
 			}
 			Stream << "\t\t{\n";
+			
+			if (PropertyElement.InnerKey == "")
+			{
+				Stream << std::format("\t\t\t{0}.clear();\n", PropertyElement.Name);
+				Stream << "\t\t\tUProperty* Property = ContainerProperty->GetClassCollection().HeadProperty;\n";
+				Stream << "\t\t\twhile(Property != nullptr)\n";
+				Stream << "\t\t\t{\n";
+				Stream << std::format("\t\t\t\t{0}.push_back(*Property->GetData<{1}>());\n", PropertyElement.Name, PropertyElement.InnerValue);
+				Stream << "\t\t\t\tProperty = static_cast<UProperty*>(Property->Next);\n";
+				Stream << "\t\t\t}\n";
+			}
+			else if (PropertyElement.InnerKey != "")
+			{
+				Stream << std::format("\t\t\t{0}.clear();\n", PropertyElement.Name);
+				Stream << "\t\t\tUProperty* KeyProperty = ContainerProperty->GetClassCollection().HeadProperty;\n";
+				Stream << "\t\t\twhile(KeyProperty != nullptr)\n";
+				Stream << "\t\t\t{\n";
+				Stream << "\t\t\t\tUProperty* ValueProperty = static_cast<UProperty*>(KeyProperty->Next);\n";
+				Stream << Zero::Utils::StringUtils::Format("\t\t\t\t{0}.insert({*KeyProperty->GetData<", PropertyElement.Name);
+				Stream << Zero::Utils::StringUtils::Format("{0}>(), *ValueProperty->GetData<{1}>()});\n", PropertyElement.InnerKey, PropertyElement.InnerValue);
+				Stream << "\t\t\t\tKeyProperty = static_cast<UProperty*>(ValueProperty->Next);\n";
+				Stream << "\t\t\t}\n";
+			}
+			
+			
+
 			Stream << "\t\t}\n";
 		}
 		return Stream.str();
@@ -658,7 +700,7 @@ namespace ZHT
 			<< "\t}\n";
 		PUSH_TO_CONTENT
 
-		Stream << Zero::Utils::StringUtils::Format("\tvoid {0}::UpdateEditorContainerPropertyDetails(UProperty* Property)\n", ClassElement.ClassName)
+		Stream << Zero::Utils::StringUtils::Format("\tvoid {0}::UpdateEditorContainerPropertyDetails(UProperty* ContainerProperty)\n", ClassElement.ClassName)
 			<< "\t{\n"
 			<< WriteUpdateContainerCode(ClassElement)
 			<< "\t}\n";

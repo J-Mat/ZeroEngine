@@ -2,6 +2,8 @@
 
 #include "yaml-cpp/yaml.h"
 #include "World/Base/PropertyObject.h"
+#include "World/Base/ArrayPropretyObject.h"
+#include "World/Base/MapPropretyObject.h"
 #include "World/Actor/Actor.h"
 #include "World/Component/Component.h"
 
@@ -57,22 +59,58 @@ namespace YAML
 			return true;
 		}
 	};
+
+ 
+	template<>
+	struct convert<Zero::FFloatSlider>
+	{
+		static Node encode(const Zero::FFloatSlider& rhs)
+		{
+			Node node;
+			node.push_back(rhs.Value);
+			node.push_back(rhs.Min);
+			node.push_back(rhs.Max);
+			node.push_back(rhs.Step);
+			node.push_back(rhs.bEnableEdit);
+			return node;
+		}
+
+		static bool decode(const Node& node, Zero::FFloatSlider& rhs)
+		{
+			if (!node.IsSequence() || node.size() != 5)
+				return false;
+
+			rhs.Value = node[0].as<float>();
+			rhs.Min = node[1].as<float>();
+			rhs.Max = node[2].as<float>();
+			rhs.Step = node[3].as<float>();
+			rhs.bEnableEdit = node[4].as<bool>();
+			return true;
+		}
+	};
 }
 
 namespace Zero
 {
-	static YAML::Emitter& operator<<(YAML::Emitter& out, const Zero::ZMath::vec3& v)
+	static YAML::Emitter& operator<<(YAML::Emitter& Out, const Zero::ZMath::vec3& v)
 	{
-		out << YAML::Flow;
-		out << YAML::BeginSeq << v.x << v.y << v.z << YAML::EndSeq;
-		return out;
+		Out << YAML::Flow;
+		Out << YAML::BeginSeq << v.x << v.y << v.z << YAML::EndSeq;
+		return Out;
 	}
 
-	static YAML::Emitter& operator<<(YAML::Emitter& out, const Zero::ZMath::vec4& v)
+	static YAML::Emitter& operator<<(YAML::Emitter& Out, const Zero::ZMath::vec4& v)
 	{
-		out << YAML::Flow;
-		out << YAML::BeginSeq << v.x << v.y << v.z << v.w << YAML::EndSeq;
-		return out;
+		Out << YAML::Flow;
+		Out << YAML::BeginSeq << v.x << v.y << v.z << v.w << YAML::EndSeq;
+		return Out;
+	}
+
+	static YAML::Emitter& operator<<(YAML::Emitter& Out, const FFloatSlider& Value)
+	{
+		Out << YAML::Flow;
+		Out << YAML::BeginSeq << Value.Value << Value.Min << Value.Max << Value.Step << Value.bEnableEdit << YAML::EndSeq;
+		return Out;
 	}
 }
 
@@ -81,8 +119,13 @@ namespace Zero
 	class FSerializeUtility
 	{
 	public:
-		static void ImportValue(YAML::Emitter& Out, UProperty* Property);
-		static void ExporttValue(YAML::Node& Data, UProperty* CurrentProperty);
+		static void ExportValue(YAML::Emitter& Out, UProperty* Property);
+		static void ExportVectorValue(YAML::Emitter& Out, UProperty* Property);
+		static void ExportMapValue(YAML::Emitter& Out, UProperty* Property);
+		static void ImportValue(YAML::Node& Data, UProperty* Property);
+		static void ParseValue(YAML::Node& PropertyNode, void* PropertyData, const std::string Type, UProperty* Property);
+		static void ImportVectorValue(YAML::Node& Data, UProperty* Property);
+		static void ImportMapValue(YAML::Node& Data, UProperty* Property);
 		static void SerializeVariableProperties(YAML::Emitter& Out, UCoreObject* CoreObject);
 		static void SerializeComponent(YAML::Emitter& Out, UComponent* Componnet);
 		static void DeserializeVariablePrperties(YAML::Node& Data, UCoreObject* CoreObject);

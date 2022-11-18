@@ -90,7 +90,7 @@ namespace Zero
 		virtual Ref<IShaderConstantsBuffer> CreateShaderConstantBuffer(FShaderConstantsDesc& Desc) = 0;
 		virtual Ref<IShaderResourcesBuffer> CreateShaderResourceBuffer(FShaderResourcesDesc& Desc, IRootSignature* RootSignature) = 0;
 		virtual Ref<IShader> CreateShader(const std::string& FileName, const FShaderBinderDesc& BinderDesc, const FShaderDesc& ShaderDesc) = 0;
-		virtual Ref<FTexture2D> CreateTexture2D(const std::string& FileName) = 0;
+		virtual Ref<FTexture2D> GetOrCreateTexture2D(const std::string& FileName) = 0;
 		virtual Ref<FTexture2D> CreateTexture2D(Ref<FImage> Image, std::string ImageName) = 0;
 		virtual Ref<FRenderTarget> CreateRenderTarget(FRenderTargetDesc Desc) = 0;
 		virtual Ref<FTexture2D> CreateDepthStencilTexture(uint32_t Width, uint32_t Height, const std::string& Name) = 0;
@@ -173,7 +173,7 @@ namespace Zero
 			return Texture;
 		}
 
-		virtual Ref<FTexture2D> CreateTexture2D(const std::string& FileName)
+		virtual Ref<FTexture2D> GetOrCreateTexture2D(const std::string& FileName)
 		{
 			std::filesystem::path TextureFileName = FileName;
 			Ref<FTexture2D> Texture = TLibrary<FTexture2D>::Fetch(FileName);
@@ -197,6 +197,7 @@ namespace Zero
 			}
 			return Texture;
 		}
+
 		virtual Ref<FRenderTarget> CreateRenderTarget(FRenderTargetDesc Desc)
 		{
 			return CreateRef<FDX12RenderTarget>(Desc);
@@ -216,4 +217,6 @@ namespace Zero
 			return DepthStencilTexture;
 		}
 	};
+
+#define RHI_Factory FRenderer::GraphicFactroy
 }

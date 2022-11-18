@@ -29,28 +29,6 @@ namespace Zero
 	{
 		using namespace xg;
 
-		const std::set<std::string> CodeReflectionTypes =
-		{
-			"bool",
-			"int",
-			"std::string",
-			"string",
-			"uint32_t",
-			"int32_t",
-			"ZMath::vec3",
-			"ZMath::vec4",
-			"ZMath::FColor4",
-			"ZMath::FColor3",
-			"ZMath::FRotation",
-			"float",
-			"double",
-			"FTextureHandle",
-			"FMaterialHandle",
-			"std::filesystem::path",
-			"FAssetHandle",
-			"FAssignedFile"
-		};
-
 		static inline std::string WString2String(const std::wstring& Input)
 		{
 			_bstr_t t = Input.c_str();

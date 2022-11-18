@@ -9,7 +9,7 @@ namespace Zero
 	public:
 		static Ref<FVariableDetailsMapping> MakeDetailMapping() { return CreateRef<FVector3DDetailsMapping>(); }
 	private:
-		virtual void UpdateDetailsWidgetImpl(UProperty* Property) override;
+		virtual void UpdateDetailsWidgetImpl(UProperty* Property, const char* ProperyTag) override;
 	private:
 		float m_ColumnWidth = 100.0f;
 	};

@@ -2,7 +2,7 @@
 
 namespace Zero
 {
-	void FVector3DDetailsMapping::UpdateDetailsWidgetImpl(UProperty* Property)
+	void FVector3DDetailsMapping::UpdateDetailsWidgetImpl(UProperty* Property, const char* ProperyTag)
 	{
 		ZMath::vec3* Value = Property->GetData<ZMath::vec3>();
 		ImGuiIO& io = ImGui::GetIO();

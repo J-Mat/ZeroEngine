@@ -6,7 +6,7 @@
 #include "Asset.reflection.h"
 
 namespace Zero
-{
+{	
 	UCLASS()
 	class UAsset : public UCoreObject
 	{
@@ -24,6 +24,9 @@ namespace Zero
 
 		UPROPERTY(Disable)
 		std::string m_AssetName;
+		
+		UPROPERTY()
+		FFloatSlider m_FloatSlider;
 	};
 
 }	

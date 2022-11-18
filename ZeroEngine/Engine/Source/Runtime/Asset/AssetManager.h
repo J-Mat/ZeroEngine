@@ -2,6 +2,8 @@
 #include "Core/Base/PublicSingleton.h"
 #include "AssetObject/Asset.h"
 #include "World/Base/ObjectGenerator.h"
+#include "Render/RHI/Texture.h"
+#include "Render/RendererAPI.h"
 
 namespace Zero
 {
@@ -29,7 +31,7 @@ namespace Zero
 			{
 				return dynamic_cast<T*>(Iter->second);
 			}
-			return nullptr;
+			return LoadAsset<T>(ID);
 		};
 
 		UAsset* Fetch(const std::string& ID)
@@ -41,6 +43,11 @@ namespace Zero
 			}
 			return nullptr;
 		};
+
+		Ref<FTexture2D> FetchTexture(const std::string& ID)
+		{
+			return RHI_Factory->GetOrCreateTexture2D(ID);
+		}
 
 		template<class T>
 		T* Remove(const std::string& ID)
@@ -91,6 +98,8 @@ namespace Zero
 		void Serialize(UAsset* Asset);
 		void Serialize(std::string AssetName);
 		UAsset* Deserialize(std::filesystem::path Path);
+
+
 
 	private:
 		std::map<std::string, UAsset*> m_AllAssets;

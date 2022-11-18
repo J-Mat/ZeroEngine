@@ -22,6 +22,6 @@ namespace Zero
 	private:
 		UCameraComponent* m_CameraComponent = nullptr;
 		UPROPERTY()
-		FTextureHandle m_Texture = "";
+		FFloatSlider m_FloatSlider;
 	};
 }

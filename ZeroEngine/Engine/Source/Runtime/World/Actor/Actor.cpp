@@ -18,9 +18,6 @@ namespace Zero
 		}
 		m_Components.clear();
 	}
-	void UActor::PostInit()
-	{
-	}
 
 	void UActor::MoveLocal(const ZMath::vec3& Offset)
 	{

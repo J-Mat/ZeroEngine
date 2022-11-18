@@ -17,6 +17,7 @@ namespace Zero
 
 	void UMeshActor::PostInit()
 	{
+		Supper::PostInit();
 		m_MeshVertexComponent = GetComponent<UMeshVertexComponent>();
 		m_MeshRenderComponent = GetComponent<UMeshRenderComponent>();
 		BuildMesh();
@@ -24,6 +25,7 @@ namespace Zero
 
 		uint32_t SubMeshNum = m_MeshVertexComponent->m_Mesh->GetSubMeshNum();
 		m_MeshRenderComponent->SetSubmeshNum(SubMeshNum);
+		m_MeshRenderComponent->AttachParameters();
 	}
 
 	void UMeshActor::CommitToPipieline()

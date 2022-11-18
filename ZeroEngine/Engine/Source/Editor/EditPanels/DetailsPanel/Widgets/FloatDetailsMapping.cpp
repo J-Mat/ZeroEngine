@@ -2,8 +2,8 @@
 
 namespace Zero
 {
-	void FFloatDetailsMapping::UpdateDetailsWidgetImpl(UProperty* Property)
+	void FFloatDetailsMapping::UpdateDetailsWidgetImpl(UProperty* Property, const char* ProperyTag)
 	{
-		m_bEdited = ImGui::DragFloat(" ", Property->GetData<float>());
+		m_bEdited = ImGui::InputFloat(ProperyTag, Property->GetData<float>());
 	}
 }

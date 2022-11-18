@@ -45,7 +45,7 @@ namespace Zero
 			static inline std::vector<std::string> Split(const std::string& str, const std::string& delim, const bool trim_empty = true)
 			{
 				size_t pos, last_pos = 0, len;
-				std::vector<std::string> tokens;
+				std::vector<std::string> Tokens;
 
 				while (true)
 				{
@@ -59,7 +59,7 @@ namespace Zero
 					len = pos - last_pos;
 					if (!trim_empty || len != 0) {
 						std::string Value = str.substr(last_pos, len);
-						tokens.push_back(Trim(Value));
+						Tokens.push_back(Trim(Value));
 					}
 
 					if (pos == str.size())
@@ -72,7 +72,11 @@ namespace Zero
 					}
 				}
 
-				return tokens;
+				for (auto& Token : Tokens)
+				{
+					Trim(Token);
+				}
+				return Tokens;
 			}
 
 

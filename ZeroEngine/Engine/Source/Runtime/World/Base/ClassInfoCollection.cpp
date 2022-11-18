@@ -1,6 +1,8 @@
 #include "ClassInfoCollection.h"
 #include "VariateProperty.h"
 #include "ClassProperty.h"
+#include "ArrayPropretyObject.h"
+#include "MapPropretyObject.h"
 
 namespace Zero
 {
@@ -13,14 +15,44 @@ namespace Zero
 
 	UClassProperty* FClassInfoCollection::AddClassProperty(const std::string& ClassName, const std::string& PropertyName, void* Data, const std::string& PropertyType, uint32_t PropertySize)
 	{
-        auto* Property =  ConstructProperty<UClassProperty>(ClassName, PropertyName, Data, PropertySize, PropertyType);
+        auto* Property = ConstructProperty<UClassProperty>(
+			ClassName,
+			PropertyName,
+			Data,
+			PropertyType,
+			PropertySize
+			);
 		Property->GetClassCollection().AddMeta("Category", ClassName);
 		return Property;
 	}
 
 	UArrayProperty* FClassInfoCollection::AddArrayProperty(const std::string& ClassName, const std::string& PropertyName, void* Data, const std::string PropertyType, uint32_t PropertySize, std::string ValueType, uint32_t InValueSize)
 	{
-        auto* Property =  ConstructProperty<UArrayProperty>(ClassName, PropertyName, Data, PropertySize, PropertyType, ValueType, InValueSize);
+        auto* Property = ConstructProperty<UArrayProperty>(
+			ClassName, 
+			PropertyName, 
+			Data, 
+			PropertyType, 
+			PropertySize, 
+			ValueType, 
+			InValueSize
+		);
+		return Property;
+	}
+
+	UMapProperty* FClassInfoCollection::AddMapProperty(const std::string& ClassName, const std::string& PropertyName, void* Data, const std::string PropertyType, uint32_t PropertySize, std::string KeyType, uint32_t KeySize, std::string ValueType, uint32_t InValueSize)
+	{
+        auto* Property = ConstructProperty<UMapProperty>(
+			ClassName, 
+			PropertyName, 
+			Data, 
+			PropertyType, 
+			PropertySize, 
+			KeyType,
+			KeySize,
+			ValueType, 
+			InValueSize
+		);
 		return Property;
 	}
 
@@ -41,7 +73,6 @@ namespace Zero
 
 	bool FClassInfoCollection::RemoveTailProperty()
 	{
-
 		UProperty* Property = HeadProperty;
 		
 		if (Property != nullptr)
@@ -60,6 +91,7 @@ namespace Zero
 				}
 				delete TailProprty;
 				TailProprty = Property;
+				TailProprty->Next = nullptr;
 				return true;
 			}
 		}
@@ -158,11 +190,31 @@ namespace Zero
 		}
 	}
 
+	void FClassInfoCollection::RemoveField(const std::string& PropertyName, const std::string& Field)
+	{
+		if (UProperty* Property = FindProperty(PropertyName))
+		{
+			Property->GetClassCollection().RemoveField(Field);
+		}
+		else 
+		{
+			RemoveField(Field);
+		}
+	}
+
 	void FClassInfoCollection::AddField(const std::string& Field)
 	{
 		if (Field.length() != 0)
 		{
 			m_Fields.insert(Field);
+		}
+	}
+
+	void FClassInfoCollection::RemoveField(const std::string& Field)
+	{
+		if (Field.length() != 0)
+		{
+			m_Fields.erase(Field);
 		}
 	}
 }

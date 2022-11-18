@@ -4,10 +4,10 @@
 
 namespace Zero
 {
-	class FAssignedFileDetailsMapping : public FVariableDetailsMapping
+	class FIntDetailsMapping : public FVariableDetailsMapping
 	{
 	public:
-		static Ref<FVariableDetailsMapping> MakeDetailMapping() { return CreateRef<FAssignedFileDetailsMapping>(); }
+		static Ref<FVariableDetailsMapping> MakeDetailMapping() { return CreateRef<FIntDetailsMapping>(); }
 	private:
 		virtual void UpdateDetailsWidgetImpl(UProperty* Property, const char* ProperyTag) override;
 	};

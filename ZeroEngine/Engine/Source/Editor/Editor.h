@@ -19,7 +19,7 @@ namespace Zero
 	public:
 		static Ref<FTexture2D> CreateIcon(const std::string&& FileName)
 		{
-			auto Icon = FRenderer::GraphicFactroy->CreateTexture2D(FileName);
+			auto Icon = FRenderer::GraphicFactroy->GetOrCreateTexture2D(FileName);
 			return Icon;
 		}
 		static UActor* SelectedActor;

@@ -127,7 +127,7 @@ namespace Zero
 		if (FileName.ends_with(".png") || FileName.ends_with(".jpg") || FileName.ends_with(".tga"))
 		{
 			m_DragType = ASSET_PANEL_IMAGE;
-			auto Texture = FRenderer::GraphicFactroy->CreateTexture2D(m_AssetPath.string());
+			auto Texture = FRenderer::GraphicFactroy->GetOrCreateTexture2D(m_AssetPath.string());
 			return Texture;
 		}
 		return m_FileIcon;
@@ -254,7 +254,7 @@ namespace Zero
 				static char Buffer[256] = "NewMaterial";
 				ImGui::Text("Material Name:");
 				ImGui::SameLine();
-				ImGui::InputText(" ", Buffer, sizeof(Buffer));
+				ImGui::InputText("##MaterialName", Buffer, sizeof(Buffer));
 				if (ImGui::Button("OK"))
 				{
 					CreateDefaultMaterial(Buffer);

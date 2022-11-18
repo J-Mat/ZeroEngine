@@ -25,6 +25,7 @@ namespace ZHT
 		bool bStatic = false;
 		std::string Value;
 		std::string InnerValue = "";
+		std::string InnerKey = "";
 		std::set<std::string> Fields;
 		std::map<std::string, std::string> Metas;
 		FPropertyElement() = default;

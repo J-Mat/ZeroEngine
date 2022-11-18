@@ -83,4 +83,39 @@ namespace Zero
 	using FMaterialHandle = std::string;
 	using FAssetHandle = Utils::Guid;
 	using FAssignedFile = std::string;
+	struct FFloatSlider
+	{
+		float Value = 0.0f;
+		float Min = 0.0f;
+		float Max = 1.0f;
+		float Step = 0.01f;
+		bool bEnableEdit = false;
+	};
+
+	namespace Utils
+	{
+		const std::map<std::string, size_t> CodeReflectionTypes =
+		{
+			{"bool", sizeof(bool)},
+			{"int", sizeof(int)},
+			{"int32_t", sizeof(int32_t)},
+			{"std::string", sizeof(std::string)},
+			{"string", sizeof(std::string)},
+			{"uint32_t", sizeof(uint32_t)},
+			{"int32_t", sizeof(int32_t)},
+			{"ZMath::vec3", sizeof(ZMath::vec3)},
+			{"ZMath::vec4", sizeof(ZMath::vec4)},
+			{"ZMath::FColor4", sizeof(ZMath::FColor4)},
+			{"ZMath::FColor3", sizeof(ZMath::FColor3)},
+			{"ZMath::FRotation", sizeof(ZMath::FRotation)},
+			{"float", sizeof(float)},
+			{"double", sizeof(double)},
+			{"FTextureHandle", sizeof(FTextureHandle) },
+			{"FMaterialHandle", sizeof(FMaterialHandle)},
+			{"std::filesystem::path", sizeof(std::filesystem::path)},
+			{"FAssetHandle", sizeof(FAssetHandle)},
+			{"FAssignedFile", sizeof(FAssignedFile)},
+			{"FFloatSlider", sizeof(FFloatSlider)}
+		};
+	}
 }

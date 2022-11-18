@@ -9,6 +9,7 @@ namespace Zero
 	class UProperty;
 	class UVariableProperty;
 	class UArrayProperty;
+	class UMapProperty;
 	class UClassProperty;
 	class FClassInfoCollection
 	{
@@ -20,6 +21,8 @@ namespace Zero
 		UClassProperty* AddClassProperty(const std::string& ClassName, const std::string& PropertyName, void* Data, const std::string& PropertyType, uint32_t PropertySize);
 		
 		UArrayProperty* AddArrayProperty(const std::string& ClassName, const std::string& PropertyName, void* Data, const std::string PropertyType, uint32_t PropertySize, std::string ValueType, uint32_t InValueSize);
+
+		UMapProperty* AddMapProperty(const std::string& ClassName, const std::string& PropertyName, void* Data, const std::string PropertyType, uint32_t PropertySize, std::string KeyType, uint32_t KeySize, std::string ValueType, uint32_t InValueSize);
 	
 	
 		UProperty* FindProperty(const std::string PropertyName);
@@ -40,7 +43,9 @@ namespace Zero
 		void AddMeta(const std::string& Key, const std::string& Value);
 		
 		void AddField(const std::string& PropertyName, const std::string& Fields);
+		void RemoveField(const std::string& PropertyName, const std::string& Fields);
 		void AddField(const std::string& Field);
+		void RemoveField(const std::string& Field);
 		UCoreObject* m_Outer;
 		UProperty* HeadProperty = nullptr;
 		UProperty* TailProprty = nullptr;
