@@ -34,3 +34,11 @@ you can modify the objects' properties through DetailPanel  based code reflectio
 ### **DirectLight Control 2022-11-5**
 
 ![1667651908997](image/README/1667651908997.png)
+
+### Simple Material System 2022-11-17
+
+I converted the map and vector data to UI panel through code reflection.
+
+You can DIY the slide floats, colos, and textures in the material file, attaching these parameters to the shader and preparing the comming PBR effect in the future!
+
+ ![1668840995552](image/README/1668840995552.png)
