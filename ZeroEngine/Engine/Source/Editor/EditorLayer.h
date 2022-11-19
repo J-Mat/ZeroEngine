@@ -4,7 +4,7 @@
 #include "EditPanels/ViewportPanel.h"
 #include "EditPanels/ContentBrowserPanel.h"
 #include "EditPanels/OutlinePanel.h"
-#include "EditPanels/DetailsPanel/DetailsPanel.h"
+#include "EditPanels/DetailsPanel.h"
 #include "EditPanels/PlaceActorsPanel.h"
 
 namespace Zero

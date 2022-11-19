@@ -1,8 +1,8 @@
 #include "ContentBrowserPanel.h"
 #include "ZConfig.h"
 #include "Editor.h"
-#include "Asset/AssetManager.h"
-#include "Asset/AssetObject/MaterialAsset.h"
+#include "Data/Asset/AssetManager.h"
+#include "Data/Asset/AssetObject/MaterialAsset.h"
 
 namespace Zero
 {

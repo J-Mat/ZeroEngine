@@ -28,7 +28,7 @@
 #include "World/Base/ClassProperty.h"
 #include "World/Base/ObjectGlobal.h"
 
-#include "Asset/AssetManager.h"
+#include "Data/Asset/AssetManager.h"
 #include "World/Actor/SphereMeshActor.h"
 #include "World/Actor/CubeMeshActor.h"
 #include "World/Actor/CustomMeshActor.h"

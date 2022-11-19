@@ -5,176 +5,79 @@ Actors:
       m_Tag:UActor:
         Type: std::string
         Value: UCameraActor
-      m_bool:UCameraActor:
-        Type: bool
-        Value: true
+      m_FloatSlider:UCameraActor:
+        Type: FFloatSlider
+        Value: [0, 0, 1, 0.00999999978, false]
     Component:
       - ComopnentName: UTransformComponent
         Properties:
           m_Position:UTransformComponent:
             Type: ZMath::vec3
-            Value: [0, 0, -3.3499999]
+            Value: [-9.22070503, -2.52132964, 8.18476009]
           m_Rotation:UTransformComponent:
             Type: ZMath::FRotation
-            Value: [0, 0, 0]
+            Value: [-0.274016649, 8.51197052, 0]
           m_Scale:UTransformComponent:
             Type: ZMath::vec3
             Value: [1, 1, 1]
       - ComopnentName: UCameraComponent
         Properties:
-          m_Fov:UCameraComponent:
+          {}
+  - ActorName: USphereMeshActor
+    Properties:
+      m_Tag:UActor:
+        Type: std::string
+        Value: USphereMeshActor
+    Component:
+      - ComopnentName: UTransformComponent
+        Properties:
+          m_Position:UTransformComponent:
+            Type: ZMath::vec3
+            Value: [-4.12044382, -0.736925602, 1.6500001]
+          m_Rotation:UTransformComponent:
+            Type: ZMath::FRotation
+            Value: [0, 0, 0]
+          m_Scale:UTransformComponent:
+            Type: ZMath::vec3
+            Value: [1, 1, 1]
+      - ComopnentName: UMeshVertexComponent
+        Properties:
+          {}
+      - ComopnentName: UMeshRenderComponent
+        Properties:
+          m_MaterialHandle:UMeshRenderComponent:
+            Type: FMaterialHandle
+            Value: Texture\NewMaterial.mtl
+  - ActorName: ULightActor
+    Properties:
+      m_Tag:UActor:
+        Type: std::string
+        Value: ULightActor
+    Component:
+      - ComopnentName: UTransformComponent
+        Properties:
+          m_Position:UTransformComponent:
+            Type: ZMath::vec3
+            Value: [-0.0158478003, -3.14580011, 1.6500001]
+          m_Rotation:UTransformComponent:
+            Type: ZMath::FRotation
+            Value: [0, -2.56563401, 0]
+          m_Scale:UTransformComponent:
+            Type: ZMath::vec3
+            Value: [1, 1, 1]
+      - ComopnentName: UMeshVertexComponent
+        Properties:
+          {}
+      - ComopnentName: UMeshRenderComponent
+        Properties:
+          m_MaterialHandle:UMeshRenderComponent:
+            Type: FMaterialHandle
+            Value: ""
+      - ComopnentName: ULightComponent
+        Properties:
+          m_LightColor:ULightComponent:
+            Type: ZMath::FColor3
+            Value: [1, 1, 1]
+          m_LightIntensity:ULightComponent:
             Type: float
-            Value: 90
-  - ActorName: UCustomMeshActor
-    Properties:
-      m_Tag:UActor:
-        Type: std::string
-        Value: UCustomMeshActor
-      m_FileName:UCustomMeshActor:
-        Type: std::string
-        Value: sphere.fbx
-    Component:
-      - ComopnentName: UTransformComponent
-        Properties:
-          m_Position:UTransformComponent:
-            Type: ZMath::vec3
-            Value: [-2.127496, -1.92780316, 1.6500001]
-          m_Rotation:UTransformComponent:
-            Type: ZMath::FRotation
-            Value: [0, 0, 0]
-          m_Scale:UTransformComponent:
-            Type: ZMath::vec3
-            Value: [1, 1, 1]
-      - ComopnentName: UMeshVertexComponent
-        Properties:
-          {}
-      - ComopnentName: UMeshRenderComponent
-        Properties:
-          {}
-  - ActorName: UCustomMeshActor
-    Properties:
-      m_Tag:UActor:
-        Type: std::string
-        Value: UCustomMeshActor_1
-      m_FileName:UCustomMeshActor:
-        Type: std::string
-        Value: sphere.fbx
-    Component:
-      - ComopnentName: UTransformComponent
-        Properties:
-          m_Position:UTransformComponent:
-            Type: ZMath::vec3
-            Value: [3.18740368, -1.23655915, 1.6500001]
-          m_Rotation:UTransformComponent:
-            Type: ZMath::FRotation
-            Value: [0, 0, 0]
-          m_Scale:UTransformComponent:
-            Type: ZMath::vec3
-            Value: [1, 1, 1]
-      - ComopnentName: UMeshVertexComponent
-        Properties:
-          {}
-      - ComopnentName: UMeshRenderComponent
-        Properties:
-          {}
-  - ActorName: UCubeMeshActor
-    Properties:
-      m_Tag:UActor:
-        Type: std::string
-        Value: UCubeMeshActor
-    Component:
-      - ComopnentName: UTransformComponent
-        Properties:
-          m_Position:UTransformComponent:
-            Type: ZMath::vec3
-            Value: [-6.21351719, 0.360983014, 1.6500001]
-          m_Rotation:UTransformComponent:
-            Type: ZMath::FRotation
-            Value: [0, 0, 0]
-          m_Scale:UTransformComponent:
-            Type: ZMath::vec3
-            Value: [1, 1, 1]
-      - ComopnentName: UMeshVertexComponent
-        Properties:
-          {}
-      - ComopnentName: UMeshRenderComponent
-        Properties:
-          {}
-  - ActorName: UCustomMeshActor
-    Properties:
-      m_Tag:UActor:
-        Type: std::string
-        Value: UCustomMeshActor_2
-      m_FileName:UCustomMeshActor:
-        Type: std::string
-        Value: DirectLight.obj
-    Component:
-      - ComopnentName: UTransformComponent
-        Properties:
-          m_Position:UTransformComponent:
-            Type: ZMath::vec3
-            Value: [0.268817455, 1.94316447, 1.6500001]
-          m_Rotation:UTransformComponent:
-            Type: ZMath::FRotation
-            Value: [0, 0, 0]
-          m_Scale:UTransformComponent:
-            Type: ZMath::vec3
-            Value: [1, 1, 1]
-      - ComopnentName: UMeshVertexComponent
-        Properties:
-          {}
-      - ComopnentName: UMeshRenderComponent
-        Properties:
-          {}
-  - ActorName: UCustomMeshActor
-    Properties:
-      m_Tag:UActor:
-        Type: std::string
-        Value: UCustomMeshActor_3
-      m_FileName:UCustomMeshActor:
-        Type: std::string
-        Value: cat.fbx
-    Component:
-      - ComopnentName: UTransformComponent
-        Properties:
-          m_Position:UTransformComponent:
-            Type: ZMath::vec3
-            Value: [0.745007932, -2.57296443, 1.6500001]
-          m_Rotation:UTransformComponent:
-            Type: ZMath::FRotation
-            Value: [0, 0, 0]
-          m_Scale:UTransformComponent:
-            Type: ZMath::vec3
-            Value: [1, 1, 1]
-      - ComopnentName: UMeshVertexComponent
-        Properties:
-          {}
-      - ComopnentName: UMeshRenderComponent
-        Properties:
-          {}
-  - ActorName: UCustomMeshActor
-    Properties:
-      m_Tag:UActor:
-        Type: std::string
-        Value: UCustomMeshActor_4
-      m_FileName:UCustomMeshActor:
-        Type: std::string
-        Value: sphere.fbx
-    Component:
-      - ComopnentName: UTransformComponent
-        Properties:
-          m_Position:UTransformComponent:
-            Type: ZMath::vec3
-            Value: [5.61443901, -2.68049192, 1.6500001]
-          m_Rotation:UTransformComponent:
-            Type: ZMath::FRotation
-            Value: [0, 0, 0]
-          m_Scale:UTransformComponent:
-            Type: ZMath::vec3
-            Value: [1, 1, 1]
-      - ComopnentName: UMeshVertexComponent
-        Properties:
-          {}
-      - ComopnentName: UMeshRenderComponent
-        Properties:
-          {}
+            Value: 1

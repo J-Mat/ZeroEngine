@@ -8,6 +8,20 @@ Properties:
   m_AssetName:UAsset:
     Type: std::string
     Value: Texture\NewMaterial.mtl
-  m_Diffuse:UMaterialAsset:
-    Type: FTextureHandle
-    Value: default
+  m_FloatSlider:UAsset:
+    Type: FFloatSlider
+    Value: [0, 0, 1, 0.00999999978, false]
+  m_ShaderFile:UMaterialAsset:
+    Type: FAssignedFile
+    Value: Shader/ForwardLit.hlsl
+  m_Textures:UMaterialAsset:
+    Type: std::map
+    KeyType: std::string
+    ValueType: FTextureHandle
+    Value:
+      - Map-Key:
+          Type: std::string
+          Value: gDiffuseMap
+        Map-Value:
+          Type: FTextureHandle
+          Value: Texture\yayi.png

@@ -21,6 +21,7 @@ void ParseDir(const std::filesystem::path& Folder)
 		}
 		else if (Child.path().extension().string() == ".h")
 		{
+			std::cout << Child.path() << std::endl;
 			g_FileParser.Parse(Child.path());
 			if (g_FileParser.CheckNeedGenerateReflection())
 			{ 
