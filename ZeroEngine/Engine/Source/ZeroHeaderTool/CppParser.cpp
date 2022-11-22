@@ -496,6 +496,10 @@ namespace ZHT
 			   << std::format("return \"{0}\";", ClassElement.ClassName)
 			   << "} \\";
 		PUSH_TO_CONTENT
+		Stream << "\tstatic const char* StaticGetObjectName() {"
+			   << std::format("return \"{0}\";", ClassElement.ClassName)
+			   << "} \\";
+		PUSH_TO_CONTENT
 
 
 

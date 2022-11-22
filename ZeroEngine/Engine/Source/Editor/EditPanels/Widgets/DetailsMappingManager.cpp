@@ -4,17 +4,18 @@
 namespace Zero
 {
     extern std::map<std::string, FClassID> g_ClassInfo;
-    void FDetailMappingManager::RegisterVariableMapping(std::string PropertyType, Ref<FVariableDetailsMapping> PropertyDetailsMapping)
+    void FDetailMappingManager::RegisterVariableMapping(const std::string& PropertyType, Ref<FVariableDetailsMapping> PropertyDetailsMapping)
     {
         m_VariableMapping.insert({ PropertyType, PropertyDetailsMapping });
     }
 
-    void FDetailMappingManager::RegisterClassMapping(Ref<FClassDetailsMapping> ActorDetailsMapping)
+    void FDetailMappingManager::RegisterClassMapping(const std::string& ClassType, Ref<FClassDetailsMapping> ClassDetailsMapping)
     {
-        m_ActorDetailsMapping = ActorDetailsMapping;
+        m_ClassDetailsMapping.insert({ ClassType, ClassDetailsMapping });
     }
 
-    Ref<FVariableDetailsMapping> FDetailMappingManager::FindPropertyMapping(std::string PropertyType)
+
+    Ref<FVariableDetailsMapping> FDetailMappingManager::FindPropertyMapping(const std::string& PropertyType)
     {
         auto Iter = m_VariableMapping.find(PropertyType);
         if (Iter != m_VariableMapping.end())
@@ -24,10 +25,13 @@ namespace Zero
         return nullptr;
     }
 
-
-    bool FDetailMappingManager::UpdateClassWidgets(UCoreObject* CoreObject)
+    Ref<FClassDetailsMapping> FDetailMappingManager::FindClassMapping(const std::string& ClassType)
     {
-        m_ActorDetailsMapping->UpdateDetailsWidget(CoreObject);
-        return true;
+        auto Iter = m_ClassDetailsMapping.find(ClassType);
+        if (Iter != m_ClassDetailsMapping.end())
+        {
+            return  Iter->second;
+        }
+        return nullptr;
     }
 }

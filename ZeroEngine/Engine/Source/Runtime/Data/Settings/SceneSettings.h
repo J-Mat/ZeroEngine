@@ -11,7 +11,6 @@ namespace Zero
 		GENERATED_BODY()
 	public:
 		USceneSettings() = default;
-		virtual const char* GetSettingName() { return "SceneSetting"; }
 	public:
 		UPROPERTY()
 		bool m_bUseSkyBox = false;

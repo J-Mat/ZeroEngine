@@ -1,12 +1,13 @@
 #include "EditorLayer.h"
 #include "Render/Pipeline/ForwardStage.h"
 #include "Platform/Windows/WinWindow.h"
-#include "Render/RendererAPI.h"
 #include "EditorCameraController.h"
 #include "Dialog/DialogUtils.h"
 #include "Data/WorldSerializer.h"
 #include "Editor.h"
 #include "Colors.h"
+#include "Data/Settings/SettingsManager.h"
+#include "Data/Settings/SceneSettings.h"
 
 namespace Zero
 {
@@ -15,9 +16,9 @@ namespace Zero
 	{
 		m_ScriptablePipeline = CreateRef<FRenderPipeline>();
 		FRenderer::GetDevice()->PreInitWorld();
+		RegisterSettings();
 		RegisterEditPanel();
 		BuildWorld();
-		
 	}
 
 	void FEditorLayer::BuildWorld()
@@ -39,11 +40,18 @@ namespace Zero
 
 	void FEditorLayer::RegisterEditPanel()
 	{
+		FEditor::RegisterDataUIMapings();
 		FEditor::RegisterPanel("Content", m_ContentBrowserPanel =  CreateRef<FContentBrowserPanel>());
 		FEditor::RegisterPanel("Outline", m_OutlinePanel =  CreateRef<FOutlinePanel>());
 		FEditor::RegisterPanel("PlaceActor", m_PlaceActorPanel = CreateRef<FPlaceActorsPanel>());
 		FEditor::RegisterPanel("Viewport", m_ViewportPanel = CreateRef<FViewportPanel>());
 		FEditor::RegisterPanel("Detail",  m_DetailPanel = CreateRef<FDetailPanel>());
+		FEditor::RegisterPanel("Settings",  CreateRef<FSettingsPanel>());
+	}
+
+	void FEditorLayer::RegisterSettings()
+	{
+		FSettingManager::GetInstance().RegisterSetting(USceneSettings::StaticGetObjectName());
 	}
 
 	

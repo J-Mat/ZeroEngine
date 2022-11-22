@@ -1,6 +1,7 @@
 #include "MaterialHandleDetailsMapping.h"
 #include "DetailsMappingManager.h"
 #include "Editor.h"
+#include "Data/Asset/AssetManager.h"
 
 namespace Zero
 {

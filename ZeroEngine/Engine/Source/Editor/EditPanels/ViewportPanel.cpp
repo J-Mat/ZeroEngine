@@ -1,5 +1,6 @@
 #include "ViewportPanel.h"
 #include "Editor.h"
+#include "World/Actor/CustomMeshActor.h"
 
 namespace Zero
 {

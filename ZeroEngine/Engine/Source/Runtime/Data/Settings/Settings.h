@@ -13,7 +13,6 @@ namespace Zero
 		GENERATED_BODY()
 	public:
 		USettings() = default;
-		virtual const char* GetSettingName() = 0;
 	};
 
 }

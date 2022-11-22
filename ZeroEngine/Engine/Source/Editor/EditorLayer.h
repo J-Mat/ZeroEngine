@@ -6,6 +6,7 @@
 #include "EditPanels/OutlinePanel.h"
 #include "EditPanels/DetailsPanel.h"
 #include "EditPanels/PlaceActorsPanel.h"
+#include "EditPanels/SettingsPanel.h"
 
 namespace Zero
 {
@@ -27,9 +28,9 @@ namespace Zero
 		void SaveScene();
 		void OpenScene();
 		
-		
 		void BuildWorld() ;
 		void RegisterEditPanel();
+		void RegisterSettings();
 
 	private:
 		bool MouseButtonPressed(FMouseButtonReleasedEvent& Event);

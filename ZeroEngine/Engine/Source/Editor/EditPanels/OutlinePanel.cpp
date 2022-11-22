@@ -7,7 +7,7 @@ namespace Zero
 	{
 		static int SelectedIndex = -1;
 		ImGui::Begin("OutlinePanel");
-		ImGui::BeginChild("OutLine Panel", ImVec2(150, 0), true);
+		ImGui::BeginChild("OutLine Panel", ImVec2(150, 200), true);
 		UWorld* World = UWorld::GetCurrentWorld();
 		std::vector<UActor*> Actors = World->GetActors();
 		for (int i = 0; i < Actors.size(); ++i)
