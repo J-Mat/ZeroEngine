@@ -42,3 +42,19 @@ I converted the map and vector data to UI panel through code reflection.
 You can DIY the slide floats, colos, and textures in the material file, attaching these parameters to the shader and preparing the comming PBR effect in the future!
 
  ![1668840995552](image/README/1668840995552.png)
+
+### Skybox 2022-11-27
+
+I've disjoined shader and PSO into 2 parts. So we can config PSO settings, such as cull mode, depth compair func, blend state, etc.
+
+Absolutely the skybox need different PSO, DepthFunc is LESS_EQUAL, CullMode is CULL_MODE_FRONT.
+
+```cpp
+		FPSODescriptor SkyboxPSODesc;
+		SkyboxPSODesc.CullMode = ECullMode::CULL_MODE_FRONT;
+		SkyboxPSODesc.DepthFunc = EComparisonFunc::LESS_EQUAL;
+		SkyboxPSODesc.Shader = FRenderer::GraphicFactroy->CreateShader("Shader/Skybox.hlsl", ShaderBinderDesc, ShaderDessc);
+		FRenderer::GraphicFactroy->CreatePSO(PSO_SKYBOX, SkyboxPSODesc)
+```
+
+![1669541205789](image/README/1669541205789.png)

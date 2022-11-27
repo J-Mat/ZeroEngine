@@ -56,6 +56,5 @@ PixelOutput PS(VertexOut Pin)
 {
 	PixelOutput Out;
     Out.BaseColor = gSkyboxMap.Sample(gSamLinearWarp, Pin.PosL);
-    //Out.BaseColor = float4(1.0f, 0.0f, 0.0f, 1.0f);
 	return Out;
 }

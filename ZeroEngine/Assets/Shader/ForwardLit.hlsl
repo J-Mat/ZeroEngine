@@ -52,7 +52,7 @@ PixelOutput PS(VertexOut Pin)
 	float z = clamp(Pin.WorldPos.z, -1.0f, 1.0f);
 	float3 test = float3(x,y,z);
 	//Out.BaseColor = gSkyboxMap.Sample(gSamLinearClamp, float3(x, y, z));
-	//Out.BaseColor = float4(DiffuseAlbedo.xyz, 1.0f);
-	Out.BaseColor = float4(1.0f, 0.0f, 0.0f, 1.0f);
+	Out.BaseColor = float4(DiffuseAlbedo.xyz, 1.0f);
+	//Out.BaseColor = float4(1.0f, 0.0f, 0.0f, 1.0f);
 	return Out;
 }
