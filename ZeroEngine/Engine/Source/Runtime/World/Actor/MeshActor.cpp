@@ -11,15 +11,13 @@ namespace Zero
 	UMeshActor::UMeshActor()
 		: UActor()
 	{
-		CreateComponent<UMeshVertexComponent>(this);
-		CreateComponent<UMeshRenderComponent>(this);
+		m_MeshVertexComponent = CreateComponent<UMeshVertexComponent>(this);
+		m_MeshRenderComponent = CreateComponent<UMeshRenderComponent>(this);
 	}
 
 	void UMeshActor::PostInit()
 	{
 		Supper::PostInit();
-		m_MeshVertexComponent = GetComponent<UMeshVertexComponent>();
-		m_MeshRenderComponent = GetComponent<UMeshRenderComponent>();
 		BuildMesh();
 		m_MeshVertexComponent->GenerateAABB();
 
@@ -30,7 +28,7 @@ namespace Zero
 
 	void UMeshActor::CommitToPipieline()
 	{
-		FRenderItemPool& RenderItemPool = m_World->GetRenderItemPool();
+		FRenderItemPool& RenderItemPool = m_World->GetRenderItemPool(RENDERLAYER_OPAQUE);
 		uint32_t MaterialIndex = 0;
 		for (FSubMesh& SubMesh : *m_MeshVertexComponent->m_Mesh.get())
 		{
@@ -38,7 +36,7 @@ namespace Zero
 			Item->m_Mesh = m_MeshVertexComponent->m_Mesh;
 			Item->m_SubMesh = SubMesh;
 			Item->m_ConstantsBuffer = m_MeshVertexComponent->m_ShaderConstantsBuffer;
-			Item->m_Material = m_MeshRenderComponent->GetPassMaterials(EMeshRenderLayerType::RenderLayer_Opaque)[MaterialIndex];
+			Item->m_Material = m_MeshRenderComponent->GetPassMaterials(RENDERLAYER_OPAQUE)[MaterialIndex];
 			Item->SetModelMatrix(m_TransformationComponent->GetTransform());
 			MaterialIndex++;
 

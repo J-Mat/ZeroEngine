@@ -17,7 +17,7 @@ namespace Zero
 			PerObtConstantsDesc.Size = Layout.GetStride();
 			for (auto Element : Layout)
 			{
-				PerObtConstantsDesc.Mapper.InsertConstant(Element, ERootParameters::FrameConstantCB);
+				PerObtConstantsDesc.Mapper.InsertConstant(Element);
 			}
 		}
 

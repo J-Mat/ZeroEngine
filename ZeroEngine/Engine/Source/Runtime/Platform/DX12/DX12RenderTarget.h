@@ -33,7 +33,7 @@ namespace Zero
 		// Get the sample description of the render target.
 		DXGI_SAMPLE_DESC GetSampleDesc() const;
 
-		D3D12_VIEWPORT m_ViewPort;
-		D3D12_RECT m_ScissorRect;
+		D3D12_VIEWPORT m_ViewPort = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+		D3D12_RECT m_ScissorRect = {0, 0, 0, 0};
 	};
 }

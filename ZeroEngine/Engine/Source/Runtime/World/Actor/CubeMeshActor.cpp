@@ -1,5 +1,6 @@
 #include "CubeMeshActor.h"
 #include "../Component/MeshVertexComponent.h"
+#include "../Component/MeshRenderComponent.h"
 #include "Render/Moudule/MeshGenerator.h"
 
 namespace Zero
@@ -7,6 +8,7 @@ namespace Zero
 	UCubeMeshActor::UCubeMeshActor()
 		: UMeshActor()
 	{
+		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_OPAQUE);
 	}
 
 	void UCubeMeshActor::BuildMesh()

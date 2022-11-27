@@ -6,9 +6,10 @@
 
 namespace Zero
 {
-	class FShaderRegister : public IPublicSingleton<FShaderRegister>
+	class FPSORegister : public IPublicSingleton<FPSORegister>
 	{
 	public:
-		void RegisterDefaultShader();
+		void RegisterDefaultPSO();
+		void RegisterSkyboxPSO();
 	};
 }

@@ -15,7 +15,7 @@ namespace Zero
 		USphereMeshActor(float Radius, uint32_t NumSubdivisions);
 		virtual void BuildMesh();
 	private:
-		float m_Radius = 2.0f;
+		float m_Radius = 1.0f;
 		uint32_t m_NumSubdivisions = 3;
 	};
 }

@@ -3,6 +3,7 @@
 #include "Platform/DX12/DX12RootSignature.h"
 #include "Platform/DX12/MemoryManage/DynamicDescriptorHeap.h"
 #include "../DX12CommandList.h"
+#include "../DX12TextureCubemap.h"
 
 namespace Zero
 {
@@ -187,6 +188,7 @@ namespace Zero
 		
 		m_RootSignature = CreateRef<FDX12RootSignature>(RoogSig);
 	}
+
 	void FDX12ShaderBinder::BuildDynamicHeap()
 	{
 		FDX12RootSignature* D3DRootSignature = static_cast<FDX12RootSignature*>(m_RootSignature.get());
@@ -220,6 +222,14 @@ namespace Zero
 
 	void FDX12ShaderResourcesBuffer::SetTextureCubemap(const std::string& Name, Ref<FTextureCubemap> Texture)
 	{
+		FShaderResourceItem Item;
+		if (m_Desc.Mapper.FetchResource(Name, Item))
+		{
+			FDX12TextureCubemap* D3DTexture = static_cast<FDX12TextureCubemap*>(Texture.get());
+			m_SrvDynamicDescriptorHeap->StageDescriptors(Item.SRTIndex, Item.Offset, 1, D3DTexture->GetShaderResourceView());
+			m_Desc.Mapper.SetTextureID(Name); 
+			m_bIsDirty = true;
+		}
 	}
 
 	void FDX12ShaderResourcesBuffer::UploadDataIfDirty()

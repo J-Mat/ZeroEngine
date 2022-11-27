@@ -32,7 +32,8 @@ namespace Zero
 		Ref<FRenderStage> ForwardRendering = FForwardStage::Create();
 		m_ScriptablePipeline->PushLayer(ForwardRendering);
 
-		FShaderRegister::GetInstance().RegisterDefaultShader();
+		FPSORegister::GetInstance().RegisterDefaultPSO();
+		FPSORegister::GetInstance().RegisterSkyboxPSO();
 
 		Ref<FImage> Image = CreateRef<FImage>(ZConfig::GetAssestsFullPath("Texture/DefaultTexture.png").string());
 		FRenderer::GraphicFactroy->CreateTexture2D(Image, "default");
@@ -60,7 +61,7 @@ namespace Zero
 		CLIENT_LOG_INFO("FEditorLayer::OnAttach");
 		FRenderer::GetDevice()->FlushInitCommandList();
 		
-		auto RenderTarget = TLibrary<FRenderTarget>::Fetch(FORWARD_STAGE);
+		auto RenderTarget = TLibrary<FRenderTarget>::Fetch(RENDER_STAGE_FORWARD);
 		m_ViewportPanel->SetRenderTarget(RenderTarget);
 	}
 	

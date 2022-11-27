@@ -11,7 +11,7 @@ namespace Zero
 	{
 		GENERATED_BODY()
 	public:
-		UCustomMeshActor() = default;
+		UCustomMeshActor();
 		UCustomMeshActor(const std::string& FileName);
 		virtual void BuildMesh();
 	protected:

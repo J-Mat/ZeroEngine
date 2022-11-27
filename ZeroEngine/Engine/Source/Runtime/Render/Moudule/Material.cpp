@@ -27,18 +27,31 @@ namespace Zero
 
 	void FMaterial::SetPass()
 	{
-		Ref<IShaderBinder> ShaderBinder = m_Shader->GetBinder();
-		ShaderBinder->Bind();
-		ShaderBinder->BindConstantsBuffer(ERootParameters::MaterialCB, m_ConstantsBuffer.get());
-		UCameraActor* Camera = UWorld::GetCurrentWorld()->GetMainCamera();
-		ShaderBinder->BindConstantsBuffer(ERootParameters::CameraCB, Camera->GetConstantBuffer().get());
-		ShaderBinder->BindConstantsBuffer(ERootParameters::FrameConstantCB, FFrameConstantsManager::GetInstance().GetShaderConstantBuffer().get());
-		m_Shader->Use();
+		m_ShaderBinder->Bind();
+		const auto& BinderDesc = m_ShaderBinder->GetBinderDesc();
+		if (m_ConstantsBuffer != nullptr)
+		{
+			m_ShaderBinder->BindConstantsBuffer(BinderDesc.m_MaterialIndex, m_ConstantsBuffer.get());
+		}
+		if (BinderDesc.m_CameraIndex != Utils::InvalidIndex)
+		{
+			UCameraActor* Camera = UWorld::GetCurrentWorld()->GetMainCamera();
+			m_ShaderBinder->BindConstantsBuffer(BinderDesc.m_CameraIndex, Camera->GetConstantBuffer().get());
+		}
+		
+		if (BinderDesc.m_ConstantIndex != Utils::InvalidIndex)
+		{
+			m_ShaderBinder->BindConstantsBuffer(BinderDesc.m_ConstantIndex, FFrameConstantsManager::GetInstance().GetShaderConstantBuffer().get());
+		}
+		//m_Shader->Use();
 	}
 
 	void FMaterial::OnDrawCall()
 	{
-		m_ConstantsBuffer->UploadDataIfDirty();
+		if (m_ConstantsBuffer)
+		{
+			m_ConstantsBuffer->UploadDataIfDirty();
+		}
 		m_ResourcesBuffer->UploadDataIfDirty();
 		FFrameConstantsManager::GetInstance().GetShaderConstantBuffer()->UploadDataIfDirty();
 	}
@@ -48,10 +61,18 @@ namespace Zero
 		if (m_Shader != Shader)
 		{
 			m_Shader = Shader;
-			m_ConstantsDesc = m_Shader->GetBinder()->GetShaderConstantsDesc(ERootParameters::MaterialCB);
+			m_ShaderBinder = m_Shader->GetBinder();
+			int32_t MaterialIndex = Shader->GetBinder()->GetBinderDesc().m_MaterialIndex;
+			if (MaterialIndex != Utils::InvalidIndex)
+			{
+				m_ConstantsDesc = m_Shader->GetBinder()->GetShaderConstantsDesc(MaterialIndex);
+				if (m_ConstantsDesc != nullptr)
+				{
+					m_ConstantsBuffer = FRenderer::GraphicFactroy->CreateShaderConstantBuffer(*m_ConstantsDesc.get());
+				}
+			}
 			m_ResourcesDesc = m_Shader->GetBinder()->GetShaderResourcesDesc();
 
-			m_ConstantsBuffer = FRenderer::GraphicFactroy->CreateShaderConstantBuffer(*m_ConstantsDesc.get());
 			m_ResourcesBuffer = FRenderer::GraphicFactroy->CreateShaderResourceBuffer(
 				*m_ResourcesDesc.get(),
 				m_Shader->GetBinder()->GetRootSignature()

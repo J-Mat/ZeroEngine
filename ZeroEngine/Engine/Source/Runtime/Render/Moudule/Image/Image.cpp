@@ -5,9 +5,10 @@ namespace Zero
 {
 	FImage::FImage(std::string Path)
 	{
-		//stbi_set_flip_vertically_on_load(1);
-		m_Data = stbi_load(Path.c_str(), &m_Width, &m_Height, &m_Channels, 0);
-		CORE_ASSERT(m_Data, "Image Loaded from Path Falied!");
+		m_Channels = 4;
+		int ChanelInFile;
+		auto stb_data = stbi_load(Path.c_str(), &m_Width, &m_Height, &ChanelInFile, m_Channels);
+		CORE_ASSERT(stb_data, "Image Loaded from Path Falied!");
 		if (m_Channels == 3)
 		{
 			m_Type = EImgeType::RGB;
@@ -16,8 +17,13 @@ namespace Zero
 		{
 			m_Type = EImgeType::RGBA;
 		}
+		m_Data = new unsigned char[m_Width * m_Height * m_Channels];
+		for (size_t i = 0; i < m_Width * m_Height * m_Channels; i++)
+			m_Data[i] = stb_data[i];
 		m_BufferSize = m_Width * m_Height * m_Channels * sizeof(unsigned char);
+		stbi_image_free(stb_data);
 	}
+
 	FImage::FImage(uint32_t Width, uint32_t Height, uint32_t Channels, ZMath::vec4 Color)
 		:m_Width(Width)
 		,m_Height(Height)

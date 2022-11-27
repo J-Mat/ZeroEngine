@@ -11,13 +11,13 @@ namespace Zero
     class FDX12Device;
     class FDescriptorAllocation;
 
-	class FDX12Texture2D :public FTexture2D, public IResource
+	class FDX12TextureCubemap :public FTextureCubemap, public IResource
 	{
 	public:
         static DXGI_FORMAT GetFormatByDesc(ETextureFormat Format);
-		FDX12Texture2D(const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* ClearValue = nullptr);
-		FDX12Texture2D(Ref<FImage> ImageData);
-        FDX12Texture2D(ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, const D3D12_CLEAR_VALUE* ClearValue = nullptr);
+		FDX12TextureCubemap(const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* ClearValue = nullptr);
+		FDX12TextureCubemap(Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT]);
+        FDX12TextureCubemap(ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, const D3D12_CLEAR_VALUE* ClearValue = nullptr);
 
 
         virtual ZMath::uvec2 GetSize() 
@@ -25,13 +25,8 @@ namespace Zero
             const auto& Desc = GetD3D12ResourceDesc();
             return ZMath::uvec2(Desc.Width, Desc.Height);
         };
-
-        virtual void Resize(uint32_t Width, uint32_t Height, uint32_t DepthOrArraySize);
-
-        virtual void RegistGuiShaderResource() override;
-        virtual UINT64 GetGuiShaderReseource() override;
-
-        D3D12_UNORDERED_ACCESS_VIEW_DESC GetUAVDesc(const D3D12_RESOURCE_DESC& ResDesc, UINT MipSlice, UINT ArraySlice = 0, UINT PlaneSlice = 0);
+        
+        virtual void Resize(uint32_t Width, uint32_t Height, uint32_t DepthOrArraySize = 6);
 
 		void CreateViews();
 
@@ -51,6 +46,8 @@ namespace Zero
                 CheckFormatSupport(D3D12_FORMAT_SUPPORT2_UAV_TYPED_LOAD) &&
                 CheckFormatSupport(D3D12_FORMAT_SUPPORT2_UAV_TYPED_STORE);
         }
+        D3D12_UNORDERED_ACCESS_VIEW_DESC GetUAVDesc(const D3D12_RESOURCE_DESC& ResDesc, UINT MipSlice, UINT ArraySlice = 0,
+            UINT PlaneSlice = 0);
 
         bool CheckDSVSupport() const
         {
@@ -79,6 +76,8 @@ namespace Zero
         D3D12_CPU_DESCRIPTOR_HANDLE GetUnorderedAccessView(uint32_t mip) const;
         
 	private:
+        uint32_t m_EachFaceSize = 0;
+
 		FDescriptorAllocation m_RenderTargetView;
 		FDescriptorAllocation m_DepthStencilView;
 		FDescriptorAllocation m_ShaderResourceView;

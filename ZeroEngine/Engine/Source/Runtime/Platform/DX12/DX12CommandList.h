@@ -12,7 +12,7 @@
 
 namespace Zero
 {
-	class FPipelineStateObject;
+	class FDX12PipelineStateObject;
 	class IResource;
 	class FDX12Texture2D;
 	class FDX12Device;
@@ -25,14 +25,15 @@ namespace Zero
 		virtual ~FDX12CommandList() = default;
 
 		void FlushResourceBarriers();
-		ComPtr<ID3D12GraphicsCommandList> GetD3D12CommandList() { return m_D3DCommandList;}
+		ComPtr<ID3D12GraphicsCommandList> GetD3D12CommandList() { return m_D3DCommandList; }
 
 		ComPtr<ID3D12Resource> CreateDefaultBuffer(const void* BufferData, size_t BufferSize, D3D12_RESOURCE_FLAGS Flags = D3D12_RESOURCE_FLAG_NONE);
-		
+
 
 		ComPtr<ID3D12Resource> CreateTextureResource(Ref<FImage> Image);
+		ComPtr<ID3D12Resource> CreateTextureCubemapResource(Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT], uint32_t Width, uint32_t Height, uint32_t Chanels);
 		ComPtr<ID3D12Resource> CreateRenderTargetResource(uint32_t Width, uint32_t Height);
-		
+
 		void ResolveSubResource(const Ref<IResource>& DstRes, const Ref<IResource> SrcRes, uint32_t DstSubRes = 0, uint32_t SrcSubRes = 0);
 
 		void ClearTexture(FDX12Texture2D* TexturePtr, const ZMath::vec4 Color);
@@ -50,7 +51,7 @@ namespace Zero
 		void Draw(uint32_t vertexCount, uint32_t instanceCount = 1, uint32_t startVertex = 0, uint32_t startInstance = 0);
 		void DrawIndexed(uint32_t indexCount, uint32_t instanceCount = 1, uint32_t startIndex = 0, int32_t baseVertex = 0,
 			uint32_t startInstance = 0);
-		
+
 		/**
 		 * Close the command list.
 		* Used by the command queue.
@@ -65,7 +66,7 @@ namespace Zero
 		// Just close the command list. This is useful for pending command lists.
 		void Close();
 
-		
+
 		/**
 		* Release tracked objects. Useful if the swap chain needs to be resized.
 		*/
@@ -83,7 +84,7 @@ namespace Zero
 		/**
 		* Set the pipeline state object on the command list.
 		*/
-		void SetPipelineState(const Ref<FPipelineStateObject>& PipelineState);
+		void SetPipelineState(const Ref<FDX12PipelineStateObject>& PipelineState);
 
 		/**
 		* Set the render targets for the graphics rendering pipeline.

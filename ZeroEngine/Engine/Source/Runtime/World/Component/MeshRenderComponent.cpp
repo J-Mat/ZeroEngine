@@ -33,23 +33,26 @@ namespace Zero
 		}
 	}
 
-	std::vector<Ref<FMaterial>>& UMeshRenderComponent::GetPassMaterials(const EMeshRenderLayerType& LayerType)
+	std::vector<Ref<FMaterial>>& UMeshRenderComponent::GetPassMaterials(uint32_t LayerLayer)
 	{
+		CORE_ASSERT(m_RenderLayer & LayerLayer, "Must have this RenderLayer");
 		//Ref<FTexture2D> Texture = TLibrary<FTexture2D>::Fetch("default");
-		auto& iter = m_Materials.find(LayerType);
-		if (iter == m_Materials.end() || m_Materials[LayerType].size() != m_SubmeshNum)
+		auto& iter = m_Materials.find(LayerLayer);
+		if (iter == m_Materials.end() || m_Materials[LayerLayer].size() != m_SubmeshNum)
 		{
-			for (size_t i = m_Materials[LayerType].size(); i < m_SubmeshNum; i++)
+			for (size_t i = m_Materials[LayerLayer].size(); i < m_SubmeshNum; i++)
 			{
 				Ref<FMaterial> Material = CreateRef<FMaterial>();
-				m_Materials[LayerType].emplace_back(Material);
+				m_Materials[LayerLayer].emplace_back(Material);
 			}
 		}	
+		
+		std::vector <Ref<FMaterial>>& OneLayerMaterials = m_Materials[LayerLayer];
 		for (size_t i = 0; i < m_SubmeshNum; i++)
 		{
-			m_Materials[LayerType][i]->SetShader(m_ShaderFile);
+			OneLayerMaterials[i]->SetShader(m_ShaderFile);
 		}
-		return m_Materials[LayerType];
+		return m_Materials[LayerLayer];
 	}
 
 	void UMeshRenderComponent::PostEdit(UProperty* Property)
@@ -59,7 +62,16 @@ namespace Zero
 		{
 			AttachParameters();
 		}
+		auto TextureCubmap = TLibrary<FTextureCubemap>::Fetch("default");
+		if (TextureCubmap != nullptr)
+		{
+			for (size_t i = 0; i < m_SubmeshNum; i++)
+			{
+				m_Materials[RENDERLAYER_OPAQUE][i]->SetTextureCubemap("gSkyboxMap", TextureCubmap);
+			}
+		}
 	}
+
 	void UMeshRenderComponent::AttachParameters()
 	{
 		if (!m_bEnableMaterial || m_MaterialHandle == "")
@@ -75,7 +87,7 @@ namespace Zero
 				Ref<FTexture2D> Texture = FAssetManager::GetInstance().FetchTexture(Iter.second);
 				if (Texture != nullptr)
 				{
-					m_Materials[EMeshRenderLayerType::RenderLayer_Opaque][i]->SetTexture2D(TextureName, Texture);
+					m_Materials[RENDERLAYER_OPAQUE][i]->SetTexture2D(TextureName, Texture);
 				}
 			}
 			m_ShaderFile = MaterialAsset->m_ShaderFile;

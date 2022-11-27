@@ -1,4 +1,4 @@
-#include "DX12Texture2D.h"
+#include "DX12TextureCubemap.h"
 #include "DX12Device.h"
 #include "DX12CommandQueue.h"
 #include "DX12CommandList.h"
@@ -6,7 +6,7 @@
 
 namespace Zero
 {
-	DXGI_FORMAT FDX12Texture2D::GetFormatByDesc(ETextureFormat Format)
+	DXGI_FORMAT FDX12TextureCubemap::GetFormatByDesc(ETextureFormat Format)
 	{
 		switch (Format)
 		{
@@ -27,7 +27,7 @@ namespace Zero
 		}
 		return DXGI_FORMAT_UNKNOWN;
 	}
-	FDX12Texture2D::FDX12Texture2D(const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* clearValue)
+	FDX12TextureCubemap::FDX12TextureCubemap(const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* clearValue)
 		: IResource(ResourceDesc, clearValue)
 	{
 		m_Width = (uint32_t)ResourceDesc.Width;
@@ -35,19 +35,35 @@ namespace Zero
 		CreateViews();
 	}
 
-	FDX12Texture2D::FDX12Texture2D(Ref<FImage> ImageData)
+	FDX12TextureCubemap::FDX12TextureCubemap(Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT])
 		:  IResource()
 	{
-		m_ImageData = ImageData;
-		m_Width = ImageData->GetWidth();
-		m_Height = ImageData->GetHeight();
-		CORE_ASSERT(ImageData->GetData() != nullptr, "Image has no data!");
-		auto Resource = FDX12Device::Get()->GetInitWorldCommandList()->CreateTextureResource(ImageData);
+		m_Width = ImageData[0]->GetWidth();
+		m_Height = ImageData[0]->GetHeight();
+		CORE_ASSERT(ImageData[0]->GetData() != nullptr, "Image has no data!");
+
+		/*
+		m_EachFaceSize = ImageData[0]->GetBufferSize();
+		m_Data = (char*)malloc(m_EachFaceSize * CUBEMAP_TEXTURE_CNT);
+		uint32_t Offset = 0;
+		for (size_t i = 0; i < CUBEMAP_TEXTURE_CNT; ++i)
+		{
+			memcpy(&m_Data[Offset], ImageData[i]->GetData(), m_EachFaceSize);
+			Offset += m_EachFaceSize;
+		}
+		*/
+		auto Resource = 
+			FDX12Device::Get()->GetInitWorldCommandList()->CreateTextureCubemapResource(
+				ImageData,
+				m_Width, 
+				m_Height,
+				ImageData[0]->GetChannel()
+			);
 		SetResource(Resource);
 		CreateViews();
 	}
 
-	FDX12Texture2D::FDX12Texture2D(ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, const D3D12_CLEAR_VALUE* ClearValue)
+	FDX12TextureCubemap::FDX12TextureCubemap(ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, const D3D12_CLEAR_VALUE* ClearValue)
 		: IResource(Resource, ClearValue)
 	{
 		m_Width = Width;
@@ -55,7 +71,7 @@ namespace Zero
 		CreateViews();
 	}
 
-	void FDX12Texture2D::Resize(uint32_t Width, uint32_t Height, uint32_t DepthOrArraySize = 1)
+	void FDX12TextureCubemap::Resize(uint32_t Width, uint32_t Height, uint32_t DepthOrArraySize)
 	{
 		if (m_D3DResource)
 		{
@@ -83,29 +99,8 @@ namespace Zero
 		}
 	}
 
-	void FDX12Texture2D::RegistGuiShaderResource()
-	{
-		if (m_GuiAllocation.IsNull())
-		{
-			m_GuiAllocation = FDX12Device::Get()->AllocateGuiDescritor();
-		}
-		FDX12Device::Get()->GetDevice()->CreateShaderResourceView(
-			m_D3DResource.Get(), 
-			nullptr,
-			m_GuiAllocation.CpuHandle
-		);
-		m_bHasGuiResource = true;
-	}
-
-	UINT64 FDX12Texture2D::GetGuiShaderReseource()
-	{
-		CORE_ASSERT(m_bHasGuiResource, "Textrue must has gui resource!");
-		D3D12_GPU_DESCRIPTOR_HANDLE* Handle = &(m_GuiAllocation.GpuHandle);
-		return m_GuiAllocation.GpuHandle.ptr;
-	}
-
 	// Get a UAV description that matches the resource description.
-	D3D12_UNORDERED_ACCESS_VIEW_DESC FDX12Texture2D::GetUAVDesc(const D3D12_RESOURCE_DESC& ResDesc, UINT MipSlice, UINT ArraySlice, UINT PlaneSlice)
+	D3D12_UNORDERED_ACCESS_VIEW_DESC FDX12TextureCubemap::GetUAVDesc(const D3D12_RESOURCE_DESC& ResDesc, UINT MipSlice, UINT ArraySlice, UINT PlaneSlice)
 	{
 		D3D12_UNORDERED_ACCESS_VIEW_DESC UavDesc = {};
 		UavDesc.Format = ResDesc.Format;
@@ -155,14 +150,8 @@ namespace Zero
 		return UavDesc;
 	}
 
-	void FDX12Texture2D::CreateViews()
+	void FDX12TextureCubemap::CreateViews()
 	{
-		constexpr DXGI_FORMAT ChannelMap[] = {
-			DXGI_FORMAT::DXGI_FORMAT_R32_FLOAT,
-			DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT,
-			DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,
-			DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT,
-		};
 		if (m_D3DResource)
 		{
 			auto D3DDevice = FDX12Device::Get()->GetDevice();
@@ -197,22 +186,9 @@ namespace Zero
 					m_ShaderResourceView = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 				}
 				D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc = {};
-				if (m_ImageData != nullptr)
-				{
-					std::uint8_t srv_srcs[4];
-					for (size_t i = 0; i < m_ImageData->GetChannel(); i++)
-						srv_srcs[i] = static_cast<std::uint8_t>(i);
-					for (size_t i = m_ImageData->GetChannel(); i < 4; i++)
-						srv_srcs[i] = D3D12_SHADER_COMPONENT_MAPPING_FORCE_VALUE_1;
-					SrvDesc.Shader4ComponentMapping =
-						D3D12_ENCODE_SHADER_4_COMPONENT_MAPPING(srv_srcs[0], srv_srcs[1], srv_srcs[2], srv_srcs[3]);
-				}
-				else
-				{
-					SrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-				}
-				SrvDesc.Format = m_D3DResource->GetDesc().Format;
-				SrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+				SrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+				SrvDesc.Format = Desc.Format;
+				SrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
 				SrvDesc.Texture2D.MostDetailedMip = 0;
 				SrvDesc.Texture2D.MipLevels = 1;
 				SrvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
@@ -236,23 +212,19 @@ namespace Zero
 			}
 		}
 	}
-
-	D3D12_CPU_DESCRIPTOR_HANDLE FDX12Texture2D::GetRenderTargetView() const
+	D3D12_CPU_DESCRIPTOR_HANDLE FDX12TextureCubemap::GetRenderTargetView() const
 	{
 		return m_RenderTargetView.GetDescriptorHandle();
 	}
-
-	D3D12_CPU_DESCRIPTOR_HANDLE FDX12Texture2D::GetDepthStencilView() const
+	D3D12_CPU_DESCRIPTOR_HANDLE FDX12TextureCubemap::GetDepthStencilView() const
 	{
 		return m_DepthStencilView.GetDescriptorHandle();
 	}
-
-	D3D12_CPU_DESCRIPTOR_HANDLE FDX12Texture2D::GetShaderResourceView() const
+	D3D12_CPU_DESCRIPTOR_HANDLE FDX12TextureCubemap::GetShaderResourceView() const
 	{
 		return m_ShaderResourceView.GetDescriptorHandle();
 	}
-
-	D3D12_CPU_DESCRIPTOR_HANDLE FDX12Texture2D::GetUnorderedAccessView(uint32_t mip) const
+	D3D12_CPU_DESCRIPTOR_HANDLE FDX12TextureCubemap::GetUnorderedAccessView(uint32_t mip) const
 	{
 		return D3D12_CPU_DESCRIPTOR_HANDLE();
 	}

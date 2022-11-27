@@ -1,12 +1,14 @@
 #include "SphereMeshActor.h"
 #include "../Component/MeshVertexComponent.h"
 #include "Render/Moudule/MeshGenerator.h"
+#include "../Component/MeshRenderComponent.h"
 
 namespace Zero
 {
 	USphereMeshActor::USphereMeshActor()
 		: UMeshActor()
 	{
+		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_OPAQUE);
 	}
 
 	USphereMeshActor::USphereMeshActor(float Radius, uint32_t NumSubdivisions)

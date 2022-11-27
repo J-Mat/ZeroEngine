@@ -7,6 +7,11 @@
 
 namespace Zero
 {
+	UCustomMeshActor::UCustomMeshActor()
+		: UMeshActor()
+	{
+		m_MeshRenderComponent->AttachRenderLayer(uint32_t(RENDERLAYER_OPAQUE));
+	}
 	UCustomMeshActor::UCustomMeshActor(const std::string& FileName)
 		: UMeshActor()
 		, m_FileName(FileName)

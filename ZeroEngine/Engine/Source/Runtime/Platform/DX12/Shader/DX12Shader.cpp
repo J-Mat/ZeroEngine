@@ -3,7 +3,7 @@
 #include "Platform/DX12/DX12Device.h"
 #include "DX12ShaderBinder.h"
 #include "../DX12RootSignature.h"
-#include "../PipelineStateObject.h"
+#include "../DX12PipelineStateObject.h"
 #include "../DX12CommandList.h"
 
 namespace Zero
@@ -43,13 +43,10 @@ namespace Zero
 	void FDX12Shader::CreateBinder()
 	{
 		m_ShaderBinder = CreateRef<FDX12ShaderBinder>(m_ShaderBinderDesc);
-		CreatePSO();
 	}
 
 	void FDX12Shader::Use()
 	{
-		Ref<FDX12CommandList> CommandList = FDX12Device::Get()->GetRenderCommandList();
-		CommandList->GetD3D12CommandList()->SetPipelineState(m_PipelineStateObject->GetD3D12PipelineState().Get());
 		m_ShaderBinder->Bind();
 	}
 
@@ -101,6 +98,7 @@ namespace Zero
 		return ByteCode;
 	}
 
+	/*
 	void FDX12Shader::CreatePSO()
 	{
 		FDX12ShaderBinder* DX12ShaderBinder = static_cast<FDX12ShaderBinder*>(m_ShaderBinder.get());
@@ -123,6 +121,7 @@ namespace Zero
 		PsoDesc.SampleDesc.Count = 1;	// No 4XMSAA
 		PsoDesc.SampleDesc.Quality = 0;	////No 4XMSAA
 
-		m_PipelineStateObject = CreateRef<FPipelineStateObject>(PsoDesc);
+		m_PipelineStateObject = CreateRef<FDX12PipelineStateObject>(PsoDesc);
 	}
+	*/
 }

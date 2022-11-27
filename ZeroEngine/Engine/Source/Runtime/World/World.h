@@ -7,6 +7,7 @@
 #include "Actor/Actor.h"
 #include "Render/RHI/RenderItem.h"
 #include "Actor/CameraActor.h"
+#include "Actor/SkyActor.h"
 
 namespace Zero
 {
@@ -24,11 +25,12 @@ namespace Zero
 		Ref<IDevice> GetDevice() { return m_Device; }
 		void SetDevice(Ref<IDevice> Device) { m_Device = Device; }
 		virtual void Tick();
-		FRenderItemPool& GetRenderItemPool() { return m_RenderItemPool; }
+		FRenderItemPool& GetRenderItemPool(uint32_t RenderLayerType) { return m_RenderItemPool[RenderLayerType]; }
 		static  UWorld* GetCurrentWorld() { return s_CurrentWorld; }
 		static void  SetCurrentWorld(UWorld* World) { s_CurrentWorld = World; }
 		void SetCamera(UCameraActor* Camera) { m_MainCamera = Camera; }
 		UCameraActor* GetMainCamera() { return m_MainCamera; }
+		USkyActor* GetSkyActor() { return m_SkyActor; }
 		std::vector<UActor*> GetActors() { return m_Actors; }
 
 		template<class T, typename ...ParamTypes>
@@ -39,6 +41,18 @@ namespace Zero
 			Actor->InitReflectionContent();
 			Actor->PostInit();
 			AddActor(Actor);
+			return Actor;
+		}
+
+		template<>
+		USkyActor* CreateActor()
+		{
+			USkyActor* Actor = new USkyActor();
+			Actor->SetWorld(this);
+			Actor->InitReflectionContent();
+			Actor->PostInit();
+			AddActor(Actor);
+			m_SkyActor = Actor;
 			return Actor;
 		}
 
@@ -67,8 +81,9 @@ namespace Zero
 
 	private:
 		static UWorld* s_CurrentWorld;
-		UCameraActor* m_MainCamera;
-		FRenderItemPool m_RenderItemPool;
+		UCameraActor* m_MainCamera = nullptr;
+		USkyActor* m_SkyActor = nullptr;
+		std::map<uint32_t, FRenderItemPool> m_RenderItemPool;
 		Ref<IDevice> m_Device;
 		std::vector<UActor*> m_Actors;
 		std::vector<UMeshActor*> m_MeshActors;

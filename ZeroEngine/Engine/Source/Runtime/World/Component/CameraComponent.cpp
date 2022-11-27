@@ -16,7 +16,7 @@ namespace Zero
 			PerCameraConstantsDesc.Size = Layout.GetStride();
 			for (auto BufferElement : Layout)
 			{
-				PerCameraConstantsDesc.Mapper.InsertConstant(BufferElement, ERootParameters::CameraCB);
+				PerCameraConstantsDesc.Mapper.InsertConstant(BufferElement);
 			}
 		}
 

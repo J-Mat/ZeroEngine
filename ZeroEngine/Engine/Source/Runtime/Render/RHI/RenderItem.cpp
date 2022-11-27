@@ -57,7 +57,8 @@ namespace Zero
 	}
 	void FRenderItem::OnDrawCall()
 	{
-		m_Material->GetShader()->GetBinder()->BindConstantsBuffer(ERootParameters::PerObjCB, m_ConstantsBuffer.get());
+		static auto PerObjIndex = m_Material->GetShader()->GetBinder()->GetBinderDesc().m_PerObjIndex ;
+		m_Material->GetShader()->GetBinder()->BindConstantsBuffer(PerObjIndex, m_ConstantsBuffer.get());
 		if (m_SubMesh.IsNull())
 		{
 			m_Mesh->Draw();

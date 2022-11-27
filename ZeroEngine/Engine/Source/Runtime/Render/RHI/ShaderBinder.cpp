@@ -2,7 +2,7 @@
 
 namespace Zero
 {
-    void FConstantsMapper::InsertConstant(const FBufferElement& Element, int CBIndex)
+    void FConstantsMapper::InsertConstant(const FBufferElement& Element)
     {
         const std::string& Name = Element.Name;
         if (m_Mapper.find(Name) != m_Mapper.end())
@@ -10,7 +10,7 @@ namespace Zero
             CORE_LOG_ERROR("Duplicated Shader Constant Name!");
             return;
         }
-        m_Mapper.insert({ Name, FShaderConstantItem(Name, Element.Type, CBIndex, Element.Offset) });
+        m_Mapper.insert({ Name, FShaderConstantItem(Name, Element.Type, Element.Offset) });
     }
     bool FConstantsMapper::FetchConstant(std::string Name, FShaderConstantItem& Buffer)
     {
@@ -73,8 +73,8 @@ namespace Zero
             m_ShaderConstantDescs[CBIndex]->Size = ConstantLayout.GetStride();
             for (auto BufferElement : ConstantLayout)
             {
-                m_ConstantsMapper.InsertConstant(BufferElement, CBIndex);
-                m_ShaderConstantDescs[CBIndex]->Mapper.InsertConstant(BufferElement, CBIndex);
+                m_ConstantsMapper.InsertConstant(BufferElement);
+                m_ShaderConstantDescs[CBIndex]->Mapper.InsertConstant(BufferElement);
             }
             CBIndex++;
             ParaIndex++;
@@ -84,7 +84,7 @@ namespace Zero
         uint32_t ResIndex = 0;
         for (FTextureTableElement& Element : m_Desc.m_TextureBufferLayout)
         {
-            FShaderResourceItem ShaderResourceItem = { Element.Name, Element.Type, ParaIndex, ResIndex, Element.TextureNum};
+            FShaderResourceItem ShaderResourceItem = { Element.Name, Element.Type, ParaIndex, 0, Element.TextureNum};
             m_ResourcesMapper.InsertResource(ShaderResourceItem);
             m_ShaderResourceDesc->Mapper.InsertResource(ShaderResourceItem);
             ResIndex++;

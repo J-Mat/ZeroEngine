@@ -24,7 +24,7 @@ namespace Zero
 			ETextureFormat::DEPTH32F
 		};
 		m_RenderTarget = FRenderer::GraphicFactroy->CreateRenderTarget(Desc);
-		TLibrary<FRenderTarget>::Push(FORWARD_STAGE, m_RenderTarget);
+		TLibrary<FRenderTarget>::Push(RENDER_STAGE_FORWARD, m_RenderTarget);
 	}
 
 	void FForwardStage::OnDetach()
@@ -35,14 +35,34 @@ namespace Zero
 	{
 		m_RenderTarget->ClearBuffer();
 		m_RenderTarget->Bind();
-		FLightManager::GetInstance().Tick();
-		FRenderItemPool& RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool();
-		for (Ref<FRenderItem> RenderItem : RenderItemPool)
+
+
 		{
-			RenderItem->m_Material->Tick();
-			RenderItem->m_Material->SetPass();
-			RenderItem->m_Material->OnDrawCall();
-			RenderItem->OnDrawCall();
+			static auto SkyboxPSO = TLibrary<FPipelineStateObject>::Fetch(PSO_SKYBOX);
+			SkyboxPSO->Bind();
+			FRenderItemPool& RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool(RENDERLAYER_SKYBOX);
+			for (Ref<FRenderItem> RenderItem : RenderItemPool)
+			{
+				RenderItem->m_Material->Tick();
+				RenderItem->m_Material->SetPass();
+				RenderItem->m_Material->OnDrawCall();
+				RenderItem->OnDrawCall();
+			}
+		}
+
+
+		{
+			static auto ForwardLitPSO = TLibrary<FPipelineStateObject>::Fetch(PSO_FORWARDLIT);
+			ForwardLitPSO->Bind();
+			FRenderItemPool& RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool(RENDERLAYER_OPAQUE);
+			for (Ref<FRenderItem> RenderItem : RenderItemPool)
+			{
+				RenderItem->m_Material->Tick();
+
+				RenderItem->m_Material->SetPass();
+				RenderItem->m_Material->OnDrawCall();
+				RenderItem->OnDrawCall();
+			}
 		}
 		m_RenderTarget->UnBind();
 	}

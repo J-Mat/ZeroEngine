@@ -28,14 +28,18 @@ namespace Zero
 	using FFrameBufferTexturesFormats = std::vector<ETextureFormat>;
 
 
+	class FImage;
 	class FTexture2D : public ITexture
 	{
 	public:
 		virtual ~FTexture2D() = default;
+		virtual Ref<FImage> GetImage() { return m_ImageData; };
 		virtual void Resize(uint32_t Width, uint32_t Height, uint32_t DepthOrArraySize = 1) = 0;
 		virtual ZMath::uvec2 GetSize() = 0;
 		virtual void RegistGuiShaderResource() = 0;
 		virtual UINT64 GetGuiShaderReseource() = 0;
+	protected:	
+        Ref<FImage> m_ImageData = nullptr;
 	};
 
 	class FTextureCubemap : public ITexture

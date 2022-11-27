@@ -28,10 +28,7 @@ namespace Zero
 	template<class T>
 	void TLibrary<T>::Push(const std::string& ID, Ref<T> Instance)
 	{
-		if (Mapper.find(ID) == Mapper.end())
-		{
-			Mapper[ID] = Instance;
-		}
+		Mapper[ID] = Instance;
 	}
 	
 	template<class T>

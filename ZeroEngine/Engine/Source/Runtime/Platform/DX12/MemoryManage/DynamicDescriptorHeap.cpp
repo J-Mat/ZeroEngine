@@ -21,6 +21,7 @@ namespace Zero
 
 		// Allocate space for staging CPU visible descriptors.
 		m_DescriptorHandleCache = CreateScope<D3D12_CPU_DESCRIPTOR_HANDLE[]>(m_NumDescriptorsPerHeap);
+		memset(m_DescriptorHandleCache.get(), 0, m_NumDescriptorsPerHeap);
 	}
 
 	FDynamicDescriptorHeap::~FDynamicDescriptorHeap()
@@ -115,11 +116,9 @@ namespace Zero
 		uint32_t NumDescriptorsToCommit = ComputeStaleDescriptorCount();
 		if (NumDescriptorsToCommit > 0)
 		{
-			if (!m_CurrentDescriptorHeap || m_NumFreeHandles < NumDescriptorsToCommit)
+			if (!m_CurrentDescriptorHeap)
 			{
 				m_CurrentDescriptorHeap = RequestDescriptorHeap();
-				m_CurrentCPUDescriptorHandle = m_CurrentDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-				m_CurrentGPUDescriptorHandle = m_CurrentDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
 				m_NumFreeHandles = m_NumDescriptorsPerHeap;
 				
 				CommandList.SetDescriptorHeap(m_DescriptorHeapType, m_CurrentDescriptorHeap.Get());
@@ -130,10 +129,15 @@ namespace Zero
 				m_StaleDescriptorTableBitMask = m_DescriptorTableBitMask;
 			}
 		}
+		else
+		{
+			return;
+		}
 		CommandList.SetDescriptorHeap(m_DescriptorHeapType, m_CurrentDescriptorHeap.Get());
 
-		m_RecordGPUDescriptorHandle = m_CurrentGPUDescriptorHandle;
 		DWORD RootIndex;
+		m_CurrentCPUDescriptorHandle = m_CurrentDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+		m_CurrentGPUDescriptorHandle = m_CurrentDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
 		// Scan from LSB to MSB for a bit set in staleDescriptorsBitMask
 		while (_BitScanForward(&RootIndex, m_StaleDescriptorTableBitMask))
 		{
@@ -143,17 +147,19 @@ namespace Zero
 			D3D12_CPU_DESCRIPTOR_HANDLE pDestDescriptorRangeStarts[] = { m_CurrentCPUDescriptorHandle };
 			UINT pDestDescriptorRangeSizes[] = {NumSrcDescriptors};
 
-			// Copy the staged CPU visible descriptors to the GPU visible descriptor heap.
-			FDX12Device::Get()->GetDevice()->CopyDescriptors(1, pDestDescriptorRangeStarts, pDestDescriptorRangeSizes, NumSrcDescriptors,
-				 pSrcDescriptorHandles, nullptr, m_DescriptorHeapType);
+			if (pSrcDescriptorHandles->ptr)
+			{
+				// Copy the staged CPU visible descriptors to the GPU visible descriptor heap.
+				FDX12Device::Get()->GetDevice()->CopyDescriptors(1, pDestDescriptorRangeStarts, pDestDescriptorRangeSizes, NumSrcDescriptors,
+					pSrcDescriptorHandles, nullptr, m_DescriptorHeapType);
 
-			// Set the descriptors on the command list using the passed-in setter function.
-			SetFunc(CommandList.GetD3D12CommandList().Get(), RootIndex, m_CurrentGPUDescriptorHandle);
+				// Set the descriptors on the command list using the passed-in setter function.
+				SetFunc(CommandList.GetD3D12CommandList().Get(), RootIndex, m_CurrentGPUDescriptorHandle);
+			}
 
 			// Offset current CPU and GPU descriptor handles.
 			m_CurrentCPUDescriptorHandle.Offset(NumSrcDescriptors, m_DescriptorHandleIncrementSize);
 			m_CurrentGPUDescriptorHandle.Offset(NumSrcDescriptors, m_DescriptorHandleIncrementSize);
-			m_NumFreeHandles -= NumSrcDescriptors;
 
 			// Flip the stale bit so the descriptor table is not recopied again unless it is updated with a new
 			// descriptor.
@@ -198,22 +204,31 @@ namespace Zero
 	}
 
 	void FDynamicDescriptorHeap::SetAsShaderResourceHeap()
-	{
+	{ 
+		if (!m_CurrentDescriptorHeap)
+		{
+			return;
+		}
 		uint32_t TableBitMask = m_DescriptorTableBitMask;
 		DWORD RootIndex;
 		
 		auto CommandList = FDX12Device::Get()->GetRenderCommandList();
 		CommandList->SetDescriptorHeap(m_DescriptorHeapType,  m_CurrentDescriptorHeap.Get());
 
+		m_CurrentCPUDescriptorHandle = m_CurrentDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+		m_CurrentGPUDescriptorHandle = m_CurrentDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+
 		if (m_CurrentDescriptorHeap != nullptr)
 		{
-			m_CurrentGPUDescriptorHandle = m_RecordGPUDescriptorHandle;
-
 			// Scan from LSB to MSB for a bit set in staleDescriptorsBitMask
 			while (_BitScanForward(&RootIndex, TableBitMask))
 			{
 				UINT NumSrcDescriptors = m_DescriptorTableCache[RootIndex].NumDescriptors;
-				CommandList->GetD3D12CommandList()->SetGraphicsRootDescriptorTable(RootIndex, m_CurrentGPUDescriptorHandle);
+				if (m_DescriptorTableCache[RootIndex].m_BaseDescriptor->ptr)
+				{
+					CommandList->GetD3D12CommandList()->SetGraphicsRootDescriptorTable(RootIndex, m_CurrentGPUDescriptorHandle);
+				}
+				m_CurrentCPUDescriptorHandle.Offset(NumSrcDescriptors, m_DescriptorHandleIncrementSize);
 				m_CurrentGPUDescriptorHandle.Offset(NumSrcDescriptors, m_DescriptorHandleIncrementSize);
 				TableBitMask ^= (1 << RootIndex);
 			}

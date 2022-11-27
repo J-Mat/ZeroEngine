@@ -7,6 +7,10 @@ namespace Zero
 	class FMaterial;
 	class IShaderConstantsBuffer;
 	class FRenderItem;
+	
+	enum ERenderLayer
+	{
+	};
 
 	class FRenderItemPool
 	{

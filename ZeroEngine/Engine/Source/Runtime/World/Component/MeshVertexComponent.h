@@ -25,6 +25,7 @@ namespace Zero
 		GENERATED_BODY()
 	public:
 		friend class UMeshActor;
+		friend class USkyActor;
 		UMeshVertexComponent();
 		virtual ~UMeshVertexComponent();
 		std::vector<FMeshData>& GetMeshDatas() { return m_MeshDatas; }

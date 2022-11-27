@@ -1,5 +1,5 @@
-#pragma once
-#include "PCH.h"
+#pragma once 
+#include "PCH.h" 
 #include "Log.h"
 
 
@@ -25,7 +25,9 @@
 #define TO_VOIDPTR_FROM_DATA(Value) ((void*)&Value)
 #define TO_VOID_PTR_FROM_PTR(Ptr) ((void*)Ptr)
 
-#define FORWARD_STAGE "ForwardStage"
+
+#define CUBEMAP_TEXTURE_CNT 6
+#define DEFAULT_TEXTURE_HANDLE "default"
 
 namespace Zero
 {
@@ -83,6 +85,7 @@ namespace Zero
 	using FMaterialHandle = std::string;
 	using FAssetHandle = Utils::Guid;
 	using FAssignedFile = std::string;
+	
 	struct FFloatSlider
 	{
 		float Value = 0.0f;
@@ -94,6 +97,7 @@ namespace Zero
 
 	namespace Utils
 	{
+		const int32_t InvalidIndex = -1;
 		const std::map<std::string, size_t> CodeReflectionTypes =
 		{
 			{"bool", sizeof(bool)},

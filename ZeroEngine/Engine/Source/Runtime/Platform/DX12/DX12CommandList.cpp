@@ -1,20 +1,20 @@
 #include "DX12CommandList.h"
 #include "DX12Texture2D.h"
-#include "PipelineStateObject.h"
+#include "DX12PipelineStateObject.h"
 #include "DX12RenderTarget.h"
 #include "DX12RootSignature.h"
 
 namespace Zero
 {
 	FDX12CommandList::FDX12CommandList(D3D12_COMMAND_LIST_TYPE Type)
-	: m_CommandListType(Type)
-	, m_RootSignature(nullptr)
+		: m_CommandListType(Type)
+		, m_RootSignature(nullptr)
 	{
 		ThrowIfFailed(FDX12Device::Get()->GetDevice()->CreateCommandAllocator(m_CommandListType, IID_PPV_ARGS(&m_CommandAllocator)));
 
 		ThrowIfFailed(FDX12Device::Get()->GetDevice()->CreateCommandList(0, m_CommandListType, m_CommandAllocator.Get(),
 			nullptr, IID_PPV_ARGS(&m_D3DCommandList)));
-	
+
 		m_UploadBuffer = CreateScope<FUploadBuffer>();
 
 		m_ResourceStateTracker = CreateScope<FResourceStateTracker>();
@@ -51,10 +51,10 @@ namespace Zero
 		ThrowIfFailed(
 			D3DDevice->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &TextureDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&TextureResource))
 		);
-	
-		D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint;
+
+		D3D12_PLACED_SUBRESOURCE_FOOTPRINT Footprint;
 		UINT64  TotalBytes = 0;
-		FDX12Device::Get()->GetDevice()->GetCopyableFootprints(&TextureDesc, 0, 1, 0, &footprint, nullptr, nullptr, &TotalBytes);
+		FDX12Device::Get()->GetDevice()->GetCopyableFootprints(&TextureDesc, 0, 1, 0, &Footprint, nullptr, nullptr, &TotalBytes);
 
 		D3D12_RESOURCE_DESC UploadTexDesc;
 		memset(&UploadTexDesc, 0, sizeof(UploadTexDesc));
@@ -81,13 +81,98 @@ namespace Zero
 		SubResourceData.RowPitch = Image->GetWidth() * Image->GetChannel();
 		SubResourceData.SlicePitch = TotalBytes;
 
-		UpdateSubresources<1>(m_D3DCommandList.Get(), TextureResource.Get(), UploadResource.Get(), 0, 0, 1, &SubResourceData);
+		UpdateSubresources(m_D3DCommandList.Get(), TextureResource.Get(), UploadResource.Get(), 0, 0, 1, &SubResourceData);
 
 		TransitionBarrier(TextureResource.Get(), D3D12_RESOURCE_STATE_GENERIC_READ);
 		TrackResource(UploadResource);
 		TrackResource(TextureResource);
 
 		return TextureResource;
+	}
+
+	ComPtr<ID3D12Resource> FDX12CommandList::CreateTextureCubemapResource(Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT], uint32_t Width, uint32_t Height, uint32_t Chanels)
+	{
+
+		constexpr DXGI_FORMAT ChannelMap[] = {
+			DXGI_FORMAT::DXGI_FORMAT_R32_FLOAT,
+			DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT,
+			DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,
+			DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT,
+		};
+		ID3D12Device* D3DDevice = FDX12Device::Get()->GetDevice();
+		ComPtr<ID3D12Resource> TextureCubemapResource;
+
+		D3D12_RESOURCE_DESC TextureDesc = {};
+		TextureDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+		TextureDesc.Alignment = 0;
+		TextureDesc.Width = Width;
+		TextureDesc.Height = Height;
+		TextureDesc.DepthOrArraySize = CUBEMAP_TEXTURE_CNT;
+		TextureDesc.MipLevels = 1;
+		TextureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		TextureDesc.SampleDesc.Count = 1;
+		TextureDesc.SampleDesc.Quality = 0;
+		TextureDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+		TextureDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_SIMULTANEOUS_ACCESS;
+
+		ThrowIfFailed(
+			D3DDevice->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &TextureDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&TextureCubemapResource))
+		);
+
+		UINT NumSubresources = CUBEMAP_TEXTURE_CNT;
+		D3D12_PLACED_SUBRESOURCE_FOOTPRINT  Footprint[CUBEMAP_TEXTURE_CNT] = {};
+		UINT NumRows[CUBEMAP_TEXTURE_CNT] = {};
+		UINT64  n64RowSizeInBytes[CUBEMAP_TEXTURE_CNT] = {};
+		UINT64  TotalBytes = 0;
+		// 获取资源内存布局信息
+		D3DDevice->GetCopyableFootprints(&TextureDesc,
+			0,
+			NumSubresources,
+			0,
+			Footprint,
+			NumRows,
+			n64RowSizeInBytes,
+			&TotalBytes);
+
+		
+		UINT64 UploadSize = GetRequiredIntermediateSize(
+			TextureCubemapResource.Get(),
+			0,
+			CUBEMAP_TEXTURE_CNT);
+
+		CD3DX12_HEAP_PROPERTIES HeapProps(D3D12_HEAP_TYPE_UPLOAD);
+		CD3DX12_RESOURCE_DESC UploadTexDesc = CD3DX12_RESOURCE_DESC::Buffer(UploadSize);
+
+		// 创建纹理上传缓冲区
+		ComPtr<ID3D12Resource> UploadResource;
+		ThrowIfFailed(
+			D3DDevice->CreateCommittedResource(
+			&HeapProps, 
+			D3D12_HEAP_FLAG_NONE,
+			&UploadTexDesc, 
+			D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+			IID_PPV_ARGS(&UploadResource)
+			)
+		);
+
+		TransitionBarrier(TextureCubemapResource, D3D12_RESOURCE_STATE_COPY_DEST);
+		FlushResourceBarriers();
+
+		D3D12_SUBRESOURCE_DATA SubResourceData[CUBEMAP_TEXTURE_CNT] = {};
+		for (int i = 0; i < CUBEMAP_TEXTURE_CNT; ++i)
+		{
+			SubResourceData[i].pData = ImageData[i]->GetData();
+			SubResourceData[i].RowPitch = Width * Chanels;
+			SubResourceData[i].SlicePitch = Height * SubResourceData[i].RowPitch;
+		}
+
+		UpdateSubresources(m_D3DCommandList.Get(), TextureCubemapResource.Get(), UploadResource.Get(), 0, 0, CUBEMAP_TEXTURE_CNT, SubResourceData);
+
+		TransitionBarrier(TextureCubemapResource.Get(), D3D12_RESOURCE_STATE_GENERIC_READ);
+		TrackResource(UploadResource);
+		TrackResource(TextureCubemapResource);
+
+		return TextureCubemapResource;
 	}
 
 	ComPtr<ID3D12Resource> FDX12CommandList::CreateRenderTargetResource(uint32_t Width, uint32_t Height)
@@ -113,7 +198,7 @@ namespace Zero
 
 
 		ComPtr<ID3D12Resource> Resource;
-	
+
 		ThrowIfFailed(D3DDevice->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 			D3D12_HEAP_FLAG_NONE,
@@ -123,7 +208,7 @@ namespace Zero
 			IID_PPV_ARGS(&Resource))
 		);
 		TransitionBarrier(Resource, D3D12_RESOURCE_STATE_RENDER_TARGET);
-		
+
 		return Resource;
 	}
 
@@ -131,7 +216,7 @@ namespace Zero
 	{
 		TransitionBarrier(DstRes, D3D12_RESOURCE_STATE_RESOLVE_DEST, DstSubRes);
 		TransitionBarrier(SrcRes, D3D12_RESOURCE_STATE_RESOLVE_SOURCE, SrcSubRes);
-	
+
 		FlushResourceBarriers();
 
 		m_D3DCommandList->ResolveSubresource(DstRes->GetD3DResource().Get(), DstSubRes,
@@ -179,15 +264,15 @@ namespace Zero
 
 	void FDX12CommandList::Draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t startVertex, uint32_t startInstance)
 	{
-		
+
 	}
-	
+
 	void FDX12CommandList::DrawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t startIndex, int32_t baseVertex,
-						  uint32_t startInstance)
+		uint32_t startInstance)
 	{
-		
+
 	}
-			
+
 	void FDX12CommandList::SetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE HeapType, ID3D12DescriptorHeap* Heap)
 	{
 		if (m_DescriptorHeaps[HeapType] != Heap)
@@ -213,7 +298,7 @@ namespace Zero
 		m_D3DCommandList->SetDescriptorHeaps(NumDescriptorHeaps, DescriptorHeaps);
 	}
 
-	void FDX12CommandList::SetPipelineState(const Ref<FPipelineStateObject>& PipelineState)
+	void FDX12CommandList::SetPipelineState(const Ref<FDX12PipelineStateObject>& PipelineState)
 	{
 		auto D3DPipelineStateObj = PipelineState->GetD3D12PipelineState().Get();
 		if (m_PipelineState != D3DPipelineStateObj)
@@ -229,9 +314,9 @@ namespace Zero
 	{
 		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> RenderTargetDescriptors;
 		RenderTargetDescriptors.reserve(EAttachmentIndex::NumAttachmentPoints);
-		
+
 		const auto& Textures = RenderTarget.GetTextures();
-		
+
 		for (int i = EAttachmentIndex::Color0; i <= EAttachmentIndex::Color7; ++i)
 		{
 			auto* Texture = static_cast<FDX12Texture2D*>(Textures[i].get());
@@ -243,9 +328,9 @@ namespace Zero
 				TrackResource(Texture->GetD3DResource());
 			}
 		}
-		
+
 		auto* DepthTexture = static_cast<FDX12Texture2D*>(RenderTarget.GetTexture(EAttachmentIndex::DepthStencil).get());
-		
+
 		CD3DX12_CPU_DESCRIPTOR_HANDLE DepthStencilDescriptor(D3D12_DEFAULT);
 		if (DepthTexture)
 		{
@@ -255,7 +340,7 @@ namespace Zero
 		}
 
 		D3D12_CPU_DESCRIPTOR_HANDLE* pDSV = DepthStencilDescriptor.ptr != 0 ? &DepthStencilDescriptor : nullptr;
-		
+
 		m_D3DCommandList->OMSetRenderTargets(static_cast<UINT>(RenderTargetDescriptors.size()),
 			RenderTargetDescriptors.data(), FALSE, pDSV);
 	}
@@ -275,7 +360,7 @@ namespace Zero
 			auto Barrier = CD3DX12_RESOURCE_BARRIER::Transition(Resource.Get(), D3D12_RESOURCE_STATE_COMMON, StateAfter, Subresource);
 			m_ResourceStateTracker->ResourceBarrier(Barrier);
 		}
-		
+
 		if (bFlushBarriers)
 		{
 			FlushResourceBarriers();
@@ -295,13 +380,13 @@ namespace Zero
 	bool FDX12CommandList::Close(const Ref<FDX12CommandList>& PendingCommandList)
 	{
 		FlushResourceBarriers();
-		
+
 		m_D3DCommandList->Close();
-		
+
 		uint32_t NumPendingBarriers = m_ResourceStateTracker->FlushPendingResourceBarriers(PendingCommandList);
-		
+
 		m_ResourceStateTracker->CommitFinalResourceStates();
-		
+
 		return NumPendingBarriers > 0;
 	}
 
@@ -314,8 +399,8 @@ namespace Zero
 	ComPtr<ID3D12Resource> FDX12CommandList::CreateDefaultBuffer(const void* BufferData, size_t BufferSize, D3D12_RESOURCE_FLAGS Flags)
 	{
 		CORE_ASSERT(BufferSize != 0 && BufferData != nullptr, "InValid Buffer!")
-		ComPtr<ID3D12Resource> D3DResource;
-		
+			ComPtr<ID3D12Resource> D3DResource;
+
 		auto  D3DDevice = FDX12Device::Get()->GetDevice();
 
 		ThrowIfFailed(D3DDevice->CreateCommittedResource(
@@ -350,7 +435,7 @@ namespace Zero
 
 	void FDX12CommandList::SetGraphicsRootSignature(const Ref<IRootSignature>& RootSignature)
 	{
-		
+
 		FDX12RootSignature* DX12RootSignature = static_cast<FDX12RootSignature*>(RootSignature.get());
 		auto* D3DRootSignature = DX12RootSignature->GetD3D12RootSignature().Get();
 		if (D3DRootSignature != m_RootSignature)
@@ -365,27 +450,27 @@ namespace Zero
 	{
 		ThrowIfFailed(m_CommandAllocator->Reset());
 		ThrowIfFailed(m_D3DCommandList->Reset(m_CommandAllocator.Get(), nullptr));
-		
+
 		m_ResourceStateTracker->Reset();
 		m_UploadBuffer->Reset();
 
 		ReleaseTrackedObjects();
-		
+
 		for (int i = 0; i < D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES; ++i)
 		{
 			m_DescriptorHeaps[i] = nullptr;
 		}
-		
+
 		m_RootSignature = nullptr;
 	}
-	
+
 
 	void FDX12CommandList::ReleaseTrackedObjects()
 	{
 		m_TrackedObjects.clear();
 	}
-	
-	
+
+
 	void FDX12CommandList::Execute()
 	{
 	}

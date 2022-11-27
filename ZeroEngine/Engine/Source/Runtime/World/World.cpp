@@ -1,6 +1,4 @@
 #include "World.h"
-#include "World.h"
-#include "World.h"
 #include "Render/RHI/RenderItem.h"
 #include "Actor/MeshActor.h"
 
@@ -12,9 +10,13 @@ namespace Zero
 		SetCurrentWorld(this);
 		m_MainCamera = CreateActor<UCameraActor>();
 	}
+
 	void UWorld::Tick()
 	{
-		m_RenderItemPool.Reset();
+		for (auto Iter : m_RenderItemPool)
+		{
+			Iter.second.Reset();
+		}
 		
 		if (!m_bTick)
 		{
@@ -26,6 +28,7 @@ namespace Zero
 			Actor->Tick();
 		}
 	}
+
 	void UWorld::ClearAllActors()
 	{
 		m_Device->Flush();
@@ -44,7 +47,7 @@ namespace Zero
 		const auto& ViewMat = m_MainCamera->GetComponent<UCameraComponent>()->GetView();
 		const auto& InvView = ZMath::inverse(ViewMat);
 		ZMath::FRay ViewRay =  Ray.TransformRay(InvView);
-		const auto& GuidList = m_RenderItemPool.GetRenderGuids();
+		const auto& GuidList = m_RenderItemPool[RENDERLAYER_OPAQUE].GetRenderGuids();
 		for (const auto& Guid : GuidList)
 		{
 			UCoreObject* Obj = GetObjByGuid(Guid);

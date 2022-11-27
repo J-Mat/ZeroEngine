@@ -163,6 +163,11 @@ namespace Zero
 		AttachToMeshData(MeshData, Vertices, Indexs);
 	}
 
+	void FMeshGenerator::CreatSkyBox(FMeshData& MeshData)
+	{
+		
+	}
+
 	void FMeshGenerator::CreateCustomModel(std::vector<FMeshData>& MeshDatas, const std::string& Path, FVertexBufferLayout& Layout)
 	{
 		Assimp::Importer Importer;

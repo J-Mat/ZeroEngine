@@ -13,6 +13,6 @@ namespace Zero
 		}
 		static Ref<FClassDetailsMapping> MakeDetailMapping();
 	private:
-		virtual void UpdateDetailsWidgetImpl(UCoreObject* CoreObject);
+		virtual void UpdateDetailsWidgetImpl(UCoreObject* CoreObject) = 0;
 	};
 }

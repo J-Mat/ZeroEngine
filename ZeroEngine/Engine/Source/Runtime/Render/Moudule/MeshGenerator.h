@@ -75,6 +75,7 @@ namespace Zero
 	public:
 		void CreateCube(FMeshData& Meshata, float Width, float Height, float Depth, uint32_t NumSubdivisions);
 		void CreateSphere(FMeshData& MeshData, float Radius, uint32_t NumSubdivisions);
+		void CreatSkyBox(FMeshData& MeshData);
 		void CreateCustomModel(std::vector<FMeshData>& MeshDatas, const std::string& Path, FVertexBufferLayout& Layout);
 	private: 
 

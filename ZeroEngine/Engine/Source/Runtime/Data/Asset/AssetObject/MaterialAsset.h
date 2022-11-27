@@ -21,11 +21,5 @@ namespace Zero
 
 		UPROPERTY()
 		std::map<std::string, FTextureHandle> m_Textures;
-		
-		UPROPERTY()
-		FFloatSlider m_Sider;
-
-		UPROPERTY()
-		ZMath::FColor4 m_Color;
 	};
 }

@@ -23,6 +23,12 @@ namespace Zero
 		std::vector<FConstantBufferLayout> m_ConstantBufferLayouts;
 		FShaderResourceLayout m_TextureBufferLayout;
 		std::vector<FComputeOutputLayout>  m_ComputeOutputLayouts;
+	
+	public:
+		int32_t m_PerObjIndex = Utils::InvalidIndex;
+		int32_t m_CameraIndex = Utils::InvalidIndex;
+		int32_t m_ConstantIndex = Utils::InvalidIndex;
+		int32_t m_MaterialIndex = Utils::InvalidIndex;
 	};
 
 
@@ -30,14 +36,13 @@ namespace Zero
 	{
 		std::string Name;
 		EShaderDataType Type;
-		int CBIndex;
 		uint32_t Offset;
 	};
 
 	class FConstantsMapper
 	{
 	public:
-		void InsertConstant(const FBufferElement& Element, int CBIndex);
+		void InsertConstant(const FBufferElement& Element);
 		bool FetchConstant(std::string Name, FShaderConstantItem& Buffer);
 		using iterator = std::unordered_map<std::string, FShaderConstantItem>::iterator;
 		iterator begin() { return m_Mapper.begin(); }
@@ -80,6 +85,7 @@ namespace Zero
 		FConstantsMapper::iterator begin() { return Mapper.begin(); }
 		FConstantsMapper::iterator end() { return Mapper.end(); }
 	};
+
 	class IShaderBinder;
 	class IShaderConstantsBuffer
 	{
@@ -146,10 +152,14 @@ namespace Zero
 		IShaderBinder(FShaderBinderDesc& Desc);
 		virtual ~IShaderBinder() { m_ShaderConstantDescs.clear(); }
 		virtual void BindConstantsBuffer(uint32_t Slot, IShaderConstantsBuffer* Buffer) = 0;
-		virtual Ref<FShaderConstantsDesc> GetShaderConstantsDesc(uint32_t Slot) { return m_ShaderConstantDescs[Slot]; }
+		virtual Ref<FShaderConstantsDesc> GetShaderConstantsDesc(uint32_t Slot) 
+		{ 
+			return Slot < m_ShaderConstantDescs.size() ? m_ShaderConstantDescs[Slot] : nullptr;
+		}
 		virtual Ref<FShaderResourcesDesc> GetShaderResourcesDesc() { return m_ShaderResourceDesc; }
 		virtual IRootSignature* GetRootSignature() { return nullptr; }
 		virtual void Bind() = 0;
+		const FShaderBinderDesc& GetBinderDesc() { return m_Desc; }
 	protected:
 		void InitMappers();
 		FConstantsMapper m_ConstantsMapper;

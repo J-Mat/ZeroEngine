@@ -14,6 +14,7 @@ namespace Zero
 		EAlphaState AlphaState;
 	};
 	class IShader;
+	class IShaderBinder;
 	struct FShaderConstantsDesc;
 	struct FShaderResourcesDesc;
 	class IDevice;
@@ -51,6 +52,7 @@ namespace Zero
 		float* PtrMatrix4x4(const std::string& Name);
 	private:
 		Ref<IShader> m_Shader;
+		Ref<IShaderBinder> m_ShaderBinder;
 		Ref<FShaderConstantsDesc> m_ConstantsDesc;
 		Ref<FShaderResourcesDesc> m_ResourcesDesc;
 
