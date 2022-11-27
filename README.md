@@ -1,7 +1,7 @@
 # ZeroEngine
 
-- [LearningDX12](https://github.com/J-Mat/ZeroEngine/tree/main/LearningDX12 "LearningDX12")  ÁúÊéÔ´Âë£¬ÓÃcmakeÕûºÏÔÚÒ»Æğ£¬ ·½±ã×Ô¼º¿´
-- [ZeroEngine](https://github.com/J-Mat/ZeroEngine/tree/main/ZeroEngine "ZeroEngine") ×ÔÖÆÍæ¾ß
+- [LearningDX12](https://github.com/J-Mat/ZeroEngine/tree/main/LearningDX12 "LearningDX12")  é¾™ä¹¦æºç ï¼Œç”¨cmakeæ•´åˆåœ¨ä¸€èµ·ï¼Œ æ–¹ä¾¿è‡ªå·±çœ‹
+- [ZeroEngine](https://github.com/J-Mat/ZeroEngine/tree/main/ZeroEngine "ZeroEngine") è‡ªåˆ¶ç©å…·
 
 ## MileStone
 
@@ -50,43 +50,11 @@ I've disjoined shader and PSO into 2 parts. So we can config PSO settings, such 
 Absolutely the skybox need different PSO, DepthFunc is LESS_EQUAL, CullMode is CULL_MODE_FRONT.
 
 ```cpp
-void FPSORegister::RegisterSkyboxPSO()
-{
-	std::vector<FConstantBufferLayout> CBLayouts =
-	{
-		FConstantBufferLayout::s_PerObjectConstants,
-		FConstantBufferLayout::s_PerCameraConstants,
-	};
+FPSODescriptor SkyboxPSODesc;
+SkyboxPSODesc.CullMode = ECullMode::CULL_MODE_FRONT;
+SkyboxPSODesc.DepthFunc = EComparisonFunc::LESS_EQUAL;
+SkyboxPSODesc.Shader = FRenderer::GraphicFactroy->CreateShader("Shader/Skybox.hlsl", ShaderBinderDesc, ShaderDessc);
+FRenderer::GraphicFactroy->CreatePSO(PSO_SKYBOX, SkyboxPSODesc);
 
-	FShaderResourceLayout ResourceLayout =
-	{
-		{EShaderResourceType::Cubemap, "gSkyboxMap"}
-	};
-
-	FFrameBufferTexturesFormats Formats = {
-		ETextureFormat::R8G8B8A8,
-		ETextureFormat::None,
-		ETextureFormat::None,
-		ETextureFormat::None,
-		ETextureFormat::None,
-		ETextureFormat::None,
-		ETextureFormat::None,
-		ETextureFormat::None,
-		ETextureFormat::DEPTH32F
-	};
-
-	FShaderDesc ShaderDessc = { false, FVertexBufferLayout::s_SkyboxVertexLayout, 2, Formats };
-
-	FShaderBinderDesc  ShaderBinderDesc = { CBLayouts, ResourceLayout };
-	ShaderBinderDesc.m_PerObjIndex = 0;
-	ShaderBinderDesc.m_CameraIndex = 1;
-
-	FPSODescriptor SkyboxPSODesc;
-	SkyboxPSODesc.CullMode = ECullMode::CULL_MODE_FRONT;
-	SkyboxPSODesc.DepthFunc = EComparisonFunc::LESS_EQUAL;
-	SkyboxPSODesc.Shader = FRenderer::GraphicFactroy->CreateShader("Shader/Skybox.hlsl", ShaderBinderDesc, ShaderDessc);
-	FRenderer::GraphicFactroy->CreatePSO(PSO_SKYBOX, SkyboxPSODesc);
-}
-```
 
 ![1669541205789](image/README/1669541205789.png)
