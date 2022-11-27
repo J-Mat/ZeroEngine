@@ -49,8 +49,8 @@ cbuffer cbConstant : register(b3)
     int DirectLightNum;
 };
 
-Texture2D gDiffuseMap: register(t0);//所有漫反射贴图
-
+Texture2D gDiffuseMap: register(t0);
+TextureCube gSkyboxMap : register(t1);
 
 //#include "LightUtil.hlsl"
 
