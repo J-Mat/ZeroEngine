@@ -2,5 +2,5 @@
 
 namespace Zero
 { 
-	bool FRenderConfig::s_bEnableSkybox = false;
+	//bool FRenderConfig::s_bEnableSkybox = false;
 }
