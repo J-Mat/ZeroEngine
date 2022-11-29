@@ -4,6 +4,7 @@
 #include "World/World.h"
 #include "World/Actor/SkyActor.h"
 
+
 namespace Zero
 {
 	void USceneSettings::PostInit()
@@ -16,6 +17,10 @@ namespace Zero
 	{
 		Supper::PostEdit(Property);
 		GenrerateTextureCubemapHanle();
+		if (Property->GetPropertyName() == "m_bUseSkyBox")
+		{
+			FRenderConfig::s_bEnableSkybox = m_bUseSkyBox;
+		}
 	}
 
 	USkyActor* USceneSettings::GetSkyActor()

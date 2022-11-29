@@ -9,8 +9,8 @@ namespace Zero
 		{
 			return;
 		}
-		auto Iter = GetClassInfoMap().find(SettingsName);
-		if (Iter != GetClassInfoMap().end())
+		auto Iter = FObjectGlobal::GetClassInfoMap().find(SettingsName);
+		if (Iter != FObjectGlobal::GetClassInfoMap().end())
 		{
 			auto* Settings = static_cast<USettings*>(Iter->second.Class->CreateDefaultObject());
 			m_AllSettings.insert({Settings->GetObjectName(), Settings});

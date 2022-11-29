@@ -31,13 +31,13 @@ namespace Zero
 	class IShader
 	{
 	public:
-		IShader(const FShaderBinderDesc& BinderDesc, const FShaderDesc& Desc);
+		IShader(const std::string ShaderID, const FShaderBinderDesc& BinderDesc, const FShaderDesc& Desc);
 		virtual ~IShader() {}
 		virtual void Use() = 0;
 		virtual void CreateBinder() = 0;
 
 		virtual Ref<IShaderBinder> GetBinder() { return m_ShaderBinder; }
-		std::string ShaderID;
+		std::string m_ShaderID;
 
 	protected:
 		Ref<IShaderBinder> m_ShaderBinder;

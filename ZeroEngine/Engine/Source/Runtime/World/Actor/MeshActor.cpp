@@ -28,21 +28,22 @@ namespace Zero
 
 	void UMeshActor::CommitToPipieline()
 	{
-		FRenderItemPool& RenderItemPool = m_World->GetRenderItemPool(RENDERLAYER_OPAQUE);
+		auto RenderItemPool = m_World->GetRenderItemPool(RENDERLAYER_OPAQUE);
 		uint32_t MaterialIndex = 0;
 		for (FSubMesh& SubMesh : *m_MeshVertexComponent->m_Mesh.get())
 		{
-			Ref<FRenderItem> Item = RenderItemPool.Request();
+			Ref<FRenderItem> Item = RenderItemPool->Request();
 			Item->m_Mesh = m_MeshVertexComponent->m_Mesh;
 			Item->m_SubMesh = SubMesh;
 			Item->m_ConstantsBuffer = m_MeshVertexComponent->m_ShaderConstantsBuffer;
 			Item->m_Material = m_MeshRenderComponent->GetPassMaterials(RENDERLAYER_OPAQUE)[MaterialIndex];
+			Item->m_PipelineStateObject = m_MeshRenderComponent->GetPipelineStateObject();
 			Item->SetModelMatrix(m_TransformationComponent->GetTransform());
 			MaterialIndex++;
 
-			RenderItemPool.Push(Item);
+			RenderItemPool->Push(Item);
 		}
-		RenderItemPool.AddGuid(m_GUID);
+		RenderItemPool->AddGuid(m_GUID);
 	}
 
 	void UMeshActor::Tick()
@@ -54,5 +55,4 @@ namespace Zero
 	{
 		return m_MeshVertexComponent->m_Mesh->GetAABB();
 	}
-
 }

@@ -25,7 +25,7 @@ namespace Zero
 		Ref<IDevice> GetDevice() { return m_Device; }
 		void SetDevice(Ref<IDevice> Device) { m_Device = Device; }
 		virtual void Tick();
-		FRenderItemPool& GetRenderItemPool(uint32_t RenderLayerType) { return m_RenderItemPool[RenderLayerType]; }
+		Ref<FRenderItemPool> GetRenderItemPool(uint32_t RenderLayerType);
 		static  UWorld* GetCurrentWorld() { return s_CurrentWorld; }
 		static void  SetCurrentWorld(UWorld* World) { s_CurrentWorld = World; }
 		void SetCamera(UCameraActor* Camera) { m_MainCamera = Camera; }
@@ -83,7 +83,7 @@ namespace Zero
 		static UWorld* s_CurrentWorld;
 		UCameraActor* m_MainCamera = nullptr;
 		USkyActor* m_SkyActor = nullptr;
-		std::map<uint32_t, FRenderItemPool> m_RenderItemPool;
+		std::map<uint32_t, Ref<FRenderItemPool>> m_RenderItemPool;
 		Ref<IDevice> m_Device;
 		std::vector<UActor*> m_Actors;
 		std::vector<UMeshActor*> m_MeshActors;

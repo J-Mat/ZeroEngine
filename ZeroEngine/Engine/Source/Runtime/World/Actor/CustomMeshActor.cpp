@@ -16,7 +16,6 @@ namespace Zero
 		: UMeshActor()
 		, m_FileName(FileName)
 	{
-		GetComponent<UMeshRenderComponent>()->SetShader("ForwardLit.hlsl");
 	}
 
 	void UCustomMeshActor::BuildMesh()

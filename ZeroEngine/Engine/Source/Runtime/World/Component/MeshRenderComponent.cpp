@@ -4,6 +4,7 @@
 #include "Render/Moudule/Material.h"
 #include "Data/Asset/AssetManager.h"
 #include "Data/Asset/AssetObject/MaterialAsset.h"
+#include "Render/RHI/PipelineStateObject.h"
 
 namespace Zero
 {
@@ -26,10 +27,12 @@ namespace Zero
 		if (m_bEnableMaterial)
 		{
 			m_ClassInfoCollection.RemoveField("m_MaterialHandle", "Invisible");
+			m_ClassInfoCollection.RemoveField("m_Psotype", "Invisible");
 		}
 		else
 		{
 			m_ClassInfoCollection.AddField("m_MaterialHandle", "Invisible");
+			m_ClassInfoCollection.AddField("m_Psotype", "Invisible");
 		}
 	}
 
@@ -48,9 +51,12 @@ namespace Zero
 		}	
 		
 		std::vector <Ref<FMaterial>>& OneLayerMaterials = m_Materials[LayerLayer];
+		Ref<IShader> ShaderFile = m_PipelineStateObject != nullptr ? 
+			m_PipelineStateObject->GetPSODescriptor().Shader : 
+			TLibrary<FPipelineStateObject>::Fetch(PSO_FORWARDLIT)->GetPSODescriptor().Shader;
 		for (size_t i = 0; i < m_SubmeshNum; i++)
 		{
-			OneLayerMaterials[i]->SetShader(m_ShaderFile);
+			OneLayerMaterials[i]->SetShader(ShaderFile);
 		}
 		return m_Materials[LayerLayer];
 	}
@@ -61,6 +67,10 @@ namespace Zero
 		if (Property->GetPropertyName() == "m_MaterialHandle")
 		{
 			AttachParameters();
+		}
+		else if (m_bEnableMaterial && Property->GetPropertyName() == "m_Psotype")
+		{
+			SwitchPso();
 		}
 		auto TextureCubmap = TLibrary<FTextureCubemap>::Fetch("default");
 		if (TextureCubmap != nullptr)
@@ -90,7 +100,20 @@ namespace Zero
 					m_Materials[RENDERLAYER_OPAQUE][i]->SetTexture2D(TextureName, Texture);
 				}
 			}
-			m_ShaderFile = MaterialAsset->m_ShaderFile;
+		}
+	}
+	void UMeshRenderComponent::SwitchPso()
+	{
+		switch (m_Psotype)
+		{
+		case Zero::PT_ForwardLit:
+			m_PipelineStateObject = TLibrary<FPipelineStateObject>::Fetch(PSO_FORWARDLIT);
+			break;
+		case Zero::PT_Fresnel:
+			m_PipelineStateObject = TLibrary<FPipelineStateObject>::Fetch(PSO_FRESNEL);
+			break;
+		default:
+			break;
 		}
 	}
 }

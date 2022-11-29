@@ -212,18 +212,22 @@ namespace Zero
 			}
 		}
 	}
+
 	D3D12_CPU_DESCRIPTOR_HANDLE FDX12TextureCubemap::GetRenderTargetView() const
 	{
 		return m_RenderTargetView.GetDescriptorHandle();
 	}
+
 	D3D12_CPU_DESCRIPTOR_HANDLE FDX12TextureCubemap::GetDepthStencilView() const
 	{
 		return m_DepthStencilView.GetDescriptorHandle();
 	}
+
 	D3D12_CPU_DESCRIPTOR_HANDLE FDX12TextureCubemap::GetShaderResourceView() const
 	{
 		return m_ShaderResourceView.GetDescriptorHandle();
 	}
+
 	D3D12_CPU_DESCRIPTOR_HANDLE FDX12TextureCubemap::GetUnorderedAccessView(uint32_t mip) const
 	{
 		return D3D12_CPU_DESCRIPTOR_HANDLE();

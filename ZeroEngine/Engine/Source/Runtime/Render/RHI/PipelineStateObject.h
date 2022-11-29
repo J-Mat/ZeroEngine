@@ -25,7 +25,11 @@ namespace Zero
 	class FPipelineStateObject
 	{
 	public:
+		FPipelineStateObject(const FPSODescriptor& PSODescriptor);
 		virtual ~FPipelineStateObject() = default;
 		virtual void Bind() = 0;
+		const FPSODescriptor& GetPSODescriptor() {	return m_PSODescriptor;}
+	private:
+		FPSODescriptor m_PSODescriptor;
 	};
 }

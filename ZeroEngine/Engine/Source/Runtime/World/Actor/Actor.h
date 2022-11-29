@@ -60,7 +60,9 @@ namespace Zero
 		ZMath::vec3& GetRightVector();
 		ZMath::vec3& GetUPVector();
 		std::vector<UComponent*>& GetAllComponents() { return m_Components; }
-		
+
+		bool IsVisibleInEditor() { return m_bVisibleInEditor; }
+
 		template<class T>
 		void AddComponent(T* Component) 
 		{ 
@@ -98,6 +100,7 @@ namespace Zero
 
 		UTransformComponent* m_TransformationComponent = nullptr;
 	protected:
+		bool m_bVisibleInEditor = true;
 		UWorld* m_World;
 		std::vector<UComponent*> m_Components;
 	};

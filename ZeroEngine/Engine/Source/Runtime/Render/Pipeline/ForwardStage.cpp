@@ -1,10 +1,12 @@
 #include "ForwardStage.h"
 #include "Render/RHI/RenderItem.h"
 #include "Render/Moudule/Material.h"
+#include "Render/RHI/PipelineStateObject.h"
 #include "Render/RHI/SwapChain.h"
 #include "Render/RHI/RenderTarget.h"
 #include "World/World.h"
 #include "World/LightManager.h"
+#include "Render/RenderConfig.h"
 
 namespace Zero
 {
@@ -36,12 +38,13 @@ namespace Zero
 		m_RenderTarget->ClearBuffer();
 		m_RenderTarget->Bind();
 
-
+		
+		if (FRenderConfig::s_bEnableSkybox)
 		{
 			static auto SkyboxPSO = TLibrary<FPipelineStateObject>::Fetch(PSO_SKYBOX);
 			SkyboxPSO->Bind();
-			FRenderItemPool& RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool(RENDERLAYER_SKYBOX);
-			for (Ref<FRenderItem> RenderItem : RenderItemPool)
+			auto RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool(RENDERLAYER_SKYBOX);
+			for (Ref<FRenderItem> RenderItem : *RenderItemPool.get())
 			{
 				RenderItem->m_Material->Tick();
 				RenderItem->m_Material->SetPass();
@@ -50,15 +53,14 @@ namespace Zero
 			}
 		}
 
-
 		{
-			static auto ForwardLitPSO = TLibrary<FPipelineStateObject>::Fetch(PSO_FORWARDLIT);
-			ForwardLitPSO->Bind();
-			FRenderItemPool& RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool(RENDERLAYER_OPAQUE);
-			for (Ref<FRenderItem> RenderItem : RenderItemPool)
+			static auto ForwardLitPSO = TLibrary<FPipelineStateObject>::Fetch(PSO_FRESNEL);
+			auto RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool(RENDERLAYER_OPAQUE);
+			for (Ref<FRenderItem> RenderItem : *RenderItemPool.get())
 			{
+				Ref<FPipelineStateObject> Pso = RenderItem->m_PipelineStateObject.get() != nullptr ? RenderItem->m_PipelineStateObject : ForwardLitPSO;
+				Pso->Bind();
 				RenderItem->m_Material->Tick();
-
 				RenderItem->m_Material->SetPass();
 				RenderItem->m_Material->OnDrawCall();
 				RenderItem->OnDrawCall();

@@ -23,14 +23,25 @@ void ParseDir(const std::filesystem::path& Folder)
 		{
 			std::cout << Child.path() << std::endl;
 			g_FileParser.Parse(Child.path());
-			if (g_FileParser.CheckNeedGenerateReflection())
-			{ 
-				ZHT::FClassElement ClassElement;
-				g_FileParser.CollectClassInfo(ClassElement);
-				g_FileParser.LogClassInfo(ClassElement);
-				g_FileParser.GenerateReflectionHeaderFile(ClassElement);
-				g_FileParser.GenerateReflectionCppFile(ClassElement);
-				g_AllLinkCppFiles.insert(ClassElement.CppPath);
+			if (g_FileParser.CheckHasRefelectionHeader())
+			{
+				std::vector<ZHT::FEnumElement> EnumElimentList;
+				if (g_FileParser.CheckNeedGeneraterEnumRefelcion())
+				{
+					g_FileParser.CollectEnumInfo(EnumElimentList);
+					g_FileParser.LogEnumInfo(EnumElimentList);
+				}
+
+				if (g_FileParser.CheckNeedGenerateClassReflection())
+				{
+
+					ZHT::FClassElement ClassElement;
+					g_FileParser.CollectClassInfo(ClassElement);
+					g_FileParser.LogClassInfo(ClassElement);
+					g_FileParser.GenerateReflectionHeaderFile(EnumElimentList, ClassElement);
+					g_FileParser.GenerateReflectionCppFile(EnumElimentList, ClassElement);
+					g_AllLinkCppFiles.insert(ClassElement.CppPath);
+				}
 			}
 		}
 	}

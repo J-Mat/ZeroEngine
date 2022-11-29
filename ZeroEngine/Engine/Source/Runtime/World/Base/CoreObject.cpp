@@ -6,19 +6,19 @@ namespace Zero
 	UCoreObject::UCoreObject()
 		: IGUIDInterface()
 	{
-		GetObjectCollection().insert({m_GUID, this});
+		FObjectGlobal::GetObjectCollection().insert({m_GUID, this});
 		m_ClassInfoCollection.m_Outer = this;
 	}
 
 
 	UCoreObject::~UCoreObject()
 	{
-		GetObjectCollection().erase(m_GUID);
+		FObjectGlobal::GetObjectCollection().erase(m_GUID);
 	}
 	UCoreObject* UCoreObject::GetObjByGuid(const Utils::Guid& Guid)
 	{
-		auto Iter = GetObjectCollection().find(Guid);
-		if (Iter != GetObjectCollection().end())
+		auto Iter = FObjectGlobal::GetObjectCollection().find(Guid);
+		if (Iter != FObjectGlobal::GetObjectCollection().end())
 		{
 			return Iter->second;
 		}

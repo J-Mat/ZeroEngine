@@ -21,7 +21,5 @@ namespace Zero
 
 	private:
 		UCameraComponent* m_CameraComponent = nullptr;
-		UPROPERTY()
-		FFloatSlider m_FloatSlider;
 	};
 }

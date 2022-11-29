@@ -52,6 +52,10 @@ namespace Zero
 		FPSODescriptor LightDesc;
 		LightDesc.Shader = FRenderer::GraphicFactroy->CreateShader("Shader/DirectLight.hlsl", ShaderBinderDesc, ShaderDesc);
 		FRenderer::GraphicFactroy->CreatePSO(PSO_LIGHT, LightDesc);
+
+		FPSODescriptor FresnelDesc;
+		FresnelDesc.Shader = FRenderer::GraphicFactroy->CreateShader("Shader/Fresnel.hlsl", ShaderBinderDesc, ShaderDesc);
+		FRenderer::GraphicFactroy->CreatePSO(PSO_FRESNEL, FresnelDesc);
 	}
 
 	void FPSORegister::RegisterSkyboxPSO()

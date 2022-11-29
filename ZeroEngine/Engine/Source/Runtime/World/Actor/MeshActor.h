@@ -6,7 +6,7 @@
 #include "MeshActor.reflection.h"
 
 namespace Zero
-{
+{ 
 	class UMeshVertexComponent;
 	class UMeshRenderComponent;
 	class FRenderItemPool;
@@ -21,6 +21,8 @@ namespace Zero
 		virtual void CommitToPipieline();
 		virtual void Tick();
 		virtual ZMath::FAABB GetAABB() override;
+
+
 	protected:
 		UMeshVertexComponent* m_MeshVertexComponent = nullptr;
 		UMeshRenderComponent* m_MeshRenderComponent = nullptr;

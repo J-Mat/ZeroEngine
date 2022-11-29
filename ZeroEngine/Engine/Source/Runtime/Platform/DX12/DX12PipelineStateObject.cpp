@@ -7,6 +7,7 @@
 namespace Zero
 {
 	FDX12PipelineStateObject::FDX12PipelineStateObject(const FPSODescriptor& PSODescriptor)
+		:FPipelineStateObject(PSODescriptor)
 	{
 		auto* D3DShader =  static_cast<FDX12Shader*>(PSODescriptor.Shader.get());
 		FDX12ShaderBinder* DX12ShaderBinder = static_cast<FDX12ShaderBinder*>(D3DShader->m_ShaderBinder.get());

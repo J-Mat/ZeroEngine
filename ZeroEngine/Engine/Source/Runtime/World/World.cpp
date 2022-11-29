@@ -9,13 +9,14 @@ namespace Zero
 	{
 		SetCurrentWorld(this);
 		m_MainCamera = CreateActor<UCameraActor>();
+		m_RenderItemPool.insert({ RENDERLAYER_OPAQUE, CreateRef<FRenderItemPool>()});
 	}
 
 	void UWorld::Tick()
 	{
 		for (auto Iter : m_RenderItemPool)
 		{
-			Iter.second.Reset();
+			Iter.second->Reset();
 		}
 		
 		if (!m_bTick)
@@ -27,6 +28,12 @@ namespace Zero
 		{
 			Actor->Tick();
 		}
+	}
+
+	Ref<FRenderItemPool> UWorld::GetRenderItemPool(uint32_t RenderLayerType)
+	{
+		auto Iter = m_RenderItemPool.find(RenderLayerType);
+		return Iter->second;
 	}
 
 	void UWorld::ClearAllActors()
@@ -47,7 +54,7 @@ namespace Zero
 		const auto& ViewMat = m_MainCamera->GetComponent<UCameraComponent>()->GetView();
 		const auto& InvView = ZMath::inverse(ViewMat);
 		ZMath::FRay ViewRay =  Ray.TransformRay(InvView);
-		const auto& GuidList = m_RenderItemPool[RENDERLAYER_OPAQUE].GetRenderGuids();
+		const auto& GuidList = m_RenderItemPool[RENDERLAYER_OPAQUE]->GetRenderGuids();
 		for (const auto& Guid : GuidList)
 		{
 			UCoreObject* Obj = GetObjByGuid(Guid);

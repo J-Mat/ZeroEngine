@@ -3,6 +3,7 @@
 #define GENERATED_BODY_INNER(A,B,C,D) A##B##C##D
 #define GENERATED_BODY_MACRO(A,B,C,D) GENERATED_BODY_INNER(A, B, C, D)
 
+#define UENUM(...)
 #define UCLASS(...)
 #define UPROPERTY(...)
 #define UFUNCTION(...)

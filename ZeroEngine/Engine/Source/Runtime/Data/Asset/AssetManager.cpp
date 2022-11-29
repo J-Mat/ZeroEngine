@@ -46,8 +46,8 @@ namespace Zero
 		}
 		std::string AssetName = Data["ObjectName"].as<std::string>();
 		CORE_LOG_TRACE("Deserializing Assest '{0}'", AssetName);
-		auto Iter = GetClassInfoMap().find(AssetName);
-		if (Iter != GetClassInfoMap().end())
+		auto Iter = FObjectGlobal::GetClassInfoMap().find(AssetName);
+		if (Iter != FObjectGlobal::GetClassInfoMap().end())
 		{
 			UAsset* Asset = nullptr;
 			Asset = static_cast<UAsset*>(Iter->second.Class->CreateDefaultObject());

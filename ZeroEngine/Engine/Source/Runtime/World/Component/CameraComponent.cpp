@@ -41,7 +41,7 @@ namespace Zero
 
 	void UCameraComponent::UpdateCameraSettings()
 	{
-		switch (m_Cameratype)
+		switch (m_CameraType)
 		{
 		case ECameraType::CT_PERSPECT:
 			m_Projection = ZMath::perspectiveLH(
@@ -50,7 +50,16 @@ namespace Zero
 				m_Near, 
 				m_Far
 			);
+			break;
 		case ECameraType::CT_ORI:
+			m_Projection = ZMath::orthoLH(
+				-1000.0f,
+				+1000.0f,
+				-1000.0f,
+				+1000.0f,
+				m_Near, 
+				m_Far
+			);
 			break;
 		}
 	}

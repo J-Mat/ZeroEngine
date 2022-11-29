@@ -210,7 +210,7 @@ namespace ZHT
 		}
 	}
 
-	bool FFileParser::CheckNeedGenerateReflection()
+	bool FFileParser::CheckHasRefelectionHeader()
 	{
 		size_t i = 0;
 		for (; i < m_Tokens.size(); ++i)
@@ -233,11 +233,34 @@ namespace ZHT
 			IncludeName << "\"" << m_CurFilePath.filename().stem().string() << ".reflection.h\"";
 			if (CurToken.TokenName == "#" && NextToken.TokenName == "include" && NextNextToken.TokenName == IncludeName.str())
 			{
-				i += 3;
-				break;
+				return true;
 			}
 		}
+		return false;
+	}
 
+	bool FFileParser::CheckNeedGeneraterEnumRefelcion()
+	{
+		for (size_t i = 0; i < m_Tokens.size();++i)
+		{
+			const auto& CurToken = m_Tokens[i];
+			if (i + 1 == m_Tokens.size())
+			{
+				return false;
+			}
+			const auto& NextToken = m_Tokens[i + 1];
+			if (CurToken.TokenName == "UENUM" && NextToken.TokenName.starts_with("("))
+			{
+				m_EnumTagIndex = i;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	bool FFileParser::CheckNeedGenerateClassReflection()
+	{
+		size_t i = 0;
 		for (; i < m_Tokens.size();++i)
 		{
 			const auto& CurToken = m_Tokens[i];
@@ -290,6 +313,62 @@ namespace ZHT
 			bIsClass = true;
 		}
 		return m_Tokens[TokenIndex];
+	}
+
+	void FFileParser::CollectEnumInfo(std::vector<FEnumElement>& EnumElimentList)
+	{
+		while (LocateEnumTag())
+		{
+			FEnumElement EnumElement;
+			EnumElement.EnumName = m_Tokens[m_EnumTagIndex].TokenName;
+			uint32_t CurIndex = uint32_t(m_EnumTagIndex + 1);
+			std::stringstream Stream;
+			while (m_Tokens[CurIndex].TokenName != "{")
+			{
+				++CurIndex;
+			}
+			++CurIndex;
+			uint32_t StackIndex = 1;
+			while (StackIndex > 0)
+			{
+				if (m_Tokens[CurIndex].TokenName == "{")
+				{
+					++StackIndex;
+				}
+				else if (m_Tokens[CurIndex].TokenName == "}")
+				{
+					--StackIndex;
+				}
+				if (StackIndex == 0)
+				{ 
+					break;
+				}
+				Stream << m_Tokens[CurIndex].TokenName;
+				++CurIndex;
+			}
+			std::string CodeStr = Stream.str();
+			std::vector<std::string> ValueStrs = Zero::Utils::StringUtils::Split(CodeStr, ",");
+			int32_t ValueIndex = 0;
+			for (const auto& ValueStr : ValueStrs)
+			{ 
+				std::vector<std::string> LeftRightValues =  Zero::Utils::StringUtils::Split(ValueStr, "=");
+				FEnumValue EnumValue;
+				EnumValue.first  = LeftRightValues[0];
+				if (LeftRightValues.size() == 1)
+				{
+					EnumValue.second = ValueIndex++;
+				}
+				else
+				{
+					char* p_end;
+					EnumValue.second = std::strtol(LeftRightValues[1].c_str(), &p_end, 10);
+					ValueIndex = EnumValue.second + 1;
+				}
+				EnumElement.EnumInfoList.push_back(EnumValue);
+			}
+			EnumElimentList.push_back(EnumElement);
+			m_EnumTagIndex = CurIndex;
+		}
 	}
 
 	void FFileParser::CollectMetaAndField(FPropertyElement& PropertyElement)
@@ -387,6 +466,23 @@ namespace ZHT
 		m_PropertyIndex = CurIndex;
 	}
 
+	bool FFileParser::LocateEnumTag()
+	{
+		for (size_t i = m_EnumTagIndex; i < m_Tokens.size() - 2; ++i)
+		{
+			const auto& CurToken = m_Tokens[i];
+			const auto& NextToken = m_Tokens[i + 1];
+			const auto& NextNextToken = m_Tokens[i + 2];
+			
+			if (CurToken.TokenName == "UENUM" && NextToken.TokenName.starts_with("(") && NextNextToken.TokenName == "enum")
+			{
+				m_EnumTagIndex = i + 3;
+				return true;;
+			}
+		}
+		return false;
+	}
+
 	bool FFileParser::LocatePropertyTag()
 	{
 		for (size_t i = m_PropertyIndex; i < m_Tokens.size() - 2; ++i)
@@ -436,6 +532,19 @@ namespace ZHT
 		m_AllClassElements.push_back(ClassElement);
 	}
 
+	void FFileParser::LogEnumInfo(const std::vector<FEnumElement>& EnumElimentList)
+	{
+		CLIENT_LOG_INFO("Enums :");
+		for (const FEnumElement& EnumElement : EnumElimentList)
+		{
+			CLIENT_LOG_INFO("\tName: {0}", EnumElement.EnumName);
+			for (const FEnumValue& EnumValue : EnumElement.EnumInfoList)
+			{
+				CLIENT_LOG_INFO("\tName: {0}, Value: {1}", EnumValue.first, EnumValue.second);
+			}
+		}
+	}
+
 	void FFileParser::LogClassInfo(FClassElement& ClassElement)
 	{
 		CLIENT_LOG_INFO("Class Name : {0}", ClassElement.ClassName);
@@ -459,7 +568,7 @@ namespace ZHT
 		std::cout << "\n\n\n";
 	}
 
-	void FFileParser::GenerateReflectionHeaderFile(FClassElement& ClassElement)
+	void FFileParser::GenerateReflectionHeaderFile(const std::vector<FEnumElement>& EnumElimentList, FClassElement& ClassElement)
 	{
 		std::stringstream Stream;
 		std::vector<std::string> Contents;
@@ -475,7 +584,6 @@ namespace ZHT
 
 		Contents.push_back(Zero::Utils::StringUtils::Format("#define REFLECTION_FILE_NAME {0}", ClassElement.ClassName));
 		Contents.push_back(Zero::Utils::StringUtils::Format("#define TAG_LINE {0}", ClassElement.LineIndex));
-
 		Contents.push_back(Zero::Utils::StringUtils::Format("#define {0}_{1}_Internal_BODY \\",
 			ClassElement.ClassName,
 			ClassElement.LineIndex
@@ -663,7 +771,26 @@ namespace ZHT
 		return Stream.str();
 	}
 
-	void FFileParser::GenerateReflectionCppFile(const FClassElement& ClassElement)
+	std::string FFileParser::WriteRegisterEnumCode(const FEnumElement& EnumElement)
+	{
+		std::stringstream Stream;
+		Stream << "\t\tFEnumElement EnumElement;\n";
+		Stream << Zero::Utils::StringUtils::Format("\t\tEnumElement.EnumName = \"{0}\";\n", EnumElement.EnumName);
+		for (const FEnumValue EnumValue : EnumElement.EnumInfoList)
+		{	
+			Stream << "\t\t{\n";
+			Stream << "\t\t\tFEnumValue EnumValue;\n";
+			Stream << Zero::Utils::StringUtils::Format("\t\t\tEnumValue.first = \"{0}\";\n", EnumValue.first);
+			Stream << Zero::Utils::StringUtils::Format("\t\t\tEnumValue.second = {0};\n", EnumValue.second);
+			Stream << "\t\t\tEnumElement.EnumInfoList.push_back(EnumValue);\n";
+			Stream << "\t\t}\n";
+		}
+		Stream << Zero::Utils::StringUtils::Format("\t\tFObjectGlobal::RegisterEnumObject(\"{0}\", EnumElement);\n", EnumElement.EnumName);
+		Stream << "\t\treturn 0;\n";
+		return Stream.str();
+	}
+
+	void FFileParser::GenerateReflectionCppFile(const std::vector<FEnumElement>& EnumElimentList, const FClassElement& ClassElement)
 	{
 		std::vector<std::string> Contents;
 		Contents.push_back(Zero::Utils::StringUtils::Format("#include \"{0}\"", ClassElement.OriginFilePath.string()));
@@ -678,9 +805,19 @@ namespace ZHT
 		PUSH_TO_CONTENT
 
 
-			Stream << "namespace Zero\n"
+		Stream << "namespace Zero\n"
 			<< "{\n";
 		PUSH_TO_CONTENT
+
+		for (const FEnumElement& EnumElement: EnumElimentList)
+		{
+			Stream << Zero::Utils::StringUtils::Format("\tint RegisterEnum_{0}()\n", EnumElement.EnumName)
+				<< "\t{\n"
+				<< WriteRegisterEnumCode(EnumElement)
+				<< "\t}\n"
+				<< Zero::Utils::StringUtils::Format("\tstatic int RegisterEnum_{0}_Value = RegisterEnum_{0}();\n\n\n", EnumElement.EnumName);
+		}
+
 
 		Stream << Zero::Utils::StringUtils::Format("\tUClass* {0}::GetClass()\n", ClassElement.ClassName)
 			<< "\t{\n"
@@ -713,7 +850,7 @@ namespace ZHT
 
 		Stream << std::format("\tint Register_{0}()\n", ClassElement.ClassName)
 		<< "\t{\n"
-		<< "\t\tGetClassInfoMap().insert({"
+		<< "\t\tFObjectGlobal::GetClassInfoMap().insert({"
 		<< Zero::Utils::StringUtils::Format("\"{1}\", FClassID(\"{0}\",{1}::GetClass()) });\n", ClassElement.DerivedName, ClassElement.ClassName)
 		<< "\t\treturn 1;\n"
 		<< "\t}\n"

@@ -100,8 +100,8 @@ namespace Zero
 				std::string ActorName = (const char*)Payload->Data;
 
 				CLIENT_LOG_TRACE("Actor Name '{0}'", ActorName);
-				auto Iter = GetClassInfoMap().find(ActorName);
-				if (Iter != GetClassInfoMap().end())
+				auto Iter = FObjectGlobal::GetClassInfoMap().find(ActorName);
+				if (Iter != FObjectGlobal::GetClassInfoMap().end())
 				{
 					UActor* Actor = nullptr;
 					Actor = static_cast<UActor*>(Iter->second.Class->CreateDefaultObject());

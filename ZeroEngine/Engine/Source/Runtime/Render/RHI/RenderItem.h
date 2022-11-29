@@ -7,6 +7,7 @@ namespace Zero
 	class FMaterial;
 	class IShaderConstantsBuffer;
 	class FRenderItem;
+	class FPipelineStateObject;
 	
 	enum ERenderLayer
 	{
@@ -24,7 +25,7 @@ namespace Zero
 		using iter = std::vector<Ref<FRenderItem>>::iterator;
 		iter begin() { return m_RenderItems.begin(); }
 		iter end() { return m_RenderItems.end(); }
-	private:
+	public:
 		std::vector<Ref<FRenderItem>> m_RenderItems;
 		std::vector<Ref<FRenderItem>> m_AvailableRenderItems;
 		std::vector<Utils::Guid> m_RenderGuids;
@@ -40,6 +41,7 @@ namespace Zero
 		void SetModelMatrix(const ZMath::mat4& Transform);
 		void OnDrawCall();
 		Ref<FMaterial> m_Material = nullptr;
+		Ref<FPipelineStateObject> m_PipelineStateObject = nullptr;
 		Ref<FMesh> m_Mesh = nullptr;
 		FSubMesh m_SubMesh;
 		Ref<IShaderConstantsBuffer> m_ConstantsBuffer = nullptr;

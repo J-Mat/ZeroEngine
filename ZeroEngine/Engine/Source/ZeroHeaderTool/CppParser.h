@@ -43,6 +43,15 @@ namespace ZHT
 		std::filesystem::path HeaderPath;
 		std::filesystem::path CppPath;
 	};
+	
+	
+	using FEnumValue = std::pair<std::string, int32_t>;
+
+	struct FEnumElement
+	{
+		std::string EnumName;
+		std::vector<FEnumValue> EnumInfoList;
+	};
 
 	struct FToken
 	{
@@ -73,20 +82,26 @@ namespace ZHT
 		void AcceptStringOrChar();
 		void AcceptDefaultToken();
 		void Parse(std::filesystem::path Path);
-		bool CheckNeedGenerateReflection();
+		bool CheckHasRefelectionHeader();
+		bool CheckNeedGeneraterEnumRefelcion();
+		bool CheckNeedGenerateClassReflection();
 		FToken GetType(uint32_t& TokenIndex, bool& bIsClass);
+		void CollectEnumInfo(std::vector<FEnumElement>& EnumElimentList);
 		void CollectMetaAndField(FPropertyElement& PropertyElement);
 		void CollectProperty(FPropertyElement& PropertyElement);
+		bool LocateEnumTag();
 		bool LocatePropertyTag();
 		void CollectClassInfo(FClassElement& ClassElement);
+		void LogEnumInfo(const std::vector<FEnumElement>& EnumElimentList);
 		void LogClassInfo(FClassElement& ClassElement);
-		void GenerateReflectionHeaderFile(FClassElement& ClassElement);
+		void GenerateReflectionHeaderFile(const std::vector<FEnumElement>& EnumElimentList, FClassElement& ClassElement);
 
 		bool IsDerived(std::string DerivedClass, std::string BasedClass);
 
 		std::string WriteAddPropertyCode(const FClassElement& ClassElement);
 		std::string WriteUpdateContainerCode(const FClassElement& ClassElement);
-		void GenerateReflectionCppFile(const FClassElement& ClassElement);
+		std::string WriteRegisterEnumCode(const FEnumElement& EnumElement);
+		void GenerateReflectionCppFile(const std::vector<FEnumElement>& EnumElimentList, const FClassElement& ClassElement);
 		std::string WriteGenerateActors(std::vector<std::string>& ActorClassNames);
 		void WriteLinkReflectionFile(std::set<std::filesystem::path>& AllLinkCppFiles);
 		
@@ -101,6 +116,7 @@ namespace ZHT
 		std::vector<FToken> m_Tokens;
 		size_t m_CurrentTokenIndex;
 		size_t m_ClassTagIndex;
+		size_t m_EnumTagIndex;
 		size_t m_ClassBodyIndex;
 		size_t m_PropertyIndex;
 	};

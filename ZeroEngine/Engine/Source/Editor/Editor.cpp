@@ -19,6 +19,7 @@
 #include "EditPanels/Widgets/MapObjectDetailsMapping.h"
 #include "EditPanels/Widgets/IntDetailsMapping.h"
 #include "EditPanels/Widgets/CoreObjectDetailsMapping.h"
+#include "EditPanels/Widgets/EnumDetailsMapping.h"
 
 
 namespace Zero
@@ -47,6 +48,12 @@ namespace Zero
 		DetailMappingManager.RegisterVariableMapping("int32_t", FIntDetailsMapping::MakeDetailMapping());
 		DetailMappingManager.RegisterClassMapping("UActor", FActorDetailsMapping::MakeDetailMapping());
 		DetailMappingManager.RegisterClassMapping("USettings", FCoreObjectDetailsMapping::MakeDetailMapping());
+		
+		const std::map<std::string, FEnumElement>& EnumMap =  FObjectGlobal::GetRegiterEnumMap();
+		for (auto Iter : EnumMap)
+		{
+			DetailMappingManager.RegisterVariableMapping(Iter.first, FEnumDetailsMapping::MakeDetailMapping());
+		}
 	}
 	Ref<FBasePanel> FEditor::GetPanelByName(const std::string& PanelName)
 	{

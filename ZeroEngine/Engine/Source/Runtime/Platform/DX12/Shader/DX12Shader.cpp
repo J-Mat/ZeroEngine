@@ -31,7 +31,7 @@ namespace Zero
 	}
 
 	FDX12Shader::FDX12Shader(std::string FileName, const FShaderBinderDesc& BinderDesc, const FShaderDesc& Desc)
-	: IShader(BinderDesc, Desc)
+	: IShader(FileName, BinderDesc, Desc)
 	{
 		m_VSBytecode = CompileShader(Utils::String2WString(FileName), nullptr, "VS", "vs_5_1");
 		m_PSBytecode = CompileShader(Utils::String2WString(FileName), nullptr, "PS", "ps_5_1");

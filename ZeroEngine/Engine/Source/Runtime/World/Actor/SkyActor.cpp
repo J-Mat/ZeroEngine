@@ -14,11 +14,7 @@ namespace Zero
 	USkyActor::USkyActor()
 		: UActor()
 	{
-		m_MeshVertexComponent = CreateComponent<UMeshVertexComponent>(this);
-		m_MeshRenderComponent = CreateComponent<UMeshRenderComponent>(this);
-		m_MeshRenderComponent->SetShader("Shader/Skybox.hlsl");
-		m_MeshRenderComponent->SetEnableMaterial(false);
-		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_SKYBOX);
+		m_bVisibleInEditor = false;
 	}
 
 	void USkyActor::BuildMesh()
@@ -34,6 +30,13 @@ namespace Zero
 	void USkyActor::PostInit()
 	{
 		Supper::PostInit();
+
+		m_MeshVertexComponent = CreateComponent<UMeshVertexComponent>(this);
+		m_MeshRenderComponent = CreateComponent<UMeshRenderComponent>(this);
+		m_MeshRenderComponent->SetPipelineStateObject(TLibrary<FPipelineStateObject>::Fetch(PSO_SKYBOX));
+		m_MeshRenderComponent->SetEnableMaterial(false);
+		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_SKYBOX);
+
 		BuildMesh();
 
 		uint32_t SubMeshNum = m_MeshVertexComponent->m_Mesh->GetSubMeshNum();
@@ -44,20 +47,20 @@ namespace Zero
 
 	void USkyActor::CommitToPipieline()
 	{
-		FRenderItemPool& RenderItemPool = m_World->GetRenderItemPool(RENDERLAYER_SKYBOX);
+		auto RenderItemPool = m_World->GetRenderItemPool(RENDERLAYER_SKYBOX);
 		uint32_t MaterialIndex = 0;
 		for (FSubMesh& SubMesh : *m_MeshVertexComponent->m_Mesh.get())
 		{
-			Ref<FRenderItem> Item = RenderItemPool.Request();
+			Ref<FRenderItem> Item = RenderItemPool->Request();
 			Item->m_Mesh = m_MeshVertexComponent->m_Mesh;
 			Item->m_SubMesh = SubMesh;
 			Item->m_ConstantsBuffer = m_MeshVertexComponent->m_ShaderConstantsBuffer;
 			Item->m_Material = m_MeshRenderComponent->GetPassMaterials(RENDERLAYER_SKYBOX)[MaterialIndex];
 			Item->SetModelMatrix(m_TransformationComponent->GetTransform());
 			MaterialIndex++;
-			RenderItemPool.Push(Item);
+			RenderItemPool->Push(Item);
 		}
-		RenderItemPool.AddGuid(m_GUID);
+		RenderItemPool->AddGuid(m_GUID);
 	}
 
 	void USkyActor::Tick()

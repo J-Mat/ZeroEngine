@@ -6,12 +6,12 @@
 
 namespace Zero
 {
+	UENUM()
 	enum ECameraType
 	{
 		CT_PERSPECT,
 		CT_ORI,
 	};
-
 
 	UCLASS()
 	class UCameraComponent : public UComponent
@@ -29,6 +29,7 @@ namespace Zero
 		virtual void Tick();
 		ZMath::mat4 GetProjection() { return m_Projection;}
 		ZMath::mat4 GetView() { return m_View; }
+
 	private:
 		UTransformComponent* m_TransformCompent;
 		
@@ -44,7 +45,10 @@ namespace Zero
 
 		float m_Aspect = 16.0f / 9.0f;
 		ZMath::vec3 m_WorldUp = { 0.0f, 1.0f, 0.0f };
-		ECameraType m_Cameratype = ECameraType::CT_PERSPECT;
+
+		UPROPERTY()
+		ECameraType m_CameraType = ECameraType::CT_PERSPECT;
+
 		float m_Near = 0.01f;
 		float m_Far = 1000.0f;
 		float m_Left = 0.0f;

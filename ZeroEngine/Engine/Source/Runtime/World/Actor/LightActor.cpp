@@ -18,8 +18,8 @@ namespace Zero
 		default:
 			break;
 		}
-		GetComponent<UMeshRenderComponent>()->SetShader("Shader/DirectLight.hlsl");
 		GetComponent<UMeshRenderComponent>()->SetEnableMaterial(false);
+		GetComponent<UMeshRenderComponent>()->SetPipelineStateObject(TLibrary<FPipelineStateObject>::Fetch(PSO_LIGHT));
 	}
 
 	void ULightActor::PostInit()
