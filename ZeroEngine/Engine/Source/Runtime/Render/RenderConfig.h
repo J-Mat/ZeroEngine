@@ -14,6 +14,7 @@ namespace Zero
 	#define PSO_FORWARDLIT "ForwardLit"
 	#define PSO_LIGHT "Light"
 	#define PSO_SKYBOX "SkyBox"
+	#define PSO_FRESNEL "Fresnel"
 
 
 

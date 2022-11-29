@@ -39,7 +39,7 @@ namespace Zero
 		m_RenderTarget->Bind();
 
 		
-		if (FRenderConfig::s_bEnableSkybox)
+		if (false)
 		{
 			static auto SkyboxPSO = TLibrary<FPipelineStateObject>::Fetch(PSO_SKYBOX);
 			SkyboxPSO->Bind();
@@ -54,7 +54,7 @@ namespace Zero
 		}
 
 		{
-			static auto ForwardLitPSO = TLibrary<FPipelineStateObject>::Fetch(PSO_FRESNEL);
+			static auto ForwardLitPSO = TLibrary<FPipelineStateObject>::Fetch(PSO_FORWARDLIT);
 			auto RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool(RENDERLAYER_OPAQUE);
 			for (Ref<FRenderItem> RenderItem : *RenderItemPool.get())
 			{
