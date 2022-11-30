@@ -68,6 +68,10 @@ namespace Zero
 		{
 			AttachParameters();
 		}
+		else if (Property->GetPropertyName() == "m_ColorParameter" || Property->GetPropertyName() == "m_FloatSliderParameter")
+		{
+			AttachParameters();
+		}
 		else if (m_bEnableMaterial && Property->GetPropertyName() == "m_Psotype")
 		{
 			SwitchPso();
@@ -84,20 +88,51 @@ namespace Zero
 
 	void UMeshRenderComponent::AttachParameters()
 	{
-		if (!m_bEnableMaterial || m_MaterialHandle == "")
+		if (!m_bEnableMaterial)
 		{
 			return;
 		}
-		UMaterialAsset* MaterialAsset = FAssetManager::GetInstance().Fetch<UMaterialAsset>(m_MaterialHandle);
-		for (size_t i = 0; i < m_SubmeshNum; i++)
+		int32_t RenderLayer = m_RenderLayer;
+		if (m_MaterialHandle != "")
 		{
-			for (auto Iter : MaterialAsset->m_Textures)
+			UMaterialAsset* MaterialAsset = FAssetManager::GetInstance().Fetch<UMaterialAsset>(m_MaterialHandle);
+			while (RenderLayer > 0)
 			{
-				const std::string& TextureName = Iter.first;
-				Ref<FTexture2D> Texture = FAssetManager::GetInstance().FetchTexture(Iter.second);
-				if (Texture != nullptr)
+				uint32_t CurLayer = (RenderLayer & (-RenderLayer));
+				RenderLayer ^= CurLayer;
+
+				for (size_t i = 0; i < m_SubmeshNum; i++)
 				{
-					m_Materials[RENDERLAYER_OPAQUE][i]->SetTexture2D(TextureName, Texture);
+					for (auto Iter : MaterialAsset->m_Textures)
+					{
+						const std::string& TextureName = Iter.first;
+						Ref<FTexture2D> Texture = FAssetManager::GetInstance().FetchTexture(Iter.second);
+						if (Texture != nullptr)
+						{
+							m_Materials[CurLayer][i]->SetTexture2D(TextureName, Texture);
+						}
+					}
+				}
+			}
+		}
+			
+		
+		RenderLayer = m_RenderLayer;
+		while (RenderLayer > 0)
+		{
+			uint32_t CurLayer = (RenderLayer & (-RenderLayer));
+			RenderLayer ^= CurLayer;
+
+			for (size_t i = 0; i < m_SubmeshNum; i++)
+			{
+				for (auto Iter : m_ColorParameter)
+				{
+					m_Materials[CurLayer][i]->SetFloat3(Iter.first, Iter.second);
+				}
+
+				for (auto Iter : m_FloatSliderParameter)
+				{
+					m_Materials[CurLayer][i]->SetFloat(Iter.first, Iter.second.Value);
 				}
 			}
 		}

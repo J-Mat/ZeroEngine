@@ -44,7 +44,7 @@ namespace Zero
 		Ref<FPipelineStateObject> m_PipelineStateObject = nullptr;
 		Ref<FMesh> m_Mesh = nullptr;
 		FSubMesh m_SubMesh;
-		Ref<IShaderConstantsBuffer> m_ConstantsBuffer = nullptr;
+		Ref<IShaderConstantsBuffer> m_MaterialBuffer = nullptr;
 		ZMath::mat4 m_Transform;
 	};
 }

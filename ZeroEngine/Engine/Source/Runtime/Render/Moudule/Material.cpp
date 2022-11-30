@@ -29,9 +29,9 @@ namespace Zero
 	{
 		m_ShaderBinder->Bind();
 		const auto& BinderDesc = m_ShaderBinder->GetBinderDesc();
-		if (m_ConstantsBuffer != nullptr)
+		if (m_MaterialBuffer != nullptr)
 		{
-			m_ShaderBinder->BindConstantsBuffer(BinderDesc.m_MaterialIndex, m_ConstantsBuffer.get());
+			m_ShaderBinder->BindConstantsBuffer(BinderDesc.m_MaterialIndex, m_MaterialBuffer.get());
 		}
 		if (BinderDesc.m_CameraIndex != Utils::InvalidIndex)
 		{
@@ -48,11 +48,14 @@ namespace Zero
 
 	void FMaterial::OnDrawCall()
 	{
-		if (m_ConstantsBuffer)
+		if (m_MaterialBuffer)
 		{
-			m_ConstantsBuffer->UploadDataIfDirty();
+			m_MaterialBuffer->UploadDataIfDirty();
 		}
-		m_ResourcesBuffer->UploadDataIfDirty();
+		if (m_ResourcesBuffer)
+		{
+			m_ResourcesBuffer->UploadDataIfDirty();
+		}
 		FFrameConstantsManager::GetInstance().GetShaderConstantBuffer()->UploadDataIfDirty();
 	}
 
@@ -65,10 +68,10 @@ namespace Zero
 			int32_t MaterialIndex = Shader->GetBinder()->GetBinderDesc().m_MaterialIndex;
 			if (MaterialIndex != Utils::InvalidIndex)
 			{
-				m_ConstantsDesc = m_Shader->GetBinder()->GetShaderConstantsDesc(MaterialIndex);
-				if (m_ConstantsDesc != nullptr)
+				m_MaterialDesc = m_Shader->GetBinder()->GetShaderConstantsDesc(MaterialIndex);
+				if (m_MaterialDesc != nullptr)
 				{
-					m_ConstantsBuffer = FRenderer::GraphicFactroy->CreateShaderConstantBuffer(*m_ConstantsDesc.get());
+					m_MaterialBuffer = FRenderer::GraphicFactroy->CreateShaderConstantBuffer(*m_MaterialDesc.get());
 				}
 			}
 			m_ResourcesDesc = m_Shader->GetBinder()->GetShaderResourcesDesc();
@@ -89,22 +92,22 @@ namespace Zero
 
 	void FMaterial::SetFloat(const std::string& Name, const float& Value)
 	{
-		m_ConstantsBuffer->SetFloat(Name, Value);
+		m_MaterialBuffer->SetFloat(Name, Value);
 	}
 
 	void FMaterial::SetFloat3(const std::string& Name, const ZMath::vec3& Value)
 	{
-		m_ConstantsBuffer->SetFloat3(Name, Value);
+		m_MaterialBuffer->SetFloat3(Name, Value);
 	}
 
 	void FMaterial::SetFloat4(const std::string& Name, const ZMath::vec4& Value)
 	{
-		m_ConstantsBuffer->SetFloat4(Name, Value);
+		m_MaterialBuffer->SetFloat4(Name, Value);
 	}
 
 	void FMaterial::SetMatrix4x4(const std::string& Name, const ZMath::mat4& Value)
 	{
-		m_ConstantsBuffer->SetMatrix4x4(Name, Value);
+		m_MaterialBuffer->SetMatrix4x4(Name, Value);
 	}
 
 	void FMaterial::SetTexture2D(const std::string& Name, Ref<FTexture2D> Texture)
@@ -119,42 +122,42 @@ namespace Zero
 
 	void FMaterial::GetFloat(const std::string& Name, float& Value)
 	{
-		m_ConstantsBuffer->GetFloat(Name, Value);
+		m_MaterialBuffer->GetFloat(Name, Value);
 	}
 
 	void FMaterial::GetFloat3(const std::string& Name, ZMath::vec3& Value)
 	{
-		m_ConstantsBuffer->GetFloat3(Name, Value);
+		m_MaterialBuffer->GetFloat3(Name, Value);
 	}
 
 	void FMaterial::GetFloat4(const std::string& Name, ZMath::vec4& Value)
 	{
-		m_ConstantsBuffer->GetFloat4(Name, Value);
+		m_MaterialBuffer->GetFloat4(Name, Value);
 	}
 
 	void FMaterial::GetMatrix4x4(const std::string& Name, ZMath::mat4& Value)
 	{
-		m_ConstantsBuffer->GetMatrix4x4(Name, Value);
+		m_MaterialBuffer->GetMatrix4x4(Name, Value);
 	}
 
 	float* FMaterial::PtrFloat(const std::string& Name)
 	{
-		return m_ConstantsBuffer->PtrFloat(Name);
+		return m_MaterialBuffer->PtrFloat(Name);
 	}
 
 	float* FMaterial::PtrFloat3(const std::string& Name)
 	{
-		return m_ConstantsBuffer->PtrFloat3(Name);
+		return m_MaterialBuffer->PtrFloat3(Name);
 	}
 
 	float* FMaterial::PtrFloat4(const std::string& Name)
 	{
-		return m_ConstantsBuffer->PtrFloat4(Name);
+		return m_MaterialBuffer->PtrFloat4(Name);
 	}
 
 	float* FMaterial::PtrMatrix4x4(const std::string& Name)
 	{
-		return m_ConstantsBuffer->PtrMatrix4x4(Name);
+		return m_MaterialBuffer->PtrMatrix4x4(Name);
 	}
 	
 }

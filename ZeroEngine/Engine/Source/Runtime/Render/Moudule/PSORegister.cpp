@@ -53,7 +53,43 @@ namespace Zero
 		LightDesc.Shader = FRenderer::GraphicFactroy->CreateShader("Shader/DirectLight.hlsl", ShaderBinderDesc, ShaderDesc);
 		FRenderer::GraphicFactroy->CreatePSO(PSO_LIGHT, LightDesc);
 
+	}
+
+	void FPSORegister::RegisterFresnel()
+	{
+		std::vector<FConstantBufferLayout> CBLayouts =
+		{
+			FConstantBufferLayout::s_PerObjectConstants,
+			FConstantBufferLayout::s_PerCameraConstants,
+			// Material
+			{
+				{EShaderDataType::Float, "Fresnel_1"},
+				{EShaderDataType::Float, "Fresnel_2"},
+				{EShaderDataType::Float, "Fresnel_3"},
+			},
+			FConstantBufferLayout::s_PerFrameConstants
+		};
+
+		FFrameBufferTexturesFormats Formats = {
+			ETextureFormat::R8G8B8A8,
+			ETextureFormat::None, 
+			ETextureFormat::None,
+			ETextureFormat::None,
+			ETextureFormat::None,
+			ETextureFormat::None,
+			ETextureFormat::None,
+			ETextureFormat::None,
+			ETextureFormat::DEPTH32F
+		};
+
+		FShaderDesc ShaderDesc = { false, FVertexBufferLayout::s_DefaultVertexLayout, 2, Formats };
+
 		FPSODescriptor FresnelDesc;
+		FShaderBinderDesc  ShaderBinderDesc = { CBLayouts};
+		ShaderBinderDesc.m_PerObjIndex = 0;
+		ShaderBinderDesc.m_CameraIndex = 1;
+		ShaderBinderDesc.m_MaterialIndex = 2;
+		ShaderBinderDesc.m_ConstantIndex = 3;
 		FresnelDesc.Shader = FRenderer::GraphicFactroy->CreateShader("Shader/Fresnel.hlsl", ShaderBinderDesc, ShaderDesc);
 		FRenderer::GraphicFactroy->CreatePSO(PSO_FRESNEL, FresnelDesc);
 	}
@@ -73,7 +109,7 @@ namespace Zero
 
 		FFrameBufferTexturesFormats Formats = {
 			ETextureFormat::R8G8B8A8,
-			ETextureFormat::None, //   For Picking
+			ETextureFormat::None,
 			ETextureFormat::None,
 			ETextureFormat::None,
 			ETextureFormat::None,
@@ -83,7 +119,7 @@ namespace Zero
 			ETextureFormat::DEPTH32F
 		};
 
-		FShaderDesc ShaderDessc = { false, FVertexBufferLayout::s_SkyboxVertexLayout, 2, Formats };
+		FShaderDesc ShaderDessc = { false, FVertexBufferLayout::s_DefaultVertexLayout, 2, Formats };
 
 		FShaderBinderDesc  ShaderBinderDesc = { CBLayouts, ResourceLayout };
 		ShaderBinderDesc.m_PerObjIndex = 0;

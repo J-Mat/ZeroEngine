@@ -23,7 +23,6 @@ namespace Zero
 		GENERATED_BODY()
 	public:
 		friend class UMeshActor;
-		friend class USkyActor;
 		UMeshRenderComponent();
 		virtual ~UMeshRenderComponent();
 
@@ -31,10 +30,10 @@ namespace Zero
 		void SetEnableMaterial(bool bEnable);
 		std::vector<Ref<FMaterial>>& GetPassMaterials(uint32_t LayerLayer);
 		void SetSubmeshNum(uint32_t Num) {	m_SubmeshNum = Num; }
-		void AttachRenderLayer(uint32_t RenderLayer){m_RenderLayer |= RenderLayer;}
+		void AttachRenderLayer(int32_t RenderLayer){m_RenderLayer |= RenderLayer;}
 
 		Ref<FPipelineStateObject> GetPipelineStateObject() { return m_PipelineStateObject;}
-		void SetPipelineStateObject(Ref<FPipelineStateObject> PipelineStateObject) { m_PipelineStateObject; }
+		void SetPipelineStateObject(Ref<FPipelineStateObject> PipelineStateObject) { m_PipelineStateObject = PipelineStateObject; }
 
 		virtual void PostEdit(UProperty* Property) override;
 		void AttachParameters();
@@ -49,10 +48,17 @@ namespace Zero
 		FMaterialHandle m_MaterialHandle;
 
 		UPROPERTY(Invisible)
-		uint32_t m_RenderLayer = 0;
+		int32_t m_RenderLayer = 0;
 
 		UPROPERTY()
 		EPsoType m_Psotype = EPsoType::PT_ForwardLit;
+
+		UPROPERTY()
+		std::map<std::string, ZMath::FColor3> m_ColorParameter;
+
+		UPROPERTY()
+		std::map<std::string, FFloatSlider> m_FloatSliderParameter;
+
 	private:
 		Ref<FPipelineStateObject> m_PipelineStateObject = nullptr;
 	};

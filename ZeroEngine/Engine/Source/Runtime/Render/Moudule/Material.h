@@ -53,10 +53,10 @@ namespace Zero
 	private:
 		Ref<IShader> m_Shader;
 		Ref<IShaderBinder> m_ShaderBinder;
-		Ref<FShaderConstantsDesc> m_ConstantsDesc;
+		Ref<FShaderConstantsDesc> m_MaterialDesc;
 		Ref<FShaderResourcesDesc> m_ResourcesDesc;
 
-		Ref<IShaderConstantsBuffer> m_ConstantsBuffer;
+		Ref<IShaderConstantsBuffer> m_MaterialBuffer;
 		Ref<IShaderResourcesBuffer> m_ResourcesBuffer;
 	};
 }

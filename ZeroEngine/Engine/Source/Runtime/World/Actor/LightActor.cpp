@@ -18,6 +18,7 @@ namespace Zero
 		default:
 			break;
 		}
+		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_OPAQUE);
 		GetComponent<UMeshRenderComponent>()->SetEnableMaterial(false);
 		GetComponent<UMeshRenderComponent>()->SetPipelineStateObject(TLibrary<FPipelineStateObject>::Fetch(PSO_LIGHT));
 	}

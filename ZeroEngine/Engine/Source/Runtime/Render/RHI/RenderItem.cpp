@@ -53,12 +53,12 @@ namespace Zero
 	void FRenderItem::SetModelMatrix(const ZMath::mat4& Transform)
 	{
 		m_Transform = Transform;
-		m_ConstantsBuffer->SetMatrix4x4("Model", Transform);
+		m_MaterialBuffer->SetMatrix4x4("Model", Transform);
 	}
 	void FRenderItem::OnDrawCall()
 	{
 		static auto PerObjIndex = m_Material->GetShader()->GetBinder()->GetBinderDesc().m_PerObjIndex ;
-		m_Material->GetShader()->GetBinder()->BindConstantsBuffer(PerObjIndex, m_ConstantsBuffer.get());
+		m_Material->GetShader()->GetBinder()->BindConstantsBuffer(PerObjIndex, m_MaterialBuffer.get());
 		if (m_SubMesh.IsNull())
 		{
 			m_Mesh->Draw();

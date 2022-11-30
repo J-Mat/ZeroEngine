@@ -1,6 +1,7 @@
 #include "World.h"
 #include "Render/RHI/RenderItem.h"
 #include "Actor/MeshActor.h"
+#include "LightManager.h"
 
 namespace Zero
 {
@@ -14,6 +15,7 @@ namespace Zero
 
 	void UWorld::Tick()
 	{
+		FLightManager::GetInstance().Tick();
 		for (auto Iter : m_RenderItemPool)
 		{
 			Iter.second->Reset();
