@@ -41,6 +41,6 @@ PixelOutput PS(VertexOut Pin)
 	PixelOutput Out;
 	//float3 diffuseAlbedo = gDiffuseMap.Sample(gSamAnisotropicWarp, pin.TexC);
 	Out.BaseColor = float4(DirectLights[0].Color * DirectLights[0].Intensity, 1.0f);
-	//Out.BaseColor = float4(1.0f, 0.0f, 0.0f, 1.0f);
+	//Out.BaseColor = float4(0.0f, 1.0f, 1.0f, 1.0f);
 	return Out;
 }

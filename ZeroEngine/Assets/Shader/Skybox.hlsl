@@ -23,6 +23,8 @@ cbuffer cbCameraObject : register(b1)
 struct VertexIn
 {
 	float3 PosL    : POSITION;
+    float3 Normal  : NORMAL;
+	float3 Tangent : TANGENT;
 	float2 TexC    : TEXCOORD;
 };
 

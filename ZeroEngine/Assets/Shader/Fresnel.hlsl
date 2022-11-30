@@ -1,4 +1,38 @@
-#include "Common.hlsl"
+
+struct FDirectLight
+{
+    float3 Color;
+    float Intensity;
+    float4x4 ProjView;
+    float3 Direction;
+};
+
+
+cbuffer cbPerObject : register(b0)
+{
+    float4x4 Model;
+}
+
+cbuffer cbCameraObject : register(b1)
+{
+    float4x4 View;
+    float4x4 Projection;
+    float4x4 ProjectionView;
+    float3 ViewPos;
+}
+
+cbuffer cbMaterial : register(b2)
+{
+	float Fresnel_1;
+	float Fresnel_2;
+	float Fresnel_3;
+};
+
+cbuffer cbConstant : register(b3)
+{
+    FDirectLight DirectLights[4];
+    int DirectLightNum;
+};
 
 struct VertexIn
 {
@@ -11,7 +45,6 @@ struct VertexIn
 struct VertexOut
 {
 	float4 PosH : SV_Position;
-	float2 TexC    : TEXCOORD;
     float3 Normal  : NORMAL;
 	float3 WorldPos : POSITION;
 };
@@ -32,27 +65,27 @@ VertexOut VS(VertexIn vin)
 	Vout.PosH = mul(View, Vout.PosH);
 	Vout.PosH = mul(Projection, Vout.PosH);
 	
-	Vout.TexC = vin.TexC;
 	Vout.Normal = vin.Normal;
 
 	return Vout;
 };
 
 
+float3 SchlickFresnel(float3 F0, float3 Normal, float3 LightVec)
+{
+    float CosTheta = saturate(dot(Normal, LightVec));
+    return F0 + (float3(1.0f, 1.0f, 1.0f) - F0) * pow(1.0f - CosTheta, 5.0f);
+}
+
 PixelOutput PS(VertexOut Pin)
 {
 	PixelOutput Out;
-	float4 DiffuseAlbedo = gDiffuseMap.Sample(gSamAnisotropicWarp, Pin.TexC);
 	float3 LightColor = DirectLights[0].Color * DirectLights[0].Intensity;
 	float3 LightVec = -DirectLights[0].Direction;
-	float NdotL = max(dot(LightVec, Pin.Normal), 0.0f);
-	//Out.BaseColor = float4(1.0f, 0.0f, 0.0f, 1.0f);
-	float x = clamp(Pin.WorldPos.x, -1.0f, 1.0f);
-	float y = clamp(Pin.WorldPos.y, -1.0f, 1.0f);
-	float z = clamp(Pin.WorldPos.z, -1.0f, 1.0f);
-	float3 test = float3(x,y,z);
-	//Out.BaseColor = gSkyboxMap.Sample(gSamLinearClamp, float3(x, y, z));
- //	Out.BaseColor = float4(DiffuseAlbedo.xyz, 1.0f);
-	Out.BaseColor = float4(0.0f, 1.0f, 0.0f, 1.0f);
+	float NdotL = saturate(dot(Pin.Normal, LightVec));
+
+	float3 Fresnel = float3(Fresnel_1, Fresnel_2, Fresnel_3);
+	float3 Color = 	SchlickFresnel(Fresnel, Pin.Normal, LightVec);
+	Out.BaseColor = float4(Color, 1.0f);
 	return Out;
 }
