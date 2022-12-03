@@ -4,9 +4,9 @@ namespace Zero
 {
 	int FEnumDetailsMapping::GetEnumIndex(const FEnumElement& EnumElement, int EnumValue)
 	{
-		for (int i = 0; i < EnumElement.EnumInfoList.size(); ++i)
+		for (int i = 0; i < EnumElement.EnumItemList.size(); ++i)
 		{
-			if (EnumElement.EnumInfoList[i].second == EnumValue)
+			if (EnumElement.EnumItemList[i].second.Value == EnumValue)
 			{
 				return i;
 			}
@@ -25,16 +25,24 @@ namespace Zero
 		int SelectIndex = GetEnumIndex(EnumElement, *EnumValue);
 		CORE_ASSERT(SelectIndex != -1, "Invalid Enum Index!");
 
-		const char* ComboPreviewValue = EnumElement.EnumInfoList[SelectIndex].first.c_str();  
-		if (ImGui::BeginCombo(ProperyTag, ComboPreviewValue, flags))
+		const char* ComboPreviewValue = EnumElement.EnumItemList[SelectIndex].first.c_str();
+		if (EnumElement.EnumItemList[SelectIndex].second.Fields.contains("Invisible"))
+		{ 
+			ImGui::Text(ComboPreviewValue);
+		}
+		else if (ImGui::BeginCombo(ProperyTag, ComboPreviewValue, flags))
 		{
-			for (int i = 0; i < EnumElement.EnumInfoList.size(); i++)
+			for (int i = 0; i < EnumElement.EnumItemList.size(); i++)
 			{
+				if (EnumElement.EnumItemList[i].second.Fields.contains("Invisible"))
+				{ 
+					continue;
+				}
 				const bool bSelected = (SelectIndex == i);
-				if (ImGui::Selectable(EnumElement.EnumInfoList[i].first.c_str(), bSelected))
+				if (ImGui::Selectable(EnumElement.EnumItemList[i].first.c_str(), bSelected))
 				{
 					SelectIndex = i;
-					*EnumValue = EnumElement.EnumInfoList[i].second;
+					*EnumValue = EnumElement.EnumItemList[i].second.Value;
 					m_bEdited = true;
 				}
 

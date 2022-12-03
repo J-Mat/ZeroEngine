@@ -91,7 +91,6 @@ namespace Zero
 		float Value = 0.0f;
 		float Min = 0.0f;
 		float Max = 1.0f;
-		float Step = 0.01f;
 		bool bEnableEdit = false;
 	};
 

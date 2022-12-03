@@ -54,12 +54,10 @@ namespace Zero
 		}
 
 		{
-			static auto ForwardLitPSO = TLibrary<FPipelineStateObject>::Fetch(PSO_FORWARDLIT);
 			auto RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool(RENDERLAYER_OPAQUE);
 			for (Ref<FRenderItem> RenderItem : *RenderItemPool.get())
 			{
-				Ref<FPipelineStateObject> Pso = RenderItem->m_PipelineStateObject.get() != nullptr ? RenderItem->m_PipelineStateObject : ForwardLitPSO;
-				Pso->Bind();
+				RenderItem->m_PipelineStateObject->Bind();
 				RenderItem->m_Material->Tick();
 				RenderItem->m_Material->SetPass();
 				RenderItem->m_Material->OnDrawCall();

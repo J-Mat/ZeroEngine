@@ -16,6 +16,6 @@ namespace Zero
 		virtual void BuildMesh();
 	private:
 		float m_Radius = 1.0f;
-		uint32_t m_NumSubdivisions = 3;
+		uint32_t m_NumSubdivisions = 6;
 	};
 }

@@ -75,11 +75,13 @@ namespace Zero
 				}
 			}
 			m_ResourcesDesc = m_Shader->GetBinder()->GetShaderResourcesDesc();
-
-			m_ResourcesBuffer = FRenderer::GraphicFactroy->CreateShaderResourceBuffer(
-				*m_ResourcesDesc.get(),
-				m_Shader->GetBinder()->GetRootSignature()
-			);
+			if (m_ResourcesDesc->Size > 0)
+			{
+				m_ResourcesBuffer = FRenderer::GraphicFactroy->CreateShaderResourceBuffer(
+					*m_ResourcesDesc.get(),
+					m_Shader->GetBinder()->GetRootSignature()
+				);
+			}
 		}
 	}
 

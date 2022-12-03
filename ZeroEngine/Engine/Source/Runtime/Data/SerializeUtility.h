@@ -70,21 +70,19 @@ namespace YAML
 			node.push_back(rhs.Value);
 			node.push_back(rhs.Min);
 			node.push_back(rhs.Max);
-			node.push_back(rhs.Step);
 			node.push_back(rhs.bEnableEdit);
 			return node;
 		}
 
 		static bool decode(const Node& node, Zero::FFloatSlider& rhs)
 		{
-			if (!node.IsSequence() || node.size() != 5)
+			if (!node.IsSequence() || node.size() != 4)
 				return false;
 
 			rhs.Value = node[0].as<float>();
 			rhs.Min = node[1].as<float>();
 			rhs.Max = node[2].as<float>();
-			rhs.Step = node[3].as<float>();
-			rhs.bEnableEdit = node[4].as<bool>();
+			rhs.bEnableEdit = node[3].as<bool>();
 			return true;
 		}
 	};
@@ -109,7 +107,7 @@ namespace Zero
 	static YAML::Emitter& operator<<(YAML::Emitter& Out, const FFloatSlider& Value)
 	{
 		Out << YAML::Flow;
-		Out << YAML::BeginSeq << Value.Value << Value.Min << Value.Max << Value.Step << Value.bEnableEdit << YAML::EndSeq;
+		Out << YAML::BeginSeq << Value.Value << Value.Min << Value.Max << Value.bEnableEdit << YAML::EndSeq;
 		return Out;
 	}
 }

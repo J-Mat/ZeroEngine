@@ -1,4 +1,5 @@
 #include "SerializeUtility.h"
+#include "World/Base/ObjectGlobal.h"
 
 
 namespace Zero
@@ -10,7 +11,7 @@ namespace Zero
 		std::cout << "type:" << Type << std::endl;
 		if (Type == "bool")
 			Out << YAML::Key << "Value" << YAML::Value << *Property->GetData<bool>();
-		else if (Type == "int" || Type == "int32_t")
+		else if (Type == "int" || Type == "int32_t" || FObjectGlobal::GetRegiterEnumMap().contains(Type))
 			Out << YAML::Key << "Value" << YAML::Value << *Property->GetData<int>();
 		else if (Type == "string" ||
 			Type == "std::string" ||
@@ -118,7 +119,7 @@ namespace Zero
 	{
 		if (Type == "bool")
 			*((bool*)PropertyData) = PropertyNode["Value"].as<bool>();
-		else if (Type == "int" || Type == "int32_t")
+		else if (Type == "int" || Type == "int32_t" || FObjectGlobal::GetRegiterEnumMap().contains(Type))
 			*((int*)PropertyData) = PropertyNode["Value"].as<int>();
 		else if (Type == "string" ||
 			Type == "std::string" ||
@@ -266,6 +267,7 @@ namespace Zero
 			{
 				return false;
 			}
+			std::cout << Component->GetObjectName() << std::endl;
 			DeserializeVariablePrperties(*NodeIter, Component);
 			NodeIter++;
 			Component->PostInit();

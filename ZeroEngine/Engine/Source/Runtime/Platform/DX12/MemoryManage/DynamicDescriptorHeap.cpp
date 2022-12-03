@@ -112,6 +112,7 @@ namespace Zero
 	}
 
 	void FDynamicDescriptorHeap::CommitDescriptorTables(FDX12CommandList& CommandList, std::function<void(ID3D12GraphicsCommandList*, UINT, D3D12_GPU_DESCRIPTOR_HANDLE)> SetFunc)
+
 	{
 		uint32_t NumDescriptorsToCommit = ComputeStaleDescriptorCount();
 		if (NumDescriptorsToCommit > 0)

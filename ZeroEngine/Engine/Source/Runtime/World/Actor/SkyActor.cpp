@@ -24,7 +24,7 @@ namespace Zero
 		FMeshGenerator::GetInstance().CreateCube(MeshData, 1.0f, 1.0f, 1.0f, 0);
 		MeshDatas.push_back(MeshData);
 		m_MeshVertexComponent->CreateMesh();
-		m_MeshRenderComponent->SetPipelineStateObject(TLibrary<FPipelineStateObject>::Fetch(PSO_SKYBOX));
+		m_MeshRenderComponent->SetPsoType(EPsoType::PT_Skybox);
 	}
 
 

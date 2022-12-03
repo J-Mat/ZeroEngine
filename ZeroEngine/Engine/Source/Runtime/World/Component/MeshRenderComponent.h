@@ -9,10 +9,22 @@
 namespace Zero
 {
 	UENUM()
-	enum EPsoType
+		enum EPsoType
 	{
+		UPROPERTY(Invisible)
+		PT_Skybox,
+
+		UPROPERTY(Invisible)
+		PT_Light,
+
+		UPROPERTY()
 		PT_ForwardLit,
+
+		UPROPERTY()
 		PT_Fresnel,
+
+		UPROPERTY()
+		PT_NDF
 	};
 
 	class FMaterial;
@@ -32,8 +44,8 @@ namespace Zero
 		void SetSubmeshNum(uint32_t Num) {	m_SubmeshNum = Num; }
 		void AttachRenderLayer(int32_t RenderLayer){m_RenderLayer |= RenderLayer;}
 
-		Ref<FPipelineStateObject> GetPipelineStateObject() { return m_PipelineStateObject;}
-		void SetPipelineStateObject(Ref<FPipelineStateObject> PipelineStateObject) { m_PipelineStateObject = PipelineStateObject; }
+		Ref<FPipelineStateObject> GetPipelineStateObject();
+		void SetPsoType(EPsoType PosType);
 
 		virtual void PostEdit(UProperty* Property) override;
 		void AttachParameters();
@@ -42,6 +54,7 @@ namespace Zero
 		std::unordered_map<uint32_t, std::vector<Ref<FMaterial>>> m_Materials;
 		uint32_t m_SubmeshNum = 0;
 		
+		UPROPERTY(Invisible)
 		bool m_bEnableMaterial = true;
 		
 		UPROPERTY()

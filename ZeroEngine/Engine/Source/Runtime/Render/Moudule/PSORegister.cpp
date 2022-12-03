@@ -55,9 +55,9 @@ namespace Zero
 
 	}
 
-	void FPSORegister::RegisterFresnel()
+	void FPSORegister::RegisterSamplePSO()
 	{
-		std::vector<FConstantBufferLayout> CBLayouts =
+		std::vector<FConstantBufferLayout> FresnelCBLayouts =
 		{
 			FConstantBufferLayout::s_PerObjectConstants,
 			FConstantBufferLayout::s_PerCameraConstants,
@@ -69,6 +69,7 @@ namespace Zero
 			},
 			FConstantBufferLayout::s_PerFrameConstants
 		};
+
 
 		FFrameBufferTexturesFormats Formats = {
 			ETextureFormat::R8G8B8A8,
@@ -82,16 +83,39 @@ namespace Zero
 			ETextureFormat::DEPTH32F
 		};
 
+
 		FShaderDesc ShaderDesc = { false, FVertexBufferLayout::s_DefaultVertexLayout, 2, Formats };
 
 		FPSODescriptor FresnelDesc;
-		FShaderBinderDesc  ShaderBinderDesc = { CBLayouts};
-		ShaderBinderDesc.m_PerObjIndex = 0;
-		ShaderBinderDesc.m_CameraIndex = 1;
-		ShaderBinderDesc.m_MaterialIndex = 2;
-		ShaderBinderDesc.m_ConstantIndex = 3;
-		FresnelDesc.Shader = FRenderer::GraphicFactroy->CreateShader("Shader/Fresnel.hlsl", ShaderBinderDesc, ShaderDesc);
+		FShaderBinderDesc  FresnelShaderBinderDesc = { FresnelCBLayouts};
+		FresnelShaderBinderDesc.m_PerObjIndex = 0;
+		FresnelShaderBinderDesc.m_CameraIndex = 1;
+		FresnelShaderBinderDesc.m_MaterialIndex = 2;
+		FresnelShaderBinderDesc.m_ConstantIndex = 3;
+		FresnelDesc.Shader = FRenderer::GraphicFactroy->CreateShader("Shader/Fresnel.hlsl", FresnelShaderBinderDesc, ShaderDesc);
 		FRenderer::GraphicFactroy->CreatePSO(PSO_FRESNEL, FresnelDesc);
+
+		std::vector<FConstantBufferLayout> NDFCBLayouts =
+		{
+			FConstantBufferLayout::s_PerObjectConstants,
+			FConstantBufferLayout::s_PerCameraConstants,
+			// Material
+			{
+				{EShaderDataType::Float, "Rougness"},
+			},
+			FConstantBufferLayout::s_PerFrameConstants
+		};
+
+
+
+		FPSODescriptor NDFDesc;
+		FShaderBinderDesc  NDFShaderBinderDesc = { NDFCBLayouts };
+		NDFShaderBinderDesc.m_PerObjIndex = 0;
+		NDFShaderBinderDesc.m_CameraIndex = 1;
+		NDFShaderBinderDesc.m_MaterialIndex = 2;
+		NDFShaderBinderDesc.m_ConstantIndex = 3;
+		NDFDesc.Shader = FRenderer::GraphicFactroy->CreateShader("Shader/NDF.hlsl", NDFShaderBinderDesc, ShaderDesc);
+		FRenderer::GraphicFactroy->CreatePSO(PSO_NDF, NDFDesc);
 	}
 
 	void FPSORegister::RegisterSkyboxPSO()

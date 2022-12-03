@@ -319,23 +319,24 @@ namespace ZHT
 	{
 		while (LocateEnumTag())
 		{
+			m_PropertyIndex = m_EnumTagIndex;
 			FEnumElement EnumElement;
 			EnumElement.EnumName = m_Tokens[m_EnumTagIndex].TokenName;
-			uint32_t CurIndex = uint32_t(m_EnumTagIndex + 1);
+			uint32_t EnumTailIndex = uint32_t(m_EnumTagIndex + 1);
 			std::stringstream Stream;
-			while (m_Tokens[CurIndex].TokenName != "{")
+			while (m_Tokens[EnumTailIndex].TokenName != "{")
 			{
-				++CurIndex;
+				++EnumTailIndex;
 			}
-			++CurIndex;
+			++EnumTailIndex;
 			uint32_t StackIndex = 1;
 			while (StackIndex > 0)
 			{
-				if (m_Tokens[CurIndex].TokenName == "{")
+				if (m_Tokens[EnumTailIndex].TokenName == "{")
 				{
 					++StackIndex;
 				}
-				else if (m_Tokens[CurIndex].TokenName == "}")
+				else if (m_Tokens[EnumTailIndex].TokenName == "}")
 				{
 					--StackIndex;
 				}
@@ -343,31 +344,43 @@ namespace ZHT
 				{ 
 					break;
 				}
-				Stream << m_Tokens[CurIndex].TokenName;
-				++CurIndex;
+				Stream << m_Tokens[EnumTailIndex].TokenName;
+				++EnumTailIndex;
 			}
-			std::string CodeStr = Stream.str();
-			std::vector<std::string> ValueStrs = Zero::Utils::StringUtils::Split(CodeStr, ",");
+			
+			
 			int32_t ValueIndex = 0;
-			for (const auto& ValueStr : ValueStrs)
-			{ 
-				std::vector<std::string> LeftRightValues =  Zero::Utils::StringUtils::Split(ValueStr, "=");
-				FEnumValue EnumValue;
-				EnumValue.first  = LeftRightValues[0];
-				if (LeftRightValues.size() == 1)
+			while (LocatePropertyTag())
+			{
+				if (m_PropertyIndex > EnumTailIndex)
 				{
-					EnumValue.second = ValueIndex++;
+					break;
+				}
+				FPropertyElement PropertyElement;
+				CollectMetaAndField(PropertyElement);
+				const auto& CurToken = m_Tokens[m_PropertyIndex + 1];
+				const auto& NextToken = m_Tokens[m_PropertyIndex + 2];
+				const auto& NextNextToken = m_Tokens[m_PropertyIndex + 3];
+				FEnumItem EnumValue;
+				EnumValue.first = CurToken.TokenName;
+				
+				EnumValue.second.Fields = PropertyElement.Fields;
+				EnumValue.second.Metas = PropertyElement.Metas;
+				if (NextToken.TokenName == "=")
+				{
+					char* p_end;
+					EnumValue.second.Value = std::strtol(NextNextToken.TokenName.c_str(), &p_end, 10);
+					ValueIndex = EnumValue.second.Value + 1;
 				}
 				else
 				{
-					char* p_end;
-					EnumValue.second = std::strtol(LeftRightValues[1].c_str(), &p_end, 10);
-					ValueIndex = EnumValue.second + 1;
+					EnumValue.second.Value = ValueIndex++;
 				}
-				EnumElement.EnumInfoList.push_back(EnumValue);
+				EnumElement.EnumItemList.push_back(EnumValue);
 			}
+			
 			EnumElimentList.push_back(EnumElement);
-			m_EnumTagIndex = CurIndex;
+			m_EnumTagIndex = EnumTailIndex;
 		}
 	}
 
@@ -518,6 +531,7 @@ namespace ZHT
 		
 		m_DerivedRelation.insert({ClassElement.ClassName, ClassElement.DerivedName});
 
+		m_PropertyIndex = m_ClassBodyIndex;
 		while (LocatePropertyTag())
 		{
 			FPropertyElement PropertyElement;
@@ -538,9 +552,9 @@ namespace ZHT
 		for (const FEnumElement& EnumElement : EnumElimentList)
 		{
 			CLIENT_LOG_INFO("\tName: {0}", EnumElement.EnumName);
-			for (const FEnumValue& EnumValue : EnumElement.EnumInfoList)
+			for (const FEnumItem& EnumItem : EnumElement.EnumItemList)
 			{
-				CLIENT_LOG_INFO("\tName: {0}, Value: {1}", EnumValue.first, EnumValue.second);
+				CLIENT_LOG_INFO("\tName: {0}, Value: {1}", EnumItem.first, EnumItem.second.Value);
 			}
 		}
 	}
@@ -771,18 +785,66 @@ namespace ZHT
 		return Stream.str();
 	}
 
+
+	static std::string MakeFieldToStr(const std::set<std::string>& Fields)
+	{
+		std::stringstream Stream;
+		bool bFirst = true;
+		Stream << "{";
+		for (auto Iter : Fields)
+		{ 
+			if (bFirst)
+			{ 
+				bFirst = false;
+				Stream << "\"" << Iter << "\"";
+			}
+			else
+			{ 
+				Stream << ", ";
+				Stream << "\"" << Iter << "\"";
+			}
+		}
+		Stream << "}";
+		return Stream.str();
+	}
+
+	static std::string MakeMetaToStr(const std::map<std::string, std::string>& Metas)
+	{
+		std::stringstream Stream;
+		Stream << "{"; 
+		bool bFirst = true;
+		for (auto Iter : Metas)
+		{ 
+			if (bFirst)
+			{ 
+				bFirst = false;
+				Stream << "{\"" << Iter.first << "\", \"" << Iter.second << "\"}";
+			}
+			else
+			{ 
+				Stream << ", ";
+				Stream << "{\"" << Iter.first << "\", \"" << Iter.second << "\"}";
+			}
+		}
+		Stream << "}";
+		return Stream.str();
+	}
+	
+
 	std::string FFileParser::WriteRegisterEnumCode(const FEnumElement& EnumElement)
 	{
 		std::stringstream Stream;
 		Stream << "\t\tFEnumElement EnumElement;\n";
 		Stream << Zero::Utils::StringUtils::Format("\t\tEnumElement.EnumName = \"{0}\";\n", EnumElement.EnumName);
-		for (const FEnumValue EnumValue : EnumElement.EnumInfoList)
+		for (const FEnumItem EnumItem : EnumElement.EnumItemList)
 		{	
 			Stream << "\t\t{\n";
-			Stream << "\t\t\tFEnumValue EnumValue;\n";
-			Stream << Zero::Utils::StringUtils::Format("\t\t\tEnumValue.first = \"{0}\";\n", EnumValue.first);
-			Stream << Zero::Utils::StringUtils::Format("\t\t\tEnumValue.second = {0};\n", EnumValue.second);
-			Stream << "\t\t\tEnumElement.EnumInfoList.push_back(EnumValue);\n";
+			Stream << "\t\t\tFEnumItem EnumItem;\n";
+			Stream << Zero::Utils::StringUtils::Format("\t\t\tEnumItem.first = \"{0}\";\n", EnumItem.first);
+			Stream << Zero::Utils::StringUtils::Format("\t\t\tEnumItem.second.Value = {0};\n", EnumItem.second.Value);
+			Stream << Zero::Utils::StringUtils::Format("\t\t\tEnumItem.second.Fields = {0};\n", MakeFieldToStr(EnumItem.second.Fields));
+			Stream << Zero::Utils::StringUtils::Format("\t\t\tEnumItem.second.Metas = {0};\n", MakeMetaToStr(EnumItem.second.Metas));
+			Stream << "\t\t\tEnumElement.EnumItemList.push_back(EnumItem);\n";
 			Stream << "\t\t}\n";
 		}
 		Stream << Zero::Utils::StringUtils::Format("\t\tFObjectGlobal::RegisterEnumObject(\"{0}\", EnumElement);\n", EnumElement.EnumName);

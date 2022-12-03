@@ -45,12 +45,18 @@ namespace ZHT
 	};
 	
 	
-	using FEnumValue = std::pair<std::string, int32_t>;
+	struct FEnumInfo
+	{
+		int32_t Value;
+		std::set<std::string> Fields;
+		std::map<std::string, std::string> Metas;
+	};
+	using FEnumItem = std::pair<std::string, FEnumInfo>;
 
 	struct FEnumElement
 	{
 		std::string EnumName;
-		std::vector<FEnumValue> EnumInfoList;
+		std::vector<FEnumItem> EnumItemList;
 	};
 
 	struct FToken

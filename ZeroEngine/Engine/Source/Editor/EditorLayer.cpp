@@ -34,7 +34,7 @@ namespace Zero
 
 		FPSORegister::GetInstance().RegisterDefaultPSO();
 		FPSORegister::GetInstance().RegisterSkyboxPSO();
-		FPSORegister::GetInstance().RegisterFresnel();
+		FPSORegister::GetInstance().RegisterSamplePSO();
 
 		Ref<FImage> Image = CreateRef<FImage>(ZConfig::GetAssestsFullPath("Texture/DefaultTexture.png").string());
 		FRenderer::GraphicFactroy->CreateTexture2D(Image, "default");

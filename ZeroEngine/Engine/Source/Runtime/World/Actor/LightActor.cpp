@@ -20,7 +20,7 @@ namespace Zero
 		}
 		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_OPAQUE);
 		GetComponent<UMeshRenderComponent>()->SetEnableMaterial(false);
-		GetComponent<UMeshRenderComponent>()->SetPipelineStateObject(TLibrary<FPipelineStateObject>::Fetch(PSO_LIGHT));
+		GetComponent<UMeshRenderComponent>()->SetPsoType(EPsoType::PT_Light);
 	}
 
 	void ULightActor::PostInit()

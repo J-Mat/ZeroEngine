@@ -122,7 +122,7 @@ namespace Zero
 
 	struct FShaderResourcesDesc
 	{
-		uint32_t Size = -1;
+		uint32_t Size = 0;
 		FResourcesMapper Mapper;
 
 		FResourcesMapper::iterator begin() { return Mapper.begin(); }

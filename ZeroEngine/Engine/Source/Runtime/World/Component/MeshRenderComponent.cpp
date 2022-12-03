@@ -51,14 +51,27 @@ namespace Zero
 		}	
 		
 		std::vector <Ref<FMaterial>>& OneLayerMaterials = m_Materials[LayerLayer];
-		Ref<IShader> ShaderFile = m_PipelineStateObject != nullptr ? 
-			m_PipelineStateObject->GetPSODescriptor().Shader : 
-			TLibrary<FPipelineStateObject>::Fetch(PSO_FORWARDLIT)->GetPSODescriptor().Shader;
+		Ref<IShader> Shader = GetPipelineStateObject()->GetPSODescriptor().Shader;
 		for (size_t i = 0; i < m_SubmeshNum; i++)
 		{
-			OneLayerMaterials[i]->SetShader(ShaderFile);
+			OneLayerMaterials[i]->SetShader(Shader);
 		}
 		return m_Materials[LayerLayer];
+	}
+
+	Ref<FPipelineStateObject> UMeshRenderComponent::GetPipelineStateObject()
+	{
+		if (m_PipelineStateObject == nullptr)
+		{
+			SwitchPso();
+		}
+		return m_PipelineStateObject;
+	}
+
+	void UMeshRenderComponent::SetPsoType(EPsoType PsoType)
+	{
+		m_Psotype = PsoType;
+		SwitchPso();
 	}
 
 	void UMeshRenderComponent::PostEdit(UProperty* Property)
@@ -100,6 +113,7 @@ namespace Zero
 			{
 				uint32_t CurLayer = (RenderLayer & (-RenderLayer));
 				RenderLayer ^= CurLayer;
+				auto CurLayerMaterials = GetPassMaterials(CurLayer);
 
 				for (size_t i = 0; i < m_SubmeshNum; i++)
 				{
@@ -109,7 +123,7 @@ namespace Zero
 						Ref<FTexture2D> Texture = FAssetManager::GetInstance().FetchTexture(Iter.second);
 						if (Texture != nullptr)
 						{
-							m_Materials[CurLayer][i]->SetTexture2D(TextureName, Texture);
+							CurLayerMaterials[i]->SetTexture2D(TextureName, Texture);
 						}
 					}
 				}
@@ -122,17 +136,18 @@ namespace Zero
 		{
 			uint32_t CurLayer = (RenderLayer & (-RenderLayer));
 			RenderLayer ^= CurLayer;
+			auto CurLayerMaterials = GetPassMaterials(CurLayer);
 
 			for (size_t i = 0; i < m_SubmeshNum; i++)
 			{
 				for (auto Iter : m_ColorParameter)
 				{
-					m_Materials[CurLayer][i]->SetFloat3(Iter.first, Iter.second);
+					CurLayerMaterials[i]->SetFloat3(Iter.first, Iter.second);
 				}
 
 				for (auto Iter : m_FloatSliderParameter)
 				{
-					m_Materials[CurLayer][i]->SetFloat(Iter.first, Iter.second.Value);
+					CurLayerMaterials[i]->SetFloat(Iter.first, Iter.second.Value);
 				}
 			}
 		}
@@ -141,11 +156,20 @@ namespace Zero
 	{
 		switch (m_Psotype)
 		{
+		case Zero::PT_Skybox:
+			m_PipelineStateObject = TLibrary<FPipelineStateObject>::Fetch(PSO_SKYBOX);
+			break;
 		case Zero::PT_ForwardLit:
 			m_PipelineStateObject = TLibrary<FPipelineStateObject>::Fetch(PSO_FORWARDLIT);
 			break;
 		case Zero::PT_Fresnel:
 			m_PipelineStateObject = TLibrary<FPipelineStateObject>::Fetch(PSO_FRESNEL);
+			break;
+		case Zero::PT_Light:
+			m_PipelineStateObject = TLibrary<FPipelineStateObject>::Fetch(PSO_LIGHT);
+			break;
+		case Zero::PT_NDF:
+			m_PipelineStateObject = TLibrary<FPipelineStateObject>::Fetch(PSO_NDF);
 			break;
 		default:
 			break;
