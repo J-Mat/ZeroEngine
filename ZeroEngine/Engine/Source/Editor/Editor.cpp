@@ -20,6 +20,7 @@
 #include "EditPanels/Widgets/IntDetailsMapping.h"
 #include "EditPanels/Widgets/CoreObjectDetailsMapping.h"
 #include "EditPanels/Widgets/EnumDetailsMapping.h"
+#include "World/LightManager.h"
 
 
 namespace Zero
@@ -55,20 +56,29 @@ namespace Zero
 			DetailMappingManager.RegisterVariableMapping(Iter.first, FEnumDetailsMapping::MakeDetailMapping());
 		}
 	}
+
 	Ref<FBasePanel> FEditor::GetPanelByName(const std::string& PanelName)
 	{
 		return AllPanels[PanelName];
 	}
+
 	void FEditor::RegisterPanel(const std::string& PanelName, Ref<FBasePanel> Panel)
 	{
 		Panel->Init();
 		AllPanels.insert({ PanelName, Panel });
 	}
+
 	void FEditor::DrawAllPanels()
 	{
 		for (auto Panel : AllPanels)
 		{
 			Panel.second->OnGuiRender();
 		}
+	}
+
+	void FEditor::Reset()
+	{
+		SelectedActor = nullptr;
+		FLightManager::GetInstance().ClearLights();
 	}
 }

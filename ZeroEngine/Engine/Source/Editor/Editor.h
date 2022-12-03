@@ -23,6 +23,7 @@ namespace Zero
 			auto Icon = FRenderer::GraphicFactroy->GetOrCreateTexture2D(FileName);
 			return Icon;
 		}
+		static void Reset();
 		static UActor* SelectedActor;
 		static std::map<std::string, Ref<FBasePanel>> AllPanels;
 		static Ref<FBasePanel> GetPanelByName(const std::string& PanelName);

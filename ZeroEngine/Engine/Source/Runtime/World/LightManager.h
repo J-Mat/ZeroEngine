@@ -9,6 +9,7 @@ namespace Zero
 	public:
 		FLightManager();
 		void AddDirectLight(ULightActor* Light);
+		void ClearLights();
 		void Tick();
 	private:
 		std::vector<ULightActor*> m_DirectLights;

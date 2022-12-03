@@ -171,6 +171,9 @@ namespace Zero
 		case Zero::PT_NDF:
 			m_PipelineStateObject = TLibrary<FPipelineStateObject>::Fetch(PSO_NDF);
 			break;
+		case Zero::PT_GGX:
+			m_PipelineStateObject = TLibrary<FPipelineStateObject>::Fetch(PSO_GGX);
+			break;
 		default:
 			break;
 		}

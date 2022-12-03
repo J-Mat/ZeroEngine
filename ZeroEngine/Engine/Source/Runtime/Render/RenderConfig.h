@@ -16,6 +16,7 @@ namespace Zero
 	#define PSO_SKYBOX "SkyBox"
 	#define PSO_FRESNEL "Fresnel"
 	#define PSO_NDF "NDF"
+	#define PSO_GGX "GGX"
 
 
 

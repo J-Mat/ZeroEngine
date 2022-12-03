@@ -24,7 +24,10 @@ namespace Zero
 		PT_Fresnel,
 
 		UPROPERTY()
-		PT_NDF
+		PT_NDF,
+
+		UPROPERTY()
+		PT_GGX
 	};
 
 	class FMaterial;

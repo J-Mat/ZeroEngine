@@ -15,6 +15,11 @@ namespace  Zero
 		m_DirectLights.push_back(Light);
 	}
 
+	void FLightManager::ClearLights()
+	{
+		m_DirectLights.clear();
+	}
+
 	void FLightManager::Tick()
 	{
 		auto& Buffer = FFrameConstantsManager::GetInstance().GetShaderConstantBuffer();

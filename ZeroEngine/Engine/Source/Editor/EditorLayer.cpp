@@ -185,6 +185,7 @@ namespace Zero
 
 	void FEditorLayer::OpenScene()
 	{
+		FEditor::Reset();
 		UWorld::GetCurrentWorld()->ClearAllActors();
 		std::string Filepath = FFileDialog::OpenFile("Zero Scene (*.scene)\0*.scene\0", "scene");
 		FWorldSerializer Serialzier(UWorld::GetCurrentWorld());

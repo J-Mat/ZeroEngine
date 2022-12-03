@@ -116,6 +116,27 @@ namespace Zero
 		NDFShaderBinderDesc.m_ConstantIndex = 3;
 		NDFDesc.Shader = FRenderer::GraphicFactroy->CreateShader("Shader/NDF.hlsl", NDFShaderBinderDesc, ShaderDesc);
 		FRenderer::GraphicFactroy->CreatePSO(PSO_NDF, NDFDesc);
+
+		std::vector<FConstantBufferLayout> GGXCBLayouts =
+		{
+			FConstantBufferLayout::s_PerObjectConstants,
+			FConstantBufferLayout::s_PerCameraConstants,
+			// Material
+			{
+				{EShaderDataType::Float, "Rougness"},
+			},
+			FConstantBufferLayout::s_PerFrameConstants
+		};
+
+
+		FPSODescriptor GGXDesc;
+		FShaderBinderDesc  GGXShaderBinderDesc = { GGXCBLayouts };
+		GGXShaderBinderDesc.m_PerObjIndex = 0;
+		GGXShaderBinderDesc.m_CameraIndex = 1;
+		GGXShaderBinderDesc.m_MaterialIndex = 2;
+		GGXShaderBinderDesc.m_ConstantIndex = 3;
+		GGXDesc.Shader = FRenderer::GraphicFactroy->CreateShader("Shader/GGX.hlsl", GGXShaderBinderDesc, ShaderDesc);
+		FRenderer::GraphicFactroy->CreatePSO(PSO_GGX, GGXDesc);
 	}
 
 	void FPSORegister::RegisterSkyboxPSO()
