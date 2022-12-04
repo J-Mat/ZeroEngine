@@ -5,24 +5,23 @@ Actors:
       m_Tag:UActor:
         Type: std::string
         Value: UCameraActor
-      m_FloatSlider:UCameraActor:
-        Type: FFloatSlider
-        Value: [0, 0, 1, 0.00999999978, false]
     Component:
       - ComopnentName: UTransformComponent
         Properties:
           m_Position:UTransformComponent:
             Type: ZMath::vec3
-            Value: [-9.22070503, -2.52132964, 8.18476009]
+            Value: [0, 0, -3.3499999]
           m_Rotation:UTransformComponent:
             Type: ZMath::FRotation
-            Value: [-0.274016649, 8.51197052, 0]
+            Value: [0, 0, 0]
           m_Scale:UTransformComponent:
             Type: ZMath::vec3
             Value: [1, 1, 1]
       - ComopnentName: UCameraComponent
         Properties:
-          {}
+          m_CameraType:UCameraComponent:
+            Type: ECameraType
+            Value: 0
   - ActorName: USphereMeshActor
     Properties:
       m_Tag:UActor:
@@ -33,7 +32,7 @@ Actors:
         Properties:
           m_Position:UTransformComponent:
             Type: ZMath::vec3
-            Value: [-4.12044382, -0.736925602, 1.6500001]
+            Value: [-3.52827787, -1.7737788, 1.6500001]
           m_Rotation:UTransformComponent:
             Type: ZMath::FRotation
             Value: [0, 0, 0]
@@ -45,39 +44,27 @@ Actors:
           {}
       - ComopnentName: UMeshRenderComponent
         Properties:
-          m_MaterialHandle:UMeshRenderComponent:
-            Type: FMaterialHandle
-            Value: Texture\NewMaterial.mtl
-  - ActorName: ULightActor
-    Properties:
-      m_Tag:UActor:
-        Type: std::string
-        Value: ULightActor
-    Component:
-      - ComopnentName: UTransformComponent
-        Properties:
-          m_Position:UTransformComponent:
-            Type: ZMath::vec3
-            Value: [-0.0158478003, -3.14580011, 1.6500001]
-          m_Rotation:UTransformComponent:
-            Type: ZMath::FRotation
-            Value: [0, -2.56563401, 0]
-          m_Scale:UTransformComponent:
-            Type: ZMath::vec3
-            Value: [1, 1, 1]
-      - ComopnentName: UMeshVertexComponent
-        Properties:
-          {}
-      - ComopnentName: UMeshRenderComponent
-        Properties:
+          m_bEnableMaterial:UMeshRenderComponent:
+            Type: bool
+            Value: true
           m_MaterialHandle:UMeshRenderComponent:
             Type: FMaterialHandle
             Value: ""
-      - ComopnentName: ULightComponent
-        Properties:
-          m_LightColor:ULightComponent:
-            Type: ZMath::FColor3
-            Value: [1, 1, 1]
-          m_LightIntensity:ULightComponent:
-            Type: float
+          m_RenderLayer:UMeshRenderComponent:
+            Type: int32_t
             Value: 1
+          m_Psotype:UMeshRenderComponent:
+            Type: EPsoType
+            Value: 3
+          m_ColorParameter:UMeshRenderComponent:
+            Type: std::map
+            KeyType: std::string
+            ValueType: ZMath::FColor3
+            Value:
+              []
+          m_FloatSliderParameter:UMeshRenderComponent:
+            Type: std::map
+            KeyType: std::string
+            ValueType: FFloatSlider
+            Value:
+              []

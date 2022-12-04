@@ -7,6 +7,25 @@
 
 namespace Zero
 {
+
+
+	struct FPipelineStateDesc;
+	enum class EShaderType
+	{
+		ST_VERTEX,
+		ST_PIXEL,
+		ST_COMPUTE
+	};
+
+	class FShaderDefines
+	{	
+	public:
+		void SetDefine(const std::string& Name, const std::string& Definition);
+		bool operator == (const FShaderDefines& Other) const;
+	private:
+		std::unordered_map<std::string, std::string> DefinesMap;
+	};
+
 	struct FShaderDesc
 	{
 		bool bUseAlphaBlending = false;
@@ -23,21 +42,27 @@ namespace Zero
 			ETextureFormat::None,
 			ETextureFormat::DEPTH32F
 		};
+
+		std::string ShaderName;
+		FShaderDefines ShaderDefines;
+		bool bCreateVS = true;
+		std::string VSEntryPoint = "VS";
+		bool bCreatePS = true;
+		std::string PSEntryPoint = "PS";
+		bool bCreateCS = false;
+		std::string CSEntryPoint = "CS";
 	};
-
-
-	struct FPipelineStateDesc;
-	
-	class IShader
+		
+	class FShader
 	{
 	public:
-		IShader(const std::string ShaderID, const FShaderBinderDesc& BinderDesc, const FShaderDesc& Desc);
-		virtual ~IShader() {}
+		FShader(const std::string ShaderID, const FShaderBinderDesc& BinderDesc, const FShaderDesc& Desc);
+		FShader(const FShaderDesc& Desc);
+		virtual ~FShader() {}
 		virtual void Use() = 0;
 		virtual void CreateBinder() = 0;
 
 		virtual Ref<IShaderBinder> GetBinder() { return m_ShaderBinder; }
-		std::string m_ShaderID;
 
 	protected:
 		Ref<IShaderBinder> m_ShaderBinder;

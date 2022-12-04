@@ -30,14 +30,69 @@ namespace Zero
 		}
 	}
 
-	FDX12Shader::FDX12Shader(std::string FileName, const FShaderBinderDesc& BinderDesc, const FShaderDesc& Desc)
-	: IShader(FileName, BinderDesc, Desc)
+	FDX12Shader::FDX12Shader(const std::string& FileName, const FShaderBinderDesc& BinderDesc, const FShaderDesc& Desc)
+	: FShader(FileName, BinderDesc, Desc)
 	{
-		m_VSBytecode = CompileShader(Utils::String2WString(FileName), nullptr, "VS", "vs_5_1");
-		m_PSBytecode = CompileShader(Utils::String2WString(FileName), nullptr, "PS", "ps_5_1");
+		m_ShaderPass["VS"] = CompileShader(Utils::String2WString(FileName), nullptr, "VS", "vs_5_1");
+		m_ShaderPass["PS"] = CompileShader(Utils::String2WString(FileName), nullptr, "PS", "ps_5_1");
 		
 		GenerateInputLayout();
 		CreateBinder();
+
+		if (m_ShaderDesc.bCreateVS)
+		{
+			auto VSBlob  = CompileShader(Utils::String2WString(FileName), nullptr, m_ShaderDesc.VSEntryPoint, "vs_5_1");
+			m_ShaderPass["VS"] = VSBlob;
+			std::cout << "ShaderType : VS" << std::endl;
+			GetShaderParameters(VSBlob, EShaderType::ST_VERTEX);
+		}
+
+		if (m_ShaderDesc.bCreatePS)
+		{
+			auto PSBlob  = CompileShader(Utils::String2WString(FileName), nullptr, m_ShaderDesc.PSEntryPoint, "ps_5_1");
+			m_ShaderPass["PS"] = PSBlob;
+			std::cout << "ShaderType : PS" << std::endl;
+			GetShaderParameters(PSBlob, EShaderType::ST_PIXEL);
+		}
+
+		if (m_ShaderDesc.bCreateCS)
+		{
+			auto CSBlob  = CompileShader(Utils::String2WString(FileName), nullptr, m_ShaderDesc.CSEntryPoint, "cs_5_1");
+			m_ShaderPass["CS"] = CSBlob;
+			std::cout << "ShaderType : CS" << std::endl;
+			GetShaderParameters(CSBlob, EShaderType::ST_COMPUTE);
+		}
+		std::cout << "------------------------------------------\n";
+	}
+
+
+	FDX12Shader::FDX12Shader(const std::string& FileName, const FShaderDesc& Desc)
+		:FShader(Desc)
+	{
+		if (m_ShaderDesc.bCreateVS)
+		{
+			auto VSBlob  = CompileShader(Utils::String2WString(FileName), nullptr, m_ShaderDesc.VSEntryPoint, "vs_5_1");
+			m_ShaderPass["VS"] = VSBlob;
+			std::cout << "ShaderType : VS" << std::endl;
+			GetShaderParameters(VSBlob, EShaderType::ST_VERTEX);
+		}
+
+		if (m_ShaderDesc.bCreatePS)
+		{
+			auto PSBlob  = CompileShader(Utils::String2WString(FileName), nullptr, m_ShaderDesc.PSEntryPoint, "ps_5_1");
+			m_ShaderPass["PS"] = PSBlob;
+			std::cout << "ShaderType : PS" << std::endl;
+			GetShaderParameters(PSBlob, EShaderType::ST_PIXEL);
+		}
+
+		if (m_ShaderDesc.bCreateCS)
+		{
+			auto CSBlob  = CompileShader(Utils::String2WString(FileName), nullptr, m_ShaderDesc.CSEntryPoint, "cs_5_1");
+			m_ShaderPass["CS"] = CSBlob;
+			std::cout << "ShaderType : CS" << std::endl;
+			GetShaderParameters(CSBlob, EShaderType::ST_COMPUTE);
+		}
+		std::cout << "------------------------------------------\n";
 	}
 
 	void FDX12Shader::CreateBinder()
@@ -48,6 +103,110 @@ namespace Zero
 	void FDX12Shader::Use()
 	{
 		m_ShaderBinder->Bind();
+	}
+
+	void FDX12Shader::GetShaderParameters(ComPtr<ID3DBlob> PassBlob, EShaderType ShaderType)
+	{
+		ID3D12ShaderReflection* Reflection = nullptr;
+		D3DReflect(PassBlob->GetBufferPointer(), PassBlob->GetBufferSize(), IID_ID3D12ShaderReflection, (void**)&Reflection);
+		
+		D3D12_SHADER_DESC D3DShaderDesc;
+		Reflection->GetDesc(&D3DShaderDesc);
+
+		for (UINT i = 0; i < D3DShaderDesc.BoundResources; i++)
+		{
+			D3D12_SHADER_INPUT_BIND_DESC  ResourceDesc;
+			Reflection->GetResourceBindingDesc(i, &ResourceDesc);
+
+			LPCSTR ShaderVarName = ResourceDesc.Name;
+			D3D_SHADER_INPUT_TYPE ResourceType = ResourceDesc.Type;
+			UINT RegisterSpace = ResourceDesc.Space;
+			UINT BindPoint = ResourceDesc.BindPoint;
+			UINT BindCount = ResourceDesc.BindCount;
+			
+			std::cout << "ShaderVarName : " << ShaderVarName << std::endl;
+
+			if (ResourceType == D3D_SHADER_INPUT_TYPE::D3D_SIT_CBUFFER)
+			{
+				std::cout << "ResourceType :  D3D_SIT_CBUFFER" << std::endl;
+				FShaderCBVParameter Param;
+				Param.Name = ShaderVarName;
+				Param.ShaderType = ShaderType;
+				Param.BindPoint = BindPoint;
+				Param.RegisterSpace = RegisterSpace;
+
+				m_CBVParams.push_back(Param);
+			}
+			else if (ResourceType == D3D_SHADER_INPUT_TYPE::D3D_SIT_STRUCTURED)
+			{
+				std::cout << "ResourceType :  D3D_SIT_STRUCTURED" << std::endl;
+				FShaderSRVParameter Param;
+				Param.Name = ShaderVarName;
+				Param.ShaderType = ShaderType;
+				Param.BindPoint = BindPoint;
+				Param.BindCount = BindCount;
+				Param.RegisterSpace = RegisterSpace;
+
+				m_SRVParams.push_back(Param);
+			}
+			else if (ResourceType == D3D_SHADER_INPUT_TYPE::D3D_SIT_TEXTURE)
+			{
+				std::cout << "ResourceType :  D3D_SIT_TEXTURE" << std::endl;
+				FShaderSRVParameter Param;
+				Param.Name = ShaderVarName;
+				Param.ShaderType = ShaderType;
+				Param.BindPoint = BindPoint;
+				Param.BindCount = BindCount;
+				Param.RegisterSpace = RegisterSpace;
+
+				m_SRVParams.push_back(Param);
+			}
+			else if (ResourceType == D3D_SHADER_INPUT_TYPE::D3D_SIT_UAV_RWSTRUCTURED)
+			{
+				std::cout << "ResourceType :  D3D_SIT_UAV_RWSTRUCTURED" << std::endl;
+				CORE_ASSERT(ShaderType == EShaderType::ST_COMPUTE, "ShaderType must be Compute Shader");
+
+				FShaderUAVParameter Param;
+				Param.Name = ShaderVarName;
+				Param.ShaderType = ShaderType;
+				Param.BindPoint = BindPoint;
+				Param.BindCount = BindCount;
+				Param.RegisterSpace = RegisterSpace;
+
+				m_UAVParams.push_back(Param);
+			}
+			else if (ResourceType == D3D_SHADER_INPUT_TYPE::D3D_SIT_UAV_RWTYPED)
+			{
+				std::cout << "ResourceType :  D3D_SIT_UAV_RWTYPED" << std::endl;
+				CORE_ASSERT(ShaderType == EShaderType::ST_COMPUTE, "ShaderType must be Compute Shader");
+
+				FShaderUAVParameter Param;
+				Param.Name = ShaderVarName;
+				Param.ShaderType = ShaderType;
+				Param.BindPoint = BindPoint;
+				Param.BindCount = BindCount;
+				Param.RegisterSpace = RegisterSpace;
+
+				m_UAVParams.push_back(Param);
+			}
+			else if (ResourceType == D3D_SHADER_INPUT_TYPE::D3D_SIT_SAMPLER)
+			{
+				std::cout << "ResourceType :  D3D_SIT_SAMPLER" << std::endl;
+				CORE_ASSERT(ShaderType == EShaderType::ST_PIXEL, "ShaderType must be Pixel Shader");
+
+				FShaderSamplerParameter Param;
+				Param.Name = ShaderVarName;
+				Param.ShaderType = ShaderType;
+				Param.BindPoint = BindPoint;
+				Param.RegisterSpace = RegisterSpace;
+
+				m_SamplerParams.push_back(Param);
+			}
+			std::cout << "RegisterSpace : " << RegisterSpace << std::endl;
+			std::cout << "BindPoint : " << BindPoint << std::endl;
+			std::cout << "BindCount : " << BindCount << std::endl;
+			std::cout << "\n\n\n";
+		}
 	}
 
 	void FDX12Shader::GenerateInputLayout()
@@ -97,31 +256,4 @@ namespace Zero
 
 		return ByteCode;
 	}
-
-	/*
-	void FDX12Shader::CreatePSO()
-	{
-		FDX12ShaderBinder* DX12ShaderBinder = static_cast<FDX12ShaderBinder*>(m_ShaderBinder.get());
-		D3D12_GRAPHICS_PIPELINE_STATE_DESC PsoDesc = {};
-		ZeroMemory(&PsoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
-		PsoDesc.InputLayout = { m_InputLayoutDesc.data(), (UINT)m_InputLayoutDesc.size() };
-		FDX12RootSignature* D3DRootSignature = static_cast<FDX12RootSignature*>(DX12ShaderBinder->GetRootSignature());
-		PsoDesc.pRootSignature = D3DRootSignature->GetD3D12RootSignature().Get();
-		PsoDesc.VS = { reinterpret_cast<BYTE*>(m_VSBytecode->GetBufferPointer()), m_VSBytecode->GetBufferSize() };
-		PsoDesc.PS = { reinterpret_cast<BYTE*>(m_PSBytecode->GetBufferPointer()), m_PSBytecode->GetBufferSize() };
-		PsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-		PsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-		PsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-		PsoDesc.SampleMask = UINT_MAX;	//0xffffffff, No Sampling Mask
-		PsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-		PsoDesc.NumRenderTargets = m_ShaderDesc.NumRenderTarget;
-		for (int i = 0; i < m_ShaderDesc.NumRenderTarget; i++)
-			PsoDesc.RTVFormats[i] = FDX12Texture2D::GetFormatByDesc(m_ShaderDesc.Formats[i]);
-		PsoDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
-		PsoDesc.SampleDesc.Count = 1;	// No 4XMSAA
-		PsoDesc.SampleDesc.Quality = 0;	////No 4XMSAA
-
-		m_PipelineStateObject = CreateRef<FDX12PipelineStateObject>(PsoDesc);
-	}
-	*/
 }

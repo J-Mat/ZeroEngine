@@ -10,10 +10,10 @@ Actors:
         Properties:
           m_Position:UTransformComponent:
             Type: ZMath::vec3
-            Value: [-1.05306923, -1.01916254, -8.26155376]
+            Value: [0, 0, -3.3499999]
           m_Rotation:UTransformComponent:
             Type: ZMath::FRotation
-            Value: [-0.284488678, -0.736528873, 0]
+            Value: [0.00872664619, -0.378736466, 0]
           m_Scale:UTransformComponent:
             Type: ZMath::vec3
             Value: [1, 1, 1]
@@ -21,6 +21,7 @@ Actors:
         Properties:
           m_CameraType:UCameraComponent:
             Type: ECameraType
+            Value: 0
   - ActorName: USphereMeshActor
     Properties:
       m_Tag:UActor:
@@ -31,7 +32,7 @@ Actors:
         Properties:
           m_Position:UTransformComponent:
             Type: ZMath::vec3
-            Value: [-4.86503887, -0.758354664, 1.6500001]
+            Value: [-4.40231371, -0.861182809, 1.6500001]
           m_Rotation:UTransformComponent:
             Type: ZMath::FRotation
             Value: [0, 0, 0]
@@ -43,6 +44,9 @@ Actors:
           {}
       - ComopnentName: UMeshRenderComponent
         Properties:
+          m_bEnableMaterial:UMeshRenderComponent:
+            Type: bool
+            Value: true
           m_MaterialHandle:UMeshRenderComponent:
             Type: FMaterialHandle
             Value: ""
@@ -51,40 +55,19 @@ Actors:
             Value: 1
           m_Psotype:UMeshRenderComponent:
             Type: EPsoType
+            Value: 3
           m_ColorParameter:UMeshRenderComponent:
             Type: std::map
             KeyType: std::string
             ValueType: ZMath::FColor3
             Value:
-              - Map-Key:
-                  Type: std::string
-                  Value: ""
-                Map-Value:
-                  Type: ZMath::FColor3
-                  Value: [0.980392158, 0.819607854, 0.760784328]
+              []
           m_FloatSliderParameter:UMeshRenderComponent:
             Type: std::map
             KeyType: std::string
             ValueType: FFloatSlider
             Value:
-              - Map-Key:
-                  Type: std::string
-                  Value: Fresnel_1
-                Map-Value:
-                  Type: FFloatSlider
-                  Value: [0.0280000009, 0, 1, 0.00999999978, false]
-              - Map-Key:
-                  Type: std::string
-                  Value: Fresnel_2
-                Map-Value:
-                  Type: FFloatSlider
-                  Value: [0.0270000007, 0, 1, 0.00999999978, false]
-              - Map-Key:
-                  Type: std::string
-                  Value: Fresnel_3
-                Map-Value:
-                  Type: FFloatSlider
-                  Value: [0.0270000007, 0, 1, 0.00999999978, false]
+              []
   - ActorName: ULightActor
     Properties:
       m_Tag:UActor:
@@ -95,10 +78,10 @@ Actors:
         Properties:
           m_Position:UTransformComponent:
             Type: ZMath::vec3
-            Value: [-1.22750652, -3.2776351, 1.6500001]
+            Value: [-0.366323739, -3.14910054, 1.6500001]
           m_Rotation:UTransformComponent:
             Type: ZMath::FRotation
-            Value: [0, -0.331612557, 0]
+            Value: [0, 0, 0]
           m_Scale:UTransformComponent:
             Type: ZMath::vec3
             Value: [1, 1, 1]
@@ -107,6 +90,9 @@ Actors:
           {}
       - ComopnentName: UMeshRenderComponent
         Properties:
+          m_bEnableMaterial:UMeshRenderComponent:
+            Type: bool
+            Value: false
           m_MaterialHandle:UMeshRenderComponent:
             Type: FMaterialHandle
             Value: ""
@@ -115,6 +101,7 @@ Actors:
             Value: 1
           m_Psotype:UMeshRenderComponent:
             Type: EPsoType
+            Value: 1
           m_ColorParameter:UMeshRenderComponent:
             Type: std::map
             KeyType: std::string
@@ -131,7 +118,7 @@ Actors:
         Properties:
           m_LightColor:ULightComponent:
             Type: ZMath::FColor3
-            Value: [0.950980365, 0.950980365, 0.950980365]
+            Value: [1, 1, 1]
           m_LightIntensity:ULightComponent:
             Type: float
             Value: 1

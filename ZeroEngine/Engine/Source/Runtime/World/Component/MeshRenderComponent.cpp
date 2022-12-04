@@ -51,7 +51,7 @@ namespace Zero
 		}	
 		
 		std::vector <Ref<FMaterial>>& OneLayerMaterials = m_Materials[LayerLayer];
-		Ref<IShader> Shader = GetPipelineStateObject()->GetPSODescriptor().Shader;
+		Ref<FShader> Shader = GetPipelineStateObject()->GetPSODescriptor().Shader;
 		for (size_t i = 0; i < m_SubmeshNum; i++)
 		{
 			OneLayerMaterials[i]->SetShader(Shader);

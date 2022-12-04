@@ -14,7 +14,7 @@ namespace Zero
 				&& Other.CullMode == CullMode
 				&& Other.TopologyType == TopologyType;
 		}
-		Ref<IShader> Shader = nullptr;
+		Ref<FShader> Shader = nullptr;
 		bool _4xMsaaState = false;
 		UINT _4xMsaaQuality = 0;
 		EPrimitiveTopologyType TopologyType = EPrimitiveTopologyType::PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;

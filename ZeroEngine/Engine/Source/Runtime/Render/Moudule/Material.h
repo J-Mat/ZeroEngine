@@ -13,7 +13,7 @@ namespace Zero
 	{
 		EAlphaState AlphaState;
 	};
-	class IShader;
+	class FShader;
 	class IShaderBinder;
 	struct FShaderConstantsDesc;
 	struct FShaderResourcesDesc;
@@ -30,9 +30,9 @@ namespace Zero
 		void Tick();
 		void SetPass();
 		void OnDrawCall();
-		void SetShader(Ref<IShader> Shader);
+		void SetShader(Ref<FShader> Shader);
 		void SetShader(const std::string& ShaderFile);
-		Ref<IShader> GetShader() { return m_Shader; }
+		Ref<FShader> GetShader() { return m_Shader; }
 
 		void SetFloat(const std::string& Name, const float& Value);
 		void SetFloat3(const std::string& Name, const ZMath::vec3& Value);
@@ -51,7 +51,7 @@ namespace Zero
 		float* PtrFloat4(const std::string& Name);
 		float* PtrMatrix4x4(const std::string& Name);
 	private:
-		Ref<IShader> m_Shader;
+		Ref<FShader> m_Shader;
 		Ref<IShaderBinder> m_ShaderBinder;
 		Ref<FShaderConstantsDesc> m_MaterialDesc;
 		Ref<FShaderResourcesDesc> m_ResourcesDesc;

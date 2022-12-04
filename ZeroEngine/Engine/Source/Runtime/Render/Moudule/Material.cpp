@@ -59,7 +59,7 @@ namespace Zero
 		FFrameConstantsManager::GetInstance().GetShaderConstantBuffer()->UploadDataIfDirty();
 	}
 
-	void FMaterial::SetShader(Ref<IShader> Shader)
+	void FMaterial::SetShader(Ref<FShader> Shader)
 	{
 		if (m_Shader != Shader)
 		{
@@ -87,7 +87,7 @@ namespace Zero
 
 	void FMaterial::SetShader(const std::string& ShaderFile)
 	{
-		Ref<IShader> Shader = TLibrary<IShader>::Fetch(ShaderFile);
+		Ref<FShader> Shader = TLibrary<FShader>::Fetch(ShaderFile);
 		CORE_ASSERT(Shader != nullptr, "Shader Not Found!")
 		SetShader(Shader);
 	}
