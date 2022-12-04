@@ -118,6 +118,7 @@ namespace Zero
 			D3D12_SHADER_INPUT_BIND_DESC  ResourceDesc;
 			Reflection->GetResourceBindingDesc(i, &ResourceDesc);
 
+
 			LPCSTR ShaderVarName = ResourceDesc.Name;
 			D3D_SHADER_INPUT_TYPE ResourceType = ResourceDesc.Type;
 			UINT RegisterSpace = ResourceDesc.Space;
@@ -136,6 +137,21 @@ namespace Zero
 				Param.RegisterSpace = RegisterSpace;
 
 				m_CBVParams.push_back(Param);
+
+				ID3D12ShaderReflectionConstantBuffer* Buffer = Reflection->GetConstantBufferByIndex(i);
+				D3D12_SHADER_BUFFER_DESC BufferDesc;
+				Buffer->GetDesc(&BufferDesc);
+				for (UINT BufferIndex = 0; BufferIndex < BufferDesc.Variables; ++BufferIndex)
+				{ 
+					ID3D12ShaderReflectionVariable* ReflectionVariable = Buffer->GetVariableByIndex(BufferIndex);
+					D3D12_SHADER_VARIABLE_DESC VARIABLE_DESC;
+					ReflectionVariable->GetDesc(&VARIABLE_DESC);
+					ID3D12ShaderReflectionType*  Type = ReflectionVariable->GetType();
+					D3D12_SHADER_TYPE_DESC TypeDesc;
+					Type->GetDesc(&TypeDesc);
+					std::cout << "Name :" << VARIABLE_DESC.Name << std::endl;
+					std::cout << "Type :" << TypeDesc.Name << std::endl;
+				}
 			}
 			else if (ResourceType == D3D_SHADER_INPUT_TYPE::D3D_SIT_STRUCTURED)
 			{
