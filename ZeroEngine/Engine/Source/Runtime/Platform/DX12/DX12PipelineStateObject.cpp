@@ -17,8 +17,10 @@ namespace Zero
 		PsoDesc.InputLayout = { D3DShader->m_InputLayoutDesc.data(), (UINT)D3DShader->m_InputLayoutDesc.size() };
 		FDX12RootSignature* D3DRootSignature = static_cast<FDX12RootSignature*>(DX12ShaderBinder->GetRootSignature());
 		PsoDesc.pRootSignature = D3DRootSignature->GetD3D12RootSignature().Get();
-		PsoDesc.VS = { reinterpret_cast<BYTE*>(D3DShader->m_ShaderPass["VS"]->GetBufferPointer()), D3DShader->m_ShaderPass["VS"]->GetBufferSize()};
-		PsoDesc.PS = { reinterpret_cast<BYTE*>(D3DShader->m_ShaderPass["PS"]->GetBufferPointer()), D3DShader->m_ShaderPass["PS"]->GetBufferSize() };
+		ComPtr<ID3DBlob> VSBlob = D3DShader->m_ShaderPass[EShaderType::ST_VERTEX];
+		PsoDesc.VS = { reinterpret_cast<BYTE*>(VSBlob->GetBufferPointer()), VSBlob->GetBufferSize()};
+		ComPtr<ID3DBlob> PSBlob = D3DShader->m_ShaderPass[EShaderType::ST_PIXEL];
+		PsoDesc.PS = { reinterpret_cast<BYTE*>(PSBlob->GetBufferPointer()), PSBlob->GetBufferSize() };
 		PsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 		PsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 		PsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);

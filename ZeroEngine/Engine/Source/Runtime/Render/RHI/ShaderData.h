@@ -29,6 +29,13 @@ namespace Zero
 		RenderTarget,
 	};
 
+	enum class EShaderType
+	{
+		ST_VERTEX,
+		ST_PIXEL,
+		ST_COMPUTE
+	};
+
 	static uint32_t ShaderDataTypeSize(EShaderDataType Type)
 	{
 		switch (Type)
@@ -74,6 +81,36 @@ namespace Zero
 			return 0;
 		}
 	}
+
+	struct FShaderParameter
+	{
+		std::string Name;
+		EShaderType ShaderType;
+		UINT BindPoint;
+		UINT RegisterSpace;
+	};
+	
+	struct FCBVariableItem
+	{
+		std::string VariableName;
+		EShaderDataType ShaderDataType;
+	};
+
+	struct FShaderCBVParameter : FShaderParameter
+	{
+		std::vector<FCBVariableItem> VariableList;
+	};
+
+	struct FShaderSRVParameter : FShaderParameter
+	{
+		UINT BindCount;
+		EShaderResourceType ShaderResourceType;
+	};
+
+	struct FShaderUAVParameter : FShaderParameter
+	{
+		UINT BindCount;
+	};
 	
 	struct FBufferElement
 	{
@@ -123,7 +160,9 @@ namespace Zero
 		static FConstantBufferLayout s_PerObjectConstants;
 		static FConstantBufferLayout s_PerCameraConstants;
 		static FConstantBufferLayout s_PerFrameConstants;
-	private:
+
+		static void GenderateConstBufferLayoutByShader(std::vector<FConstantBufferLayout>& Layouts, 
+			const std::map<uint32_t, FShaderCBVParameter>& CBVParameters);
 		void CalculateOffsetsAndStride()
 		{
 			uint32_t Offset = 0;
@@ -135,6 +174,7 @@ namespace Zero
 				m_Stride += Element.Size;
 			}
 		}
+	private:
 		std::vector<FBufferElement> m_Elements;
 		uint32_t m_Stride = 0;
 	};

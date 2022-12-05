@@ -10,6 +10,7 @@
 #include <cstdint>
 #include <codecvt>
 #include "Render/RenderConfig.h"
+#include "Render/RHI/ShaderData.h"
 
 namespace Zero
 { 
@@ -62,6 +63,36 @@ namespace Zero
 				{ECullMode::CULL_MODE_BACK, D3D12_CULL_MODE::D3D12_CULL_MODE_BACK}
 			};
 			return Map[CullMode];
+		}
+
+		static EShaderDataType GetTypeByName(const std::string& TypeName)
+		{
+			static std::map<std::string, EShaderDataType> NameTypeMap =
+			{
+				{"float", Zero::EShaderDataType::Float},
+				{"float2", Zero::EShaderDataType::Float2},
+				{"float3", Zero::EShaderDataType::Float3},
+				{"float4", Zero::EShaderDataType::Float4},
+				{"int", Zero::EShaderDataType::Int},
+				{"int2", Zero::EShaderDataType::Int2},
+				{"int3", Zero::EShaderDataType::Int3},
+				{"int4", Zero::EShaderDataType::Int4},
+				{"bool", Zero::EShaderDataType::Bool},
+				{"float3x3", Zero::EShaderDataType::Mat3},
+				{"float4x4", Zero::EShaderDataType::Mat4},
+
+			};
+			return NameTypeMap[TypeName];
+		}
+
+		static EShaderResourceType GetResourceByDimension(const D3D_SRV_DIMENSION& Dimension)
+		{
+			static std::map<D3D_SRV_DIMENSION, EShaderResourceType> DimentionResourceType =
+			{
+				{D3D_SRV_DIMENSION_TEXTURE2D, EShaderResourceType::Texture2D},
+				{D3D_SRV_DIMENSION_TEXTURECUBE, EShaderResourceType::Cubemap}
+			};
+			return DimentionResourceType[Dimension];
 		}
 	};
 }

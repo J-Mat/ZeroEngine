@@ -53,6 +53,9 @@ namespace Zero
 		LightDesc.Shader = FRenderer::GraphicFactroy->CreateShader("Shader/DirectLight.hlsl", ShaderBinderDesc, ShaderDesc);
 		FRenderer::GraphicFactroy->CreatePSO(PSO_LIGHT, LightDesc);
 
+
+		Ref<FShader> Shader = FRenderer::GraphicFactroy->CreateShader("Shader/Test.hlsl", ShaderDesc);
+
 	}
 
 	void FPSORegister::RegisterSamplePSO()
@@ -129,6 +132,7 @@ namespace Zero
 		};
 
 
+		/*
 		FPSODescriptor GGXDesc;
 		FShaderBinderDesc  GGXShaderBinderDesc = { GGXCBLayouts };
 		GGXShaderBinderDesc.m_PerObjIndex = 0;
@@ -137,6 +141,7 @@ namespace Zero
 		GGXShaderBinderDesc.m_ConstantIndex = 3;
 		GGXDesc.Shader = FRenderer::GraphicFactroy->CreateShader("Shader/GGX.hlsl", GGXShaderBinderDesc, ShaderDesc);
 		FRenderer::GraphicFactroy->CreatePSO(PSO_GGX, GGXDesc);
+		*/
 	}
 
 	void FPSORegister::RegisterSkyboxPSO()

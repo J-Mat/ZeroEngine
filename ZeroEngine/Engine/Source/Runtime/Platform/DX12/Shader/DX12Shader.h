@@ -7,33 +7,6 @@
 
 namespace Zero
 {
-	struct FShaderParameter
-	{
-		std::string Name;
-		EShaderType ShaderType;
-		UINT BindPoint;
-		UINT RegisterSpace;
-	};
-
-	struct FShaderCBVParameter : FShaderParameter
-	{
-	};
-
-	struct FShaderSRVParameter : FShaderParameter
-	{
-		UINT BindCount;
-
-	};
-
-	struct FShaderUAVParameter : FShaderParameter
-	{
-		UINT BindCount;
-	};
-
-	struct FShaderSamplerParameter : FShaderParameter
-	{
-	};
-
 	class FDX12Device;
 	class FDX12PipelineStateObject;
 	class FDX12CommandList;
@@ -54,15 +27,6 @@ namespace Zero
 
 	private:
 		std::vector<D3D12_INPUT_ELEMENT_DESC> m_InputLayoutDesc;
-		std::unordered_map<std::string, ComPtr<ID3DBlob>> m_ShaderPass;
-
-
-		std::vector<FShaderCBVParameter> m_CBVParams;
-
-		std::vector<FShaderSRVParameter> m_SRVParams;
-
-		std::vector<FShaderUAVParameter> m_UAVParams;
-
-		std::vector<FShaderSamplerParameter> m_SamplerParams;
+		std::unordered_map<EShaderType, ComPtr<ID3DBlob>> m_ShaderPass;
 	};
 }

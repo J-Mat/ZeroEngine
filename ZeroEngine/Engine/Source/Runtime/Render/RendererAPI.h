@@ -71,6 +71,7 @@ namespace Zero
 		virtual Ref<IShaderConstantsBuffer> CreateShaderConstantBuffer(FShaderConstantsDesc& Desc) = 0;
 		virtual Ref<IShaderResourcesBuffer> CreateShaderResourceBuffer(FShaderResourcesDesc& Desc, IRootSignature* RootSignature) = 0;
 		virtual Ref<FShader> CreateShader(const std::string& FileName, const FShaderBinderDesc& BinderDesc, const FShaderDesc& ShaderDesc) = 0;
+		virtual Ref<FShader> CreateShader(const std::string& FileName, const FShaderDesc& ShaderDesc) = 0;
 		virtual Ref<FTexture2D> GetOrCreateTexture2D(const std::string& FileName) = 0;
 		virtual Ref<FTexture2D> CreateTexture2D(Ref<FImage> Image, std::string ImageName) = 0;
 		virtual Ref<FTextureCubemap> GetOrCreateTextureCubemap(FTextureHandle Handles[CUBEMAP_TEXTURE_CNT], std::string TextureCubemapName) = 0;
@@ -143,6 +144,17 @@ namespace Zero
 			return Shader;
 		}
 
+		virtual Ref<FShader> CreateShader(const std::string& FileName, const FShaderDesc& ShaderDesc)
+		{
+			Ref<FShader> Shader = TLibrary<FShader>::Fetch(FileName);
+			if (Shader == nullptr)
+			{
+				std::filesystem::path ShaderPath = ZConfig::GetAssestsFullPath(FileName);
+				Shader = CreateRef<FDX12Shader>(ShaderPath.string(), ShaderDesc);
+				TLibrary<FShader>::Push(FileName, Shader);
+			}
+			return Shader;
+		}
 
 		virtual Ref<FTexture2D> CreateTexture2D(Ref<FImage> Image, std::string ImageName)
 		{

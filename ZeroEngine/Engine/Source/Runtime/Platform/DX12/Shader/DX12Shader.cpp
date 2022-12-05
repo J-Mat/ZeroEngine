@@ -33,8 +33,8 @@ namespace Zero
 	FDX12Shader::FDX12Shader(const std::string& FileName, const FShaderBinderDesc& BinderDesc, const FShaderDesc& Desc)
 	: FShader(FileName, BinderDesc, Desc)
 	{
-		m_ShaderPass["VS"] = CompileShader(Utils::String2WString(FileName), nullptr, "VS", "vs_5_1");
-		m_ShaderPass["PS"] = CompileShader(Utils::String2WString(FileName), nullptr, "PS", "ps_5_1");
+		m_ShaderPass[EShaderType::ST_VERTEX] = CompileShader(Utils::String2WString(FileName), nullptr, "VS", "vs_5_1");
+		m_ShaderPass[EShaderType::ST_PIXEL] = CompileShader(Utils::String2WString(FileName), nullptr, "PS", "ps_5_1");
 		
 		GenerateInputLayout();
 		CreateBinder();
@@ -42,29 +42,22 @@ namespace Zero
 		if (m_ShaderDesc.bCreateVS)
 		{
 			auto VSBlob  = CompileShader(Utils::String2WString(FileName), nullptr, m_ShaderDesc.VSEntryPoint, "vs_5_1");
-			m_ShaderPass["VS"] = VSBlob;
-			std::cout << "ShaderType : VS" << std::endl;
-			GetShaderParameters(VSBlob, EShaderType::ST_VERTEX);
+			m_ShaderPass[EShaderType::ST_VERTEX] = VSBlob;
 		}
 
 		if (m_ShaderDesc.bCreatePS)
 		{
 			auto PSBlob  = CompileShader(Utils::String2WString(FileName), nullptr, m_ShaderDesc.PSEntryPoint, "ps_5_1");
-			m_ShaderPass["PS"] = PSBlob;
-			std::cout << "ShaderType : PS" << std::endl;
-			GetShaderParameters(PSBlob, EShaderType::ST_PIXEL);
+			m_ShaderPass[EShaderType::ST_PIXEL] = PSBlob;
 		}
 
 		if (m_ShaderDesc.bCreateCS)
 		{
 			auto CSBlob  = CompileShader(Utils::String2WString(FileName), nullptr, m_ShaderDesc.CSEntryPoint, "cs_5_1");
-			m_ShaderPass["CS"] = CSBlob;
-			std::cout << "ShaderType : CS" << std::endl;
-			GetShaderParameters(CSBlob, EShaderType::ST_COMPUTE);
+			m_ShaderPass[EShaderType::ST_COMPUTE] = CSBlob;
+			//GetShaderParameters(CSBlob, EShaderType::ST_COMPUTE);
 		}
-		std::cout << "------------------------------------------\n";
 	}
-
 
 	FDX12Shader::FDX12Shader(const std::string& FileName, const FShaderDesc& Desc)
 		:FShader(Desc)
@@ -72,7 +65,7 @@ namespace Zero
 		if (m_ShaderDesc.bCreateVS)
 		{
 			auto VSBlob  = CompileShader(Utils::String2WString(FileName), nullptr, m_ShaderDesc.VSEntryPoint, "vs_5_1");
-			m_ShaderPass["VS"] = VSBlob;
+			m_ShaderPass[EShaderType::ST_VERTEX] = VSBlob;
 			std::cout << "ShaderType : VS" << std::endl;
 			GetShaderParameters(VSBlob, EShaderType::ST_VERTEX);
 		}
@@ -80,7 +73,7 @@ namespace Zero
 		if (m_ShaderDesc.bCreatePS)
 		{
 			auto PSBlob  = CompileShader(Utils::String2WString(FileName), nullptr, m_ShaderDesc.PSEntryPoint, "ps_5_1");
-			m_ShaderPass["PS"] = PSBlob;
+			m_ShaderPass[EShaderType::ST_PIXEL] = PSBlob;
 			std::cout << "ShaderType : PS" << std::endl;
 			GetShaderParameters(PSBlob, EShaderType::ST_PIXEL);
 		}
@@ -88,10 +81,41 @@ namespace Zero
 		if (m_ShaderDesc.bCreateCS)
 		{
 			auto CSBlob  = CompileShader(Utils::String2WString(FileName), nullptr, m_ShaderDesc.CSEntryPoint, "cs_5_1");
-			m_ShaderPass["CS"] = CSBlob;
+			m_ShaderPass[EShaderType::ST_COMPUTE] = CSBlob;
 			std::cout << "ShaderType : CS" << std::endl;
 			GetShaderParameters(CSBlob, EShaderType::ST_COMPUTE);
 		}
+		std::cout << "------------------------------------------\n";
+	
+		std::cout << std::format("File : {0}\n", FileName);
+		for (auto Iter : m_CBVParams)
+		{ 
+			std::cout << std::format("BindPoint : {0}\n", Iter.first);
+			const FShaderCBVParameter& Parameter = Iter.second;
+			std::cout << std::format("Name : {0}\n", Parameter.Name);
+			std::cout << std::format("BindPoint : {0}\n", Parameter.BindPoint);
+			std::cout << std::format("RegisterSpace : {0}\n", Parameter.RegisterSpace);
+			
+			for (const FCBVariableItem& Item : Parameter.VariableList)
+			{ 
+				std::cout << std::format("\tName : {0}\n", Item.VariableName);
+				std::cout << std::format("\tType : {0}\n", int(Item.ShaderDataType));
+			}
+		}
+		/*
+		std::cout << "-------------\n";
+		for (auto Iter : m_SRVParams)
+		{
+			std::cout << std::format("BindPoint : {0}\n", Iter.first);
+			const FShaderSRVParameter& Parameter = Iter.second;
+			std::cout << std::format("Name : {0}\n", Parameter.Name);
+			std::cout << std::format("BindPoint : {0}\n", Parameter.BindPoint);
+			std::cout << std::format("BindCount : {0}\n", Parameter.BindCount);
+			std::cout << std::format("RegisterSpace : {0}\n", Parameter.RegisterSpace);
+			std::cout << std::format("Dimension : {0}\n", int(Parameter.ShaderResourceType));
+		}
+		*/
+
 		std::cout << "------------------------------------------\n";
 	}
 
@@ -113,77 +137,114 @@ namespace Zero
 		D3D12_SHADER_DESC D3DShaderDesc;
 		Reflection->GetDesc(&D3DShaderDesc);
 
+
 		for (UINT i = 0; i < D3DShaderDesc.BoundResources; i++)
 		{
 			D3D12_SHADER_INPUT_BIND_DESC  ResourceDesc;
 			Reflection->GetResourceBindingDesc(i, &ResourceDesc);
 
 
-			LPCSTR ShaderVarName = ResourceDesc.Name;
+
+
+			LPCSTR ResoureceVarName = ResourceDesc.Name;
 			D3D_SHADER_INPUT_TYPE ResourceType = ResourceDesc.Type;
 			UINT RegisterSpace = ResourceDesc.Space;
 			UINT BindPoint = ResourceDesc.BindPoint;
 			UINT BindCount = ResourceDesc.BindCount;
-			
-			std::cout << "ShaderVarName : " << ShaderVarName << std::endl;
+
 
 			if (ResourceType == D3D_SHADER_INPUT_TYPE::D3D_SIT_CBUFFER)
 			{
-				std::cout << "ResourceType :  D3D_SIT_CBUFFER" << std::endl;
+				if (m_CBVParams.find(BindPoint) != m_CBVParams.end())
+				{
+					continue;
+				}
 				FShaderCBVParameter Param;
-				Param.Name = ShaderVarName;
+				Param.Name = ResoureceVarName;
 				Param.ShaderType = ShaderType;
 				Param.BindPoint = BindPoint;
 				Param.RegisterSpace = RegisterSpace;
 
-				m_CBVParams.push_back(Param);
-
-				ID3D12ShaderReflectionConstantBuffer* Buffer = Reflection->GetConstantBufferByIndex(i);
+				ID3D12ShaderReflectionConstantBuffer* Buffer = Reflection->GetConstantBufferByName(ResoureceVarName);
 				D3D12_SHADER_BUFFER_DESC BufferDesc;
 				Buffer->GetDesc(&BufferDesc);
 				for (UINT BufferIndex = 0; BufferIndex < BufferDesc.Variables; ++BufferIndex)
 				{ 
 					ID3D12ShaderReflectionVariable* ReflectionVariable = Buffer->GetVariableByIndex(BufferIndex);
-					D3D12_SHADER_VARIABLE_DESC VARIABLE_DESC;
-					ReflectionVariable->GetDesc(&VARIABLE_DESC);
+					D3D12_SHADER_VARIABLE_DESC VariableDesc;
+					ReflectionVariable->GetDesc(&VariableDesc);
 					ID3D12ShaderReflectionType*  Type = ReflectionVariable->GetType();
 					D3D12_SHADER_TYPE_DESC TypeDesc;
 					Type->GetDesc(&TypeDesc);
-					std::cout << "Name :" << VARIABLE_DESC.Name << std::endl;
-					std::cout << "Type :" << TypeDesc.Name << std::endl;
+
+					if (TypeDesc.Class == D3D_SVC_STRUCT)
+					{
+						for (UINT StructTypeIndex = 0; StructTypeIndex < TypeDesc.Members; ++StructTypeIndex)
+						{
+							auto MemberTypeName = Type->GetMemberTypeName(StructTypeIndex);
+							ID3D12ShaderReflectionType* MemberType = Type->GetMemberTypeByName(MemberTypeName);
+							D3D12_SHADER_TYPE_DESC MemberTypeDesc;
+							MemberType->GetDesc(&MemberTypeDesc);
+							std::cout << "struct: " << MemberTypeName << std::endl;
+							std::cout << "type: " << (int)FDX12RHItConverter::GetTypeByName(MemberTypeDesc.Name) << std::endl;
+						}
+						
+						FCBVariableItem CBVariableItem;
+						CBVariableItem.VariableName = VariableDesc.Name;
+						CBVariableItem.ShaderDataType = FDX12RHItConverter::GetTypeByName(TypeDesc.Name);
+
+						Param.VariableList.push_back(CBVariableItem);
+					}
+					else
+					{
+						FCBVariableItem CBVariableItem;
+						CBVariableItem.VariableName = VariableDesc.Name;
+						CBVariableItem.ShaderDataType = FDX12RHItConverter::GetTypeByName(TypeDesc.Name);
+						Param.VariableList.push_back(CBVariableItem);
+					}
 				}
+				
+				m_CBVParams.insert({BindPoint, Param });
 			}
 			else if (ResourceType == D3D_SHADER_INPUT_TYPE::D3D_SIT_STRUCTURED)
 			{
-				std::cout << "ResourceType :  D3D_SIT_STRUCTURED" << std::endl;
+				if (m_SRVParams.find(BindPoint) != m_SRVParams.end())
+				{
+					continue;
+				}
 				FShaderSRVParameter Param;
-				Param.Name = ShaderVarName;
+				Param.Name = ResoureceVarName;
 				Param.ShaderType = ShaderType;
 				Param.BindPoint = BindPoint;
 				Param.BindCount = BindCount;
 				Param.RegisterSpace = RegisterSpace;
 
-				m_SRVParams.push_back(Param);
+				m_SRVParams.insert({BindPoint, Param });
 			}
 			else if (ResourceType == D3D_SHADER_INPUT_TYPE::D3D_SIT_TEXTURE)
 			{
-				std::cout << "ResourceType :  D3D_SIT_TEXTURE" << std::endl;
+				if (m_SRVParams.find(BindPoint) != m_SRVParams.end())
+				{
+					continue;
+				}
+				D3D12_SHADER_INPUT_BIND_DESC Desc;
+				Reflection->GetResourceBindingDesc(i, &Desc);
 				FShaderSRVParameter Param;
-				Param.Name = ShaderVarName;
+				Param.Name = ResoureceVarName;
 				Param.ShaderType = ShaderType;
 				Param.BindPoint = BindPoint;
 				Param.BindCount = BindCount;
 				Param.RegisterSpace = RegisterSpace;
+				Param.ShaderResourceType = FDX12RHItConverter::GetResourceByDimension(Desc.Dimension);
 
-				m_SRVParams.push_back(Param);
+				m_SRVParams.insert({BindPoint, Param });
 			}
 			else if (ResourceType == D3D_SHADER_INPUT_TYPE::D3D_SIT_UAV_RWSTRUCTURED)
 			{
-				std::cout << "ResourceType :  D3D_SIT_UAV_RWSTRUCTURED" << std::endl;
 				CORE_ASSERT(ShaderType == EShaderType::ST_COMPUTE, "ShaderType must be Compute Shader");
 
 				FShaderUAVParameter Param;
-				Param.Name = ShaderVarName;
+				Param.Name = ResoureceVarName;
 				Param.ShaderType = ShaderType;
 				Param.BindPoint = BindPoint;
 				Param.BindCount = BindCount;
@@ -193,11 +254,10 @@ namespace Zero
 			}
 			else if (ResourceType == D3D_SHADER_INPUT_TYPE::D3D_SIT_UAV_RWTYPED)
 			{
-				std::cout << "ResourceType :  D3D_SIT_UAV_RWTYPED" << std::endl;
 				CORE_ASSERT(ShaderType == EShaderType::ST_COMPUTE, "ShaderType must be Compute Shader");
 
 				FShaderUAVParameter Param;
-				Param.Name = ShaderVarName;
+				Param.Name = ResoureceVarName;
 				Param.ShaderType = ShaderType;
 				Param.BindPoint = BindPoint;
 				Param.BindCount = BindCount;
@@ -207,21 +267,15 @@ namespace Zero
 			}
 			else if (ResourceType == D3D_SHADER_INPUT_TYPE::D3D_SIT_SAMPLER)
 			{
-				std::cout << "ResourceType :  D3D_SIT_SAMPLER" << std::endl;
 				CORE_ASSERT(ShaderType == EShaderType::ST_PIXEL, "ShaderType must be Pixel Shader");
 
 				FShaderSamplerParameter Param;
-				Param.Name = ShaderVarName;
+				Param.Name = ResoureceVarName;
 				Param.ShaderType = ShaderType;
 				Param.BindPoint = BindPoint;
 				Param.RegisterSpace = RegisterSpace;
-
 				m_SamplerParams.push_back(Param);
 			}
-			std::cout << "RegisterSpace : " << RegisterSpace << std::endl;
-			std::cout << "BindPoint : " << BindPoint << std::endl;
-			std::cout << "BindCount : " << BindCount << std::endl;
-			std::cout << "\n\n\n";
 		}
 	}
 

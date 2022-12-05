@@ -7,15 +7,7 @@
 
 namespace Zero
 {
-
-
 	struct FPipelineStateDesc;
-	enum class EShaderType
-	{
-		ST_VERTEX,
-		ST_PIXEL,
-		ST_COMPUTE
-	};
 
 	class FShaderDefines
 	{	
@@ -29,7 +21,7 @@ namespace Zero
 	struct FShaderDesc
 	{
 		bool bUseAlphaBlending = false;
-		FVertexBufferLayout VertexBufferLayout;
+		FVertexBufferLayout VertexBufferLayout = FVertexBufferLayout::s_DefaultVertexLayout;
 		int NumRenderTarget = 2;
 		FFrameBufferTexturesFormats Formats = {
 			ETextureFormat::R8G8B8A8,
@@ -53,6 +45,9 @@ namespace Zero
 		std::string CSEntryPoint = "CS";
 	};
 		
+	struct FShaderSamplerParameter : FShaderParameter
+	{
+	};
 	class FShader
 	{
 	public:
@@ -64,10 +59,18 @@ namespace Zero
 
 		virtual Ref<IShaderBinder> GetBinder() { return m_ShaderBinder; }
 
+		const std::map<uint32_t, FShaderCBVParameter>& GetCBVParams() const { return m_CBVParams; }
+		const std::map<uint32_t, FShaderSRVParameter>& GetSRVParams() const { return m_SRVParams; }
+
 	protected:
 		Ref<IShaderBinder> m_ShaderBinder;
 		FShaderDesc m_ShaderDesc;
 		FShaderBinderDesc m_ShaderBinderDesc;
+
+		std::map<uint32_t, FShaderCBVParameter> m_CBVParams;
+		std::map<uint32_t, FShaderSRVParameter> m_SRVParams;
+		std::vector<FShaderUAVParameter> m_UAVParams;
+		std::vector<FShaderSamplerParameter> m_SamplerParams;
 	};
 	
 }

@@ -47,4 +47,20 @@ namespace Zero
 
 		{EShaderDataType::Int,  "DirectLightNum"},
 	};
+
+	void FConstantBufferLayout::GenderateConstBufferLayoutByShader(std::vector<FConstantBufferLayout>& Layouts,
+		const std::map<uint32_t, FShaderCBVParameter>& CBVParameters)
+	{
+		for (auto Iter : CBVParameters)
+		{
+			FConstantBufferLayout ConstantBufferLayout;
+			for (const FCBVariableItem& CBVariableItem : Iter.second.VariableList)
+			{
+				FBufferElement Element = { CBVariableItem.ShaderDataType, CBVariableItem.VariableName };
+				ConstantBufferLayout.m_Elements.push_back(Element);
+			}
+			ConstantBufferLayout.CalculateOffsetsAndStride();
+			Layouts.push_back(ConstantBufferLayout);
+		}
+	}
 }

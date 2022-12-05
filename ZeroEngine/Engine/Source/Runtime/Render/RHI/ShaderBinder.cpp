@@ -90,6 +90,6 @@ namespace Zero
             ResIndex++;
             ParaIndex++;
         }
-        m_ShaderResourceDesc->Size = m_Desc.m_TextureBufferLayout.GetSrvCount();
+        m_ShaderResourceDesc->Size = (uint32_t)m_Desc.m_TextureBufferLayout.GetSrvCount();
     }
 }
