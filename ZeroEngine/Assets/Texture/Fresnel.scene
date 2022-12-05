@@ -1,0 +1,137 @@
+Scene: Fresnel.scene
+Actors:
+  - ActorName: UCameraActor
+    Properties:
+      m_Tag:UActor:
+        Type: std::string
+        Value: UCameraActor
+    Component:
+      - ComopnentName: UTransformComponent
+        Properties:
+          m_Position:UTransformComponent:
+            Type: ZMath::vec3
+            Value: [-1.05306923, -1.01916254, -8.26155376]
+          m_Rotation:UTransformComponent:
+            Type: ZMath::FRotation
+            Value: [-0.284488678, -0.736528873, 0]
+          m_Scale:UTransformComponent:
+            Type: ZMath::vec3
+            Value: [1, 1, 1]
+      - ComopnentName: UCameraComponent
+        Properties:
+          m_CameraType:UCameraComponent:
+            Type: ECameraType
+  - ActorName: USphereMeshActor
+    Properties:
+      m_Tag:UActor:
+        Type: std::string
+        Value: USphereMeshActor
+    Component:
+      - ComopnentName: UTransformComponent
+        Properties:
+          m_Position:UTransformComponent:
+            Type: ZMath::vec3
+            Value: [-4.86503887, -0.758354664, 1.6500001]
+          m_Rotation:UTransformComponent:
+            Type: ZMath::FRotation
+            Value: [0, 0, 0]
+          m_Scale:UTransformComponent:
+            Type: ZMath::vec3
+            Value: [1, 1, 1]
+      - ComopnentName: UMeshVertexComponent
+        Properties:
+          {}
+      - ComopnentName: UMeshRenderComponent
+        Properties:
+          m_MaterialHandle:UMeshRenderComponent:
+            Type: FMaterialHandle
+            Value: ""
+          m_RenderLayer:UMeshRenderComponent:
+            Type: int32_t
+            Value: 1
+          m_Psotype:UMeshRenderComponent:
+            Type: EPsoType
+          m_ColorParameter:UMeshRenderComponent:
+            Type: std::map
+            KeyType: std::string
+            ValueType: ZMath::FColor3
+            Value:
+              - Map-Key:
+                  Type: std::string
+                  Value: ""
+                Map-Value:
+                  Type: ZMath::FColor3
+                  Value: [0.980392158, 0.819607854, 0.760784328]
+          m_FloatSliderParameter:UMeshRenderComponent:
+            Type: std::map
+            KeyType: std::string
+            ValueType: FFloatSlider
+            Value:
+              - Map-Key:
+                  Type: std::string
+                  Value: Fresnel_1
+                Map-Value:
+                  Type: FFloatSlider
+                  Value: [0.0280000009, 0, 1, 0.00999999978, false]
+              - Map-Key:
+                  Type: std::string
+                  Value: Fresnel_2
+                Map-Value:
+                  Type: FFloatSlider
+                  Value: [0.0270000007, 0, 1, 0.00999999978, false]
+              - Map-Key:
+                  Type: std::string
+                  Value: Fresnel_3
+                Map-Value:
+                  Type: FFloatSlider
+                  Value: [0.0270000007, 0, 1, 0.00999999978, false]
+  - ActorName: ULightActor
+    Properties:
+      m_Tag:UActor:
+        Type: std::string
+        Value: ULightActor
+    Component:
+      - ComopnentName: UTransformComponent
+        Properties:
+          m_Position:UTransformComponent:
+            Type: ZMath::vec3
+            Value: [-1.22750652, -3.2776351, 1.6500001]
+          m_Rotation:UTransformComponent:
+            Type: ZMath::FRotation
+            Value: [0, -0.331612557, 0]
+          m_Scale:UTransformComponent:
+            Type: ZMath::vec3
+            Value: [1, 1, 1]
+      - ComopnentName: UMeshVertexComponent
+        Properties:
+          {}
+      - ComopnentName: UMeshRenderComponent
+        Properties:
+          m_MaterialHandle:UMeshRenderComponent:
+            Type: FMaterialHandle
+            Value: ""
+          m_RenderLayer:UMeshRenderComponent:
+            Type: int32_t
+            Value: 1
+          m_Psotype:UMeshRenderComponent:
+            Type: EPsoType
+          m_ColorParameter:UMeshRenderComponent:
+            Type: std::map
+            KeyType: std::string
+            ValueType: ZMath::FColor3
+            Value:
+              []
+          m_FloatSliderParameter:UMeshRenderComponent:
+            Type: std::map
+            KeyType: std::string
+            ValueType: FFloatSlider
+            Value:
+              []
+      - ComopnentName: ULightComponent
+        Properties:
+          m_LightColor:ULightComponent:
+            Type: ZMath::FColor3
+            Value: [0.950980365, 0.950980365, 0.950980365]
+          m_LightIntensity:ULightComponent:
+            Type: float
+            Value: 1
