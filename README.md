@@ -1,7 +1,7 @@
 # ZeroEngine
 
 - [LearningDX12](https://github.com/J-Mat/ZeroEngine/tree/main/LearningDX12 "LearningDX12")  龙书代码，用cmake整理在一起
-- [ZeroEngine](https://github.com/J-Mat/ZeroEngine/tree/main/ZeroEngine "ZeroEngine") 基于DX12
+- [ZeroEngine](https://github.com/J-Mat/ZeroEngine/tree/main/ZeroEngine "ZeroEngine") 基于DX12的渲染器
 
 ## MileStone
 
