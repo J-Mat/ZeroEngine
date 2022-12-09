@@ -1,7 +1,7 @@
 # ZeroEngine
 
-- [LearningDX12](https://github.com/J-Mat/ZeroEngine/tree/main/LearningDX12 "LearningDX12")  ÁúÊé´úÂë£¬ÓÃcmakeÕûÀíÔÚÒ»Æð
-- [ZeroEngine](https://github.com/J-Mat/ZeroEngine/tree/main/ZeroEngine "ZeroEngine") »ùÓÚDX12µÄäÖÈ¾Æ÷
+- [LearningDX12](https://github.com/J-Mat/ZeroEngine/tree/main/LearningDX12 "LearningDX12")  é¾™ä¹¦ä»£ç ï¼Œç”¨cmakeæ•´ç†åœ¨ä¸€èµ·
+- [ZeroEngine](https://github.com/J-Mat/ZeroEngine/tree/main/ZeroEngine "ZeroEngine") åŸºäºŽDX12çš„æ¸²æŸ“å™¨
 
 ## MileStone
 
@@ -71,7 +71,7 @@ D3D12_SHADER_DESC D3DShaderDesc;
 Reflection->GetDesc(&D3DShaderDesc);
 ```
 
-Afert getting the buffer and resource layout, take these info to cpp, and make these reflected to UI panel through code reflection in cpp. So we can edit the parameters easily.
+After getting the buffer and resource layout, take these info to cpp, and make these reflected to UI panel through code reflection in cpp. So we can edit the parameters easily.
 
 | Shader Code                                                                                        | UI                                             |
 | -------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
