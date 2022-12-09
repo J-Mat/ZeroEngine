@@ -61,6 +61,8 @@ namespace Zero
 
 		const std::map<uint32_t, FShaderCBVParameter>& GetCBVParams() const { return m_CBVParams; }
 		const std::map<uint32_t, FShaderSRVParameter>& GetSRVParams() const { return m_SRVParams; }
+		
+		void GenerateShaderDesc();
 
 	protected:
 		Ref<IShaderBinder> m_ShaderBinder;

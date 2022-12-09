@@ -15,6 +15,14 @@ namespace Zero
 
 	FMaterial::FMaterial()
 	{	
+		m_OnSetFloat.Bind<FMaterial>(this, &FMaterial::SetFloatPtr);
+		m_OnSetInt.Bind<FMaterial>(this, &FMaterial::SetIntPtr);
+		m_SetParameterMap.insert(
+			{EShaderDataType::Float, m_OnSetFloat}
+		);
+		m_SetParameterMap.insert(
+			{EShaderDataType::Int, m_OnSetInt}
+		);
 	}
 
 	FMaterial::~FMaterial()
@@ -97,6 +105,29 @@ namespace Zero
 		m_MaterialBuffer->SetFloat(Name, Value);
 	}
 
+	void FMaterial::SetFloatPtr(const std::string& Name, void* Value)
+	{
+		SetFloat(Name, *(float*)Value);
+	}
+
+	void FMaterial::SetInt(const std::string& Name, const int32_t& Value)
+	{
+		if (m_MaterialBuffer != nullptr)
+		{
+			m_MaterialBuffer->SetInt(Name, Value);
+		}
+	}
+
+	void FMaterial::SetIntPtr(const std::string& Name, void* ValueiPtr)
+	{
+		SetInt(Name, *(int32_t*)ValueiPtr);
+	}
+
+	void FMaterial::SetFloat2(const std::string& Name, const ZMath::vec2& Value)
+	{
+		m_MaterialBuffer->SetFloat2(Name, Value);
+	}
+
 	void FMaterial::SetFloat3(const std::string& Name, const ZMath::vec3& Value)
 	{
 		m_MaterialBuffer->SetFloat3(Name, Value);
@@ -105,6 +136,11 @@ namespace Zero
 	void FMaterial::SetFloat4(const std::string& Name, const ZMath::vec4& Value)
 	{
 		m_MaterialBuffer->SetFloat4(Name, Value);
+	}
+
+	void FMaterial::SetFloat4Ptr(const std::string& Name, void* ValuePtr)
+	{
+		SetFloat4(Name, *(ZMath::vec4*)ValuePtr);
 	}
 
 	void FMaterial::SetMatrix4x4(const std::string& Name, const ZMath::mat4& Value)
@@ -120,6 +156,15 @@ namespace Zero
 	void FMaterial::SetTextureCubemap(const std::string& Name, Ref<FTextureCubemap> Texture)
 	{
 		m_ResourcesBuffer->SetTextureCubemap(Name, Texture);
+	}
+
+	void FMaterial::SetParameter(const std::string& ParameterName, EShaderDataType ShaderDataType, void* ValuePtr)
+	{
+		auto Iter = m_SetParameterMap.find(ShaderDataType);
+		if (Iter != m_SetParameterMap.end())
+		{
+			Iter->second.Execute(ParameterName, ValuePtr);
+		}
 	}
 
 	void FMaterial::GetFloat(const std::string& Name, float& Value)

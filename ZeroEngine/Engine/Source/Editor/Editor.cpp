@@ -41,7 +41,7 @@ namespace Zero
 		DetailMappingManager.RegisterVariableMapping("ZMath::FColor4", FColor4DetailsMapping::MakeDetailMapping());
 		DetailMappingManager.RegisterVariableMapping("FTextureHandle", FTextureHandleDetailsMapping::MakeDetailMapping());
 		DetailMappingManager.RegisterVariableMapping("FMaterialHandle", FMaterialHandleDetailsMapping::MakeDetailMapping());
-		DetailMappingManager.RegisterVariableMapping("FAssignedFile", FAssignedFileDetailsMapping::MakeDetailMapping());
+		DetailMappingManager.RegisterVariableMapping("FShaderFileHandle", FAssignedFileDetailsMapping::MakeDetailMapping());
 		DetailMappingManager.RegisterVariableMapping("FFloatSlider", FFloatSliderDetailsMapping::MakeDetailMapping());
 		DetailMappingManager.RegisterVariableMapping("std::vector", FArrayObjectDetailsMapping::MakeDetailMapping());
 		DetailMappingManager.RegisterVariableMapping("std::map", FMapObjectDetailsMapping::MakeDetailMapping());

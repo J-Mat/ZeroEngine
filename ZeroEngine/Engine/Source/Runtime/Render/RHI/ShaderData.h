@@ -84,7 +84,7 @@ namespace Zero
 
 	struct FShaderParameter
 	{
-		std::string Name;
+		std::string ResourceName;
 		EShaderType ShaderType;
 		UINT BindPoint;
 		UINT RegisterSpace;
@@ -92,7 +92,8 @@ namespace Zero
 	
 	struct FCBVariableItem
 	{
-		std::string VariableName;
+		std::string VariableName = "";
+		std::string VariableTypeName = "";
 		EShaderDataType ShaderDataType;
 	};
 
@@ -145,15 +146,24 @@ namespace Zero
 
 	class FConstantBufferLayout
 	{
+		friend class FShader;
 	public:
 		FConstantBufferLayout() {}
-		FConstantBufferLayout(const std::initializer_list<FBufferElement>& Elements)
-			: m_Elements(Elements)
+		FConstantBufferLayout(const std::string BufferName, int32_t BindPoint,  const std::initializer_list<FBufferElement>& Elements)
+			: m_BufferName(BufferName)
+			, m_BindPoint(BindPoint)
+			, m_Elements(Elements)
 		{
 			CalculateOffsetsAndStride();
 		}
-		inline const std::vector<FBufferElement>& GetElements() const { return m_Elements; }
-		inline const uint32_t GetStride() const { return m_Stride; }
+		const std::vector<FBufferElement>& GetElements() const { return m_Elements; }
+		const uint32_t GetStride() const { return m_Stride; }
+		const int32_t GetBindPoint() const 
+		{ 
+			CORE_ASSERT(m_BindPoint >= 0, "BindPoint is not valid!")
+			return m_BindPoint; 
+		}
+		const std::string& GetBufferName() const { return m_BufferName; }
 		std::vector<FBufferElement>::iterator begin() { return m_Elements.begin(); }
 		std::vector<FBufferElement>::iterator end() { return m_Elements.end(); }
 
@@ -161,8 +171,6 @@ namespace Zero
 		static FConstantBufferLayout s_PerCameraConstants;
 		static FConstantBufferLayout s_PerFrameConstants;
 
-		static void GenderateConstBufferLayoutByShader(std::vector<FConstantBufferLayout>& Layouts, 
-			const std::map<uint32_t, FShaderCBVParameter>& CBVParameters);
 		void CalculateOffsetsAndStride()
 		{
 			uint32_t Offset = 0;
@@ -176,18 +184,22 @@ namespace Zero
 		}
 	private:
 		std::vector<FBufferElement> m_Elements;
+		std::string m_BufferName;
+		int32_t m_BindPoint = 0;
 		uint32_t m_Stride = 0;
 	};
 
 	struct FTextureTableElement
 	{
 		EShaderResourceType Type;
-		std::string Name;
+		std::string ResourceName;
 		uint32_t TextureNum = 1;
+		uint32_t BindPoint = 0;
 	};
 	
 	class FShaderResourceLayout
 	{
+		friend class FShader;
 	public:
 		FShaderResourceLayout() {}
 		FShaderResourceLayout(const std::initializer_list<FTextureTableElement>& Elements)
@@ -200,7 +212,7 @@ namespace Zero
 			return m_Elements.size();
 		}
 
-		inline const std::vector<FTextureTableElement>& GetElements() const { return m_Elements; }
+		const std::vector<FTextureTableElement>& GetElements() const { return m_Elements; }
 
 		std::vector<FTextureTableElement>::iterator begin() { return m_Elements.begin(); }
 		std::vector<FTextureTableElement>::iterator end() { return m_Elements.end(); }

@@ -7,7 +7,7 @@ namespace Zero
 	void FAssignedFileDetailsMapping::UpdateDetailsWidgetImpl(UProperty* Property, const char* ProperyTag)
 	{
 		static char Buffer[256] = {0};
-		std::string* AssignedFilePtr = Property->GetData<FAssignedFile>();
+		std::string* AssignedFilePtr = Property->GetData<FShaderFileHandle>();
 		strcpy_s(Buffer, sizeof(Buffer), AssignedFilePtr->c_str());
 		ImGui::TextDisabled(Buffer);
 		std::string FormatValue;

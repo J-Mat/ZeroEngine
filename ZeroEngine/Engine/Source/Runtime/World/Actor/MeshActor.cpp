@@ -5,6 +5,7 @@
 #include "Render/RHI/RenderItem.h"
 #include "Render/RHI/Mesh.h"
 #include "World/World.h"
+#include "Render/Moudule/Material.h"
 
 namespace Zero
 {
@@ -44,6 +45,7 @@ namespace Zero
 				Item->m_MaterialBuffer = m_MeshVertexComponent->m_ShaderConstantsBuffer;
 				Item->m_Material = m_MeshRenderComponent->GetPassMaterials(CurLayer)[MaterialIndex];
 				Item->m_PipelineStateObject = m_MeshRenderComponent->GetPipelineStateObject();
+				Item->m_Material->SetShader(Item->m_PipelineStateObject->GetPSODescriptor().Shader);
 				Item->SetModelMatrix(m_TransformationComponent->GetTransform());
 				MaterialIndex++;
 
@@ -62,4 +64,10 @@ namespace Zero
 	{
 		return m_MeshVertexComponent->m_Mesh->GetAABB();
 	}
+
+	void UMeshActor::SetParameter(const std::string& ParameterName, EShaderDataType ShaderDataType, void* ValuePtr)
+	{
+		m_MeshRenderComponent->SetParameter(ParameterName, ShaderDataType, ValuePtr);
+	}
+
 }

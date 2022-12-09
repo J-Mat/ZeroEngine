@@ -7,7 +7,8 @@ namespace Zero
     {
         m_ActroItems.push_back({ FEditor::CreateIcon("EditorRes/cube.png"), "UCubeMeshActor" });
         m_ActroItems.push_back({ FEditor::CreateIcon("EditorRes/sphere.png"), "USphereMeshActor" });
-        m_ActroItems.push_back({ FEditor::CreateIcon("EditorRes/direct_light.png"), "ULightActor" });
+        m_ActroItems.push_back({ FEditor::CreateIcon("EditorRes/direct_light.png"), "UDirectLightActor" });
+        m_ActroItems.push_back({ FEditor::CreateIcon("EditorRes/bulb.png"), "UPointLightActor" });
     }
 
 	void FPlaceActorsPanel::OnGuiRender()

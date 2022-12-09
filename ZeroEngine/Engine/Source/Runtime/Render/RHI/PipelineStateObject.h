@@ -28,8 +28,10 @@ namespace Zero
 		FPipelineStateObject(const FPSODescriptor& PSODescriptor);
 		virtual ~FPipelineStateObject() = default;
 		virtual void Bind() = 0;
-		const FPSODescriptor& GetPSODescriptor() {	return m_PSODescriptor;}
-	private:
+		virtual void CreatePsoObj() = 0;
+		const FPSODescriptor& GetPSODescriptor() const {return m_PSODescriptor;}
+		void SetShader(Ref<FShader> Shader);
+	protected:
 		FPSODescriptor m_PSODescriptor;
 	};
 }

@@ -84,7 +84,7 @@ namespace Zero
 	using FTextureHandle = std::string;
 	using FMaterialHandle = std::string;
 	using FAssetHandle = Utils::Guid;
-	using FAssignedFile = std::string;
+	using FShaderFileHandle = std::string;
 	
 	struct FFloatSlider
 	{
@@ -117,7 +117,7 @@ namespace Zero
 			{"FMaterialHandle", sizeof(FMaterialHandle)},
 			{"std::filesystem::path", sizeof(std::filesystem::path)},
 			{"FAssetHandle", sizeof(FAssetHandle)},
-			{"FAssignedFile", sizeof(FAssignedFile)},
+			{"FShaderFileHandle", sizeof(FShaderFileHandle)},
 			{"FFloatSlider", sizeof(FFloatSlider)}
 		};
 	}

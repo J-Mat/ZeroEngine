@@ -18,6 +18,7 @@ namespace Zero
             return m_D3DPipelineState;
         }
         virtual void Bind() override;
+        virtual void CreatePsoObj() override;
 
     private:
         ComPtr<ID3D12PipelineState> m_D3DPipelineState;

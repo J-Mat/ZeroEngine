@@ -138,12 +138,15 @@ namespace Zero
 	{
 	}
 
-	void FDX12ShaderBinder::BindConstantsBuffer(uint32_t Slot, IShaderConstantsBuffer* Buffer)
+	void FDX12ShaderBinder::BindConstantsBuffer(int32_t Slot, IShaderConstantsBuffer* Buffer)
 	{
-		FDX12ShaderConstantsBuffer* D3DBuffer = static_cast<FDX12ShaderConstantsBuffer*>(Buffer);
-		D3D12_GPU_VIRTUAL_ADDRESS GPUAddress = D3DBuffer->GetFrameResourceBuffer()->GetCurrentGPUAddress();
-		Ref<FDX12CommandList> CommandList = FDX12Device::Get()->GetRenderCommandList();
-		CommandList->GetD3D12CommandList()->SetGraphicsRootConstantBufferView(Slot, GPUAddress);
+		if (Slot >= 0)
+		{
+			FDX12ShaderConstantsBuffer* D3DBuffer = static_cast<FDX12ShaderConstantsBuffer*>(Buffer);
+			D3D12_GPU_VIRTUAL_ADDRESS GPUAddress = D3DBuffer->GetFrameResourceBuffer()->GetCurrentGPUAddress();
+			Ref<FDX12CommandList> CommandList = FDX12Device::Get()->GetRenderCommandList();
+			CommandList->GetD3D12CommandList()->SetGraphicsRootConstantBufferView(Slot, GPUAddress);
+		}
 	}
 
 	void FDX12ShaderBinder::Bind()
@@ -161,7 +164,7 @@ namespace Zero
 		UINT ParameterIndex = 0;
 		for (FConstantBufferLayout& Layout : m_Desc.m_ConstantBufferLayouts)
 		{
-			SlotRootParameter[ParameterIndex].InitAsConstantBufferView(ParameterIndex);
+			SlotRootParameter[ParameterIndex].InitAsConstantBufferView(Layout.GetBindPoint());
 			++ParameterIndex;
 		}
 		
@@ -169,7 +172,7 @@ namespace Zero
 		std::vector<CD3DX12_DESCRIPTOR_RANGE> SrvTable(m_Desc.m_TextureBufferLayout.GetSrvCount());
 		for (FTextureTableElement& Element : m_Desc.m_TextureBufferLayout)
 		{
-			SrvTable[SrvIndex].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (UINT)Element.TextureNum, SrvIndex, 0);
+			SrvTable[SrvIndex].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (UINT)Element.TextureNum, Element.BindPoint, 0);
 			SlotRootParameter[ParameterIndex].InitAsDescriptorTable(1, &SrvTable[SrvIndex], D3D12_SHADER_VISIBILITY_PIXEL);
 			++ParameterIndex;
 			++SrvIndex;

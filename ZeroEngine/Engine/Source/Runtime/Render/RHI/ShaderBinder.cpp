@@ -2,6 +2,42 @@
 
 namespace Zero
 {
+    const FConstantBufferLayout& FShaderBinderDesc::GetConstantBufferLayoutByName(const std::string& ResourceName) const
+    {
+        for (const FConstantBufferLayout& ConstantBufferLayout : m_ConstantBufferLayouts)
+        {
+            if (ConstantBufferLayout.GetBufferName() == ResourceName)
+            {
+                return ConstantBufferLayout;
+            }
+        }
+        CORE_ASSERT(false, "Can not find Constant Buffer!");
+        return FConstantBufferLayout();
+    }
+
+    void FShaderBinderDesc::MapCBBufferIndex()
+    {
+        for (const FConstantBufferLayout& ConstantBufferLayout : m_ConstantBufferLayouts)
+        {
+            if (ConstantBufferLayout.GetBufferName() == "cbPerObject")
+            {
+                m_PerObjIndex = ConstantBufferLayout.GetBindPoint();
+            }
+            else if (ConstantBufferLayout.GetBufferName() == "cbCameraObject")
+            {
+                m_CameraIndex = ConstantBufferLayout.GetBindPoint();
+            }
+            else if (ConstantBufferLayout.GetBufferName() == "cbConstant")
+            {
+                m_ConstantIndex = ConstantBufferLayout.GetBindPoint();
+            }
+            else if (ConstantBufferLayout.GetBufferName() == "cbMaterial")
+            {
+                m_MaterialIndex = ConstantBufferLayout.GetBindPoint();
+            }
+        }
+    }
+
     void FConstantsMapper::InsertConstant(const FBufferElement& Element)
     {
         const std::string& Name = Element.Name;
@@ -84,7 +120,7 @@ namespace Zero
         uint32_t ResIndex = 0;
         for (FTextureTableElement& Element : m_Desc.m_TextureBufferLayout)
         {
-            FShaderResourceItem ShaderResourceItem = { Element.Name, Element.Type, ParaIndex, 0, Element.TextureNum};
+            FShaderResourceItem ShaderResourceItem = { Element.ResourceName, Element.Type, ParaIndex, 0, Element.TextureNum};
             m_ResourcesMapper.InsertResource(ShaderResourceItem);
             m_ShaderResourceDesc->Mapper.InsertResource(ShaderResourceItem);
             ResIndex++;

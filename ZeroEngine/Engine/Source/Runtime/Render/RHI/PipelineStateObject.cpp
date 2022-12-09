@@ -7,4 +7,12 @@ namespace Zero
 	{
 		
 	}
+	void FPipelineStateObject::SetShader(Ref<FShader> Shader)
+	{
+		if (m_PSODescriptor.Shader != Shader)
+		{
+			m_PSODescriptor.Shader = Shader;
+			CreatePsoObj();
+		}
+	}
 }

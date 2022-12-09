@@ -51,12 +51,22 @@ namespace Zero
 		}	
 		
 		std::vector <Ref<FMaterial>>& OneLayerMaterials = m_Materials[LayerLayer];
-		Ref<FShader> Shader = GetPipelineStateObject()->GetPSODescriptor().Shader;
-		for (size_t i = 0; i < m_SubmeshNum; i++)
-		{
-			OneLayerMaterials[i]->SetShader(Shader);
-		}
 		return m_Materials[LayerLayer];
+	}
+
+	void UMeshRenderComponent::SetParameter(const std::string& ParameterName, EShaderDataType ShaderDataType, void* ValuePtr)
+	{
+		int32_t RenderLayer = m_RenderLayer;
+		while (RenderLayer > 0)
+		{
+			uint32_t CurLayer = (RenderLayer & (-RenderLayer));
+			RenderLayer ^= CurLayer;
+			auto CurLayerMaterials = GetPassMaterials(CurLayer);
+			for (size_t i = 0; i < m_SubmeshNum; i++)
+			{
+				CurLayerMaterials[i]->SetParameter(ParameterName, ShaderDataType, ValuePtr);
+			}
+		}
 	}
 
 	Ref<FPipelineStateObject> UMeshRenderComponent::GetPipelineStateObject()
@@ -109,6 +119,11 @@ namespace Zero
 		if (m_MaterialHandle != "")
 		{
 			UMaterialAsset* MaterialAsset = FAssetManager::GetInstance().Fetch<UMaterialAsset>(m_MaterialHandle);
+			Ref<FShader> Shader = TLibrary<FShader>::Fetch(MaterialAsset->m_ShaderFile);
+			if (Shader != nullptr && GetPipelineStateObject()->GetPSODescriptor().Shader != Shader)
+			{
+				m_PipelineStateObject = TLibrary<FPipelineStateObject>::Fetch(MaterialAsset->m_ShaderFile);
+			}
 			while (RenderLayer > 0)
 			{
 				uint32_t CurLayer = (RenderLayer & (-RenderLayer));
@@ -117,6 +132,10 @@ namespace Zero
 
 				for (size_t i = 0; i < m_SubmeshNum; i++)
 				{
+					if (Shader != nullptr)
+					{
+						CurLayerMaterials[i]->SetShader(Shader);
+					}
 					for (auto Iter : MaterialAsset->m_Textures)
 					{
 						const std::string& TextureName = Iter.first;
@@ -126,28 +145,11 @@ namespace Zero
 							CurLayerMaterials[i]->SetTexture2D(TextureName, Texture);
 						}
 					}
-				}
-			}
-		}
-			
-		
-		RenderLayer = m_RenderLayer;
-		while (RenderLayer > 0)
-		{
-			uint32_t CurLayer = (RenderLayer & (-RenderLayer));
-			RenderLayer ^= CurLayer;
-			auto CurLayerMaterials = GetPassMaterials(CurLayer);
+					for (auto Iter : MaterialAsset->m_Floats)
+					{
+						CurLayerMaterials[i]->SetFloat(Iter.first, Iter.second.Value);
+					}
 
-			for (size_t i = 0; i < m_SubmeshNum; i++)
-			{
-				for (auto Iter : m_ColorParameter)
-				{
-					CurLayerMaterials[i]->SetFloat3(Iter.first, Iter.second);
-				}
-
-				for (auto Iter : m_FloatSliderParameter)
-				{
-					CurLayerMaterials[i]->SetFloat(Iter.first, Iter.second.Value);
 				}
 			}
 		}
@@ -162,17 +164,8 @@ namespace Zero
 		case Zero::PT_ForwardLit:
 			m_PipelineStateObject = TLibrary<FPipelineStateObject>::Fetch(PSO_FORWARDLIT);
 			break;
-		case Zero::PT_Fresnel:
-			m_PipelineStateObject = TLibrary<FPipelineStateObject>::Fetch(PSO_FRESNEL);
-			break;
 		case Zero::PT_Light:
 			m_PipelineStateObject = TLibrary<FPipelineStateObject>::Fetch(PSO_LIGHT);
-			break;
-		case Zero::PT_NDF:
-			m_PipelineStateObject = TLibrary<FPipelineStateObject>::Fetch(PSO_NDF);
-			break;
-		case Zero::PT_GGX:
-			m_PipelineStateObject = TLibrary<FPipelineStateObject>::Fetch(PSO_GGX);
 			break;
 		default:
 			break;

@@ -1,6 +1,7 @@
 #pragma once
 #include "Core/Base/PublicSingleton.h"
-#include "World/Actor/LightActor.h"
+#include "World/Actor/DirectLightActor.h"
+#include "World/Actor/PointLightActor.h"
 
 namespace Zero
 {
@@ -8,11 +9,13 @@ namespace Zero
 	{
 	public:
 		FLightManager();
-		void AddDirectLight(ULightActor* Light);
+		void AddDirectLight(UDirectLightActor* Light);
+		void AddPointLight(UPointLightActor* Light);
 		void ClearLights();
 		void Tick();
 	private:
-		std::vector<ULightActor*> m_DirectLights;
+		std::vector<UDirectLightActor*> m_DirectLights;
+		std::vector<UPointLightActor*> m_PointLights;
 		std::vector<std::string> m_DirectLightProperties;
 	};
 

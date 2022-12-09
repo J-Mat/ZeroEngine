@@ -19,15 +19,6 @@ namespace Zero
 
 		UPROPERTY()
 		PT_ForwardLit,
-
-		UPROPERTY()
-		PT_Fresnel,
-
-		UPROPERTY()
-		PT_NDF,
-
-		UPROPERTY()
-		PT_GGX
 	};
 
 	class FMaterial;
@@ -46,6 +37,7 @@ namespace Zero
 		std::vector<Ref<FMaterial>>& GetPassMaterials(uint32_t LayerLayer);
 		void SetSubmeshNum(uint32_t Num) {	m_SubmeshNum = Num; }
 		void AttachRenderLayer(int32_t RenderLayer){m_RenderLayer |= RenderLayer;}
+		void SetParameter(const std::string& ParameterName, EShaderDataType ShaderDataType, void* ValuePtr);
 
 		Ref<FPipelineStateObject> GetPipelineStateObject();
 		void SetPsoType(EPsoType PosType);
@@ -68,12 +60,6 @@ namespace Zero
 
 		UPROPERTY()
 		EPsoType m_Psotype = EPsoType::PT_ForwardLit;
-
-		UPROPERTY()
-		std::map<std::string, ZMath::FColor3> m_ColorParameter;
-
-		UPROPERTY()
-		std::map<std::string, FFloatSlider> m_FloatSliderParameter;
 
 	private:
 		Ref<FPipelineStateObject> m_PipelineStateObject = nullptr;

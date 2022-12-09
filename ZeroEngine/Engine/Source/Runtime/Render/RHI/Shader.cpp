@@ -6,11 +6,44 @@ namespace Zero
 		m_ShaderBinderDesc(BinderDesc)
 		, m_ShaderDesc(Desc)
 	{
+		m_ShaderBinderDesc.MapCBBufferIndex();
 	}
 
 	FShader::FShader(const FShaderDesc& Desc)
 	: m_ShaderDesc(Desc)
 	{
+	}
+
+	void FShader::GenerateShaderDesc()
+	{
+		std::cout << "------------------------------------------\n";
+		for (auto Iter : m_CBVParams)
+		{
+			std::cout << std::format("Name : {0}\n", Iter.second.ResourceName);
+			std::cout << std::format("BindPoint : {0}\n", Iter.second.BindPoint);
+			FConstantBufferLayout ConstantBufferLayout;
+			ConstantBufferLayout.m_BufferName = Iter.second.ResourceName;
+			for (const FCBVariableItem& CBVariableItem : Iter.second.VariableList)
+			{
+				FBufferElement Element = { CBVariableItem.ShaderDataType, CBVariableItem.VariableName };
+				ConstantBufferLayout.m_Elements.push_back(Element);
+				std::cout << std::format("Element : {0}, {1}\n", int(Element.Type), Element.Name);
+			}
+			ConstantBufferLayout.m_BindPoint = Iter.first;
+			ConstantBufferLayout.CalculateOffsetsAndStride();
+			m_ShaderBinderDesc.m_ConstantBufferLayouts.push_back(ConstantBufferLayout);
+		}
+		
+		for (auto Iter : m_SRVParams)
+		{
+			FTextureTableElement TextureTableElement;
+			TextureTableElement.ResourceName = Iter.second.ResourceName;
+			TextureTableElement.Type = Iter.second.ShaderResourceType;
+			TextureTableElement.BindPoint = Iter.second.BindPoint;
+			m_ShaderBinderDesc.m_TextureBufferLayout.m_Elements.push_back(TextureTableElement);
+		}
+		std::cout << "------------------------------------------\n";
+		
 	}
 
 	void FShaderDefines::SetDefine(const std::string& Name, const std::string& Definition)

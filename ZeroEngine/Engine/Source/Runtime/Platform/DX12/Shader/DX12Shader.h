@@ -20,8 +20,10 @@ namespace Zero
 		virtual void CreateBinder();
 		virtual void Use() override;
 
+		
 		void GetShaderParameters(ComPtr<ID3DBlob> PassBlob, EShaderType ShaderType);
 	private:
+		void ParseCBVariable(ID3D12ShaderReflectionVariable* ReflectionVariable, std::vector<FCBVariableItem>& VariableList);
 		void GenerateInputLayout();
 		ComPtr<ID3DBlob> CompileShader(const std::wstring& Filename, const D3D_SHADER_MACRO* Defines, const std::string& Entrypoint, const std::string& Target);
 

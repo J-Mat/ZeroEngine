@@ -3,6 +3,7 @@
 #include "Core.h"
 #include "Actor.h"
 #include "Render/Moudule/MeshGenerator.h"
+#include "Render/RHI/ShaderData.h"
 #include "MeshActor.reflection.h"
 
 namespace Zero
@@ -21,7 +22,8 @@ namespace Zero
 		virtual void CommitToPipieline();
 		virtual void Tick();
 		virtual ZMath::FAABB GetAABB() override;
-
+		
+		void SetParameter(const std::string& ParameterName, EShaderDataType ShaderDataType, void* ValuePtr);
 
 	protected:
 		UMeshVertexComponent* m_MeshVertexComponent = nullptr;

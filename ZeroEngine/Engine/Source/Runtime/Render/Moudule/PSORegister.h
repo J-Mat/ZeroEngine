@@ -10,7 +10,6 @@ namespace Zero
 	{
 	public:
 		void RegisterDefaultPSO();
-		void RegisterSamplePSO();
 		void RegisterSkyboxPSO();
 	};
 }

@@ -10,19 +10,22 @@ namespace Zero
 	public:
 		FShaderBinderDesc() = default;
 		FShaderBinderDesc(
-			const std::vector<FConstantBufferLayout>& ConstantBufferLayouts,
+			std::vector<FConstantBufferLayout>& ConstantBufferLayouts,
 			FShaderResourceLayout& ShaderResourceLayout = FShaderResourceLayout(),
-			const std::vector<FComputeOutputLayout>& ComputeOutputLayouts = std::vector<FComputeOutputLayout>())
+			std::vector<FComputeOutputLayout>& ComputeOutputLayouts = std::vector<FComputeOutputLayout>())
 			: m_ConstantBufferLayouts(ConstantBufferLayouts)
 			, m_TextureBufferLayout(ShaderResourceLayout)
 			, m_ComputeOutputLayouts(ComputeOutputLayouts)
 		{
 		}
 		~FShaderBinderDesc() {};
+		const FConstantBufferLayout& GetConstantBufferLayoutByName (const std::string& ResourceName) const;
+		const FShaderResourceLayout& GetShaderResourceLayout() const { return m_TextureBufferLayout; }
 		size_t GetConstantBufferCount() const { return m_ConstantBufferLayouts.size(); }
 		std::vector<FConstantBufferLayout> m_ConstantBufferLayouts;
-		FShaderResourceLayout m_TextureBufferLayout;
+		FShaderResourceLayout m_TextureBufferLayout = FShaderResourceLayout();
 		std::vector<FComputeOutputLayout>  m_ComputeOutputLayouts;
+		void MapCBBufferIndex();
 	
 	public:
 		int32_t m_PerObjIndex = Utils::InvalidIndex;
@@ -151,8 +154,8 @@ namespace Zero
 	public:
 		IShaderBinder(FShaderBinderDesc& Desc);
 		virtual ~IShaderBinder() { m_ShaderConstantDescs.clear(); }
-		virtual void BindConstantsBuffer(uint32_t Slot, IShaderConstantsBuffer* Buffer) = 0;
-		virtual Ref<FShaderConstantsDesc> GetShaderConstantsDesc(uint32_t Slot) 
+		virtual void BindConstantsBuffer(int32_t Slot, IShaderConstantsBuffer* Buffer) = 0;
+		virtual Ref<FShaderConstantsDesc> GetShaderConstantsDesc(int32_t Slot) 
 		{ 
 			return Slot < m_ShaderConstantDescs.size() ? m_ShaderConstantDescs[Slot] : nullptr;
 		}

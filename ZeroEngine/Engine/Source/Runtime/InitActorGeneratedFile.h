@@ -24,9 +24,9 @@ namespace Zero
 		{
 			return World->CreateActorRaw<UCustomMeshActor>();
 		}
-		else if (ClassName == "ULightActor")
+		else if (ClassName == "UDirectLightActor")
 		{
-			return World->CreateActorRaw<ULightActor>();
+			return World->CreateActorRaw<UDirectLightActor>();
 		}
 		else if (ClassName == "UMeshActor")
 		{

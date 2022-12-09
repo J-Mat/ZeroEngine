@@ -18,7 +18,7 @@ namespace Zero
 			Type == "FTextureHandle" ||
 			Type == "FMaterialHandle" ||
 			Type == "std::filesystem::path" ||
-			Type == "FAssignedFile")
+			Type == "FShaderFileHandle")
 		{
 			std::string Str = *Property->GetData<std::string>();
 			Out << YAML::Key << "Value" << YAML::Value << Str;
@@ -126,7 +126,7 @@ namespace Zero
 			Type == "FTextureHandle" ||
 			Type == "FMaterialHandle" ||
 			Type == "std::filesystem::path" ||
-			Type == "FAssignedFile")
+			Type == "FShaderFileHandle")
 		{
 			std::string Str = PropertyNode["Value"].as<std::string>();
 			*((std::string*)PropertyData) = Str;
