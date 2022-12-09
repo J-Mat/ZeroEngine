@@ -10,7 +10,7 @@ namespace Zero
 		m_LightComponnet = CreateComponent<UDirectLightComponnet>(this);
 		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_OPAQUE);
 		GetComponent<UMeshRenderComponent>()->SetEnableMaterial(false);
-		GetComponent<UMeshRenderComponent>()->SetPsoType(EPsoType::PT_Light);
+		GetComponent<UMeshRenderComponent>()->SetPsoType(EPsoType::PT_DirectLight);
 	}
 
 	void UDirectLightActor::PostInit()

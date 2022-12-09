@@ -1,23 +1,9 @@
 #include "Common.hlsl"
 
-struct VertexIn
-{
-	float3 PosL    : POSITION;
-    float3 Normal  : NORMAL;
-	float3 Tangent : TANGENT;
-	float2 TexC    : TEXCOORD;
-};
 
-struct VertexOut
+cbuffer cbMaterial : register(b3)
 {
-	float4 PosH : SV_Position;
-	float2 TexC    : TEXCOORD;
-    float3 Normal  : NORMAL;
-};
-
-struct PixelOutput
-{
-    float4 BaseColor    : SV_TARGET0;
+	int DirectLightIndex;	
 };
 
 
@@ -40,7 +26,8 @@ PixelOutput PS(VertexOut Pin)
 {
 	PixelOutput Out;
 	//float3 diffuseAlbedo = gDiffuseMap.Sample(gSamAnisotropicWarp, pin.TexC);
-	Out.BaseColor = float4(DirectLights[0].Color * DirectLights[0].Intensity, 1.0f);
+	Out.BaseColor = float4(DirectLights[DirectLightIndex].Color * DirectLights[DirectLightIndex].Intensity, 1.0f);
+	//Out.BaseColor = float4(DirectLights[1].Color * DirectLights[1].Intensity, 1.0f);
 	//Out.BaseColor = float4(0.0f, 1.0f, 1.0f, 1.0f);
 	return Out;
 }

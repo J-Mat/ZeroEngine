@@ -1,6 +1,6 @@
 # ZeroEngine
 
-- [LearningDX12](https://github.com/J-Mat/ZeroEngine/tree/main/LearningDX12 "LearningDX12")  龙书源码，用cmake整合在一起， 方便自己看
+- [LearningDX12](https://github.com/J-Mat/ZeroEngine/tree/main/LearningDX12 "LearningDX12")  龙书源码，用cmake整合在一起， 方便自己�?
 - [ZeroEngine](https://github.com/J-Mat/ZeroEngine/tree/main/ZeroEngine "ZeroEngine") 自制玩具
 
 ## MileStone
@@ -58,3 +58,21 @@ FRenderer::GraphicFactroy->CreatePSO(PSO_SKYBOX, SkyboxPSODesc);
 ```
 
 ![1669541205789](image/README/1669541205789.png)
+
+### Shader Code Reflecion 2022-12-9 
+
+I just used **ID3D12ShaderReflection** to get shader code layout
+
+```cpp
+ID3D12ShaderReflection* Reflection = nullptr;
+D3DReflect(PassBlob->GetBufferPointer(), PassBlob->GetBufferSize(), IID_ID3D12ShaderReflection, (void**)&Reflection);
+
+D3D12_SHADER_DESC D3DShaderDesc;
+Reflection->GetDesc(&D3DShaderDesc);
+```
+
+Afert getting the buffer and resource layout, take these info to cpp, and make these reflected to UI panel through code reflection in cpp. So we can edit the parameters easily.
+
+| Shader Code                                                                                        | UI                                             |
+| -------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| ![1670598404551](image/README/1670598404551.png)<br />![1670598425336](image/README/1670598425336.png) | ![1670597913021](image/README/1670597913021.png) |

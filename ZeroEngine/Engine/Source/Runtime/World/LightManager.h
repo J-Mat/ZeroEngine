@@ -17,6 +17,7 @@ namespace Zero
 		std::vector<UDirectLightActor*> m_DirectLights;
 		std::vector<UPointLightActor*> m_PointLights;
 		std::vector<std::string> m_DirectLightProperties;
+		std::vector<std::string> m_PointLightProperties;
 	};
 
 }

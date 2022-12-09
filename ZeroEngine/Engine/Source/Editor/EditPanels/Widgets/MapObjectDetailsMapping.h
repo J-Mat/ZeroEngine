@@ -10,7 +10,7 @@ namespace Zero
 	public:
 		static Ref<FVariableDetailsMapping> MakeDetailMapping() { return CreateRef<FMapObjectDetailsMapping>(); }
 	private:
-		void UpdateWidget(UProperty* KeyProperty);
+		void UpdateWidget(UMapProperty* MapProperty, UProperty* KeyProperty);
 		virtual void UpdateDetailsWidgetImpl(UProperty* Property, const char* ProperyTag) override;
 	};
 }

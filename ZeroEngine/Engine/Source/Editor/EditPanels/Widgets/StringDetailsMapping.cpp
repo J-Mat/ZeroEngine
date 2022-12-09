@@ -7,7 +7,7 @@ namespace Zero
 		static char Buffer[256] = {0};
 		std::string& Tag = *Property->GetData<std::string>();
 		strcpy_s(Buffer, sizeof(Buffer), Tag.c_str());
-		if (Property->GetClassCollection().HasField("Disable"))
+		if (Property->GetClassCollection().HasField("UnEditabe"))
 		{
 			ImGui::TextDisabled(Buffer);
 			m_bEdited = false;

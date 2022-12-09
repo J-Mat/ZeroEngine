@@ -7,38 +7,43 @@ namespace Zero
 	void FMapObjectDetailsMapping::UpdateDetailsWidgetImpl(UProperty* Property, const char* ProperyTag)
 	{
 		UMapProperty* MapProperty = static_cast<UMapProperty*>(Property);
+		ImGui::SetNextItemOpen(true, ImGuiCond_Always);
 		if (ImGui::TreeNode(MapProperty->GetEditorPropertyName(), "%s", MapProperty->GetEditorPropertyName()))
 		{
-			if (ImGui::Button("+"))
+			if (!MapProperty->GetClassCollection().HasField("KeyUnEditable") && ImGui::Button("+"))
 			{
 				MapProperty->AddItem();
 				m_bEdited = true;
 			}
 
 			ImGui::SameLine();
-			if (ImGui::Button("-"))
+			if (!MapProperty->GetClassCollection().HasField("KeyUnEditable") && ImGui::Button("-"))
 			{
 				MapProperty->RemoveTailItem();
 				m_bEdited = true;
 			}
 
 			ImGui::SameLine();
-			if (ImGui::Button("-all"))
+			if (!MapProperty->GetClassCollection().HasField("KeyUnEditable") && ImGui::Button("-all"))
 			{
 				MapProperty->RemoveAllItem();
 				m_bEdited = true;
 			}
 
-			UpdateWidget(Property->GetClassCollection().HeadProperty);
+			UpdateWidget(MapProperty, Property->GetClassCollection().HeadProperty);
 
 			ImGui::TreePop();
 		}
 	}
 
-	void FMapObjectDetailsMapping::UpdateWidget(UProperty* KeyProperty)
+	void FMapObjectDetailsMapping::UpdateWidget(UMapProperty* MapProperty, UProperty* KeyProperty)
 	{
 		while (KeyProperty != nullptr)
 		{
+			if (MapProperty->GetClassCollection().HasField("KeyUnEditable"))
+			{
+				KeyProperty->GetClassCollection().AddField("UnEditabe");
+			}
 			UProperty* ValueProperty = dynamic_cast<UProperty*>(KeyProperty->Next);
 			Ref<FVariableDetailsMapping> VariableDetailsMapping = FDetailMappingManager::GetInstance().FindPropertyMapping(KeyProperty->GetPropertyType());
 			if (VariableDetailsMapping != nullptr)

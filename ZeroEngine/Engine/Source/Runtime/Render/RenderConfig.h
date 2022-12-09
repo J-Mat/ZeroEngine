@@ -12,7 +12,8 @@ namespace Zero
 	#define RENDER_STAGE_FORWARD "ForwardLit"
 
 	#define PSO_FORWARDLIT "ForwardLit"
-	#define PSO_LIGHT "Light"
+	#define PSO_DIRECT_LIGHT "DirectLight"
+	#define PSO_POINT_LIGHT "PointLight"
 	#define PSO_SKYBOX "SkyBox"
 	#define PSO_FRESNEL "Fresnel"
 	#define PSO_NDF "NDF"

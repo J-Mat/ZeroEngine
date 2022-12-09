@@ -57,7 +57,20 @@ namespace Zero
 			{EShaderDataType::Float, "DirectLights[3].Padle"},
 			{EShaderDataType::Mat4, "DirectLights[3].ProjView"},
 
-			//{EShaderDataType::Int,  "DirectLightNum"},
+			{EShaderDataType::Float3,  "PointLights[0].Color"},
+			{EShaderDataType::Float, "PointLights[0].Intensity"},
+
+			{EShaderDataType::Float3,  "PointLights[1].Color"},
+			{EShaderDataType::Float, "PointLights[1].Intensity"},
+
+			{EShaderDataType::Float3,  "PointLights[2].Color"},
+			{EShaderDataType::Float, "PointLights[2].Intensity"},
+
+			{EShaderDataType::Float3,  "PointLights[3].Color"},
+			{EShaderDataType::Float, "PointLights[3].Intensity"},
+
+			{EShaderDataType::Int,  "DirectLightNum"},
+			{EShaderDataType::Int,  "PointLightNum"},
 		}
 	};
 }

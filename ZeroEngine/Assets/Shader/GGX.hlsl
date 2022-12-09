@@ -1,55 +1,8 @@
 
-struct FDirectLight
-{
-    float3 Color;
-    float Intensity;
-    float4x4 ProjView;
-    float3 Direction;
-};
-
-
-cbuffer cbPerObject : register(b0)
-{
-    float4x4 Model;
-}
-
-cbuffer cbCameraObject : register(b1)
-{
-    float4x4 View;
-    float4x4 Projection;
-    float4x4 ProjectionView;
-    float3 ViewPos;
-}
-
-cbuffer cbMaterial : register(b2)
+#include "Common.hlsl"
+cbuffer cbMaterial : register(b3)
 {
 	float Rougness;
-};
-
-cbuffer cbConstant : register(b3)
-{
-    FDirectLight DirectLights[4];
-    int DirectLightNum;
-};
-
-struct VertexIn
-{
-	float3 PosL    : POSITION;
-    float3 Normal  : NORMAL;
-	float3 Tangent : TANGENT;
-	float2 TexC    : TEXCOORD;
-};
-
-struct VertexOut
-{
-	float4 PosH : SV_Position;
-    float3 Normal  : NORMAL;
-	float3 WorldPos : POSITION;
-};
-
-struct PixelOutput
-{
-    float4 BaseColor    : SV_TARGET0;
 };
 
 

@@ -8,12 +8,43 @@ SamplerState gSamLinearClamp : register(s3);
 SamplerState gSamAnisotropicWarp : register(s4);
 SamplerState gSamAnisotropicClamp : register(s5);
 
+
+Texture2D gDiffuseMap: register(t0);
+TextureCube gSkyboxMap : register(t1);
+struct VertexIn
+{
+	float3 PosL    : POSITION;
+    float3 Normal  : NORMAL;
+	float3 Tangent : TANGENT;
+	float2 TexC    : TEXCOORD;
+};
+
+struct VertexOut
+{
+	float4 PosH : SV_Position;
+	float2 TexC    : TEXCOORD;
+    float3 Normal  : NORMAL;
+	float3 WorldPos : POSITION;
+};
+
+struct PixelOutput
+{
+    float4 BaseColor    : SV_TARGET0;
+};
+
 struct FDirectLight
 {
     float3 Color;
     float Intensity;
-    float4x4 ProjView;
     float3 Direction;
+    float Padle;
+    float4x4 ProjView;
+};
+
+struct FPointLight
+{
+    float3 Color;
+    float Intensity;
 };
 
 
@@ -38,19 +69,15 @@ cbuffer cbCameraObject : register(b1)
     float3 ViewPos;
 }
 
-cbuffer cbMaterial : register(b2)
-{
-    float4 Base;
-};
 
-cbuffer cbConstant : register(b3)
+cbuffer cbConstant : register(b2)
 {
     FDirectLight DirectLights[4];
+    FPointLight PointLights[4];
     int DirectLightNum;
+    int PointLightNum;
 };
 
-Texture2D gDiffuseMap: register(t0);
-TextureCube gSkyboxMap : register(t1);
 
 //#include "LightUtil.hlsl"
 

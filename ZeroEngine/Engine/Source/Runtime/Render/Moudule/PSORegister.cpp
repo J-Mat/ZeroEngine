@@ -15,9 +15,13 @@ namespace Zero
 		ForwadLitDesc.Shader = FRenderer::GraphicFactroy->CreateShader("Shader\\ForwardLit.hlsl", ShaderDesc);
 		FRenderer::GraphicFactroy->CreatePSO(PSO_FORWARDLIT, ForwadLitDesc);
 
-		FPSODescriptor LightDesc;
-		LightDesc.Shader = FRenderer::GraphicFactroy->CreateShader("Shader\\DirectLight.hlsl", ShaderDesc);
-		FRenderer::GraphicFactroy->CreatePSO(PSO_LIGHT, LightDesc);
+		FPSODescriptor DirectLightDesc;
+		DirectLightDesc.Shader = FRenderer::GraphicFactroy->CreateShader("Shader\\DirectLight.hlsl", ShaderDesc);
+		FRenderer::GraphicFactroy->CreatePSO(PSO_DIRECT_LIGHT, DirectLightDesc);
+
+		FPSODescriptor PointLightDesc;
+		PointLightDesc.Shader = FRenderer::GraphicFactroy->CreateShader("Shader\\PointLight.hlsl", ShaderDesc);
+		FRenderer::GraphicFactroy->CreatePSO(PSO_POINT_LIGHT, PointLightDesc);
 
 		FPSODescriptor GGXDesc;
 		GGXDesc.Shader = FRenderer::GraphicFactroy->CreateShader("Shader\\GGX.hlsl", ShaderDesc);

@@ -19,15 +19,15 @@ cbuffer cbCameraObject : register(b1)
 	float4x4 ProjectionView;
 }
 
-cbuffer cbMaterial : register(b2)
-{
-	float4 Base;
-};
 
-
-cbuffer cbConstBuffer : register(b3)
+cbuffer cbConstBuffer : register(b2)
 {
 	float4 Color;
+};
+
+cbuffer cbMaterial : register(b3)
+{
+	float4 Base;
 };
 
 struct VertexIn

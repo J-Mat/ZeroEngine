@@ -15,7 +15,10 @@ namespace Zero
 		PT_Skybox,
 
 		UPROPERTY(Invisible)
-		PT_Light,
+		PT_DirectLight,
+
+		UPROPERTY(Invisible)
+		PT_PointLight,
 
 		UPROPERTY()
 		PT_ForwardLit,
@@ -60,6 +63,17 @@ namespace Zero
 
 		UPROPERTY()
 		EPsoType m_Psotype = EPsoType::PT_ForwardLit;
+
+
+	public:
+		UPROPERTY(Format = hlsl)
+		FShaderFileHandle m_ShaderFile = "Shader/ForwardLit.hlsl";
+
+		UPROPERTY(Fixed, KeyUnEditable)
+		std::map<std::string, FTextureHandle> m_Textures;
+
+		UPROPERTY(Fixed, KeyUnEditable)
+		std::map<std::string, FFloatSlider> m_Floats;
 
 	private:
 		Ref<FPipelineStateObject> m_PipelineStateObject = nullptr;

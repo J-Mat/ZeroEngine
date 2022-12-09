@@ -102,7 +102,10 @@ namespace Zero
 
 	void FMaterial::SetFloat(const std::string& Name, const float& Value)
 	{
-		m_MaterialBuffer->SetFloat(Name, Value);
+		if (m_MaterialBuffer != nullptr)
+		{
+			m_MaterialBuffer->SetFloat(Name, Value);
+		}
 	}
 
 	void FMaterial::SetFloatPtr(const std::string& Name, void* Value)
@@ -150,7 +153,10 @@ namespace Zero
 
 	void FMaterial::SetTexture2D(const std::string& Name, Ref<FTexture2D> Texture)
 	{
-		m_ResourcesBuffer->SetTexture2D(Name, Texture);
+		if (m_ResourcesBuffer != nullptr)
+		{
+			m_ResourcesBuffer->SetTexture2D(Name, Texture);
+		}
 	}
 
 	void FMaterial::SetTextureCubemap(const std::string& Name, Ref<FTextureCubemap> Texture)

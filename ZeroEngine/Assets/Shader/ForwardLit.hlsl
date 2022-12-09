@@ -1,26 +1,9 @@
 #include "Common.hlsl"
 
-struct VertexIn
+cbuffer cbMaterial : register(b3)
 {
-	float3 PosL    : POSITION;
-    float3 Normal  : NORMAL;
-	float3 Tangent : TANGENT;
-	float2 TexC    : TEXCOORD;
+    float test;
 };
-
-struct VertexOut
-{
-	float4 PosH : SV_Position;
-	float2 TexC    : TEXCOORD;
-    float3 Normal  : NORMAL;
-	float3 WorldPos : POSITION;
-};
-
-struct PixelOutput
-{
-    float4 BaseColor    : SV_TARGET0;
-};
-
 
 VertexOut VS(VertexIn vin)
 {
@@ -52,7 +35,8 @@ PixelOutput PS(VertexOut Pin)
 	float z = clamp(Pin.WorldPos.z, -1.0f, 1.0f);
 	float3 test = float3(x,y,z);
 	//Out.BaseColor = gSkyboxMap.Sample(gSamLinearClamp, float3(x, y, z));
- //	Out.BaseColor = float4(DiffuseAlbedo.xyz, 1.0f);
-	Out.BaseColor = float4(DirectLights[0].Color, 1.0f);
+ 	//Out.BaseColor = float4(DiffuseAlbedo.xyz, 1.0f);
+	//Out.BaseColor = float4(DirectLights[0].Color, 1.0f);
+	Out.BaseColor = float4(1.0f, 0.0f, 0.0f, 1.0f);
 	return Out;
 }

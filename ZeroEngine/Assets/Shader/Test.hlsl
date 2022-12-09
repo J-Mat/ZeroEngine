@@ -1,26 +1,9 @@
 #include "Common.hlsl"
 
-struct VertexIn
+cbuffer cbMaterial : register(b3)
 {
-	float3 PosL    : POSITION;
-    float3 Normal  : NORMAL;
-	float3 Tangent : TANGENT;
-	float2 TexC    : TEXCOORD;
+	float Rougness;
 };
-
-struct VertexOut
-{
-	float4 PosH : SV_Position;
-	float2 TexC    : TEXCOORD;
-    float3 Normal  : NORMAL;
-	float3 WorldPos : POSITION;
-};
-
-struct PixelOutput
-{
-    float4 BaseColor    : SV_TARGET0;
-};
-
 
 VertexOut VS(VertexIn vin)
 {
