@@ -1,7 +1,7 @@
 # ZeroEngine
 
-- [LearningDX12](https://github.com/J-Mat/ZeroEngine/tree/main/LearningDX12 "LearningDX12")  榫欎功婧愮爜锛岀敤cmake鏁村悎鍦ㄤ竴璧凤紝 鏂逛究鑷繁鐪?
-- [ZeroEngine](https://github.com/J-Mat/ZeroEngine/tree/main/ZeroEngine "ZeroEngine") 鑷埗鐜╁叿
+- [LearningDX12](https://github.com/J-Mat/ZeroEngine/tree/main/LearningDX12 "LearningDX12")  龙书代码，用cmake整理在一起
+- [ZeroEngine](https://github.com/J-Mat/ZeroEngine/tree/main/ZeroEngine "ZeroEngine") 基于DX12
 
 ## MileStone
 
@@ -59,7 +59,7 @@ FRenderer::GraphicFactroy->CreatePSO(PSO_SKYBOX, SkyboxPSODesc);
 
 ![1669541205789](image/README/1669541205789.png)
 
-### Shader Code Reflecion 2022-12-9 
+### Shader Code Reflecion 2022-12-9
 
 I just used **ID3D12ShaderReflection** to get shader code layout
 
@@ -75,4 +75,4 @@ Afert getting the buffer and resource layout, take these info to cpp, and make t
 
 | Shader Code                                                                                        | UI                                             |
 | -------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| ![1670598404551](image/README/1670598404551.png)<br />![1670598425336](image/README/1670598425336.png) | ![1670597913021](image/README/1670597913021.png) |
+| ![1670598404551](image/README/1670598404551.png)<br />![1670598425336](image/README/1670598425336.png) | ![1670599123303](image/README/1670599123303.png) |
