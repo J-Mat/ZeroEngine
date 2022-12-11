@@ -1,5 +1,6 @@
 
 #include "Common.hlsl"
+#include "LightUtil.hlsl"
 cbuffer cbMaterial : register(b3)
 {
 	float Rougness;
@@ -20,28 +21,6 @@ VertexOut VS(VertexIn vin)
 
 	return Vout;
 };
-
-
-float GeometrySchlickGGX(float NdotV, float roughness)
-{
-    float r = (roughness + 1.0);
-    float k = (r*r) / 8.0;
-
-    float nom   = NdotV;
-    float denom = NdotV * (1.0 - k) + k;
-
-    return nom / denom;
-}
-
-float GeometrySmith(float3 N, float3 V, float3 L, float k)
-{
-    float NdotV = max(dot(N, V), 0.0);
-    float NdotL = max(dot(N, L), 0.0);
-    float ggx1 = GeometrySchlickGGX(NdotV, k);
-    float ggx2 = GeometrySchlickGGX(NdotL, k);
-	
-    return ggx1 * ggx2;
-}
 
 
 PixelOutput PS(VertexOut Pin)

@@ -1,4 +1,13 @@
 #include "Common.hlsl"											
+#include "LightUtil.hlsl"
+
+cbuffer cbMaterial : register(b3)
+{
+	float Fresnel_1;
+	float Fresnel_2;
+	float Fresnel_3;
+};
+
 
 VertexOut VS(VertexIn vin)
 {
@@ -16,21 +25,17 @@ VertexOut VS(VertexIn vin)
 };
 
 
-float3 SchlickFresnel(float3 F0, float3 Normal, float3 LightVec)
-{
-    float CosTheta = saturate(dot(Normal, LightVec));
-    return F0 + (float3(1.0f, 1.0f, 1.0f) - F0) * pow(1.0f - CosTheta, 5.0f);
-}
-
 PixelOutput PS(VertexOut Pin)
 {
 	PixelOutput Out;
+	float3 N = normalize(Pin.Normal);
+	float3 V = normalize(ViewPos - Pin.WorldPos);
 	float3 LightColor = DirectLights[0].Color * DirectLights[0].Intensity;
 	float3 LightVec = -DirectLights[0].Direction;
 	float NdotL = saturate(dot(Pin.Normal, LightVec));
 
-	//float3 Fresnel = float3(Fresnel_1, Fresnel_2, Fresnel_3);
-	//float3 Color = 	SchlickFresnel(Fresnel, Pin.Normal, LightVec);
-	Out.BaseColor = float4(float3(NdotL, NdotL, NdotL), 1.0f);
+	float3 Fresnel = float3(Fresnel_1, Fresnel_2, Fresnel_3);
+	float F = FresnelSchlick(max(dot(N, V), 0.0f), Fresnel);
+	Out.BaseColor = float4(float3(F, F, F), 1.0f);
 	return Out;
 }

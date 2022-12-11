@@ -1,65 +1,63 @@
 #ifndef LIGHT_HLSL
 #define LIGHT_HLSL
 
-#define MaxDirectLights 4
+#define PI 3.14159265359
 
-// Schlick gives an approximation to Fresnel reflectance (see pg. 233 "Real-Time Rendering 3rd Ed.").
-// R0 = ( (n-1)/(n+1) )^2, where n is the index of refraction.
-float3 SchlickFresnel(float3 R0, float3 Normal, float3 LightVec)
+float3 FresnelSchlick(float CosTheta, float3 F0)
 {
-    float CosIncidentAngle = saturate(dot(Normal, LightVec));
-
-    float F0 = 1.0f - CosIncidentAngle;
-    float3 ReflectPercent = R0 + (1.0f - R0)*(F0*F0*F0*F0*F0);
-
-    return ReflectPercent;
+    return F0 + (1.0f - F0) * pow(clamp(1.0f - CosTheta, 0.0f, 1.0f), 5.0f);
 }
 
-
-float3 BlinnPhong(float3 LightIntensity, float3 LightVec, float3 Normal, float3 ToEye, FMaterial Mat)
+float DistributionGGX(float3 N, float3 H, float a)
 {
-    const float m = Mat.Shininess * 256.0f;
-    float3 HalfVec = normalize(ToEye + LightVec);
+	float a2 = a * a;
+	float NdotH = max(dot(N, H), 0.0f);
+	float NdotH2 = NdotH * NdotH;
 
-    float RoughnessFactor = (m + 8.0f)*pow(max(dot(HalfVec, Normal), 0.0f), m) / 8.0f;
-    float3 FresnelFactor = SchlickFresnel(Mat.FresnelR0, HalfVec, LightVec);
-
-    float3 SpecAlbedo = FresnelFactor * RoughnessFactor;
-
-    // Our spec formula goes outside [0,1] range, but we are 
-    // doing LDR rendering.  So scale it down a bit.
-    SpecAlbedo = SpecAlbedo / (SpecAlbedo + 1.0f);
-
-    return (Mat.DiffuseAlbedo.rgb + SpecAlbedo) * LightIntensity;
+	float nom = a2;	
+	float denom = (NdotH2 * (a2 - 1.0f) + 1.0f);
+	denom = PI * denom * denom;
+	
+	return nom / denom;
 }
 
-
-float3 ComputeDirectionalLight(FDirectLight Light, FMaterial Mat, float3 Normal, float3 ToEye)
+float GeometrySchlickGGX(float NdotV, float roughness)
 {
-    // The light vector aims opposite the direction the light rays travel.
-    float3 LightVec = -Light.Direction;
+    float r = (roughness + 1.0);
+    float k = (r*r) / 8.0;
 
-    // Scale light down by Lambert's cosine law.
-    float NdotL = max(dot(LightVec, Normal), 0.0f);
-    float3 LightIntensity = Light.Intensity * NdotL;
+    float nom   = NdotV;
+    float denom = NdotV * (1.0 - k) + k;
 
-    return BlinnPhong(LightIntensity, LightVec, Normal, ToEye, Mat);
+    return nom / denom;
 }
 
+float GeometrySmith(float3 N, float3 V, float3 L, float k)
+{
+    float NdotV = max(dot(N, V), 0.0);
+    float NdotL = max(dot(N, L), 0.0);
+    float ggx1 = GeometrySchlickGGX(NdotV, k);
+    float ggx2 = GeometrySchlickGGX(NdotL, k);
+	
+    return ggx1 * ggx2;
+}
 
-float4 ComputeLighting(FDirectLight gLights[MaxDirectLights], FMaterial Mat,
-                       float3 WorldPos, float3 Normal, float3 ToEye,
-                       float3 ShadowFactor)
-{	
-	float3 Result = 0.0f;
+float3 NormalSampleToWorldSpace(float3 NormalMapSample, float3 UnitNormalW, float3 TangentW)
+{
+	// Uncompress each component from [0,1] to [-1,1].
+	float3 NormalT = 2.0f * NormalMapSample - 1.0f;
 
-    int i;
-    for(i = 0; i < 4; ++i)
-    {
-        Result += ShadowFactor * ComputeDirectionalLight(gLights[i], Mat, Normal, ToEye);
-    }
+	// Build orthonormal basis.
+	float3 N = UnitNormalW;
+	float3 T = normalize(TangentW - dot(TangentW, N)*N);
+	float3 B = cross(N, T);
 
-	return float4(Result, 0.0f);
+	float3x3 TBN = float3x3(T, B, N);
+
+	// Transform from tangent space to world space.
+	float3 BumpedNormalW = mul(NormalT, TBN);
+
+	return normalize(BumpedNormalW);
 }
 
 #endif

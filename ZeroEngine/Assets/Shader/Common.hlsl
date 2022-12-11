@@ -10,7 +10,12 @@ SamplerState gSamAnisotropicClamp : register(s5);
 
 
 Texture2D gDiffuseMap: register(t0);
-TextureCube gSkyboxMap : register(t1);
+Texture2D gNormalMap: register(t1);
+Texture2D gMetallicMap: register(t2);
+Texture2D gRoughnessMap: register(t3);
+Texture2D gAOMap: register(t4);
+TextureCube gSkyboxMap : register(t5);
+
 struct VertexIn
 {
 	float3 PosL    : POSITION;
@@ -24,6 +29,7 @@ struct VertexOut
 	float4 PosH : SV_Position;
 	float2 TexC    : TEXCOORD;
     float3 Normal  : NORMAL;
+	float3 Tangent : TANGENT;
 	float3 WorldPos : POSITION;
 };
 
@@ -37,7 +43,7 @@ struct FDirectLight
     float3 Color;
     float Intensity;
     float3 Direction;
-    float Padle;
+    float Blank;
     float4x4 ProjView;
 };
 
@@ -45,6 +51,8 @@ struct FPointLight
 {
     float3 Color;
     float Intensity;
+    float3 LightPos;
+    float Blank;
 };
 
 
@@ -78,7 +86,5 @@ cbuffer cbConstant : register(b2)
     int PointLightNum;
 };
 
-
-//#include "LightUtil.hlsl"
 
 #endif
