@@ -9,7 +9,7 @@ namespace  Zero
 	FLightManager::FLightManager()
 	{
 		m_DirectLightProperties = {"Color", "Intensity", "Direction", "ProjView" };
-		m_PointLightProperties = {"Color", "Intensity"};
+		m_PointLightProperties = {"Color", "Intensity", "LightPos"};
 	}
 
 	void FLightManager::AddDirectLight(UDirectLightActor* Light)
@@ -31,12 +31,12 @@ namespace  Zero
 	void FLightManager::Tick()
 	{
 		auto& Buffer = FFrameConstantsManager::GetInstance().GetShaderConstantBuffer();
+		Buffer->SetInt("DirectLightNum", int(m_DirectLights.size()));
 		for (int32_t i = 0; i < m_DirectLights.size(); ++i)
 		{
 			auto* LightActor = m_DirectLights[i];
 			LightActor->SetParameter("DirectLightIndex", EShaderDataType::Int, &i);
 			UDirectLightComponnet*  DirectLightComponent =  LightActor->GetComponent<UDirectLightComponnet>();
-			Buffer->SetInt("DirectLightNum", int(m_DirectLights.size()));
 			UTransformComponent* TransformComponent = LightActor->GetComponent<UTransformComponent>();
 			uint32_t PropertyIndex = 0;
 
@@ -53,12 +53,12 @@ namespace  Zero
 			Buffer->SetMatrix4x4(PropertyStr, DirectLightComponent->GetViewProject());
 		}
 
+		Buffer->SetInt("PointLightNum", int(m_PointLights.size()));
 		for (int32_t i = 0; i < m_PointLights.size(); ++i)
 		{
 			auto* LightActor = m_PointLights[i];
 			LightActor->SetParameter("PointLightIndex", EShaderDataType::Int, &i);
 			UPointLightComponnet*  DirectLightComponent =  LightActor->GetComponent<UPointLightComponnet>();
-			Buffer->SetInt("PointLightNum", int(m_PointLights.size()));
 			UTransformComponent* TransformComponent = LightActor->GetComponent<UTransformComponent>();
 			uint32_t PropertyIndex = 0;
 
@@ -67,6 +67,9 @@ namespace  Zero
 
 			PropertyStr = std::format("PointLights[{0}].{1}", i, m_PointLightProperties[PropertyIndex++]);
 			Buffer->SetFloat(PropertyStr, DirectLightComponent->GetLightIntensity());
+
+			PropertyStr = std::format("PointLights[{0}].{1}", i, m_PointLightProperties[PropertyIndex++]);
+			Buffer->SetFloat3(PropertyStr, TransformComponent->GetPosition());
 		}
 	}
 }

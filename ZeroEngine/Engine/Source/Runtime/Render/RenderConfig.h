@@ -11,7 +11,7 @@ namespace Zero
 	#define RENDER_STAGE_SKYBOX "SkyBox"
 	#define RENDER_STAGE_FORWARD "ForwardLit"
 
-	#define PSO_FORWARDLIT "ForwardLit"
+	#define PSO_FORWARDLIT "Shader\\ForwardLit.hlsl"
 	#define PSO_DIRECT_LIGHT "DirectLight"
 	#define PSO_POINT_LIGHT "PointLight"
 	#define PSO_SKYBOX "SkyBox"

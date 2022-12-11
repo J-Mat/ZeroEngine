@@ -30,6 +30,14 @@ namespace Zero
 		FPSODescriptor NDFDesc;
 		NDFDesc.Shader = FRenderer::GraphicFactroy->CreateShader("Shader\\NDF.hlsl", ShaderDesc);
 		FRenderer::GraphicFactroy->CreatePSO("Shader\\NDF.hlsl", NDFDesc);
+
+		FPSODescriptor LightingDesc;
+		LightingDesc.Shader = FRenderer::GraphicFactroy->CreateShader("Shader\\Lighting.hlsl", ShaderDesc);
+		FRenderer::GraphicFactroy->CreatePSO("Shader\\Lighting.hlsl", LightingDesc);
+
+		FPSODescriptor PBRTextureDesc;
+		PBRTextureDesc.Shader = FRenderer::GraphicFactroy->CreateShader("Shader\\PBR_Texture.hlsl", ShaderDesc);
+		FRenderer::GraphicFactroy->CreatePSO("Shader\\PBR_Texture.hlsl", PBRTextureDesc);
 	}
 
 	void FPSORegister::RegisterSkyboxPSO()

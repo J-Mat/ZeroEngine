@@ -108,13 +108,8 @@ namespace Zero
 
 		if (Property->GetPropertyName() == "m_ShaderFile")
 		{
-			Ref<FShader> Shader = TLibrary<FShader>::Fetch(m_ShaderFile);
-			CORE_ASSERT(Shader != nullptr, "Shader must be valid!");
-			const FShaderBinderDesc& ShaderBinderDesc = Shader->GetBinder()->GetBinderDesc();
-			if (Shader != nullptr && GetPipelineStateObject()->GetPSODescriptor().Shader != Shader)
-			{
-				m_PipelineStateObject = TLibrary<FPipelineStateObject>::Fetch(m_ShaderFile);
-			}
+			AttachPso();
+			const FShaderBinderDesc& ShaderBinderDesc = m_PipelineStateObject->GetPSODescriptor().Shader->GetBinder()->GetBinderDesc();
 			{
 				UProperty* FloatProperty = GetClassCollection().FindProperty("m_Floats");
 				UMapProperty* MapFloatProperty = dynamic_cast<UMapProperty*>(FloatProperty);
@@ -122,22 +117,24 @@ namespace Zero
 				if (MaterialBindPoint >= 0 && MapFloatProperty != nullptr)
 				{
 					MapFloatProperty->RemoveAllItem();
-					const FConstantBufferLayout& Layout = ShaderBinderDesc.GetConstantBufferLayoutByName("cbMaterial");
-					const std::vector<FBufferElement>& Elements = Layout.GetElements();
-					for (const auto& Element : Elements)
+					if (ShaderBinderDesc.m_MaterialIndex >= 0)
 					{
-						if (Element.Type == EShaderDataType::Float)
+						const FConstantBufferLayout& Layout = ShaderBinderDesc.GetConstantBufferLayoutByName("cbMaterial");
+						const std::vector<FBufferElement>& Elements = Layout.GetElements();
+						for (const auto& Element : Elements)
 						{
-							UProperty* KeyProprety = MapFloatProperty->AddItem();
-							UProperty* ValueProperty = dynamic_cast<UProperty*>(KeyProprety->Next);
-							std::string* KeyPtr = KeyProprety->GetData<std::string>();
-							*KeyPtr = Element.Name;
+							if (Element.Type == EShaderDataType::Float)
+							{
+								UProperty* KeyProprety = MapFloatProperty->AddItem();
+								UProperty* ValueProperty = dynamic_cast<UProperty*>(KeyProprety->Next);
+								std::string* KeyPtr = KeyProprety->GetData<std::string>();
+								*KeyPtr = Element.Name;
+							}
 						}
+						UpdateEditorContainerPropertyDetails(FloatProperty);
 					}
-					UpdateEditorContainerPropertyDetails(FloatProperty);
 				}
 			}
-
 			{
 				UProperty* TextureProperty = GetClassCollection().FindProperty("m_Textures");
 				UMapProperty* MapTextureProperty = dynamic_cast<UMapProperty*>(TextureProperty);
@@ -159,12 +156,55 @@ namespace Zero
 					UpdateEditorContainerPropertyDetails(TextureProperty);
 				}
 			}
+			{
+				UProperty* ColorProperty = GetClassCollection().FindProperty("m_Colors");
+				UMapProperty* MapColorProperty = dynamic_cast<UMapProperty*>(ColorProperty);
+				if (MapColorProperty != nullptr)
+				{
+					MapColorProperty->RemoveAllItem();
+					if (ShaderBinderDesc.m_MaterialIndex >= 0)
+					{
+						const FConstantBufferLayout& Layout = ShaderBinderDesc.GetConstantBufferLayoutByName("cbMaterial");
+						const std::vector<FBufferElement>& Elements = Layout.GetElements();
+						for (const auto& Element : Elements)
+						{
+							if (Element.Type == EShaderDataType::Float3 || Element.Type == EShaderDataType::RGB)
+							{
+								UProperty* KeyProprety = MapColorProperty->AddItem();
+								UProperty* ValueProperty = dynamic_cast<UProperty*>(KeyProprety->Next);
+								std::string* KeyPtr = KeyProprety->GetData<std::string>();
+								*KeyPtr = Element.Name;
+							}
+						}
+						UpdateEditorContainerPropertyDetails(ColorProperty);
+					}
+				}
+			}
 			AttachParameters();
 		}
-		if (Property->GetPropertyName() == "m_Floats" || Property->GetPropertyName() == "m_Textures")
+		if (Property->GetPropertyName() == "m_Floats" || Property->GetPropertyName() == "m_Textures" || Property->GetPropertyName() == "m_Colors")
 		{
 			AttachParameters();
 		}
+	}
+
+	void UMeshRenderComponent::AttachPso()
+	{
+		if (m_ShaderFile != "")
+		{
+			Ref<FShader> Shader = TLibrary<FShader>::Fetch(m_ShaderFile);
+			CORE_ASSERT(Shader != nullptr, "Shader must be valid!");
+			//const FShaderBinderDesc& ShaderBinderDesc = Shader->GetBinder()->GetBinderDesc();
+			if (m_PipelineStateObject == nullptr || (Shader != nullptr && GetPipelineStateObject()->GetPSODescriptor().Shader != Shader))
+			{
+				m_PipelineStateObject = TLibrary<FPipelineStateObject>::Fetch(m_ShaderFile);
+			}
+		}
+		else
+		{
+			m_PipelineStateObject = TLibrary<FPipelineStateObject>::Fetch(PSO_FORWARDLIT);
+		}
+	
 	}
 
 	void UMeshRenderComponent::AttachParameters()
@@ -207,7 +247,6 @@ namespace Zero
 					{
 						CurLayerMaterials[i]->SetFloat(Iter.first, Iter.second.Value);
 					}
-
 				}
 			}
 		}
@@ -242,6 +281,11 @@ namespace Zero
 						CurLayerMaterials[i]->SetFloat(Iter.first, Iter.second.Value);
 					}
 
+					for (auto Iter : m_Colors)
+					{
+						CurLayerMaterials[i]->SetFloat3(Iter.first, Iter.second);
+					}
+
 				}
 			}
 		}
@@ -254,7 +298,7 @@ namespace Zero
 			m_PipelineStateObject = TLibrary<FPipelineStateObject>::Fetch(PSO_SKYBOX);
 			break;
 		case Zero::PT_ForwardLit:
-			m_PipelineStateObject = TLibrary<FPipelineStateObject>::Fetch(PSO_FORWARDLIT);
+			AttachPso();
 			break;
 		case Zero::PT_DirectLight:
 			m_PipelineStateObject = TLibrary<FPipelineStateObject>::Fetch(PSO_DIRECT_LIGHT);

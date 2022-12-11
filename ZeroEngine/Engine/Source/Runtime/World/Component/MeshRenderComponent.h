@@ -46,6 +46,7 @@ namespace Zero
 		void SetPsoType(EPsoType PosType);
 
 		virtual void PostEdit(UProperty* Property) override;
+		void AttachPso();
 		void AttachParameters();
 		void SwitchPso();
 	private:
@@ -67,13 +68,16 @@ namespace Zero
 
 	public:
 		UPROPERTY(Format = hlsl)
-		FShaderFileHandle m_ShaderFile = "Shader/ForwardLit.hlsl";
+		FShaderFileHandle m_ShaderFile = "Shader\\ForwardLit.hlsl";
 
 		UPROPERTY(Fixed, KeyUnEditable)
 		std::map<std::string, FTextureHandle> m_Textures;
 
 		UPROPERTY(Fixed, KeyUnEditable)
 		std::map<std::string, FFloatSlider> m_Floats;
+
+		UPROPERTY(Fixed, KeyUnEditable)
+		std::map<std::string, ZMath::FColor3> m_Colors;
 
 	private:
 		Ref<FPipelineStateObject> m_PipelineStateObject = nullptr;

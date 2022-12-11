@@ -22,7 +22,7 @@ namespace Zero
 		ZMath::FColor3 m_LightColor = {1.0f, 1.0f, 1.0f};
 
 		UPROPERTY()
-		float m_LightIntensity = 1.0;	
+		float m_LightIntensity = 300.0f;	
 
 		UTransformComponent* m_TransformCompent;
 	};
