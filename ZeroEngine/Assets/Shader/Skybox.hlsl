@@ -14,9 +14,8 @@ VertexOut VS(VertexIn Vin)
 	return Vout;
 };
 
-PixelOutput PS(VertexOut Pin)
+float4 PS(VertexOut Pin) : SV_TARGET
 {
-	PixelOutput Out;
-    Out.BaseColor = gSkyboxMap.Sample(gSamLinearWarp, Pin.WorldPos);
-	return Out;
+    float3 BaseColor = gSkyboxMap.Sample(gSamLinearWarp, Pin.WorldPos);
+	return float4(BaseColor, 1.0f);
 }

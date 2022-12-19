@@ -16,8 +16,9 @@ Texture2D gNormalMap: register(t1);
 Texture2D gMetallicMap: register(t2);
 Texture2D gRoughnessMap: register(t3);
 Texture2D gAOMap: register(t4);
-TextureCube gSkyboxMap : register(t5);
-TextureCube IBLIrradianceMap : register(t6);
+TextureCube gSkyboxMap : register(t6);
+TextureCube IBLIrradianceMap : register(t5);
+
 
 struct VertexIn
 {
@@ -47,7 +48,7 @@ struct FDirectLight
     float Intensity;
     float3 Direction;
     float Blank;
-    float4x4 ProjView;
+    float4x4 ProjectionView;
 };
 
 struct FPointLight
