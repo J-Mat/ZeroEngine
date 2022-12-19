@@ -8,7 +8,7 @@ namespace  Zero
 {
 	FLightManager::FLightManager()
 	{
-		m_DirectLightProperties = {"Color", "Intensity", "Direction", "ProjView" };
+		m_DirectLightProperties = {"Color", "Intensity", "Direction", "ProjectionView" };
 		m_PointLightProperties = {"Color", "Intensity", "LightPos"};
 	}
 

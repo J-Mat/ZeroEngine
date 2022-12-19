@@ -36,14 +36,14 @@ namespace Zero
 
 		for (int i = 0; i < 6; ++i)
 		{
-			SceneViews[i].EyePos = Eye;
+			SceneViews[i].ViewPos = Eye;
 			SceneViews[i].View = ZMath::lookAtLH(Eye, Targets[i], Ups[i]);
 
 			float Fov = ZMath::half_pi<float>();
 			float AspectRatio = 1.0f; //Square
 			SceneViews[i].Proj = ZMath::perspectiveLH(Fov, AspectRatio, 0.1f, 10.0f);
 
-			SceneViews[i].ProjView = SceneViews[i].Proj * SceneViews[i].View;
+			SceneViews[i].ProjectionView = SceneViews[i].Proj * SceneViews[i].View;
 
 			SceneViews[i].Near = 0.0f;
 			SceneViews[i].Far = 10.0f;

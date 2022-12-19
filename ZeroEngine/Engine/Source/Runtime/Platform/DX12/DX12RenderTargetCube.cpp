@@ -75,7 +75,7 @@ namespace Zero
 		auto  CommandList = FDX12Device::Get()->GetRenderCommandList();
 		FDX12TextureCubemap* DX12TextureCubemap = static_cast<FDX12TextureCubemap*>(m_TextureColorCubemap.get());
 		D3D12_CPU_DESCRIPTOR_HANDLE RTV = DX12TextureCubemap->GetRenderTargetView(Index);
-		float ClearColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+		float ClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 		CommandList->GetD3D12CommandList()->ClearRenderTargetView(RTV, ClearColor, 0, nullptr);
 		CommandList->GetD3D12CommandList()->OMSetRenderTargets(1, &RTV, true, nullptr);
 	}

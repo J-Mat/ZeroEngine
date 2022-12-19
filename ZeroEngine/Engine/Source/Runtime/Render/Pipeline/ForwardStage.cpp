@@ -27,6 +27,7 @@ namespace Zero
 			MeshDatas,
 			FVertexBufferLayout::s_DefaultVertexLayout
 		);
+		m_IBLCubeRenderItem->m_SubMesh = *m_IBLCubeRenderItem->m_Mesh->begin();
 		m_IBLCubeRenderItem->m_MaterialBuffer = nullptr;
 		m_IBLCubeRenderItem->m_Material = CreateRef<FMaterial>(false);
 		m_IBLCubeRenderItem->m_PipelineStateObject = TLibrary<FPipelineStateObject>::Fetch("Shader\\IBLIrradiance.hlsl");
@@ -45,12 +46,12 @@ namespace Zero
 			m_IBLCubeRenderItem->m_PipelineStateObject->Bind();
 			m_IBLCubeRenderItem->m_Material->SetPass();
 			m_IBLCubeRenderItem->m_Material->SetCameraViewMat("View", SceneView.View);
+			m_IBLCubeRenderItem->m_Material->SetCameraViewPos("ViewPos", SceneView.ViewPos);
 			m_IBLCubeRenderItem->m_Material->SetCameraProjectMat("Projection", SceneView.Proj);
-			m_IBLCubeRenderItem->m_Material->SetCameraProjectViewMat("ProjView", SceneView.ProjView);
+			m_IBLCubeRenderItem->m_Material->SetCameraProjectViewMat("ProjectionView", SceneView.ProjectionView);
 			m_IBLCubeRenderItem->m_Material->Tick();
 			m_IBLCubeRenderItem->m_Material->OnDrawCall();
 			m_IBLCubeRenderItem->OnDrawCall();
-
 		}
 		m_RenderTargetCube->UnBind();
 	}

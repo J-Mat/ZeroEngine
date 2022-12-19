@@ -170,6 +170,11 @@ namespace Zero
 		m_CameraBuffer->SetMatrix4x4(Name, Value);
 	}
 
+	void FMaterial::SetCameraViewPos(const std::string& Name, const ZMath::vec3& Value)
+	{
+		m_CameraBuffer->SetFloat3(Name, Value);
+	}
+
 	void FMaterial::SetTexture2D(const std::string& Name, Ref<FTexture2D> Texture)
 	{
 		m_ResourcesBuffer->SetTexture2D(Name, Texture);

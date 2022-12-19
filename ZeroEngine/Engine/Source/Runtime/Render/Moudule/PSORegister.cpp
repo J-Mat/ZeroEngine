@@ -63,7 +63,7 @@ namespace Zero
 		{
 			.Shader = FRenderer::GraphicFactroy->CreateShader("Shader\\IBLIrradiance.hlsl", IBLIrradianceShaderDesc),
 			.bDepthEnable = false,
-			.CullMode = ECullMode::CULL_MODE_FRONT,
+			.CullMode = ECullMode::CULL_MODE_NONE,
 		};
 		FRenderer::GraphicFactroy->CreatePSO("Shader\\IBLIrradiance.hlsl", IrradiancePSODesc);
 	}

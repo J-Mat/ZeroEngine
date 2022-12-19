@@ -63,10 +63,10 @@ namespace Zero
 
 	struct FSceneView
 	{
-		ZMath::vec3 EyePos = ZMath::vec3(0.0f);
+		ZMath::vec3 ViewPos = ZMath::vec3(0.0f);
 		ZMath::mat4 View = ZMath::identity<ZMath::mat4>();
 		ZMath::mat4 Proj = ZMath::identity<ZMath::mat4>();
-		ZMath::mat4 ProjView = ZMath::identity<ZMath::mat4>();
+		ZMath::mat4 ProjectionView = ZMath::identity<ZMath::mat4>();
 		float Near;
 		float Far;
 	};

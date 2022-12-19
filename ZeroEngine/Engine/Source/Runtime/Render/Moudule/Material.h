@@ -50,6 +50,7 @@ namespace Zero
 		void SetCameraProjectMat(const std::string& Name, const ZMath::mat4& Value);
 		void SetCameraViewMat(const std::string& Name, const ZMath::mat4& Value);
 		void SetCameraProjectViewMat(const std::string& Name, const ZMath::mat4& Value);
+		void SetCameraViewPos(const std::string& Name, const ZMath::vec3& Value);
 		void SetTexture2D(const std::string& Name, Ref<FTexture2D> Texture);
 		void SetTextureCubemap(const std::string& Name, Ref<FTextureCubemap> Texture);
 
