@@ -2,7 +2,7 @@
 
 #include "Core.h"
 #include "Data/SerializeUtility.h"
-#include "World/Base/CoreObject.h"
+#include "World/Object/CoreObject.h"
 #include "Settings.reflection.h"
 
 namespace Zero

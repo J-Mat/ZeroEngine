@@ -2,7 +2,7 @@
 
 #include "Core.h"
 #include "Asset.h"
-#include "World/Base/CoreObject.h"
+#include "World/Object/CoreObject.h"
 #include "MaterialAsset.reflection.h"
 
 namespace Zero

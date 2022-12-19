@@ -21,6 +21,7 @@ namespace Zero
 		R8G8B8,
 		R8G8B8A8,
 		INT32,
+		R16G16B16A16,
 		R32G32B32A32,
 		DEPTH32F,
 	};

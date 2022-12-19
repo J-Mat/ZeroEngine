@@ -22,8 +22,8 @@
 #include "imgui/backends/imgui_impl_dx12.h"
 #endif
 
-#include "World/Base/CoreObject.h"
-#include "World/Base/ClassObject.h"
-#include "World/Base/VariateProperty.h"
-#include "World/Base/ClassProperty.h"
-#include "World/Base/ObjectGlobal.h"
+#include "World/Object/CoreObject.h"
+#include "World/Object/ClassObject.h"
+#include "World/Object/VariateProperty.h"
+#include "World/Object/ClassProperty.h"
+#include "World/Object/ObjectGlobal.h"

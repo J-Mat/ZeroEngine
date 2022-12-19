@@ -1,5 +1,5 @@
 #include "Component.h"
-#include "../Base/CoreObject.h"
+#include "../Object/CoreObject.h"
 
 namespace Zero
 {

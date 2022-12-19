@@ -12,6 +12,7 @@ namespace Zero
 			return Other.Shader == Shader
 				&& Other.DepthFunc == DepthFunc
 				&& Other.CullMode == CullMode
+				&& Other.bDepthEnable == bDepthEnable
 				&& Other.TopologyType == TopologyType;
 		}
 		Ref<FShader> Shader = nullptr;
@@ -19,6 +20,7 @@ namespace Zero
 		UINT _4xMsaaQuality = 0;
 		EPrimitiveTopologyType TopologyType = EPrimitiveTopologyType::PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 		EComparisonFunc DepthFunc = EComparisonFunc::LESS;
+		bool bDepthEnable = true;
 		ECullMode CullMode = ECullMode::CULL_MODE_BACK;
 	};
 

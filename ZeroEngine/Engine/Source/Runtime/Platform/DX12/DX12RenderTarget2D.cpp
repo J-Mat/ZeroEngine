@@ -1,4 +1,4 @@
-#include "DX12RenderTarget.h"
+#include "DX12RenderTarget2D.h"
 #include "DX12Device.h"
 #include "DX12CommandList.h"
 #include "Render/RendererAPI.h"
@@ -7,12 +7,12 @@
 namespace Zero
 {
 
-	FDX12RenderTarget::FDX12RenderTarget()
-		:FRenderTarget()
+	FDX12RenderTarget2D::FDX12RenderTarget2D()
+		:FRenderTarget2D()
 	{
 	}
 
-	FDX12RenderTarget::FDX12RenderTarget(FRenderTargetDesc Desc)
+	FDX12RenderTarget2D::FDX12RenderTarget2D(FRenderTarget2DDesc Desc)
 	{
 		m_Width = Desc.Width;
 		m_Height = Desc.Height;
@@ -21,7 +21,7 @@ namespace Zero
 			const ETextureFormat& TextureFormat = Desc.Format[Index];
 			if (TextureFormat == ETextureFormat::None)
 				continue;
-			DXGI_FORMAT DxgiFormat = FDX12Texture2D::GetFormatByDesc(TextureFormat);
+			DXGI_FORMAT DxgiFormat = FDX12RHItConverter::GetTextureFormatByDesc(TextureFormat);
 
 			Ref<FTexture2D> Texture;
 			EAttachmentIndex AttachMentIndex = EAttachmentIndex(Index);
@@ -47,7 +47,7 @@ namespace Zero
 #endif
 		}
 
-		DXGI_FORMAT DepthDxgiFormat = FDX12Texture2D::GetFormatByDesc(Desc.Format[EAttachmentIndex::DepthStencil]);
+		DXGI_FORMAT DepthDxgiFormat = FDX12RHItConverter::GetTextureFormatByDesc(Desc.Format[EAttachmentIndex::DepthStencil]);
 		if (DepthDxgiFormat != DXGI_FORMAT_UNKNOWN)
 		{
 			auto DepthStencilDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D24_UNORM_S8_UINT, m_Width, m_Height);
@@ -61,7 +61,7 @@ namespace Zero
 		}
 	}
 
-	void FDX12RenderTarget::ClearBuffer()
+	void FDX12RenderTarget2D::ClearBuffer()
 	{
 		auto CommandList = FDX12Device::Get()->GetRenderCommandList();
 		for (int i = EAttachmentIndex::Color0; i <= EAttachmentIndex::Color7; ++i)
@@ -76,7 +76,7 @@ namespace Zero
 		CommandList->ClearDepthStencilTexture(DepthStencilTexture, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL);
 	}
 
-	void FDX12RenderTarget::Resize(uint32_t Width, uint32_t Height, uint32_t Depth)
+	void FDX12RenderTarget2D::Resize(uint32_t Width, uint32_t Height, uint32_t Depth)
 	{
 		m_Width = Width;
 		m_Height = Height;
@@ -99,7 +99,7 @@ namespace Zero
 		SetViewportRect();
 	}
 
-	void FDX12RenderTarget::AttachTexture(EAttachmentIndex AttachmentIndex, Ref<FTexture2D> Texture2D)
+	void FDX12RenderTarget2D::AttachTexture(EAttachmentIndex AttachmentIndex, Ref<FTexture2D> Texture2D)
 	{
 		size_t Index = size_t(AttachmentIndex);
 		m_Textures[Index] = Texture2D;
@@ -113,7 +113,7 @@ namespace Zero
 		}
 	}
 
-	void FDX12RenderTarget::Bind()
+	void FDX12RenderTarget2D::Bind()
 	{
 		auto  CommandList = FDX12Device::Get()->GetRenderCommandList();
 		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> Handles;
@@ -149,7 +149,7 @@ namespace Zero
 		}
 	}
 
-	void FDX12RenderTarget::UnBind()
+	void FDX12RenderTarget2D::UnBind()
 	{
 		FDX12Device::Get()->GetSwapChain()->SetRenderTarget();
 
@@ -164,7 +164,7 @@ namespace Zero
 		}
 	}
 
-	void FDX12RenderTarget::SetViewportRect()
+	void FDX12RenderTarget2D::SetViewportRect()
 	{
 		// Set Viewport
 		m_ViewPort.TopLeftX = 0;
@@ -181,7 +181,7 @@ namespace Zero
 		m_ScissorRect.bottom = m_Height;
 	}
 
-	D3D12_RT_FORMAT_ARRAY FDX12RenderTarget::GetRenderTargetFormats() const
+	D3D12_RT_FORMAT_ARRAY FDX12RenderTarget2D::GetRenderTargetFormats() const
 	{
 		D3D12_RT_FORMAT_ARRAY RtvFormats = {};
 
@@ -197,7 +197,7 @@ namespace Zero
 		return RtvFormats;
 	}
 
-	DXGI_FORMAT FDX12RenderTarget::GetDepthStencilFormat() const
+	DXGI_FORMAT FDX12RenderTarget2D::GetDepthStencilFormat() const
 	{
 		DXGI_FORMAT DsvFormat = DXGI_FORMAT_UNKNOWN;
 		auto DepthStencilTexture = static_cast<FDX12Texture2D*>(m_Textures[EAttachmentIndex::DepthStencil].get());
@@ -207,7 +207,7 @@ namespace Zero
 		}
 		return DsvFormat;
 	}
-	DXGI_SAMPLE_DESC FDX12RenderTarget::GetSampleDesc() const
+	DXGI_SAMPLE_DESC FDX12RenderTarget2D::GetSampleDesc() const
 	{
 		DXGI_SAMPLE_DESC SampleDesc = { 1, 0 };
 		for (int i = EAttachmentIndex::Color0; i <= EAttachmentIndex::Color7; ++i)

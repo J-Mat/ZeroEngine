@@ -3,7 +3,7 @@
 
 namespace Zero
 {
-	class FRenderTarget;
+	class FRenderTarget2D;
 	class FTexture2D;
 	class FSwapChain
 	{
@@ -25,7 +25,7 @@ namespace Zero
 		virtual bool IsFullScreen() const { return m_bFullScreen;}
 
 		virtual void SetVSync(bool bVSync) { m_bVSync = bVSync;}
-		virtual const Ref<FRenderTarget> GetRenderTarget() = 0;
+		virtual const Ref<FRenderTarget2D> GetRenderTarget() = 0;
 
 		bool GetVSync() const { return m_bVSync; }
 

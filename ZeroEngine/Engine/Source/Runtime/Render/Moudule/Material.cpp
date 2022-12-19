@@ -8,12 +8,13 @@
 #include "Core/Framework/Library.h"
 #include "Core/Framework/Application.h"
 #include "Core/Base/FrameTimer.h"
-#include "Render/Moudule/FrameConstantsManager.h"
+#include "Render/Moudule/ConstantsBufferManager.h"
 
 namespace Zero
 {
 
-	FMaterial::FMaterial()
+	FMaterial::FMaterial(bool bUseMainCamera)
+		: m_bUseMainCamera(bUseMainCamera)
 	{	
 		m_OnSetFloat.Bind<FMaterial>(this, &FMaterial::SetFloatPtr);
 		m_OnSetInt.Bind<FMaterial>(this, &FMaterial::SetIntPtr);
@@ -24,6 +25,7 @@ namespace Zero
 			{EShaderDataType::Int, m_OnSetInt}
 		);
 	}
+
 
 	FMaterial::~FMaterial()
 	{
@@ -43,13 +45,21 @@ namespace Zero
 		}
 		if (BinderDesc.m_CameraIndex != Utils::InvalidIndex)
 		{
-			UCameraActor* Camera = UWorld::GetCurrentWorld()->GetMainCamera();
-			m_ShaderBinder->BindConstantsBuffer(BinderDesc.m_CameraIndex, Camera->GetConstantBuffer().get());
+			if (m_bUseMainCamera)
+			{
+				UCameraActor* Camera = UWorld::GetCurrentWorld()->GetMainCamera();
+				m_ShaderBinder->BindConstantsBuffer(BinderDesc.m_CameraIndex, Camera->GetConstantBuffer().get());
+			}
+			else
+			{
+				m_CameraBuffer = FConstantsBufferManager::GetInstance().GetCameraConstantBuffer();
+				m_ShaderBinder->BindConstantsBuffer(BinderDesc.m_CameraIndex, m_CameraBuffer.get());
+			}
 		}
 		
-		if (BinderDesc.m_ConstantIndex != Utils::InvalidIndex)
+		if (BinderDesc.m_GloabalConstantIndex != Utils::InvalidIndex)
 		{
-			m_ShaderBinder->BindConstantsBuffer(BinderDesc.m_ConstantIndex, FFrameConstantsManager::GetInstance().GetShaderConstantBuffer().get());
+			m_ShaderBinder->BindConstantsBuffer(BinderDesc.m_GloabalConstantIndex, FConstantsBufferManager::GetInstance().GetGlobalConstantBuffer().get());
 		}
 		//m_Shader->Use();
 	}
@@ -64,7 +74,7 @@ namespace Zero
 		{
 			m_ResourcesBuffer->UploadDataIfDirty();
 		}
-		FFrameConstantsManager::GetInstance().GetShaderConstantBuffer()->UploadDataIfDirty();
+		FConstantsBufferManager::GetInstance().GetGlobalConstantBuffer()->UploadDataIfDirty();
 	}
 
 	void FMaterial::SetShader(Ref<FShader> Shader)
@@ -79,7 +89,7 @@ namespace Zero
 				m_MaterialDesc = m_Shader->GetBinder()->GetShaderConstantsDesc(MaterialIndex);
 				if (m_MaterialDesc != nullptr)
 				{
-					m_MaterialBuffer = FRenderer::GraphicFactroy->CreateShaderConstantBuffer(*m_MaterialDesc.get());
+					m_MaterialBuffer = FConstantsBufferManager::GetInstance().GetMaterialConstBufferByDesc(m_MaterialDesc);
 				}
 			}
 			m_ResourcesDesc = m_Shader->GetBinder()->GetShaderResourcesDesc();
@@ -102,10 +112,7 @@ namespace Zero
 
 	void FMaterial::SetFloat(const std::string& Name, const float& Value)
 	{
-		if (m_MaterialBuffer != nullptr)
-		{
-			m_MaterialBuffer->SetFloat(Name, Value);
-		}
+		m_MaterialBuffer->SetFloat(Name, Value);
 	}
 
 	void FMaterial::SetFloatPtr(const std::string& Name, void* Value)
@@ -115,10 +122,7 @@ namespace Zero
 
 	void FMaterial::SetInt(const std::string& Name, const int32_t& Value)
 	{
-		if (m_MaterialBuffer != nullptr)
-		{
-			m_MaterialBuffer->SetInt(Name, Value);
-		}
+		m_MaterialBuffer->SetInt(Name, Value);
 	}
 
 	void FMaterial::SetIntPtr(const std::string& Name, void* ValueiPtr)
@@ -151,12 +155,24 @@ namespace Zero
 		m_MaterialBuffer->SetMatrix4x4(Name, Value);
 	}
 
+	void FMaterial::SetCameraProjectMat(const std::string& Name, const ZMath::mat4& Value)
+	{
+		m_CameraBuffer->SetMatrix4x4(Name, Value);
+	}
+
+	void FMaterial::SetCameraViewMat(const std::string& Name, const ZMath::mat4& Value)
+	{
+		m_CameraBuffer->SetMatrix4x4(Name, Value);
+	}
+
+	void FMaterial::SetCameraProjectViewMat(const std::string& Name, const ZMath::mat4& Value)
+	{
+		m_CameraBuffer->SetMatrix4x4(Name, Value);
+	}
+
 	void FMaterial::SetTexture2D(const std::string& Name, Ref<FTexture2D> Texture)
 	{
-		if (m_ResourcesBuffer != nullptr)
-		{
-			m_ResourcesBuffer->SetTexture2D(Name, Texture);
-		}
+		m_ResourcesBuffer->SetTexture2D(Name, Texture);
 	}
 
 	void FMaterial::SetTextureCubemap(const std::string& Name, Ref<FTextureCubemap> Texture)

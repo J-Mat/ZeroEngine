@@ -1,6 +1,6 @@
 #pragma once
 #include "DetailsMapping.h"
-#include "World/Base/PropertyObject.h"
+#include "World/Object/PropertyObject.h"
 
 namespace Zero
 {

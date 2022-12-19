@@ -12,7 +12,7 @@ namespace Zero
             }
         }
         CORE_ASSERT(false, "Can not find Constant Buffer!");
-        return FConstantBufferLayout();
+        return FConstantBufferLayout::s_InvalidContants;
     }
 
     void FShaderBinderDesc::MapCBBufferIndex()
@@ -29,7 +29,7 @@ namespace Zero
             }
             else if (ConstantBufferLayout.GetBufferName() == "cbConstant")
             {
-                m_ConstantIndex = ConstantBufferLayout.GetBindPoint();
+                m_GloabalConstantIndex = ConstantBufferLayout.GetBindPoint();
             }
             else if (ConstantBufferLayout.GetBufferName() == "cbMaterial")
             {

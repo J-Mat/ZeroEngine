@@ -1,28 +1,10 @@
 #include "CameraComponent.h"
 #include "Render/RendererAPI.h"
 #include "World/World.h"
+#include "Render/Moudule/ConstantsBufferManager.h"
 
 namespace Zero
 {
-	static FShaderConstantsDesc PerCameraConstantsDesc;
-	static FShaderConstantsDesc* GetPerCameraConstantsDesc()
-	{
-		// Init if not Inited
-		if (PerCameraConstantsDesc.Size == -1)
-		{
-			FConstantBufferLayout& Layout = FConstantBufferLayout::s_PerCameraConstants;
-			int paraIndex = 0;
-
-			PerCameraConstantsDesc.Size = Layout.GetStride();
-			for (auto BufferElement : Layout)
-			{
-				PerCameraConstantsDesc.Mapper.InsertConstant(BufferElement);
-			}
-		}
-
-		return &PerCameraConstantsDesc;
-	}
-
 	UCameraComponent::UCameraComponent()
 		: UComponent()
 	{
@@ -35,9 +17,8 @@ namespace Zero
 	void UCameraComponent::PostInit()
 	{
 		m_TransformCompent =  static_cast<UTransformComponent*>(m_Parent);
-		m_ShaderConstantsBuffer = FRenderer::GraphicFactroy->CreateShaderConstantBuffer(*GetPerCameraConstantsDesc());
+		m_GlobalConstantsBuffer = FConstantsBufferManager::GetInstance().GetCameraConstantBuffer();
 	}
-	
 
 	void UCameraComponent::UpdateCameraSettings()
 	{
@@ -73,13 +54,13 @@ namespace Zero
 
 	void UCameraComponent::UploadBuffer()
 	{
-		if (m_ShaderConstantsBuffer != nullptr)
+		if (m_GlobalConstantsBuffer != nullptr)
 		{
-			m_ShaderConstantsBuffer->SetMatrix4x4("Projection", m_Projection);
-			m_ShaderConstantsBuffer->SetMatrix4x4("View", m_View);
-			m_ShaderConstantsBuffer->SetMatrix4x4("ProjectionView", m_ProjectionView);
-			m_ShaderConstantsBuffer->SetFloat3("ViewPos", m_TransformCompent->m_Position);
-			m_ShaderConstantsBuffer->UploadDataIfDirty();
+			m_GlobalConstantsBuffer->SetMatrix4x4("Projection", m_Projection);
+			m_GlobalConstantsBuffer->SetMatrix4x4("View", m_View);
+			m_GlobalConstantsBuffer->SetMatrix4x4("ProjectionView", m_ProjectionView);
+			m_GlobalConstantsBuffer->SetFloat3("ViewPos", m_TransformCompent->m_Position);
+			m_GlobalConstantsBuffer->UploadDataIfDirty();
 		}
 	}
 

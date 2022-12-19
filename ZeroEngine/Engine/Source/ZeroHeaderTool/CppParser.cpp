@@ -856,9 +856,9 @@ namespace ZHT
 	{
 		std::vector<std::string> Contents;
 		Contents.push_back(Zero::Utils::StringUtils::Format("#include \"{0}\"", ClassElement.OriginFilePath.string()));
-		Contents.push_back("#include \"World/Base/ObjectGenerator.h\"");
-		Contents.push_back("#include \"World/Base/ClassObject.h\"");
-		Contents.push_back("#include \"World/Base/ObjectGlobal.h\"");
+		Contents.push_back("#include \"World/Object/ObjectGenerator.h\"");
+		Contents.push_back("#include \"World/Object/ClassObject.h\"");
+		Contents.push_back("#include \"World/Object/ObjectGlobal.h\"");
 		std::stringstream Stream;
 		Stream << "#ifdef _MSC_VER\n"
 			<< "#pragma warning (push)\n"

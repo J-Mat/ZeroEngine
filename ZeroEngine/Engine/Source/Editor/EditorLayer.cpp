@@ -61,7 +61,7 @@ namespace Zero
 		CLIENT_LOG_INFO("FEditorLayer::OnAttach");
 		FRenderer::GetDevice()->FlushInitCommandList();
 		
-		auto RenderTarget = TLibrary<FRenderTarget>::Fetch(RENDER_STAGE_FORWARD);
+		auto RenderTarget = TLibrary<FRenderTarget2D>::Fetch(RENDER_STAGE_FORWARD);
 		m_ViewportPanel->SetRenderTarget(RenderTarget);
 	}
 	

@@ -3,7 +3,7 @@
 #include "Core.h"
 #include "../DX12/Common/DX12Header.h"
 #include "Render/RHI/SwapChain.h"
-#include "DX12RenderTarget.h"
+#include "DX12RenderTarget2D.h"
 #include "DX12CommandQueue.h"
 #include <dxgi1_5.h>
 
@@ -28,7 +28,7 @@ namespace Zero
 		virtual void Resize(uint32_t Width, uint32_t Height) override;
 		void SetFullScreen(bool bFullScreen);
 		void WaitForSwapChain();
-		virtual const Ref<FRenderTarget> GetRenderTarget() override;
+		virtual const Ref<FRenderTarget2D> GetRenderTarget() override;
 		virtual void SetRenderTarget() override;
 		virtual UINT Present(Ref<FTexture2D> Texture = nullptr) override;
 	
@@ -42,7 +42,7 @@ namespace Zero
 		ComPtr<IDXGISwapChain> m_DxgiSwapChain;
 		Ref<FDX12Texture2D> m_BackBufferTextures[s_BufferCount];
 		Ref<FDX12Texture2D> m_DepthStencilTexture;
-		mutable Ref<FDX12RenderTarget>  m_RenderTarget;
+		mutable Ref<FDX12RenderTarget2D>  m_RenderTarget;
 
 		// The current backbuffer index of the swap chain.	
 		UINT m_CurrentBackBufferIndex = 0;

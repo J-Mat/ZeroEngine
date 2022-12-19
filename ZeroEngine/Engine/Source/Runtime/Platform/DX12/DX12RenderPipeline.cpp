@@ -2,7 +2,7 @@
 #include "Platform/DX12/DX12Device.h"
 #include "Platform/DX12/DX12CommandQueue.h"
 #include "Platform/DX12/DX12CommandList.h"
-#include "Platform/DX12/DX12RenderTarget.h"
+#include "Platform/DX12/DX12RenderTarget2D.h"
 #include "Platform/DX12/DX12SwapChain.h"
 #include "Platform/DX12/DX12Texture2D.h"
 #include <type_traits>

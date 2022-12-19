@@ -1,6 +1,6 @@
 #include "MaterialAsset.h"
-#include "World/Base/PropertyObject.h"
-#include "World/Base/MapPropretyObject.h"
+#include "World/Object/PropertyObject.h"
+#include "World/Object/MapPropretyObject.h"
 #include "Render/RHI/Shader.h"
 #include "Core/Framework/Library.h"
 

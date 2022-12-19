@@ -1,7 +1,7 @@
 #include "AssetManager.h"
 #include "AssetManager.h"
 #include "Utils/StringUtils.h"
-#include "World/Base/ObjectGlobal.h"
+#include "World/Object/ObjectGlobal.h"
 #include "ZConfig.h"
 #include "../SerializeUtility.h"
 

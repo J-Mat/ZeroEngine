@@ -15,6 +15,8 @@ namespace Zero
 		: UMeshActor()
 	{
 		m_bVisibleInEditor = false;
+		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_SKYBOX);
+		GetComponent<UMeshRenderComponent>()->SetEnableMaterial(false);
 	}
 
 	void USkyActor::BuildMesh()

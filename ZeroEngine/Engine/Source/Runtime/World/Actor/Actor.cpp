@@ -1,5 +1,5 @@
 #include "Actor.h"
-#include "World/Base/CoreObject.h"
+#include "World/Object/CoreObject.h"
 #include "World/Component/TransformComponent.h"
 
 namespace Zero

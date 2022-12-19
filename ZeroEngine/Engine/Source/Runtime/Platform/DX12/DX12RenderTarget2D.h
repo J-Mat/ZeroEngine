@@ -9,11 +9,11 @@ namespace Zero
 {
 	class FDX12Texture2D;
 	class FDX12Device;
-	class FDX12RenderTarget : public FRenderTarget
+	class FDX12RenderTarget2D : public FRenderTarget2D
 	{
 	public:
-		FDX12RenderTarget();
-		FDX12RenderTarget(FRenderTargetDesc Desc);
+		FDX12RenderTarget2D();
+		FDX12RenderTarget2D(FRenderTarget2DDesc Desc);
 		virtual void ClearBuffer() override;
 		virtual void Resize(uint32_t Width, uint32_t Height, uint32_t depth);
 		virtual void AttachTexture(EAttachmentIndex AttachmentIndex, Ref<FTexture2D> Texture2D);

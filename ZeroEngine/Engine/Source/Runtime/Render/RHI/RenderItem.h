@@ -9,10 +9,6 @@ namespace Zero
 	class FRenderItem;
 	class FPipelineStateObject;
 	
-	enum ERenderLayer
-	{
-	};
-
 	class FRenderItemPool
 	{
 	public:
@@ -29,6 +25,8 @@ namespace Zero
 		std::vector<Ref<FRenderItem>> m_RenderItems;
 		std::vector<Ref<FRenderItem>> m_AvailableRenderItems;
 		std::vector<Utils::Guid> m_RenderGuids;
+	public:
+		static Ref<FRenderItemPool> s_DIYRenderItemPool;
 	};
 
 	class FRenderItem
@@ -46,5 +44,7 @@ namespace Zero
 		FSubMesh m_SubMesh;
 		Ref<IShaderConstantsBuffer> m_MaterialBuffer = nullptr;
 		ZMath::mat4 m_Transform;
+	public:
+		static Ref<FRenderItem> s_DIYRenderItem;
 	};
 }

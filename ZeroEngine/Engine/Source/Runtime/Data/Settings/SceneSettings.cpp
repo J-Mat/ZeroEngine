@@ -19,7 +19,6 @@ namespace Zero
 		GenrerateTextureCubemapHanle();
 		if (Property->GetPropertyName() == "m_bUseSkyBox")
 		{
-			//FRenderConfig::s_bEnableSkybox = m_bUseSkyBox;
 		}
 	}
 

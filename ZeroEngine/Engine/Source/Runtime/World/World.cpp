@@ -11,6 +11,9 @@ namespace Zero
 		SetCurrentWorld(this);
 		m_MainCamera = CreateActor<UCameraActor>();
 		m_RenderItemPool.insert({ RENDERLAYER_OPAQUE, CreateRef<FRenderItemPool>()});
+		m_RenderItemPool.insert({ RENDERLAYER_SKYBOX, CreateRef<FRenderItemPool>()});
+		
+		m_DIYRenderItemPool = CreateRef<FRenderItemPool>();
 	}
 
 	void UWorld::Tick()

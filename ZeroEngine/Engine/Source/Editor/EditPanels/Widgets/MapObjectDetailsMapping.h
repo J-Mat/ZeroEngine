@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Base/VariableDetailsMapping.h"
-#include "World/Base/MapPropretyObject.h"
+#include "World/Object/MapPropretyObject.h"
 
 namespace Zero
 {

@@ -10,14 +10,6 @@
 
 namespace Zero
 {
-	class FPerObjectConstantsBufferPool : public IPublicSingleton<FPerObjectConstantsBufferPool>
-	{
-	public:
-		Ref<IShaderConstantsBuffer> GetPerObjectConstantsBuffer(UCoreObject* Obj);
-		void PushToPool(Ref<IShaderConstantsBuffer> Buffer);
-	private:
-		std::queue<Ref<IShaderConstantsBuffer>> m_IdleConstantsBuffer;
-	};
 	class FMesh;
 	UCLASS()
 	class UMeshVertexComponent : public UComponent
@@ -32,7 +24,7 @@ namespace Zero
 		void CreateMesh();
 		void GenerateAABB();
 	protected:
-		Ref<IShaderConstantsBuffer> m_ShaderConstantsBuffer = nullptr;
+		Ref<IShaderConstantsBuffer> m_PerObjConstantsBuffer = nullptr;
 		Ref<FMesh> m_Mesh;
 		FMeshType m_MeshType;
 		std::vector<FMeshData> m_MeshDatas;

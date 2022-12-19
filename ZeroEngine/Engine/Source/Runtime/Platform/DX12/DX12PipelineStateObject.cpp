@@ -35,12 +35,13 @@ namespace Zero
 		PsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 		PsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 		PsoDesc.DepthStencilState.DepthFunc = FDX12RHItConverter::GetComparisonFunc(m_PSODescriptor.DepthFunc);
+		PsoDesc.DepthStencilState.DepthEnable = m_PSODescriptor.bDepthEnable;
 		PsoDesc.SampleMask = UINT_MAX;	//0xffffffff, No Sampling Mask
 		PsoDesc.PrimitiveTopologyType = FDX12RHItConverter::GetTopologyType(m_PSODescriptor.TopologyType);
 		PsoDesc.NumRenderTargets = D3DShader->m_ShaderDesc.NumRenderTarget;
 		PsoDesc.RasterizerState.CullMode = FDX12RHItConverter::GetCullMode(m_PSODescriptor.CullMode);
 		for (int i = 0; i < D3DShader->m_ShaderDesc.NumRenderTarget; i++)
-			PsoDesc.RTVFormats[i] = FDX12Texture2D::GetFormatByDesc(D3DShader->m_ShaderDesc.Formats[i]);
+			PsoDesc.RTVFormats[i] = FDX12RHItConverter::GetTextureFormatByDesc(D3DShader->m_ShaderDesc.Formats[i]);
 		PsoDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 		PsoDesc.SampleDesc.Count = 1;	// No 4XMSAA
 		PsoDesc.SampleDesc.Quality = m_PSODescriptor._4xMsaaQuality;	////No 4XMSAA

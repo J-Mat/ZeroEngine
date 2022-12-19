@@ -2,7 +2,7 @@
 
 #include "Core.h"
 #include "Render/RendererAPI.h"
-#include "Base/CoreObject.h"
+#include "Object/CoreObject.h"
 #include "Render/RHI/GraphicDevice.h"
 #include "Actor/Actor.h"
 #include "Render/RHI/RenderItem.h"
@@ -24,6 +24,7 @@ namespace Zero
 		UWorld();
 		Ref<IDevice> GetDevice() { return m_Device; }
 		void SetDevice(Ref<IDevice> Device) { m_Device = Device; }
+		Ref<FRenderItemPool> GetDIYRenderItemPool() { return m_DIYRenderItemPool; }
 		virtual void Tick();
 		Ref<FRenderItemPool> GetRenderItemPool(uint32_t RenderLayerType);
 		static  UWorld* GetCurrentWorld() { return s_CurrentWorld; }
@@ -84,6 +85,7 @@ namespace Zero
 		UCameraActor* m_MainCamera = nullptr;
 		USkyActor* m_SkyActor = nullptr;
 		std::map<uint32_t, Ref<FRenderItemPool>> m_RenderItemPool;
+		Ref<FRenderItemPool> m_DIYRenderItemPool;
 		Ref<IDevice> m_Device;
 		std::vector<UActor*> m_Actors;
 		std::vector<UMeshActor*> m_MeshActors;

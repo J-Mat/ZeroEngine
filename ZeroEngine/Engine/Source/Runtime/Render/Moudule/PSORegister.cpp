@@ -43,10 +43,28 @@ namespace Zero
 	void FPSORegister::RegisterSkyboxPSO()
 	{
 		FShaderDesc ShaderDesc;
-		FPSODescriptor SkyboxPSODesc;
-		SkyboxPSODesc.CullMode = ECullMode::CULL_MODE_FRONT;
-		SkyboxPSODesc.DepthFunc = EComparisonFunc::LESS_EQUAL;
-		SkyboxPSODesc.Shader = FRenderer::GraphicFactroy->CreateShader("Shader\\Skybox.hlsl", ShaderDesc);
+		FPSODescriptor SkyboxPSODesc
+		{
+			.Shader = FRenderer::GraphicFactroy->CreateShader("Shader\\Skybox.hlsl", ShaderDesc),
+			.DepthFunc = EComparisonFunc::LESS_EQUAL,
+			.CullMode = ECullMode::CULL_MODE_FRONT,
+		};
 		FRenderer::GraphicFactroy->CreatePSO(PSO_SKYBOX, SkyboxPSODesc);
+
+
+		FShaderDesc IBLIrradianceShaderDesc
+		{
+			.NumRenderTarget = 1,
+			.Formats = {
+				ETextureFormat::R8G8B8A8,
+			},
+		};
+		FPSODescriptor IrradiancePSODesc
+		{
+			.Shader = FRenderer::GraphicFactroy->CreateShader("Shader\\IBLIrradiance.hlsl", IBLIrradianceShaderDesc),
+			.bDepthEnable = false,
+			.CullMode = ECullMode::CULL_MODE_FRONT,
+		};
+		FRenderer::GraphicFactroy->CreatePSO("Shader\\IBLIrradiance.hlsl", IrradiancePSODesc);
 	}
 }

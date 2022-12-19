@@ -38,9 +38,9 @@ namespace Zero
 
 		D3D12_CPU_DESCRIPTOR_HANDLE m_Descriptor;
 		uint32_t m_NumHandles;
-		uint32_t DescriptorSize;
+		uint32_t m_DescriptorSize;
 		
-		Ref<FDescriptorAllocatorPage> Page;
+		Ref<FDescriptorAllocatorPage> m_Page;
 	};
 	
 	struct FLightDescrptorAllocation

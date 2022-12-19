@@ -1,10 +1,9 @@
 #pragma once
 #include "Core.h"
-//#include "Render/RHI/RenderTarget.h"
 
 namespace Zero
 {
-	class FRenderTarget;
+	class FRenderTarget2D;
 	class FRenderStage
 	{
 	public:
@@ -16,10 +15,10 @@ namespace Zero
 		virtual void OnAttach() {}
 		virtual void OnDetach() {}
 		virtual void OnDraw() = 0;
-		Ref<FRenderTarget> GetOutput() { return m_RenderTarget; }
-		void SetInput(Ref<FRenderTarget> RenderTarget) { m_RenderTarget = RenderTarget; };
+		Ref<FRenderTarget2D> GetOutput() { return m_RenderTarget; }
+		void SetInput(Ref<FRenderTarget2D> RenderTarget) { m_RenderTarget = RenderTarget; };
 	protected:
-		Ref<FRenderTarget> m_RenderTarget;
+		Ref<FRenderTarget2D> m_RenderTarget;
 		std::string m_Name = "";
 	};
 	

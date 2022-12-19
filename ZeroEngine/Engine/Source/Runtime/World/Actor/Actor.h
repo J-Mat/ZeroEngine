@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Core.h"
-#include "../Base/CoreObject.h"
-#include "../Base/ObjectGenerator.h"
+#include "../Object/CoreObject.h"
+#include "../Object/ObjectGenerator.h"
 #include "Actor.reflection.h"
 
 

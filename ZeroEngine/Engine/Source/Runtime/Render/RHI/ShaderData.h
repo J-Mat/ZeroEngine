@@ -169,7 +169,8 @@ namespace Zero
 
 		static FConstantBufferLayout s_PerObjectConstants;
 		static FConstantBufferLayout s_PerCameraConstants;
-		static FConstantBufferLayout s_PerFrameConstants;
+		static FConstantBufferLayout s_GlobalConstants;
+		static FConstantBufferLayout s_InvalidContants;
 
 		void CalculateOffsetsAndStride()
 		{

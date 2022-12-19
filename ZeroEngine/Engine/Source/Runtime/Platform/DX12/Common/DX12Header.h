@@ -11,6 +11,7 @@
 #include <codecvt>
 #include "Render/RenderConfig.h"
 #include "Render/RHI/ShaderData.h"
+#include "Render/RHI/Texture.h"
 
 namespace Zero
 { 
@@ -59,6 +60,7 @@ namespace Zero
 		{
 			static std::map<ECullMode, D3D12_CULL_MODE> Map =
 			{
+				{ECullMode::CULL_MODE_NONE, D3D12_CULL_MODE::D3D12_CULL_MODE_NONE},
 				{ECullMode::CULL_MODE_FRONT, D3D12_CULL_MODE::D3D12_CULL_MODE_FRONT},
 				{ECullMode::CULL_MODE_BACK, D3D12_CULL_MODE::D3D12_CULL_MODE_BACK}
 			};
@@ -93,6 +95,29 @@ namespace Zero
 				{D3D_SRV_DIMENSION_TEXTURECUBE, EShaderResourceType::Cubemap}
 			};
 			return DimentionResourceType[Dimension];
+		}
+		static DXGI_FORMAT GetTextureFormatByDesc(ETextureFormat Format)
+		{
+			switch (Format)
+			{
+			case Zero::ETextureFormat::None:
+				return DXGI_FORMAT_UNKNOWN;
+			case Zero::ETextureFormat::R8G8B8:
+				return DXGI_FORMAT_R8G8_UNORM;
+			case Zero::ETextureFormat::R8G8B8A8:
+				return DXGI_FORMAT_R8G8B8A8_UNORM;
+			case Zero::ETextureFormat::R16G16B16A16:
+				return DXGI_FORMAT_R16G16B16A16_UNORM;
+			case Zero::ETextureFormat::INT32:
+				return DXGI_FORMAT_R32_UINT;
+			case Zero::ETextureFormat::R32G32B32A32:
+				return DXGI_FORMAT_R32G32B32A32_FLOAT;
+			case Zero::ETextureFormat::DEPTH32F:
+				return DXGI_FORMAT_D24_UNORM_S8_UINT;
+			default:
+				break;
+			}
+			return DXGI_FORMAT_UNKNOWN;
 		}
 	};
 }

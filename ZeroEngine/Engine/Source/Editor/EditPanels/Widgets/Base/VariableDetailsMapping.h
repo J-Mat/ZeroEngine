@@ -1,6 +1,6 @@
 #pragma once
 #include "DetailsMapping.h"
-#include "World/Base/VariateProperty.h"
+#include "World/Object/VariateProperty.h"
 
 namespace Zero
 {

@@ -4,7 +4,7 @@
 
 namespace Zero
 {
-	void FViewportPanel::SetRenderTarget(Ref<FRenderTarget> RenderTarget, EAttachmentIndex Index)
+	void FViewportPanel::SetRenderTarget(Ref<FRenderTarget2D> RenderTarget, EAttachmentIndex Index)
 	{
 		m_RenderTarget = RenderTarget;
 		m_RenderTargetIndex = Index;

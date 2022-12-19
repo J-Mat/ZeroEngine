@@ -14,10 +14,9 @@ namespace Zero
 	class FDX12TextureCubemap :public FTextureCubemap, public IResource
 	{
 	public:
-        static DXGI_FORMAT GetFormatByDesc(ETextureFormat Format);
 		FDX12TextureCubemap(const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* ClearValue = nullptr);
-		FDX12TextureCubemap(Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT]);
-        FDX12TextureCubemap(ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, const D3D12_CLEAR_VALUE* ClearValue = nullptr);
+        FDX12TextureCubemap(Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT], bool bRenderDepth = false);
+        FDX12TextureCubemap(ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, bool bRenderDepth = false, const D3D12_CLEAR_VALUE* ClearValue = nullptr);
 
 
         virtual ZMath::uvec2 GetSize() 
@@ -57,31 +56,25 @@ namespace Zero
         /**
         * Get the RTV for the texture.
         */
-        D3D12_CPU_DESCRIPTOR_HANDLE GetRenderTargetView() const;
+        D3D12_CPU_DESCRIPTOR_HANDLE GetRenderTargetView(uint32_t Index) const;
 
         /**
         * Get the DSV for the texture.
         */
-        D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilView() const;
+        D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilView(uint32_t Index) const;
 
         /**
         * Get the default SRV for the texture.
         */
         D3D12_CPU_DESCRIPTOR_HANDLE GetShaderResourceView() const;
 
-        /**
-        * Get the UAV for the texture at a specific mip level.
-        * Note: Only only supported for 1D and 2D textures.
-        */
-        D3D12_CPU_DESCRIPTOR_HANDLE GetUnorderedAccessView(uint32_t mip) const;
-        
 	private:
         uint32_t m_EachFaceSize = 0;
+        bool m_bRenderDepth = false;
 
 		FDescriptorAllocation m_RenderTargetView;
 		FDescriptorAllocation m_DepthStencilView;
 		FDescriptorAllocation m_ShaderResourceView;
-		FDescriptorAllocation m_UnorderedAccessView;
         FLightDescrptorAllocation m_GuiAllocation;
         bool m_bHasGuiResource = false;
 	};

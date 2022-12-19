@@ -30,7 +30,7 @@ namespace Zero
 	public:
 		int32_t m_PerObjIndex = Utils::InvalidIndex;
 		int32_t m_CameraIndex = Utils::InvalidIndex;
-		int32_t m_ConstantIndex = Utils::InvalidIndex;
+		int32_t m_GloabalConstantIndex = Utils::InvalidIndex;
 		int32_t m_MaterialIndex = Utils::InvalidIndex;
 	};
 

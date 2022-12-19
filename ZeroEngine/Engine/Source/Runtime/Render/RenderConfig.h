@@ -1,4 +1,5 @@
 #pragma once
+#include "Math/ZMath.h"
 
 namespace Zero
 {
@@ -55,7 +56,18 @@ namespace Zero
 
 	enum ECullMode
 	{
+		CULL_MODE_NONE,
 		CULL_MODE_FRONT,
 		CULL_MODE_BACK,
+	};
+
+	struct FSceneView
+	{
+		ZMath::vec3 EyePos = ZMath::vec3(0.0f);
+		ZMath::mat4 View = ZMath::identity<ZMath::mat4>();
+		ZMath::mat4 Proj = ZMath::identity<ZMath::mat4>();
+		ZMath::mat4 ProjView = ZMath::identity<ZMath::mat4>();
+		float Near;
+		float Far;
 	};
 }

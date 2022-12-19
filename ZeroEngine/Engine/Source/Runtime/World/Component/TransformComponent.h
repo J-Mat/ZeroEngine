@@ -1,5 +1,5 @@
 #pragma once
-#include "../Base/ObjectMacros.h"
+#include "../Object/ObjectMacros.h"
 #include "Component.h"
 #include "Delegate.h"
 #include "TransformComponent.reflection.h"

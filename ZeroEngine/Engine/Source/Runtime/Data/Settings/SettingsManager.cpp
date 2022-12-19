@@ -1,5 +1,5 @@
 #include "SettingsManager.h"
-#include "World/Base/ObjectGlobal.h"
+#include "World/Object/ObjectGlobal.h"
 
 namespace Zero
 {

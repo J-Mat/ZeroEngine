@@ -5,6 +5,8 @@
 
 namespace Zero
 {
+	Ref<FRenderItemPool> FRenderItemPool::s_DIYRenderItemPool = CreateRef<FRenderItemPool>();
+
 	void FRenderItemPool::Reset()
 	{
 		m_AvailableRenderItems.insert(
@@ -36,6 +38,7 @@ namespace Zero
 		m_RenderItems.push_back(Item);
 	}
 
+
 	FRenderItem::FRenderItem(Ref<FMesh> Mesh)
 	{
 
@@ -58,7 +61,10 @@ namespace Zero
 	void FRenderItem::OnDrawCall()
 	{
 		static auto PerObjIndex = m_Material->GetShader()->GetBinder()->GetBinderDesc().m_PerObjIndex ;
-		m_Material->GetShader()->GetBinder()->BindConstantsBuffer(PerObjIndex, m_MaterialBuffer.get());
+		if (m_MaterialBuffer != nullptr)
+		{
+			m_Material->GetShader()->GetBinder()->BindConstantsBuffer(PerObjIndex, m_MaterialBuffer.get());
+		}
 		if (m_SubMesh.IsNull())
 		{
 			m_Mesh->Draw();

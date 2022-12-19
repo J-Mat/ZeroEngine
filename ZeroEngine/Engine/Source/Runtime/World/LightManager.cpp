@@ -1,5 +1,5 @@
 #include "LightManager.h"
-#include "Render/Moudule/FrameConstantsManager.h"
+#include "Render/Moudule/ConstantsBufferManager.h"
 #include "World/Component/LightComponent/DirectLightComponent.h"
 #include "World/Component/LightComponent/PointLightComponent.h"
 #include "World/Component/TransformComponent.h"
@@ -30,7 +30,7 @@ namespace  Zero
 
 	void FLightManager::Tick()
 	{
-		auto& Buffer = FFrameConstantsManager::GetInstance().GetShaderConstantBuffer();
+		auto& Buffer = FConstantsBufferManager::GetInstance().GetGlobalConstantBuffer();
 		Buffer->SetInt("DirectLightNum", int(m_DirectLights.size()));
 		for (int32_t i = 0; i < m_DirectLights.size(); ++i)
 		{

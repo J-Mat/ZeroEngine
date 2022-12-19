@@ -29,7 +29,7 @@ namespace Zero
 	class FMaterial
 	{
 	public:
-		FMaterial();
+		FMaterial(bool bUseMainCamera = true);
 		~FMaterial();	
 		void Tick();
 		void SetPass();
@@ -47,6 +47,9 @@ namespace Zero
 		void SetFloat4(const std::string& Name, const ZMath::vec4& Value);
 		void SetFloat4Ptr(const std::string& Name, void* ValuePtr);
 		void SetMatrix4x4(const std::string& Name, const ZMath::mat4& Value);
+		void SetCameraProjectMat(const std::string& Name, const ZMath::mat4& Value);
+		void SetCameraViewMat(const std::string& Name, const ZMath::mat4& Value);
+		void SetCameraProjectViewMat(const std::string& Name, const ZMath::mat4& Value);
 		void SetTexture2D(const std::string& Name, Ref<FTexture2D> Texture);
 		void SetTextureCubemap(const std::string& Name, Ref<FTextureCubemap> Texture);
 
@@ -69,7 +72,10 @@ namespace Zero
 		Ref<FShaderResourcesDesc> m_ResourcesDesc;
 
 		Ref<IShaderConstantsBuffer> m_MaterialBuffer;
+		Ref<IShaderConstantsBuffer> m_CameraBuffer;
 		Ref<IShaderResourcesBuffer> m_ResourcesBuffer;
+		
+		bool m_bUseMainCamera = true;
 	private:
 		FOnSetParameter m_OnSetFloat;
 		FOnSetParameter m_OnSetInt;

@@ -17,7 +17,7 @@ namespace Zero
 	class FDX12Texture2D;
 	class FDX12Device;
 	class IRootSignature;
-	class FDX12RenderTarget;
+	class FDX12RenderTarget2D;
 	class FDX12CommandList : public FCommandList, public std::enable_shared_from_this<FDX12CommandList>
 	{
 	public:
@@ -89,7 +89,7 @@ namespace Zero
 		/**
 		* Set the render targets for the graphics rendering pipeline.
 		*/
-		void SetRenderTarget(const FDX12RenderTarget& RenderTarget);
+		void SetRenderTarget(const FDX12RenderTarget2D& RenderTarget);
 
 		/**
 		* Transition a resource to a particular state.

@@ -60,7 +60,7 @@ namespace Zero
 		
 		UpdateRenderTargetViews();
 
-		m_RenderTarget = CreateRef<FDX12RenderTarget>();
+		m_RenderTarget = CreateRef<FDX12RenderTarget2D>();
 	}
 
 	FDX12SwapChain::~FDX12SwapChain()
@@ -91,7 +91,7 @@ namespace Zero
 			
 			UpdateRenderTargetViews();
 			
-			m_RenderTarget = CreateRef<FDX12RenderTarget>();
+			m_RenderTarget = CreateRef<FDX12RenderTarget2D>();
 		}
 	}
 
@@ -108,11 +108,11 @@ namespace Zero
 		DWORD result = ::WaitForSingleObjectEx(m_hFrameLatencyWaitableObject, 1000, TRUE);  // Wait for 1 second (should never have to wait that long...)
 	}
 
-	const Ref<FRenderTarget> FDX12SwapChain::GetRenderTarget()
+	const Ref<FRenderTarget2D> FDX12SwapChain::GetRenderTarget()
 	{
 		m_RenderTarget->AttachTexture(EAttachmentIndex::Color0, m_BackBufferTextures[m_CurrentBackBufferIndex]);
 		m_RenderTarget->AttachTexture(EAttachmentIndex::DepthStencil, m_DepthStencilTexture);
-		TLibrary<FRenderTarget>::Push("MainViewport", m_RenderTarget);
+		TLibrary<FRenderTarget2D>::Push("MainViewport", m_RenderTarget);
 		return m_RenderTarget;
 	}
 

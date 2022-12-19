@@ -6,27 +6,6 @@
 
 namespace Zero
 {
-	DXGI_FORMAT FDX12TextureCubemap::GetFormatByDesc(ETextureFormat Format)
-	{
-		switch (Format)
-		{
-		case Zero::ETextureFormat::None:
-			return DXGI_FORMAT_UNKNOWN;
-		case Zero::ETextureFormat::R8G8B8:
-			return DXGI_FORMAT_R8G8_UNORM;
-		case Zero::ETextureFormat::R8G8B8A8:
-			return DXGI_FORMAT_R8G8B8A8_UNORM;
-		case Zero::ETextureFormat::INT32:
-			return DXGI_FORMAT_R32_UINT;
-		case Zero::ETextureFormat::R32G32B32A32:
-			return DXGI_FORMAT_R32G32B32A32_FLOAT;
-		case Zero::ETextureFormat::DEPTH32F:
-			return DXGI_FORMAT_D24_UNORM_S8_UINT;
-		default:
-			break;
-		}
-		return DXGI_FORMAT_UNKNOWN;
-	}
 	FDX12TextureCubemap::FDX12TextureCubemap(const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* clearValue)
 		: IResource(ResourceDesc, clearValue)
 	{
@@ -35,23 +14,15 @@ namespace Zero
 		CreateViews();
 	}
 
-	FDX12TextureCubemap::FDX12TextureCubemap(Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT])
+
+	FDX12TextureCubemap::FDX12TextureCubemap(Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT], bool bRenderDepth)
 		:  IResource()
+		, m_bRenderDepth(bRenderDepth)
 	{
 		m_Width = ImageData[0]->GetWidth();
 		m_Height = ImageData[0]->GetHeight();
 		CORE_ASSERT(ImageData[0]->GetData() != nullptr, "Image has no data!");
 
-		/*
-		m_EachFaceSize = ImageData[0]->GetBufferSize();
-		m_Data = (char*)malloc(m_EachFaceSize * CUBEMAP_TEXTURE_CNT);
-		uint32_t Offset = 0;
-		for (size_t i = 0; i < CUBEMAP_TEXTURE_CNT; ++i)
-		{
-			memcpy(&m_Data[Offset], ImageData[i]->GetData(), m_EachFaceSize);
-			Offset += m_EachFaceSize;
-		}
-		*/
 		auto Resource = 
 			FDX12Device::Get()->GetInitWorldCommandList()->CreateTextureCubemapResource(
 				ImageData,
@@ -63,8 +34,9 @@ namespace Zero
 		CreateViews();
 	}
 
-	FDX12TextureCubemap::FDX12TextureCubemap(ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, const D3D12_CLEAR_VALUE* ClearValue)
+	FDX12TextureCubemap::FDX12TextureCubemap(ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, bool bRenderDepth, const D3D12_CLEAR_VALUE* ClearValue)
 		: IResource(Resource, ClearValue)
+		, m_bRenderDepth(bRenderDepth)
 	{
 		m_Width = Width;
 		m_Height = Height;
@@ -150,6 +122,7 @@ namespace Zero
 		return UavDesc;
 	}
 
+
 	void FDX12TextureCubemap::CreateViews()
 	{
 		if (m_D3DResource)
@@ -163,20 +136,47 @@ namespace Zero
 			{
 				if (m_RenderTargetView.IsNull())
 				{
-					m_RenderTargetView = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+					m_RenderTargetView = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 6);
 				}
-				D3DDevice->CreateRenderTargetView(m_D3DResource.Get(), nullptr, m_RenderTargetView.GetDescriptorHandle());
+				for (uint32_t i = 0; i < 6; ++i)
+				{
+					D3D12_RENDER_TARGET_VIEW_DESC RtvDesc = {
+						.Format = m_D3DResource->GetDesc().Format,
+						.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DARRAY,
+						.Texture2DArray = 
+						{
+							.MipSlice = 0,
+							.FirstArraySlice = UINT(i),
+							.ArraySize = 1,
+							.PlaneSlice = 0,
+						},
+					};
+					D3DDevice->CreateRenderTargetView(m_D3DResource.Get(), &RtvDesc, m_RenderTargetView.GetDescriptorHandle(i));
+				}
 			}
 
 			// Create DSV	
-			if ((Desc.Flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL) != 0 && CheckDSVSupport())
+			if (m_bRenderDepth && (Desc.Flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL) != 0 && CheckDSVSupport())
 			{
 				if (m_DepthStencilView.IsNull())
 				{
-					m_DepthStencilView = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+					m_DepthStencilView = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 6);
 				}
-				D3DDevice->CreateDepthStencilView(m_D3DResource.Get(), nullptr,
-					m_DepthStencilView.GetDescriptorHandle());
+				for (uint32_t i = 0; i < 6; ++i)
+				{
+					D3D12_DEPTH_STENCIL_VIEW_DESC DsvDesc = {
+						.Format = DXGI_FORMAT_D24_UNORM_S8_UINT,
+						.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2DARRAY,
+						.Flags = D3D12_DSV_FLAG_NONE,
+						.Texture2DArray = 
+						{
+							.MipSlice = 0,
+							.FirstArraySlice = UINT(i),
+							.ArraySize = 1,
+						},
+					};
+					D3DDevice->CreateDepthStencilView(m_D3DResource.Get(), &DsvDesc, m_DepthStencilView.GetDescriptorHandle(i));
+				}
 			}
 			// Create SRV
 			if ((Desc.Flags & D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE) == 0 && CheckSRVSupport())
@@ -195,41 +195,21 @@ namespace Zero
 				D3DDevice->CreateShaderResourceView(m_D3DResource.Get(), &SrvDesc,
 					m_ShaderResourceView.GetDescriptorHandle());
 			}
-			// Create UAV for each mip (only supported for 1D and 2D textures).
-			if ((Desc.Flags & D3D12_RESOURCE_STATE_UNORDERED_ACCESS) != 0 && CheckUAVSupport() &&
-				Desc.DepthOrArraySize == 1)
-			{
-				if (m_UnorderedAccessView.IsNull())
-				{
-					m_UnorderedAccessView = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, Desc.MipLevels);
-				}
-				for (int i = 0; i < Desc.MipLevels; ++i)
-				{
-					auto uavDesc = GetUAVDesc(Desc, i);
-					D3DDevice->CreateUnorderedAccessView(m_D3DResource.Get(), nullptr, &uavDesc,
-						m_UnorderedAccessView.GetDescriptorHandle(i));
-				}
-			}
 		}
 	}
 
-	D3D12_CPU_DESCRIPTOR_HANDLE FDX12TextureCubemap::GetRenderTargetView() const
+	D3D12_CPU_DESCRIPTOR_HANDLE FDX12TextureCubemap::GetRenderTargetView(uint32_t Index) const
 	{
-		return m_RenderTargetView.GetDescriptorHandle();
+		return m_RenderTargetView.GetDescriptorHandle(Index);
 	}
 
-	D3D12_CPU_DESCRIPTOR_HANDLE FDX12TextureCubemap::GetDepthStencilView() const
+	D3D12_CPU_DESCRIPTOR_HANDLE FDX12TextureCubemap::GetDepthStencilView(uint32_t Index) const
 	{
-		return m_DepthStencilView.GetDescriptorHandle();
+		return m_DepthStencilView.GetDescriptorHandle(Index);
 	}
 
 	D3D12_CPU_DESCRIPTOR_HANDLE FDX12TextureCubemap::GetShaderResourceView() const
 	{
 		return m_ShaderResourceView.GetDescriptorHandle();
-	}
-
-	D3D12_CPU_DESCRIPTOR_HANDLE FDX12TextureCubemap::GetUnorderedAccessView(uint32_t mip) const
-	{
-		return D3D12_CPU_DESCRIPTOR_HANDLE();
 	}
 }

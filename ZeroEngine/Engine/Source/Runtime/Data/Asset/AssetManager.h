@@ -1,7 +1,7 @@
 #pragma once
 #include "Core/Base/PublicSingleton.h"
 #include "AssetObject/Asset.h"
-#include "World/Base/ObjectGenerator.h"
+#include "World/Object/ObjectGenerator.h"
 #include "Render/RHI/Texture.h"
 #include "Render/RendererAPI.h"
 

@@ -1,5 +1,5 @@
 #include "SerializeUtility.h"
-#include "World/Base/ObjectGlobal.h"
+#include "World/Object/ObjectGlobal.h"
 
 
 namespace Zero

@@ -1,7 +1,7 @@
 #include "DX12CommandList.h"
 #include "DX12Texture2D.h"
 #include "DX12PipelineStateObject.h"
-#include "DX12RenderTarget.h"
+#include "DX12RenderTarget2D.h"
 #include "DX12RootSignature.h"
 
 namespace Zero
@@ -93,12 +93,6 @@ namespace Zero
 	ComPtr<ID3D12Resource> FDX12CommandList::CreateTextureCubemapResource(Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT], uint32_t Width, uint32_t Height, uint32_t Chanels)
 	{
 
-		constexpr DXGI_FORMAT ChannelMap[] = {
-			DXGI_FORMAT::DXGI_FORMAT_R32_FLOAT,
-			DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT,
-			DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,
-			DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT,
-		};
 		ID3D12Device* D3DDevice = FDX12Device::Get()->GetDevice();
 		ComPtr<ID3D12Resource> TextureCubemapResource;
 
@@ -162,8 +156,8 @@ namespace Zero
 		for (int i = 0; i < CUBEMAP_TEXTURE_CNT; ++i)
 		{
 			SubResourceData[i].pData = ImageData[i]->GetData();
-			SubResourceData[i].RowPitch = Width * Chanels;
-			SubResourceData[i].SlicePitch = Height * SubResourceData[i].RowPitch;
+			SubResourceData[i].RowPitch = ImageData[i]->GetWidth() * Chanels;
+			SubResourceData[i].SlicePitch = ImageData[i]->GetHeight() * SubResourceData[i].RowPitch;
 		}
 
 		UpdateSubresources(m_D3DCommandList.Get(), TextureCubemapResource.Get(), UploadResource.Get(), 0, 0, CUBEMAP_TEXTURE_CNT, SubResourceData);
@@ -310,7 +304,7 @@ namespace Zero
 		}
 	}
 
-	void FDX12CommandList::SetRenderTarget(const FDX12RenderTarget& RenderTarget)
+	void FDX12CommandList::SetRenderTarget(const FDX12RenderTarget2D& RenderTarget)
 	{
 		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> RenderTargetDescriptors;
 		RenderTargetDescriptors.reserve(EAttachmentIndex::NumAttachmentPoints);

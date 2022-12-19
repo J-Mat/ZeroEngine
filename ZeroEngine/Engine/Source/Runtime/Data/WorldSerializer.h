@@ -2,7 +2,7 @@
 
 #include "yaml-cpp/yaml.h"
 #include "World/World.h"
-#include "World/Base/PropertyObject.h"
+#include "World/Object/PropertyObject.h"
 #include "Delegate.h"
 
 

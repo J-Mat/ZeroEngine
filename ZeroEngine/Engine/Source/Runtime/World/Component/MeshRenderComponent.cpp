@@ -3,8 +3,8 @@
 #include "World/World.h"
 #include "Render/Moudule/Material.h"
 #include "Data/Asset/AssetManager.h"
-#include "World/Base/PropertyObject.h"
-#include "World/Base/MapPropretyObject.h"
+#include "World/Object/PropertyObject.h"
+#include "World/Object/MapPropretyObject.h"
 #include "Data/Asset/AssetObject/MaterialAsset.h"
 #include "Render/RHI/PipelineStateObject.h"
 
@@ -209,6 +209,21 @@ namespace Zero
 
 	void UMeshRenderComponent::AttachParameters()
 	{
+		{
+			auto Pso = GetPipelineStateObject();
+			int32_t RenderLayer = m_RenderLayer;
+			while (RenderLayer > 0)
+			{
+				uint32_t CurLayer = (RenderLayer & (-RenderLayer));
+				RenderLayer ^= CurLayer;
+				auto CurLayerMaterials = GetPassMaterials(CurLayer);
+				for (size_t i = 0; i < m_SubmeshNum; i++)
+				{
+					CurLayerMaterials[i]->SetShader(Pso->GetPSODescriptor().Shader);
+				}
+			}
+		}
+
 		if (!m_bEnableMaterial)
 		{
 			return;
@@ -251,7 +266,6 @@ namespace Zero
 			}
 		}
 		{
-			Ref<FShader> Shader = TLibrary<FShader>::Fetch(m_ShaderFile);
 			int32_t RenderLayer = m_RenderLayer;
 			uint32_t CurLayer = (RenderLayer & (-RenderLayer));
 			while (RenderLayer > 0)
@@ -262,7 +276,6 @@ namespace Zero
 
 				for (size_t i = 0; i < m_SubmeshNum; i++)
 				{
-					CurLayerMaterials[i]->SetShader(Shader);
 					for (auto Iter : m_Textures)
 					{
 						if (Iter.second == "")
@@ -296,15 +309,18 @@ namespace Zero
 		{
 		case Zero::PT_Skybox:
 			m_PipelineStateObject = TLibrary<FPipelineStateObject>::Fetch(PSO_SKYBOX);
+			m_ShaderFile = "Shader\\Skybox.hlsl";
 			break;
 		case Zero::PT_ForwardLit:
 			AttachPso();
 			break;
 		case Zero::PT_DirectLight:
 			m_PipelineStateObject = TLibrary<FPipelineStateObject>::Fetch(PSO_DIRECT_LIGHT);
+			m_ShaderFile = "Shader\\DirectLight.hlsl";
 			break;
 		case Zero::PT_PointLight:
 			m_PipelineStateObject = TLibrary<FPipelineStateObject>::Fetch(PSO_POINT_LIGHT);
+			m_ShaderFile = "Shader\\PointLight.hlsl";
 			break;
 		default:
 			break;

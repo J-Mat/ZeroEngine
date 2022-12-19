@@ -1,5 +1,5 @@
 #include "MapObjectDetailsMapping.h"
-#include "World/Base/MapPropretyObject.h"
+#include "World/Object/MapPropretyObject.h"
 #include "DetailsMappingManager.h"
 
 namespace Zero

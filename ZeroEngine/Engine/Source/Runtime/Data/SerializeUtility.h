@@ -1,9 +1,9 @@
 #pragma once
 
 #include "yaml-cpp/yaml.h"
-#include "World/Base/PropertyObject.h"
-#include "World/Base/ArrayPropretyObject.h"
-#include "World/Base/MapPropretyObject.h"
+#include "World/Object/PropertyObject.h"
+#include "World/Object/ArrayPropretyObject.h"
+#include "World/Object/MapPropretyObject.h"
 #include "World/Actor/Actor.h"
 #include "World/Component/Component.h"
 

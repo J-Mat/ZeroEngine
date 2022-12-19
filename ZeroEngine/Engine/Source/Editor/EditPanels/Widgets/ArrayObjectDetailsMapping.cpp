@@ -1,5 +1,5 @@
 #include "ArrayObjectDetailsMapping.h"
-#include "World/Base/ArrayPropretyObject.h"
+#include "World/Object/ArrayPropretyObject.h"
 #include "DetailsMappingManager.h"
 
 namespace Zero

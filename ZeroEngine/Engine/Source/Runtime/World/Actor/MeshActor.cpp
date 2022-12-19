@@ -42,7 +42,7 @@ namespace Zero
 				Ref<FRenderItem> Item = RenderItemPool->Request();
 				Item->m_Mesh = m_MeshVertexComponent->m_Mesh;
 				Item->m_SubMesh = SubMesh;
-				Item->m_MaterialBuffer = m_MeshVertexComponent->m_ShaderConstantsBuffer;
+				Item->m_MaterialBuffer = m_MeshVertexComponent->m_PerObjConstantsBuffer;
 				Item->m_Material = m_MeshRenderComponent->GetPassMaterials(CurLayer)[MaterialIndex];
 				Item->m_PipelineStateObject = m_MeshRenderComponent->GetPipelineStateObject();
 				Item->m_Material->SetShader(Item->m_PipelineStateObject->GetPSODescriptor().Shader);

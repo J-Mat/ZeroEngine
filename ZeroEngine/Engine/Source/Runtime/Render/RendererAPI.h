@@ -6,6 +6,7 @@
 #include "Platform/DX12/DX12Texture2D.h"
 #include "Platform/DX12/DX12TextureCubemap.h"
 #include "Platform/DX12/DX12Mesh.h"
+#include "Platform/DX12/DX12RenderTargetCube.h"
 #include "Platform/Windows/WinWindow.h"
 #include "Moudule/MeshGenerator.h"
 #include "Render/RHI/ShaderBinder.h"
@@ -75,7 +76,8 @@ namespace Zero
 		virtual Ref<FTexture2D> GetOrCreateTexture2D(const std::string& FileName) = 0;
 		virtual Ref<FTexture2D> CreateTexture2D(Ref<FImage> Image, std::string ImageName) = 0;
 		virtual Ref<FTextureCubemap> GetOrCreateTextureCubemap(FTextureHandle Handles[CUBEMAP_TEXTURE_CNT], std::string TextureCubemapName) = 0;
-		virtual Ref<FRenderTarget> CreateRenderTarget(FRenderTargetDesc Desc) = 0;
+		virtual Ref<FRenderTarget2D> CreateRenderTarget2D(const FRenderTarget2DDesc& Desc) = 0;
+		virtual Ref<FRenderTargetCube> CreateRenderTargetCube(const FRenderTargetCubeDesc& Desc) = 0;
 		virtual Ref<FTexture2D> CreateDepthStencilTexture(uint32_t Width, uint32_t Height, const std::string& Name) = 0;
 		virtual Ref<FPipelineStateObject> CreatePSO(const std::string& PSOHandle, const FPSODescriptor& PSODescriptor) = 0;
 	};
@@ -234,9 +236,14 @@ namespace Zero
 			return TextureCubemap;
 		}
 
-		virtual Ref<FRenderTarget> CreateRenderTarget(FRenderTargetDesc Desc)
+		virtual Ref<FRenderTarget2D> CreateRenderTarget2D(const FRenderTarget2DDesc& Desc)
 		{
-			return CreateRef<FDX12RenderTarget>(Desc);
+			return CreateRef<FDX12RenderTarget2D>(Desc);
+		}
+
+		virtual Ref<FRenderTargetCube> CreateRenderTargetCube(const FRenderTargetCubeDesc& Desc)
+		{
+			return CreateRef<FDX12RenderTargetCube>(Desc);
 		}
 
 		virtual Ref<FTexture2D> CreateDepthStencilTexture(uint32_t Width, uint32_t Height, const std::string& Name)

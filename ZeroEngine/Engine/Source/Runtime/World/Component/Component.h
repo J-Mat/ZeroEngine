@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Core.h"
-#include "../Base/CoreObject.h"
-#include "../Base/PropertyObject.h"
+#include "../Object/CoreObject.h"
+#include "../Object/PropertyObject.h"
 
 namespace Zero
 {

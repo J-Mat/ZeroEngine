@@ -10,7 +10,7 @@ namespace Zero
 	{
 	public:
 		FViewportPanel() = default;
-		void SetRenderTarget(Ref<FRenderTarget> RenderTarget, EAttachmentIndex Index = EAttachmentIndex::Color0);
+		void SetRenderTarget(Ref<FRenderTarget2D> RenderTarget, EAttachmentIndex Index = EAttachmentIndex::Color0);
 		bool IsViewportFocusd() { return m_bWindowsFocused; }
 		bool IsViewportHovered() { return m_bWindowsHoverd; }
 		virtual void OnGuiRender();
@@ -22,7 +22,7 @@ namespace Zero
 		bool m_bWindowsFocused;
 		bool m_bWindowsHoverd;
 		
-		Ref<FRenderTarget> m_RenderTarget;
+		Ref<FRenderTarget2D> m_RenderTarget;
 		EAttachmentIndex m_RenderTargetIndex = EAttachmentIndex::Color0;
 	};
 }

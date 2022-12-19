@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core.h"
-#include "World/Base/CoreObject.h"
+#include "World/Object/CoreObject.h"
 #include "Asset.reflection.h"
 
 namespace Zero
