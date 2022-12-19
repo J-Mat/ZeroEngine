@@ -1,6 +1,8 @@
 #ifndef COMMON_HLSL
 #define COMMON_HLSL
 
+#define PI 3.14159265359
+
 SamplerState gSamPointWrap : register(s0);
 SamplerState gSamPointClamp : register(s1);
 SamplerState gSamLinearWarp : register(s2);
@@ -15,6 +17,7 @@ Texture2D gMetallicMap: register(t2);
 Texture2D gRoughnessMap: register(t3);
 Texture2D gAOMap: register(t4);
 TextureCube gSkyboxMap : register(t5);
+TextureCube IBLIrradianceMap : register(t6);
 
 struct VertexIn
 {
