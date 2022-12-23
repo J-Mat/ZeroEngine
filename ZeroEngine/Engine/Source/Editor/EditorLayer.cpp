@@ -29,14 +29,19 @@ namespace Zero
 
 		m_CameraController = CreateRef<FEditorCameraController>(m_World->GetMainCamera());
 
+		FPSORegister::GetInstance().RegisterDefaultPSO();
+		FPSORegister::GetInstance().RegisterSkyboxPSO();
+		FPSORegister::GetInstance().RegisterIBLPSO();
+		FPSORegister::GetInstance().RegisterTestPSO();
+
 		Ref<FRenderStage> ForwardRendering = FForwardStage::Create();
 		m_ScriptablePipeline->PushLayer(ForwardRendering);
 
-		FPSORegister::GetInstance().RegisterDefaultPSO();
-		FPSORegister::GetInstance().RegisterSkyboxPSO();
-
-		Ref<FImage> Image = CreateRef<FImage>(ZConfig::GetAssestsFullPath("Texture/DefaultTexture.png").string());
+		Ref<FImage> Image = CreateRef<FImage>(ZConfig::GetAssestsFullPath("Texture\\DefaultTexture.png").string());
 		FRenderer::GraphicFactroy->CreateTexture2D(Image, "default");
+
+		Ref<FImage> Image1 = CreateRef<FImage>(ZConfig::GetAssestsFullPath("Texture\\yayi.png").string());
+		FRenderer::GraphicFactroy->CreateTexture2D(Image1, "Texture\\yayi.png");
 	}
 
 	void FEditorLayer::RegisterEditPanel()

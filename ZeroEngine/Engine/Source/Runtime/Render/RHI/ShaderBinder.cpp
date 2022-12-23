@@ -17,23 +17,24 @@ namespace Zero
 
     void FShaderBinderDesc::MapCBBufferIndex()
     {
-        for (const FConstantBufferLayout& ConstantBufferLayout : m_ConstantBufferLayouts)
+        for (int32_t Index = 0; Index < m_ConstantBufferLayouts.size(); ++Index)
         {
+            const FConstantBufferLayout& ConstantBufferLayout = m_ConstantBufferLayouts[Index];
             if (ConstantBufferLayout.GetBufferName() == "cbPerObject")
             {
-                m_PerObjIndex = ConstantBufferLayout.GetBindPoint();
+                m_PerObjIndex = Index;
             }
             else if (ConstantBufferLayout.GetBufferName() == "cbCameraObject")
             {
-                m_CameraIndex = ConstantBufferLayout.GetBindPoint();
+                m_CameraIndex = Index;
             }
             else if (ConstantBufferLayout.GetBufferName() == "cbConstant")
             {
-                m_GloabalConstantIndex = ConstantBufferLayout.GetBindPoint();
+                m_GloabalConstantIndex = Index;
             }
             else if (ConstantBufferLayout.GetBufferName() == "cbMaterial")
             {
-                m_MaterialIndex = ConstantBufferLayout.GetBindPoint();
+                m_MaterialIndex = Index;
             }
         }
     }

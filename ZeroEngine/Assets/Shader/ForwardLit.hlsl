@@ -1,8 +1,9 @@
 #include "Common.hlsl"
+#include "./PBRLighting.hlsl"
 
 cbuffer cbMaterial : register(b3)
 {
-    float test;
+	float Roughness;
 };
 
 VertexOut VS(VertexIn vin)
@@ -25,7 +26,12 @@ VertexOut VS(VertexIn vin)
 PixelOutput PS(VertexOut Pin)
 {
 	PixelOutput Out;
-	float3 Irradiance = IBLIrradianceMap.Sample(gSamLinearClamp, Pin.Normal).rgb;
-	Out.BaseColor = float4(Irradiance, 1.0f);
+	float3 ViewDir = normalize(ViewPos - Pin.WorldPos);
+	float3 ReflectDir = reflect(-ViewDir, Pin.Normal);
+	float3 PrefilteredColor  = GetPrefilteredColor(Roughness, ReflectDir);
+    //float3 FloorSample = IBLPrefilterMaps[0].Sample(gSamLinearClamp, ReflectDir).rgb;
+	//PrefilteredColor  = gSkyboxMap.Sample(gSamLinearWarp, ReflectDir);
+	//float3 t = Test[2].Sample(gSamAnisotropicWarp, Pin.TexC).rgb;
+	Out.BaseColor = float4(PrefilteredColor, 1.0f);
 	return Out;
 }

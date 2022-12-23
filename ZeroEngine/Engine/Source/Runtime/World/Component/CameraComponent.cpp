@@ -17,7 +17,7 @@ namespace Zero
 	void UCameraComponent::PostInit()
 	{
 		m_TransformCompent =  static_cast<UTransformComponent*>(m_Parent);
-		m_GlobalConstantsBuffer = FConstantsBufferManager::GetInstance().GetCameraConstantBuffer();
+		m_CameraBuffer = FConstantsBufferManager::GetInstance().GetCameraConstantBuffer();
 	}
 
 	void UCameraComponent::UpdateCameraSettings()
@@ -54,13 +54,13 @@ namespace Zero
 
 	void UCameraComponent::UploadBuffer()
 	{
-		if (m_GlobalConstantsBuffer != nullptr)
+		if (m_CameraBuffer != nullptr)
 		{
-			m_GlobalConstantsBuffer->SetMatrix4x4("Projection", m_Projection);
-			m_GlobalConstantsBuffer->SetMatrix4x4("View", m_View);
-			m_GlobalConstantsBuffer->SetMatrix4x4("ProjectionView", m_ProjectionView);
-			m_GlobalConstantsBuffer->SetFloat3("ViewPos", m_TransformCompent->m_Position);
-			m_GlobalConstantsBuffer->UploadDataIfDirty();
+			m_CameraBuffer->SetMatrix4x4("Projection", m_Projection);
+			m_CameraBuffer->SetMatrix4x4("View", m_View);
+			m_CameraBuffer->SetMatrix4x4("ProjectionView", m_ProjectionView);
+			m_CameraBuffer->SetFloat3("ViewPos", m_TransformCompent->m_Position);
+			m_CameraBuffer->UploadDataIfDirty();
 		}
 	}
 

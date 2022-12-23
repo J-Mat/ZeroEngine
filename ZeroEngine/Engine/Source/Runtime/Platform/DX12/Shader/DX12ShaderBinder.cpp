@@ -223,6 +223,22 @@ namespace Zero
 		}
 	}
 
+	void FDX12ShaderResourcesBuffer::SetTexture2DArray(const std::string& Name, std::vector<Ref<FTexture2D>> Textures)
+	{
+		FShaderResourceItem Item;
+		if (m_Desc.Mapper.FetchResource(Name, Item))
+		{
+			uint32_t Offset = 0;
+			for (auto Texture : Textures)
+			{
+				FDX12Texture2D* D3DTexture = static_cast<FDX12Texture2D*>(Texture.get());
+				m_SrvDynamicDescriptorHeap->StageDescriptors(Item.SRTIndex, Offset++, 1, D3DTexture->GetShaderResourceView());
+			}
+			m_Desc.Mapper.SetTextureID(Name); 
+			m_bIsDirty = true;
+		}
+	}
+
 	void FDX12ShaderResourcesBuffer::SetTextureCubemap(const std::string& Name, Ref<FTextureCubemap> Texture)
 	{
 		FShaderResourceItem Item;
@@ -233,6 +249,23 @@ namespace Zero
 			m_Desc.Mapper.SetTextureID(Name); 
 			m_bIsDirty = true;
 		}
+	}
+
+	void FDX12ShaderResourcesBuffer::SetTextureCubemapArray(const std::string& Name, const std::vector<Ref<FTextureCubemap>>& TextureCubes)
+	{
+		FShaderResourceItem Item;
+		if (m_Desc.Mapper.FetchResource(Name, Item))
+		{
+			uint32_t Offset = 0;
+			for (auto Texture : TextureCubes)
+			{
+				FDX12TextureCubemap* D3DTexture = static_cast<FDX12TextureCubemap*>(Texture.get());
+				m_SrvDynamicDescriptorHeap->StageDescriptors(Item.SRTIndex, Offset++, 1, D3DTexture->GetShaderResourceView());
+			}
+			m_Desc.Mapper.SetTextureID(Name); 
+			m_bIsDirty = true;
+		}
+
 	}
 
 	void FDX12ShaderResourcesBuffer::UploadDataIfDirty()

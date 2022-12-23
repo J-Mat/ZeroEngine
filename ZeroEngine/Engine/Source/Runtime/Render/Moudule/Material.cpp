@@ -48,13 +48,13 @@ namespace Zero
 			if (m_bUseMainCamera)
 			{
 				UCameraActor* Camera = UWorld::GetCurrentWorld()->GetMainCamera();
-				m_ShaderBinder->BindConstantsBuffer(BinderDesc.m_CameraIndex, Camera->GetConstantBuffer().get());
+				m_CameraBuffer = Camera->GetConstantBuffer();
 			}
 			else
 			{
 				m_CameraBuffer = FConstantsBufferManager::GetInstance().GetCameraConstantBuffer();
-				m_ShaderBinder->BindConstantsBuffer(BinderDesc.m_CameraIndex, m_CameraBuffer.get());
 			}
+			m_ShaderBinder->BindConstantsBuffer(BinderDesc.m_CameraIndex, m_CameraBuffer.get());
 		}
 		
 		if (BinderDesc.m_GloabalConstantIndex != Utils::InvalidIndex)
@@ -74,6 +74,7 @@ namespace Zero
 		{
 			m_ResourcesBuffer->UploadDataIfDirty();
 		}
+		m_CameraBuffer->UploadDataIfDirty();
 		FConstantsBufferManager::GetInstance().GetGlobalConstantBuffer()->UploadDataIfDirty();
 	}
 
@@ -180,9 +181,19 @@ namespace Zero
 		m_ResourcesBuffer->SetTexture2D(Name, Texture);
 	}
 
+	void FMaterial::SetTexture2DArray(const std::string& Name, const std::vector<Ref<FTexture2D>> Textures)
+	{
+		m_ResourcesBuffer->SetTexture2DArray(Name, Textures);
+	}
+
 	void FMaterial::SetTextureCubemap(const std::string& Name, Ref<FTextureCubemap> Texture)
 	{
 		m_ResourcesBuffer->SetTextureCubemap(Name, Texture);
+	}
+
+	void FMaterial::SetTextureCubemapArray(const std::string& Name, const std::vector<Ref<FTextureCubemap>>& Textures)
+	{
+		m_ResourcesBuffer->SetTextureCubemapArray(Name, Textures);
 	}
 
 	void FMaterial::SetParameter(const std::string& ParameterName, EShaderDataType ShaderDataType, void* ValuePtr)

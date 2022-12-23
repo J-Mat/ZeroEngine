@@ -429,7 +429,6 @@ namespace Zero
 
 	void FDX12CommandList::SetGraphicsRootSignature(const Ref<IRootSignature>& RootSignature)
 	{
-
 		FDX12RootSignature* DX12RootSignature = static_cast<FDX12RootSignature*>(RootSignature.get());
 		auto* D3DRootSignature = DX12RootSignature->GetD3D12RootSignature().Get();
 		if (D3DRootSignature != m_RootSignature)

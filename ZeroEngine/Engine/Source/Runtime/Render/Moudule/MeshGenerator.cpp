@@ -90,6 +90,27 @@ namespace Zero
 		AttachToMeshData(MeshData, Vertex, Indexs);
 	}
 
+	void FMeshGenerator::CreateRect(FMeshData& MeshData)
+	{
+		std::vector<FVertex> Vertex(4);
+		
+		float W2 = 0.5f;
+		float H2 = 0.5f;
+		// Fill in the front face vertex data.
+		Vertex[0] = FVertex(-W2, -H2, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+		Vertex[1] = FVertex(-W2, +H2, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+		Vertex[2] = FVertex(+W2, +H2, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+		Vertex[3] = FVertex(+W2, -H2, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+
+		std::vector<uint32_t> Indexs(6);
+
+		// Fill in the front face index data
+		Indexs[0] = 0; Indexs[1] = 1; Indexs[2] = 2;
+		Indexs[3] = 0; Indexs[4] = 2; Indexs[5] = 3;
+
+		AttachToMeshData(MeshData, Vertex, Indexs);
+	}
+
 	void FMeshGenerator::CreateSphere(FMeshData& MeshData, float Radius, uint32_t NumSubdivisions)
 	{
 		// Put a cap on the number of subdivisions.
@@ -161,11 +182,6 @@ namespace Zero
 		}
 
 		AttachToMeshData(MeshData, Vertices, Indexs);
-	}
-
-	void FMeshGenerator::CreatSkyBox(FMeshData& MeshData)
-	{
-		
 	}
 
 	void FMeshGenerator::CreateCustomModel(std::vector<FMeshData>& MeshDatas, const std::string& Path, FVertexBufferLayout& Layout)

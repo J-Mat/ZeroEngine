@@ -19,6 +19,7 @@ namespace Zero
 		std::cout << "------------------------------------------\n";
 		for (auto Iter : m_CBVParams)
 		{
+			std::cout << std::format("Buffer : {0}, {1}\n", Iter.second.ResourceName, Iter.first);
 			FConstantBufferLayout ConstantBufferLayout;
 			ConstantBufferLayout.m_BufferName = Iter.second.ResourceName;
 			for (const FCBVariableItem& CBVariableItem : Iter.second.VariableList)
@@ -40,6 +41,7 @@ namespace Zero
 			TextureTableElement.ResourceName = Iter.second.ResourceName;
 			TextureTableElement.Type = Iter.second.ShaderResourceType;
 			TextureTableElement.BindPoint = Iter.second.BindPoint;
+			TextureTableElement.TextureNum = Iter.second.BindCount;
 			m_ShaderBinderDesc.m_TextureBufferLayout.m_Elements.push_back(TextureTableElement);
 		}
 		std::cout << "------------------------------------------\n";

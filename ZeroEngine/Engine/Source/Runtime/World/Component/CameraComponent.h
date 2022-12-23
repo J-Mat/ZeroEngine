@@ -24,7 +24,7 @@ namespace Zero
 		void UpdateCameraSettings();
 		void UpdateMat();
 		void UploadBuffer();
-		Ref<IShaderConstantsBuffer> GetConstantBuffer() { return m_GlobalConstantsBuffer; }
+		Ref<IShaderConstantsBuffer> GetConstantBuffer() { return m_CameraBuffer; }
 		void OnResizeViewport(uint32_t Width, uint32_t Height);
 		virtual void Tick();
 		ZMath::mat4 GetProjection() { return m_Projection;}
@@ -39,7 +39,7 @@ namespace Zero
 		ZMath::mat4 m_ProjectionDither;
 		ZMath::mat4 m_View;
 		ZMath::mat4 m_ProjectionView;
-		Ref<IShaderConstantsBuffer> m_GlobalConstantsBuffer = nullptr;
+		Ref<IShaderConstantsBuffer> m_CameraBuffer = nullptr;
 
 		float m_Fov = 90.0f;
 

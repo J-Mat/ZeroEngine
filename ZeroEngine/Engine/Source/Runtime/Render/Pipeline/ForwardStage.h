@@ -8,6 +8,7 @@ namespace Zero
 {
 	class FRenderTargetCube;
 	class FRenderItem;
+	class FImageBasedLighting;
 	class FForwardStage : public FRenderStage
 	{
 	public:
@@ -19,11 +20,8 @@ namespace Zero
 		virtual void OnDetach() override;
 		virtual void OnDraw() override;
 	private:
-		void InitIBLRenderCube();
-		void CreateIBLIrradianceMap();
 	private:
-		Ref<FRenderItem> m_IBLCubeRenderItem;
-		Ref<FRenderTargetCube> m_RenderTargetCube = nullptr;
+		Ref<FImageBasedLighting> m_IBLMoudule;
 		bool m_bGenerateIrradianceMap = false;
 	};
 }

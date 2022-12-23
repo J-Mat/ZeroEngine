@@ -82,7 +82,7 @@ namespace Zero
 	
 	struct FShaderConstantsDesc
 	{
-		uint32_t Size = -1;
+		int32_t Size = -1;
 		FConstantsMapper Mapper;
 
 		FConstantsMapper::iterator begin() { return Mapper.begin(); }
@@ -141,7 +141,9 @@ namespace Zero
 		virtual ~IShaderResourcesBuffer() = default;
 		virtual FShaderResourcesDesc* GetShaderResourceDesc() = 0;
 		virtual void SetTexture2D(const std::string& Name, Ref<FTexture2D> Texture) = 0;
+		virtual void SetTexture2DArray(const std::string& Name, std::vector<Ref<FTexture2D>> Textures) = 0;
 		virtual void SetTextureCubemap(const std::string& Name, Ref<FTextureCubemap> Texture) = 0;
+		virtual void SetTextureCubemapArray(const std::string& Name, const std::vector<Ref<FTextureCubemap>>& TextureCubes) = 0;
 
 		virtual void UploadDataIfDirty() = 0;
 	protected:

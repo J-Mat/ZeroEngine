@@ -48,6 +48,7 @@ namespace Zero
 		virtual void PostEdit(UProperty* Property) override;
 		void AttachPso();
 		void AttachParameters();
+		void UpdateSettings();
 		void SwitchPso();
 	private:
 		std::unordered_map<uint32_t, std::vector<Ref<FMaterial>>> m_Materials;

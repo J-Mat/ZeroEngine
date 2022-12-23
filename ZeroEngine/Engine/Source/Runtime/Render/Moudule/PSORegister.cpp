@@ -51,20 +51,60 @@ namespace Zero
 		};
 		FRenderer::GraphicFactroy->CreatePSO(PSO_SKYBOX, SkyboxPSODesc);
 
+	}
 
-		FShaderDesc IBLIrradianceShaderDesc
+	void FPSORegister::RegisterIBLPSO()
+	{
+		{
+			FShaderDesc IBLIrradianceShaderDesc
+			{
+				.NumRenderTarget = 1,
+				.Formats = {
+					ETextureFormat::R8G8B8A8,
+				},
+			};
+			FPSODescriptor IrradianceMapPSODesc
+			{
+				.Shader = FRenderer::GraphicFactroy->CreateShader("Shader\\IBL\\IBLIrradiance.hlsl", IBLIrradianceShaderDesc),
+				.bDepthEnable = false,
+				.CullMode = ECullMode::CULL_MODE_NONE,
+			};
+			FRenderer::GraphicFactroy->CreatePSO("Shader\\IBL\\IBLIrradiance.hlsl", IrradianceMapPSODesc);
+		}
+
+		{
+			FShaderDesc PrefilterMapShaderDesc
+			{
+				.NumRenderTarget = 1,
+				.Formats = {
+					ETextureFormat::R8G8B8A8,
+				},
+			};
+			FPSODescriptor PrefilterMapPSODesc
+			{
+				.Shader = FRenderer::GraphicFactroy->CreateShader("Shader\\IBL\\IBLPrefilter.hlsl", PrefilterMapShaderDesc),
+				.bDepthEnable = false,
+				.CullMode = ECullMode::CULL_MODE_NONE,
+			};
+			FRenderer::GraphicFactroy->CreatePSO("Shader\\IBL\\IBLPrefilter.hlsl", PrefilterMapPSODesc);
+		}
+	}
+
+	void FPSORegister::RegisterTestPSO()
+	{
+		FShaderDesc TestShaderDesc
 		{
 			.NumRenderTarget = 1,
 			.Formats = {
 				ETextureFormat::R8G8B8A8,
 			},
 		};
-		FPSODescriptor IrradiancePSODesc
+		FPSODescriptor TestPSODesc
 		{
-			.Shader = FRenderer::GraphicFactroy->CreateShader("Shader\\IBLIrradiance.hlsl", IBLIrradianceShaderDesc),
+			.Shader = FRenderer::GraphicFactroy->CreateShader("Shader\\Test.hlsl", TestShaderDesc),
 			.bDepthEnable = false,
 			.CullMode = ECullMode::CULL_MODE_NONE,
 		};
-		FRenderer::GraphicFactroy->CreatePSO("Shader\\IBLIrradiance.hlsl", IrradiancePSODesc);
+		FRenderer::GraphicFactroy->CreatePSO("Shader\\Test.hlsl", TestPSODesc);
 	}
 }

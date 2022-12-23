@@ -35,7 +35,6 @@ PixelOutput PS(VertexOut Pin)
 	float3 N = NormalSampleToWorldSpace(Normal, Pin.Normal, Pin.Tangent);
 	float3 V = normalize(ViewPos - Pin.WorldPos);
 
-
 	float3 F0 = float3(0.04f, 0.04f, 0.04f);
 	F0 = lerp(F0, Albedo, Metallic);
 

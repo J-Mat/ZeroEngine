@@ -109,77 +109,7 @@ namespace Zero
 		if (Property->GetPropertyName() == "m_ShaderFile")
 		{
 			AttachPso();
-			const FShaderBinderDesc& ShaderBinderDesc = m_PipelineStateObject->GetPSODescriptor().Shader->GetBinder()->GetBinderDesc();
-			{
-				UProperty* FloatProperty = GetClassCollection().FindProperty("m_Floats");
-				UMapProperty* MapFloatProperty = dynamic_cast<UMapProperty*>(FloatProperty);
-				int MaterialBindPoint = ShaderBinderDesc.m_MaterialIndex;
-				if (MaterialBindPoint >= 0 && MapFloatProperty != nullptr)
-				{
-					MapFloatProperty->RemoveAllItem();
-					if (ShaderBinderDesc.m_MaterialIndex >= 0)
-					{
-						const FConstantBufferLayout& Layout = ShaderBinderDesc.GetConstantBufferLayoutByName("cbMaterial");
-						const std::vector<FBufferElement>& Elements = Layout.GetElements();
-						for (const auto& Element : Elements)
-						{
-							if (Element.Type == EShaderDataType::Float)
-							{
-								UProperty* KeyProprety = MapFloatProperty->AddItem();
-								UProperty* ValueProperty = dynamic_cast<UProperty*>(KeyProprety->Next);
-								std::string* KeyPtr = KeyProprety->GetData<std::string>();
-								*KeyPtr = Element.Name;
-							}
-						}
-						UpdateEditorContainerPropertyDetails(FloatProperty);
-					}
-				}
-			}
-			{
-				UProperty* TextureProperty = GetClassCollection().FindProperty("m_Textures");
-				UMapProperty* MapTextureProperty = dynamic_cast<UMapProperty*>(TextureProperty);
-				if (MapTextureProperty != nullptr)
-				{
-					MapTextureProperty->RemoveAllItem();
-					const FShaderResourceLayout& Layout = ShaderBinderDesc.GetShaderResourceLayout();
-					const std::vector<FTextureTableElement>& Elements = Layout.GetElements();
-					for (const auto& Element : Elements)
-					{
-						if (Element.Type == EShaderResourceType::Texture2D)
-						{
-							UProperty* KeyProprety = MapTextureProperty->AddItem();
-							UProperty* ValueProperty = dynamic_cast<UProperty*>(KeyProprety->Next);
-							std::string* KeyPtr = KeyProprety->GetData<std::string>();
-							*KeyPtr = Element.ResourceName;
-						}
-					}
-					UpdateEditorContainerPropertyDetails(TextureProperty);
-				}
-			}
-			{
-				UProperty* ColorProperty = GetClassCollection().FindProperty("m_Colors");
-				UMapProperty* MapColorProperty = dynamic_cast<UMapProperty*>(ColorProperty);
-				if (MapColorProperty != nullptr)
-				{
-					MapColorProperty->RemoveAllItem();
-					if (ShaderBinderDesc.m_MaterialIndex >= 0)
-					{
-						const FConstantBufferLayout& Layout = ShaderBinderDesc.GetConstantBufferLayoutByName("cbMaterial");
-						const std::vector<FBufferElement>& Elements = Layout.GetElements();
-						for (const auto& Element : Elements)
-						{
-							if (Element.Type == EShaderDataType::Float3 || Element.Type == EShaderDataType::RGB)
-							{
-								UProperty* KeyProprety = MapColorProperty->AddItem();
-								UProperty* ValueProperty = dynamic_cast<UProperty*>(KeyProprety->Next);
-								std::string* KeyPtr = KeyProprety->GetData<std::string>();
-								*KeyPtr = Element.Name;
-							}
-						}
-						UpdateEditorContainerPropertyDetails(ColorProperty);
-					}
-				}
-			}
+			UpdateSettings();
 			AttachParameters();
 		}
 		if (Property->GetPropertyName() == "m_Floats" || Property->GetPropertyName() == "m_Textures" || Property->GetPropertyName() == "m_Colors")
@@ -303,6 +233,81 @@ namespace Zero
 			}
 		}
 	}
+	void UMeshRenderComponent::UpdateSettings()
+	{
+		const FShaderBinderDesc& ShaderBinderDesc = m_PipelineStateObject->GetPSODescriptor().Shader->GetBinder()->GetBinderDesc();
+		{
+			UProperty* FloatProperty = GetClassCollection().FindProperty("m_Floats");
+			UMapProperty* MapFloatProperty = dynamic_cast<UMapProperty*>(FloatProperty);
+			int MaterialBindPoint = ShaderBinderDesc.m_MaterialIndex;
+			if (MaterialBindPoint >= 0 && MapFloatProperty != nullptr)
+			{
+				MapFloatProperty->RemoveAllItem();
+				if (ShaderBinderDesc.m_MaterialIndex >= 0)
+				{
+					const FConstantBufferLayout& Layout = ShaderBinderDesc.GetConstantBufferLayoutByName("cbMaterial");
+					const std::vector<FBufferElement>& Elements = Layout.GetElements();
+					for (const auto& Element : Elements)
+					{
+						if (Element.Type == EShaderDataType::Float)
+						{
+							UProperty* KeyProprety = MapFloatProperty->AddItem();
+							UProperty* ValueProperty = dynamic_cast<UProperty*>(KeyProprety->Next);
+							std::string* KeyPtr = KeyProprety->GetData<std::string>();
+							*KeyPtr = Element.Name;
+						}
+					}
+					UpdateEditorContainerPropertyDetails(FloatProperty);
+				}
+			}
+		}
+		{
+			UProperty* TextureProperty = GetClassCollection().FindProperty("m_Textures");
+			UMapProperty* MapTextureProperty = dynamic_cast<UMapProperty*>(TextureProperty);
+			if (MapTextureProperty != nullptr)
+			{
+				MapTextureProperty->RemoveAllItem();
+				const FShaderResourceLayout& Layout = ShaderBinderDesc.GetShaderResourceLayout();
+				const std::vector<FTextureTableElement>& Elements = Layout.GetElements();
+				for (const auto& Element : Elements)
+				{
+					if (Element.Type == EShaderResourceType::Texture2D)
+					{
+						UProperty* KeyProprety = MapTextureProperty->AddItem();
+						UProperty* ValueProperty = dynamic_cast<UProperty*>(KeyProprety->Next);
+						std::string* KeyPtr = KeyProprety->GetData<std::string>();
+						*KeyPtr = Element.ResourceName;
+					}
+				}
+				UpdateEditorContainerPropertyDetails(TextureProperty);
+			}
+		}
+		{
+			UProperty* ColorProperty = GetClassCollection().FindProperty("m_Colors");
+			UMapProperty* MapColorProperty = dynamic_cast<UMapProperty*>(ColorProperty);
+			if (MapColorProperty != nullptr)
+			{
+				MapColorProperty->RemoveAllItem();
+				if (ShaderBinderDesc.m_MaterialIndex >= 0)
+				{
+					const FConstantBufferLayout& Layout = ShaderBinderDesc.GetConstantBufferLayoutByName("cbMaterial");
+					const std::vector<FBufferElement>& Elements = Layout.GetElements();
+					for (const auto& Element : Elements)
+					{
+						if (Element.Type == EShaderDataType::Float3 || Element.Type == EShaderDataType::RGB)
+						{
+							UProperty* KeyProprety = MapColorProperty->AddItem();
+							UProperty* ValueProperty = dynamic_cast<UProperty*>(KeyProprety->Next);
+							std::string* KeyPtr = KeyProprety->GetData<std::string>();
+							*KeyPtr = Element.Name;
+						}
+					}
+					UpdateEditorContainerPropertyDetails(ColorProperty);
+				}
+			}
+		}
+	}
+
 	void UMeshRenderComponent::SwitchPso()
 	{
 		switch (m_Psotype)
