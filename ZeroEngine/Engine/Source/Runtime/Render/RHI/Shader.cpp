@@ -1,7 +1,7 @@
 #include "Shader.h"
 namespace Zero
 {
-	FShader::FShader(const std::string ShaderID, const FShaderBinderDesc& BinderDesc, const FShaderDesc& Desc)
+	FShader::FShader(const FShaderBinderDesc& BinderDesc, const FShaderDesc& Desc)
 		:
 		m_ShaderBinderDesc(BinderDesc)
 		, m_ShaderDesc(Desc)

@@ -187,7 +187,7 @@ namespace Zero
 	void FMeshGenerator::CreateCustomModel(std::vector<FMeshData>& MeshDatas, const std::string& Path, FVertexBufferLayout& Layout)
 	{
 		Assimp::Importer Importer;
-		unsigned int Flag = (aiProcess_Triangulate | aiProcess_MakeLeftHanded);
+		unsigned int Flag = aiProcess_Triangulate;
 		for (const FBufferElement& Element : Layout)
 		{
 			if (Element.Name == "NORMAL")

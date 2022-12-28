@@ -9,45 +9,89 @@ namespace Zero
 {
 	void FPSORegister::RegisterDefaultPSO()
 	{
-		FShaderDesc ShaderDesc;
+		{
+			FShaderDesc ShaderDesc 
+			{
+				.ShaderName = PSO_FORWARDLIT,
+			};
 
-		FPSODescriptor ForwadLitDesc;
-		ForwadLitDesc.Shader = FRenderer::GraphicFactroy->CreateShader("Shader\\ForwardLit.hlsl", ShaderDesc);
-		FRenderer::GraphicFactroy->CreatePSO(PSO_FORWARDLIT, ForwadLitDesc);
+			FPSODescriptor ForwadLitDesc;
+			ForwadLitDesc.Shader = FRenderer::GraphicFactroy->CreateShader(ShaderDesc);
+			FRenderer::GraphicFactroy->CreatePSO(PSO_FORWARDLIT, ForwadLitDesc);
+		}
 
-		FPSODescriptor DirectLightDesc;
-		DirectLightDesc.Shader = FRenderer::GraphicFactroy->CreateShader("Shader\\DirectLight.hlsl", ShaderDesc);
-		FRenderer::GraphicFactroy->CreatePSO(PSO_DIRECT_LIGHT, DirectLightDesc);
+		{
+			FShaderDesc ShaderDesc 
+			{
+				.ShaderName = "Shader\\DirectLight.hlsl",
+			};
+			FPSODescriptor DirectLightDesc;
+			DirectLightDesc.Shader = FRenderer::GraphicFactroy->CreateShader(ShaderDesc);
+			FRenderer::GraphicFactroy->CreatePSO(PSO_DIRECT_LIGHT, DirectLightDesc);
+		}
 
-		FPSODescriptor PointLightDesc;
-		PointLightDesc.Shader = FRenderer::GraphicFactroy->CreateShader("Shader\\PointLight.hlsl", ShaderDesc);
-		FRenderer::GraphicFactroy->CreatePSO(PSO_POINT_LIGHT, PointLightDesc);
+		{
+			FShaderDesc ShaderDesc 
+			{
+				.ShaderName = "Shader\\PointLight.hlsl",
+			};
+			FPSODescriptor PointLightDesc;
+			PointLightDesc.Shader = FRenderer::GraphicFactroy->CreateShader(ShaderDesc);
+			FRenderer::GraphicFactroy->CreatePSO(PSO_POINT_LIGHT, PointLightDesc);
+		}
 
-		FPSODescriptor GGXDesc;
-		GGXDesc.Shader = FRenderer::GraphicFactroy->CreateShader("Shader\\GGX.hlsl", ShaderDesc);
-		FRenderer::GraphicFactroy->CreatePSO("Shader\\GGX.hlsl", GGXDesc);
+		{
+			FShaderDesc ShaderDesc 
+			{
+				.ShaderName = "Shader\\GGX.hlsl",
+			};
+			FPSODescriptor GGXDesc;
+			GGXDesc.Shader = FRenderer::GraphicFactroy->CreateShader(ShaderDesc);
+			FRenderer::GraphicFactroy->CreatePSO("Shader\\GGX.hlsl", GGXDesc);
+		}
 
-		FPSODescriptor NDFDesc;
-		NDFDesc.Shader = FRenderer::GraphicFactroy->CreateShader("Shader\\NDF.hlsl", ShaderDesc);
-		FRenderer::GraphicFactroy->CreatePSO("Shader\\NDF.hlsl", NDFDesc);
+		{
+			FShaderDesc ShaderDesc 
+			{
+				.ShaderName = "Shader\\NDF.hlsl",
+			};
+			FPSODescriptor NDFDesc;
+			NDFDesc.Shader = FRenderer::GraphicFactroy->CreateShader(ShaderDesc);
+			FRenderer::GraphicFactroy->CreatePSO("Shader\\NDF.hlsl", NDFDesc);
+		}
 
-		FPSODescriptor LightingDesc;
-		LightingDesc.Shader = FRenderer::GraphicFactroy->CreateShader("Shader\\Lighting.hlsl", ShaderDesc);
-		FRenderer::GraphicFactroy->CreatePSO("Shader\\Lighting.hlsl", LightingDesc);
+		{
+			FShaderDesc ShaderDesc 
+			{
+				.ShaderName = "Shader\\Lighting.hlsl",
+			};
+			FPSODescriptor LightingDesc;
+			LightingDesc.Shader = FRenderer::GraphicFactroy->CreateShader(ShaderDesc);
+			FRenderer::GraphicFactroy->CreatePSO("Shader\\Lighting.hlsl", LightingDesc);
+		}
 
-		FPSODescriptor PBRTextureDesc;
-		PBRTextureDesc.Shader = FRenderer::GraphicFactroy->CreateShader("Shader\\PBR_Texture.hlsl", ShaderDesc);
-		FRenderer::GraphicFactroy->CreatePSO("Shader\\PBR_Texture.hlsl", PBRTextureDesc);
+		{
+			FShaderDesc ShaderDesc 
+			{
+				.ShaderName = "Shader\\PBR_Texture.hlsl",
+			};
+			FPSODescriptor PBRTextureDesc;
+			PBRTextureDesc.Shader = FRenderer::GraphicFactroy->CreateShader(ShaderDesc);
+			FRenderer::GraphicFactroy->CreatePSO("Shader\\PBR_Texture.hlsl", PBRTextureDesc);
+		}
 	}
 
 	void FPSORegister::RegisterSkyboxPSO()
 	{
-		FShaderDesc ShaderDesc;
+		FShaderDesc ShaderDesc 
+		{
+			.ShaderName = "Shader\\Skybox.hlsl",
+		};
 		FPSODescriptor SkyboxPSODesc
 		{
-			.Shader = FRenderer::GraphicFactroy->CreateShader("Shader\\Skybox.hlsl", ShaderDesc),
+			.Shader = FRenderer::GraphicFactroy->CreateShader(ShaderDesc),
 			.DepthFunc = EComparisonFunc::LESS_EQUAL,
-			.CullMode = ECullMode::CULL_MODE_FRONT,
+			.CullMode = ECullMode::CULL_MODE_FRONT
 		};
 		FRenderer::GraphicFactroy->CreatePSO(PSO_SKYBOX, SkyboxPSODesc);
 
@@ -58,6 +102,7 @@ namespace Zero
 		{
 			FShaderDesc IBLIrradianceShaderDesc
 			{
+				.ShaderName = "Shader\\IBL\\IBLIrradiance.hlsl",
 				.NumRenderTarget = 1,
 				.Formats = {
 					ETextureFormat::R8G8B8A8,
@@ -65,9 +110,8 @@ namespace Zero
 			};
 			FPSODescriptor IrradianceMapPSODesc
 			{
-				.Shader = FRenderer::GraphicFactroy->CreateShader("Shader\\IBL\\IBLIrradiance.hlsl", IBLIrradianceShaderDesc),
+				.Shader = FRenderer::GraphicFactroy->CreateShader(IBLIrradianceShaderDesc),
 				.bDepthEnable = false,
-				.CullMode = ECullMode::CULL_MODE_NONE,
 			};
 			FRenderer::GraphicFactroy->CreatePSO("Shader\\IBL\\IBLIrradiance.hlsl", IrradianceMapPSODesc);
 		}
@@ -75,6 +119,7 @@ namespace Zero
 		{
 			FShaderDesc PrefilterMapShaderDesc
 			{
+				.ShaderName = "Shader\\IBL\\IBLPrefilter.hlsl",
 				.NumRenderTarget = 1,
 				.Formats = {
 					ETextureFormat::R8G8B8A8,
@@ -82,18 +127,29 @@ namespace Zero
 			};
 			FPSODescriptor PrefilterMapPSODesc
 			{
-				.Shader = FRenderer::GraphicFactroy->CreateShader("Shader\\IBL\\IBLPrefilter.hlsl", PrefilterMapShaderDesc),
+				.Shader = FRenderer::GraphicFactroy->CreateShader(PrefilterMapShaderDesc),
 				.bDepthEnable = false,
-				.CullMode = ECullMode::CULL_MODE_NONE,
 			};
-			FRenderer::GraphicFactroy->CreatePSO("Shader\\IBL\\IBLPrefilter.hlsl", PrefilterMapPSODesc);
+			FRenderer::GraphicFactroy->CreatePSO(PrefilterMapShaderDesc.ShaderName, PrefilterMapPSODesc);
 		}
+	}
+
+	void FPSORegister::RegisterShadowPSO()
+	{
+		FShaderDesc ShaderDesc 
+		{
+			.ShaderName = "Shader\\Shadow\\DirectLightShadowMap.hlsl",
+		};
+		FPSODescriptor ShadowDesc;
+		ShadowDesc.Shader = FRenderer::GraphicFactroy->CreateShader(ShaderDesc);
+		FRenderer::GraphicFactroy->CreatePSO(ShaderDesc.ShaderName, ShadowDesc);
 	}
 
 	void FPSORegister::RegisterTestPSO()
 	{
 		FShaderDesc TestShaderDesc
 		{
+			.ShaderName = "Shader\\Test.hlsl",
 			.NumRenderTarget = 1,
 			.Formats = {
 				ETextureFormat::R8G8B8A8,
@@ -101,9 +157,8 @@ namespace Zero
 		};
 		FPSODescriptor TestPSODesc
 		{
-			.Shader = FRenderer::GraphicFactroy->CreateShader("Shader\\Test.hlsl", TestShaderDesc),
+			.Shader = FRenderer::GraphicFactroy->CreateShader(TestShaderDesc),
 			.bDepthEnable = false,
-			.CullMode = ECullMode::CULL_MODE_NONE,
 		};
 		FRenderer::GraphicFactroy->CreatePSO("Shader\\Test.hlsl", TestPSODesc);
 	}

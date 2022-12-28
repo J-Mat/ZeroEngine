@@ -21,9 +21,9 @@ namespace Zero
 
 	struct FRenderTarget2DDesc
 	{
-		FFrameBufferTexturesFormats Format;
 		uint32_t Width = 900;
 		uint32_t Height = 600;
+		FFrameBufferTexturesFormats Format;
 	};
 
 	class FRenderTarget2D

@@ -13,6 +13,8 @@ namespace Zero
 		void AddPointLight(UPointLightActor* Light);
 		void ClearLights();
 		void Tick();
+		const std::vector<UDirectLightActor*>& GetDirectLights() const { return m_DirectLights; }
+		uint32_t GetMaxDirectLightsNum() { return 4; }
 	private:
 		std::vector<UDirectLightActor*> m_DirectLights;
 		std::vector<UPointLightActor*> m_PointLights;

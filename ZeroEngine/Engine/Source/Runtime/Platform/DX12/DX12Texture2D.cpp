@@ -184,7 +184,7 @@ namespace Zero
 				{
 					SrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 				}
-				SrvDesc.Format = m_D3DResource->GetDesc().Format;
+				SrvDesc.Format = m_SRVFormat == DXGI_FORMAT_UNKNOWN ? m_D3DResource->GetDesc().Format : m_SRVFormat;
 				SrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 				SrvDesc.Texture2D.MostDetailedMip = 0;
 				SrvDesc.Texture2D.MipLevels = 1;

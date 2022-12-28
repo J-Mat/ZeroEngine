@@ -13,8 +13,8 @@ namespace Zero
 
 	class FDX12Texture2D :public FTexture2D, public IResource
 	{
+        friend class FDX12RenderTarget2D;
 	public:
-        static DXGI_FORMAT GetFormatByDesc(ETextureFormat Format);
 		FDX12Texture2D(const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* ClearValue = nullptr);
 		FDX12Texture2D(Ref<FImage> ImageData);
         FDX12Texture2D(ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, const D3D12_CLEAR_VALUE* ClearValue = nullptr);
@@ -77,6 +77,7 @@ namespace Zero
         * Note: Only only supported for 1D and 2D textures.
         */
         D3D12_CPU_DESCRIPTOR_HANDLE GetUnorderedAccessView(uint32_t mip) const;
+
         
 	private:
 		FDescriptorAllocation m_RenderTargetView;
@@ -85,5 +86,10 @@ namespace Zero
 		FDescriptorAllocation m_UnorderedAccessView;
         FLightDescrptorAllocation m_GuiAllocation;
         bool m_bHasGuiResource = false;
+    private:
+        DXGI_FORMAT m_SRVFormat = DXGI_FORMAT_UNKNOWN;
+        DXGI_FORMAT m_RTVFormat = DXGI_FORMAT_UNKNOWN;
+        DXGI_FORMAT m_DSVFormat = DXGI_FORMAT_UNKNOWN;
+        DXGI_FORMAT m_UAVFormat = DXGI_FORMAT_UNKNOWN;
 	};
 }

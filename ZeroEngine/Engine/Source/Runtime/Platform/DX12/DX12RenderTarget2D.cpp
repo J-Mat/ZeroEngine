@@ -16,48 +16,52 @@ namespace Zero
 	{
 		m_Width = Desc.Width;
 		m_Height = Desc.Height;
-		for (int Index = EAttachmentIndex::Color0; Index <= EAttachmentIndex::Color7; ++Index)
+		for (int32_t Index = 0; Index < Desc.Format.size(); ++Index)
 		{
 			const ETextureFormat& TextureFormat = Desc.Format[Index];
 			if (TextureFormat == ETextureFormat::None)
 				continue;
 			DXGI_FORMAT DxgiFormat = FDX12RHItConverter::GetTextureFormatByDesc(TextureFormat);
+			if (TextureFormat != Zero::ETextureFormat::DEPTH32F)
+			{
 
-			Ref<FTexture2D> Texture;
-			EAttachmentIndex AttachMentIndex = EAttachmentIndex(Index);
-			D3D12_RESOURCE_DESC RtvResourceDesc;
-			RtvResourceDesc.Alignment = 0;
-			RtvResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-			RtvResourceDesc.DepthOrArraySize = 1;
-			RtvResourceDesc.Width = m_Width;
-			RtvResourceDesc.Height = m_Height;
-			RtvResourceDesc.MipLevels = 1;
-			RtvResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-			RtvResourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
-			RtvResourceDesc.Format = DxgiFormat;
-			RtvResourceDesc.SampleDesc.Count = 1;
-			RtvResourceDesc.SampleDesc.Quality = 0;
-			CD3DX12_CLEAR_VALUE OptClear;
-			OptClear.Format = DxgiFormat;
-			memcpy(OptClear.Color, DirectX::Colors::Transparent, 4 * sizeof(float));
-			Texture = CreateRef<FDX12Texture2D>(RtvResourceDesc, &OptClear);
-			AttachTexture(AttachMentIndex, Texture);
+				Ref<FTexture2D> Texture;
+				EAttachmentIndex AttachMentIndex = EAttachmentIndex(Index);
+				D3D12_RESOURCE_DESC RtvResourceDesc;
+				RtvResourceDesc.Alignment = 0;
+				RtvResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+				RtvResourceDesc.DepthOrArraySize = 1;
+				RtvResourceDesc.Width = m_Width;
+				RtvResourceDesc.Height = m_Height;
+				RtvResourceDesc.MipLevels = 1;
+				RtvResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+				RtvResourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+				RtvResourceDesc.Format = DxgiFormat;
+				RtvResourceDesc.SampleDesc.Count = 1;
+				RtvResourceDesc.SampleDesc.Quality = 0;
+				CD3DX12_CLEAR_VALUE OptClear;
+				OptClear.Format = DxgiFormat;
+				memcpy(OptClear.Color, DirectX::Colors::Transparent, 4 * sizeof(float));
+				Texture = CreateRef<FDX12Texture2D>(RtvResourceDesc, &OptClear);
+				AttachTexture(AttachMentIndex, Texture);
 #ifdef EDITOR_MODE
-			Texture->RegistGuiShaderResource();
+				Texture->RegistGuiShaderResource();
 #endif
-		}
+			}
+			else
+			{
+				DXGI_FORMAT DepthDxgiFormat = FDX12RHItConverter::GetTextureFormatByDesc(Desc.Format[Index]);
+				CORE_ASSERT(DepthDxgiFormat == DXGI_FORMAT_D24_UNORM_S8_UINT, "Must be depth format");
+				auto DepthStencilDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D24_UNORM_S8_UINT, m_Width, m_Height);
+				DepthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
-		DXGI_FORMAT DepthDxgiFormat = FDX12RHItConverter::GetTextureFormatByDesc(Desc.Format[EAttachmentIndex::DepthStencil]);
-		if (DepthDxgiFormat != DXGI_FORMAT_UNKNOWN)
-		{
-			auto DepthStencilDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D24_UNORM_S8_UINT, m_Width, m_Height);
-			DepthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-
-			D3D12_CLEAR_VALUE OptClear = {};
-			OptClear.Format = DepthDxgiFormat;
-			OptClear.DepthStencil = { 1.0F, 0 };
-			Ref<FDX12Texture2D> Texture = CreateRef<FDX12Texture2D>(DepthStencilDesc, &OptClear);
-			AttachTexture(EAttachmentIndex::DepthStencil, Texture);
+				D3D12_CLEAR_VALUE OptClear = {};
+				OptClear.Format = DepthDxgiFormat;
+				OptClear.DepthStencil = { 1.0F, 0 };
+				Ref<FDX12Texture2D> DepthTexture = CreateRef<FDX12Texture2D>(DepthStencilDesc, &OptClear);
+				DepthTexture->m_SRVFormat = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+				AttachTexture(EAttachmentIndex::DepthStencil, DepthTexture);
+			}
 		}
 	}
 
@@ -65,8 +69,7 @@ namespace Zero
 	{
 		auto CommandList = FDX12Device::Get()->GetRenderCommandList();
 		for (int i = EAttachmentIndex::Color0; i <= EAttachmentIndex::Color7; ++i)
-		{
-			auto* Texture = static_cast<FDX12Texture2D*>(m_Textures[i].get());
+		{ auto* Texture = static_cast<FDX12Texture2D*>(m_Textures[i].get());
 			if (Texture != nullptr)
 			{
 				CommandList->ClearTexture(Texture, Utils::Colors::Transparent);

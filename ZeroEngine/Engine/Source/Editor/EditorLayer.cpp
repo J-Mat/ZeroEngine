@@ -37,11 +37,15 @@ namespace Zero
 		Ref<FRenderStage> ForwardRendering = FForwardStage::Create();
 		m_ScriptablePipeline->PushLayer(ForwardRendering);
 
-		Ref<FImage> Image = CreateRef<FImage>(ZConfig::GetAssestsFullPath("Texture\\DefaultTexture.png").string());
-		FRenderer::GraphicFactroy->CreateTexture2D(Image, "default");
+		{
+			Ref<FImage> Image = CreateRef<FImage>(ZConfig::GetAssestsFullPath("Texture\\DefaultTexture.png").string());
+			FRenderer::GraphicFactroy->CreateTexture2D(Image, "default");
+		}
 
-		Ref<FImage> Image1 = CreateRef<FImage>(ZConfig::GetAssestsFullPath("Texture\\yayi.png").string());
-		FRenderer::GraphicFactroy->CreateTexture2D(Image1, "Texture\\yayi.png");
+		{
+			Ref<FImage> Image = CreateRef<FImage>(ZConfig::GetAssestsFullPath("Texture\\pbr\\IBL_BRDF_LUT.png").string());
+			FRenderer::GraphicFactroy->CreateTexture2D(Image, IBL_BRDF_LUT);
+		}
 	}
 
 	void FEditorLayer::RegisterEditPanel()

@@ -40,6 +40,7 @@ namespace Zero
 		PsoDesc.PrimitiveTopologyType = FDX12RHItConverter::GetTopologyType(m_PSODescriptor.TopologyType);
 		PsoDesc.NumRenderTargets = D3DShader->m_ShaderDesc.NumRenderTarget;
 		PsoDesc.RasterizerState.CullMode = FDX12RHItConverter::GetCullMode(m_PSODescriptor.CullMode);
+		PsoDesc.RasterizerState.FrontCounterClockwise = false;
 		for (int i = 0; i < D3DShader->m_ShaderDesc.NumRenderTarget; i++)
 			PsoDesc.RTVFormats[i] = FDX12RHItConverter::GetTextureFormatByDesc(D3DShader->m_ShaderDesc.Formats[i]);
 		PsoDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;

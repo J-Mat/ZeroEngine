@@ -9,8 +9,8 @@ namespace Zero
 	#define	RENDERLAYER_SKYBOX  (1 << 3)
 	#define	RENDERLAYER_SHAWODOW  (1 << 4)
 
-	#define RENDER_STAGE_SKYBOX "SkyBox"
 	#define RENDER_STAGE_FORWARD "ForwardLit"
+	#define RENDER_STAGE_SHADOWMAP "ShadowMap"
 
 	#define PSO_FORWARDLIT "Shader\\ForwardLit.hlsl"
 	#define PSO_DIRECT_LIGHT "DirectLight"
@@ -19,6 +19,7 @@ namespace Zero
 	#define PSO_FRESNEL "Fresnel"
 	#define PSO_NDF "NDF"
 	#define PSO_GGX "GGX"
+	#define IBL_BRDF_LUT "IBL_BRDF_LUT"
 
 
 

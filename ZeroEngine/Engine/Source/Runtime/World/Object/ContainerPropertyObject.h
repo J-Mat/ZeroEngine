@@ -11,11 +11,11 @@ namespace Zero
 		UContainerProperty(const std::string& ClassName, const std::string& PropertyName, void* Data, const std::string PropertyType, uint32_t PropertySize);
 	public:
 		virtual UProperty* AddItem() = 0;
-		virtual bool RemoveTailItem() { return false; }
-		virtual bool RemoveAllItem() { return false; }
+		virtual bool RemoveTailItem() = 0;
+		virtual bool RemoveAllItem() = 0;
 
 		virtual bool RemoveTailProperty();
-		virtual void RemoveAllPreperties();
+		virtual void RemoveAllProperties();
 		
 		virtual void UpdateProperty() = 0;
 

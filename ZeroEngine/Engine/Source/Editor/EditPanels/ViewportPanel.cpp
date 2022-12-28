@@ -107,9 +107,10 @@ namespace Zero
 					Actor = static_cast<UActor*>(Iter->second.Class->CreateDefaultObject());
 					if (Actor != nullptr)
 					{
-						World->AddActor(Actor);
 						Actor->SetWorld(World);
+						Actor->InitReflectionContent();
 						Actor->PostInit();
+						World->AddActor(Actor);
 						ZMath::FRay Ray = GetProjectionRay();
 						ZMath::vec3 Pos = World->GetRayWorldPos(Ray, 5.0f);
 						Actor->SetPosition(Pos);

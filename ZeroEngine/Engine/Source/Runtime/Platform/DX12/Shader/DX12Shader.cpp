@@ -5,6 +5,7 @@
 #include "../DX12RootSignature.h"
 #include "../DX12PipelineStateObject.h"
 #include "../DX12CommandList.h"
+#include "ZConfig.h"
 
 namespace Zero
 {
@@ -30,9 +31,10 @@ namespace Zero
 		}
 	}
 
-	FDX12Shader::FDX12Shader(const std::string& FileName, const FShaderBinderDesc& BinderDesc, const FShaderDesc& Desc)
-	: FShader(FileName, BinderDesc, Desc)
+	FDX12Shader::FDX12Shader(const FShaderBinderDesc& BinderDesc, const FShaderDesc& Desc)
+	: FShader(BinderDesc, Desc)
 	{
+		std::string FileName = ZConfig::GetAssestsFullPath(m_ShaderDesc.ShaderName).string();
 		m_ShaderPass[EShaderType::ST_VERTEX] = CompileShader(Utils::String2WString(FileName), nullptr, "VS", "vs_5_1");
 		m_ShaderPass[EShaderType::ST_PIXEL] = CompileShader(Utils::String2WString(FileName), nullptr, "PS", "ps_5_1");
 		
@@ -59,9 +61,10 @@ namespace Zero
 		}
 	}
 
-	FDX12Shader::FDX12Shader(const std::string& FileName, const FShaderDesc& Desc)
+	FDX12Shader::FDX12Shader(const FShaderDesc& Desc)
 		:FShader(Desc)
 	{
+		std::string FileName = ZConfig::GetAssestsFullPath(m_ShaderDesc.ShaderName).string();
 		if (m_ShaderDesc.bCreateVS)
 		{
 			auto VSBlob  = CompileShader(Utils::String2WString(FileName), nullptr, m_ShaderDesc.VSEntryPoint, "vs_5_1");
@@ -90,6 +93,7 @@ namespace Zero
 		GenerateInputLayout();
 		CreateBinder();
 	}
+
 
 	void FDX12Shader::CreateBinder()
 	{

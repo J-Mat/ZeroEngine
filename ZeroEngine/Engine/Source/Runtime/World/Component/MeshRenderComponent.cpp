@@ -271,7 +271,7 @@ namespace Zero
 				const std::vector<FTextureTableElement>& Elements = Layout.GetElements();
 				for (const auto& Element : Elements)
 				{
-					if (Element.Type == EShaderResourceType::Texture2D)
+					if (Element.Type == EShaderResourceType::Texture2D && !Element.ResourceName.starts_with("_"))
 					{
 						UProperty* KeyProprety = MapTextureProperty->AddItem();
 						UProperty* ValueProperty = dynamic_cast<UProperty*>(KeyProprety->Next);

@@ -15,17 +15,9 @@ namespace Zero
 {
 	void FForwardStage::OnAttach()
 	{
-		Ref<IDevice> Device = UWorld::GetCurrentWorld()->GetDevice();
 		FRenderTarget2DDesc Desc;
 		Desc.Format = {
 			ETextureFormat::R8G8B8A8,
-			ETextureFormat::None, //   For Picking
-			ETextureFormat::None,
-			ETextureFormat::None,
-			ETextureFormat::None,
-			ETextureFormat::None,
-			ETextureFormat::None,
-			ETextureFormat::None,
 			ETextureFormat::DEPTH32F
 		};
 		m_RenderTarget = FRenderer::GraphicFactroy->CreateRenderTarget2D(Desc);
@@ -77,16 +69,23 @@ namespace Zero
 
 		{
 			auto RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool(RENDERLAYER_OPAQUE);
+			static auto LUTTexture2D = TLibrary<FTexture2D>::Fetch(IBL_BRDF_LUT);
+			static std::string ShadowMapID = std::format("{0}_{1}",  RENDER_STAGE_SHADOWMAP,  "_0");
+			static Ref<FRenderTarget2D> ShadowMapRenderTarget = TLibrary<FRenderTarget2D>::Fetch(ShadowMapID);
 			for (Ref<FRenderItem> RenderItem : *RenderItemPool.get())
 			{
 				RenderItem->m_PipelineStateObject->Bind();
-				if (m_bGenerateIrradianceMap)
+				const auto& PSODesc = RenderItem->m_PipelineStateObject->GetPSODescriptor();
+				const std::string& ShaderName = PSODesc.Shader->GetDesc().ShaderName;
+				if (m_bGenerateIrradianceMap && !RenderItem->m_Material->IsSetIBL() && ShaderName == PSO_FORWARDLIT)
 				{
-					//RenderItem->m_Material->SetTextureCubemap("IBLIrradianceMap", m_IBLMoudule->GetIrradianceRTCube()->GetColorCubemap());
+					RenderItem->m_Material->SetTextureCubemap("IBLIrradianceMap", m_IBLMoudule->GetIrradianceRTCube()->GetColorCubemap());
 					RenderItem->m_Material->SetTextureCubemapArray("IBLPrefilterMaps", m_IBLMoudule->GetPrefilterEnvMapTextureCubes());
-					//RenderItem->m_Material->SetTextureCubemap("IBLIrradianceMap", m_IBLMoudule->GetPrefilterEnvMapTextureCubeIndex(1));
-					//RenderItem->m_Material->SetTextureCubemap("IBLPrefilterMaps", m_IBLMoudule->GetPrefilterEnvMapTextureCube(0));
+					RenderItem->m_Material->SetTexture2D("_BrdfLUT", LUTTexture2D);
+					RenderItem->m_Material->SetIBL(true);
 				}
+
+				RenderItem->m_Material->SetTexture2D("gShadowMap", ShadowMapRenderTarget->GetTexture(EAttachmentIndex::DepthStencil));
 				RenderItem->m_Material->Tick();
 				RenderItem->m_Material->SetPass();
 				RenderItem->m_Material->OnDrawCall();

@@ -20,12 +20,13 @@ namespace Zero
 
 	struct FShaderDesc
 	{
+		std::string ShaderName;
 		bool bUseAlphaBlending = false;
 		FVertexBufferLayout VertexBufferLayout = FVertexBufferLayout::s_DefaultVertexLayout;
 		int NumRenderTarget = 2;
 		FFrameBufferTexturesFormats Formats = {
 			ETextureFormat::R8G8B8A8,
-			ETextureFormat::INT32, //   For Picking
+			ETextureFormat::None,
 			ETextureFormat::None,
 			ETextureFormat::None,
 			ETextureFormat::None,
@@ -35,7 +36,6 @@ namespace Zero
 			ETextureFormat::DEPTH32F
 		};
 
-		std::string ShaderName;
 		FShaderDefines ShaderDefines;
 		bool bCreateVS = true;
 		std::string VSEntryPoint = "VS";
@@ -51,7 +51,7 @@ namespace Zero
 	class FShader
 	{
 	public:
-		FShader(const std::string ShaderID, const FShaderBinderDesc& BinderDesc, const FShaderDesc& Desc);
+		FShader(const FShaderBinderDesc& BinderDesc, const FShaderDesc& Desc);
 		FShader(const FShaderDesc& Desc);
 		virtual ~FShader() {}
 		virtual void Use() = 0;
@@ -63,6 +63,8 @@ namespace Zero
 		const std::map<uint32_t, FShaderSRVParameter>& GetSRVParams() const { return m_SRVParams; }
 		
 		void GenerateShaderDesc();
+
+		const FShaderDesc& GetDesc() { return m_ShaderDesc; }
 
 	protected:
 		Ref<IShaderBinder> m_ShaderBinder;

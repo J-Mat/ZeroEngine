@@ -67,6 +67,9 @@ namespace Zero
 		float* PtrFloat3(const std::string& Name);
 		float* PtrFloat4(const std::string& Name);
 		float* PtrMatrix4x4(const std::string& Name);
+
+		bool IsSetIBL() { return m_bSetIBL; }
+		void SetIBL(bool bValue) { m_bSetIBL = bValue; };
 	private:
 		std::map<EShaderDataType, FOnSetParameter&> m_SetParameterMap;
 		Ref<FShader> m_Shader;
@@ -79,6 +82,7 @@ namespace Zero
 		Ref<IShaderResourcesBuffer> m_ResourcesBuffer;
 		
 		bool m_bUseMainCamera = true;
+		bool m_bSetIBL = false;
 	private:
 		FOnSetParameter m_OnSetFloat;
 		FOnSetParameter m_OnSetInt;

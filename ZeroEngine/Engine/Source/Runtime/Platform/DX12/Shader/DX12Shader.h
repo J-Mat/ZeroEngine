@@ -14,8 +14,8 @@ namespace Zero
 	{
 		friend class FDX12PipelineStateObject;
 	public:
-		FDX12Shader(const std::string& FileName, const FShaderBinderDesc& BinderDesc, const FShaderDesc& Desc);
-		FDX12Shader(const std::string& FileName, const FShaderDesc& Desc);
+		FDX12Shader(const FShaderBinderDesc& BinderDesc, const FShaderDesc& Desc);
+		FDX12Shader(const FShaderDesc& Desc);
 
 		virtual void CreateBinder();
 		virtual void Use() override;

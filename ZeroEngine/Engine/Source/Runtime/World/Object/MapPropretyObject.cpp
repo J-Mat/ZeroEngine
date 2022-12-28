@@ -74,7 +74,7 @@ namespace Zero
 	{
 		if (m_WholeDataSize > 0)
 		{
-			RemoveAllPreperties();
+			RemoveAllProperties();
 			RemoveAllData();
 			return true;
 		}

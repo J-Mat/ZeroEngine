@@ -12,7 +12,7 @@ namespace Zero
 		return m_ClassInfoCollection.RemoveTailProperty();
 	}
 
-	void UContainerProperty::RemoveAllPreperties()
+	void UContainerProperty::RemoveAllProperties()
 	{
 		m_ClassInfoCollection.RemoveAllProperties();
 	}
