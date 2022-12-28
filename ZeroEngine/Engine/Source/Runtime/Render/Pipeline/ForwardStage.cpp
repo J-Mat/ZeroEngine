@@ -85,7 +85,6 @@ namespace Zero
 					RenderItem->m_Material->SetIBL(true);
 				}
 
-				RenderItem->m_Material->SetTexture2D("gShadowMap", ShadowMapRenderTarget->GetTexture(EAttachmentIndex::DepthStencil));
 				RenderItem->m_Material->Tick();
 				RenderItem->m_Material->SetPass();
 				RenderItem->m_Material->OnDrawCall();

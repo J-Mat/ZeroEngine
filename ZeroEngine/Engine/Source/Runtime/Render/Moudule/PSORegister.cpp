@@ -112,6 +112,7 @@ namespace Zero
 			{
 				.Shader = FRenderer::GraphicFactroy->CreateShader(IBLIrradianceShaderDesc),
 				.bDepthEnable = false,
+				.CullMode = ECullMode::CULL_MODE_FRONT,
 			};
 			FRenderer::GraphicFactroy->CreatePSO("Shader\\IBL\\IBLIrradiance.hlsl", IrradianceMapPSODesc);
 		}
@@ -129,6 +130,7 @@ namespace Zero
 			{
 				.Shader = FRenderer::GraphicFactroy->CreateShader(PrefilterMapShaderDesc),
 				.bDepthEnable = false,
+				.CullMode = ECullMode::CULL_MODE_FRONT,
 			};
 			FRenderer::GraphicFactroy->CreatePSO(PrefilterMapShaderDesc.ShaderName, PrefilterMapPSODesc);
 		}

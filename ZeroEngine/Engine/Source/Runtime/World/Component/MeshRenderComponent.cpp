@@ -97,14 +97,6 @@ namespace Zero
 		{
 			SwitchPso();
 		}
-		auto TextureCubmap = TLibrary<FTextureCubemap>::Fetch("default");
-		if (TextureCubmap != nullptr)
-		{
-			for (size_t i = 0; i < m_SubmeshNum; i++)
-			{
-				m_Materials[RENDERLAYER_OPAQUE][i]->SetTextureCubemap("gSkyboxMap", TextureCubmap);
-			}
-		}
 
 		if (Property->GetPropertyName() == "m_ShaderFile")
 		{
