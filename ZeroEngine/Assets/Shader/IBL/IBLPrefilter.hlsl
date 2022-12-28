@@ -1,5 +1,8 @@
 #include "../Common.hlsl"
-#include "../PBRLighting.hlsl"
+#include "../Utils.hlsl"
+
+
+TextureCube gSkyboxMap : register(t0);
 
 cbuffer cbMaterial : register(b3)
 {

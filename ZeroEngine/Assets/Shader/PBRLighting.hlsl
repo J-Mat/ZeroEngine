@@ -2,10 +2,7 @@
 #ifndef PBRLIGHTING_HLSL
 #define PBRLIGHTING_HLSL
 
-
-
-#define F0_DIELECTRIC  float3(0.04f, 0.04f, 0.04f)
-#define PI 3.14159265359
+#define IBL_PREFILTER_ENVMAP_MIP_LEVEL 5
 
 float RadicalInverse_VdC(uint bits)
 {
@@ -43,7 +40,6 @@ float3 ImportanceSampleGGX(float2 Xi, float3 N, float Roughness)
 
 	return TangentX * H.x + TangentY * H.y + N * H.z;
 }
-
 float3 GetPrefilteredColor(float Roughness, float3 ReflectDir)
 {
     float Level = Roughness * (IBL_PREFILTER_ENVMAP_MIP_LEVEL - 1);
@@ -58,25 +54,25 @@ float3 GetPrefilteredColor(float Roughness, float3 ReflectDir)
 
 }
 
-
 float3 EnvBRDF(float Metallic, float3 BaseColor, float2 LUT)
 {
-    float3 F0 = lerp(F0_DIELECTRIC, BaseColor.rgb, Metallic); 
-    
+	float3 F0_DIELECTRIC = float3(0.04f, 0.04f, 0.04f);
+    float3 F0 = lerp(F0_DIELECTRIC, BaseColor, Metallic); 
     return F0 * LUT.x + LUT.y;
 }
 
-float3 AmbientLighting(float Metallic, float3 BaseColor, float3 Irradiance, float3 PrefilteredColor, float2 LUT, float AmbientAccess)
+float3 AmbientLighting(float Metallic, float3 BaseColor, float3 Irradiance, float3 PrefilteredColor, float2 LUT)
 {
     // IBL diffuse   
-    float3 DiffuseColor = (1.0 - Metallic) * BaseColor; // Metallic surfaces have no diffuse reflections
+    float3 DiffuseColor = (1.0f - Metallic) * BaseColor; // Metallic surfaces have no diffuse reflections
     float3 DiffuseContribution = DiffuseColor  * Irradiance;
     
     // IBL specular
     float3 SpecularContribution = PrefilteredColor * EnvBRDF(Metallic, BaseColor, LUT);
 
-    float3 Ambient = ( DiffuseContribution + SpecularContribution) * AmbientAccess;
+    float3 Ambient = ( DiffuseContribution + SpecularContribution);
     return Ambient;
 }
+
 
 #endif

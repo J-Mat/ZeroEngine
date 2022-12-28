@@ -2,6 +2,11 @@
 #include "Common.hlsl"
 #include "LightUtil.hlsl"
 
+Texture2D gDiffuseMap: register(t0);
+Texture2D gNormalMap: register(t1);
+Texture2D gMetallicMap: register(t2);
+Texture2D gRoughnessMap: register(t3);
+Texture2D gAOMap: register(t4);
 
 VertexOut VS(VertexIn vin)
 {

@@ -1,5 +1,6 @@
 #include "../Common.hlsl"
-#include "../PBRLighting.hlsl"
+
+TextureCube gSkyboxMap : register(t0);
 
 VertexOut VS(VertexIn Vin)
 {

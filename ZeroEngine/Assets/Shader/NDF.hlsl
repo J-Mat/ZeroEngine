@@ -1,6 +1,10 @@
 
 #include "Common.hlsl"
 #include "LightUtil.hlsl"
+
+
+Texture2D gDiffuseMap: register(t0);
+
 cbuffer cbMaterial : register(b3)
 {
 	float Rougness;

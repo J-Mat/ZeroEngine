@@ -2,6 +2,8 @@
 #define COMMON_HLSL
 
 
+#define PI 3.14159265359
+
 SamplerState gSamPointWrap : register(s0);
 SamplerState gSamPointClamp : register(s1);
 SamplerState gSamLinearWarp : register(s2);
@@ -9,18 +11,6 @@ SamplerState gSamLinearClamp : register(s3);
 SamplerState gSamAnisotropicWarp : register(s4);
 SamplerState gSamAnisotropicClamp : register(s5);
 
-
-Texture2D gDiffuseMap: register(t0);
-Texture2D gNormalMap: register(t1);
-Texture2D gMetallicMap: register(t2);
-Texture2D gRoughnessMap: register(t3);
-Texture2D gAOMap: register(t4);
-TextureCube gSkyboxMap : register(t5);
-TextureCube IBLIrradianceMap : register(t6);
-
-#define IBL_PREFILTER_ENVMAP_MIP_LEVEL 5
-TextureCube IBLPrefilterMaps[IBL_PREFILTER_ENVMAP_MIP_LEVEL] : register(t7);
-Texture2D BrdfLUT : register(t8);
 
 struct VertexIn
 {
@@ -92,5 +82,24 @@ cbuffer cbConstant : register(b2)
     int PointLightNum;
 };
 
+
+
+float3 NormalSampleToWorldSpace(float3 NormalMapSample, float3 UnitNormalW, float3 TangentW)
+{
+	// Uncompress each component from [0,1] to [-1,1].
+	float3 NormalT = 2.0f * NormalMapSample - 1.0f;
+
+	// Build orthonormal basis.
+	float3 N = UnitNormalW;
+	float3 T = normalize(TangentW - dot(TangentW, N)*N);
+	float3 B = cross(N, T);
+
+	float3x3 TBN = float3x3(T, B, N);
+
+	// Transform from tangent space to world space.
+	float3 BumpedNormalW = mul(NormalT, TBN);
+
+	return normalize(BumpedNormalW);
+}
 
 #endif

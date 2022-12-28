@@ -42,22 +42,4 @@ float GeometrySmith(float3 N, float3 V, float3 L, float k)
     return ggx1 * ggx2;
 }
 
-float3 NormalSampleToWorldSpace(float3 NormalMapSample, float3 UnitNormalW, float3 TangentW)
-{
-	// Uncompress each component from [0,1] to [-1,1].
-	float3 NormalT = 2.0f * NormalMapSample - 1.0f;
-
-	// Build orthonormal basis.
-	float3 N = UnitNormalW;
-	float3 T = normalize(TangentW - dot(TangentW, N)*N);
-	float3 B = cross(N, T);
-
-	float3x3 TBN = float3x3(T, B, N);
-
-	// Transform from tangent space to world space.
-	float3 BumpedNormalW = mul(NormalT, TBN);
-
-	return normalize(BumpedNormalW);
-}
-
 #endif
