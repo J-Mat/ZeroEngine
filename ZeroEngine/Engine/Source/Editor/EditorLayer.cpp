@@ -29,13 +29,8 @@ namespace Zero
 
 		m_CameraController = CreateRef<FEditorCameraController>(m_World->GetMainCamera());
 
-		FPSORegister::GetInstance().RegisterDefaultPSO();
-		FPSORegister::GetInstance().RegisterSkyboxPSO();
-		FPSORegister::GetInstance().RegisterIBLPSO();
-		FPSORegister::GetInstance().RegisterTestPSO();
-
-		Ref<FRenderStage> ForwardRendering = FForwardStage::Create();
-		m_ScriptablePipeline->PushLayer(ForwardRendering);
+		RegisterPso();
+		RegisterRenderStage();
 
 		{
 			Ref<FImage> Image = CreateRef<FImage>(ZConfig::GetAssestsFullPath("Texture\\DefaultTexture.png").string());
@@ -48,6 +43,26 @@ namespace Zero
 		}
 	}
 
+	void FEditorLayer::RegisterPso()
+	{
+		FPSORegister::GetInstance().RegisterDefaultPSO();
+		FPSORegister::GetInstance().RegisterSkyboxPSO();
+		FPSORegister::GetInstance().RegisterIBLPSO();
+		FPSORegister::GetInstance().RegisterShadowPSO();
+		FPSORegister::GetInstance().RegisterTestPSO();
+	}
+
+	void FEditorLayer::RegisterRenderStage()
+	{
+		/*
+		Ref<FRenderStage> ShadowStage = FForwardStage::Create();
+		m_ScriptablePipeline->PushLayer(ShadowStage);
+		*/
+
+		Ref<FRenderStage> ForwardRendering = FForwardStage::Create();
+		m_ScriptablePipeline->PushLayer(ForwardRendering);
+	}
+
 	void FEditorLayer::RegisterEditPanel()
 	{
 		FEditor::RegisterDataUIMapings();
@@ -55,6 +70,7 @@ namespace Zero
 		FEditor::RegisterPanel("Outline", m_OutlinePanel =  CreateRef<FOutlinePanel>());
 		FEditor::RegisterPanel("PlaceActor", m_PlaceActorPanel = CreateRef<FPlaceActorsPanel>());
 		FEditor::RegisterPanel("Viewport", m_ViewportPanel = CreateRef<FViewportPanel>());
+		FEditor::RegisterPanel("ShadowMap",  m_DebugViewportPanel = CreateRef<FDebugViewportPanel>());
 		FEditor::RegisterPanel("Detail",  m_DetailPanel = CreateRef<FDetailPanel>());
 		FEditor::RegisterPanel("Settings",  CreateRef<FSettingsPanel>());
 	}
@@ -70,8 +86,13 @@ namespace Zero
 		CLIENT_LOG_INFO("FEditorLayer::OnAttach");
 		FRenderer::GetDevice()->FlushInitCommandList();
 		
-		auto RenderTarget = TLibrary<FRenderTarget2D>::Fetch(RENDER_STAGE_FORWARD);
-		m_ViewportPanel->SetRenderTarget(RenderTarget);
+		auto MainViewportRenderTarget = TLibrary<FRenderTarget2D>::Fetch(RENDER_STAGE_FORWARD);
+		m_ViewportPanel->SetRenderTarget(MainViewportRenderTarget);
+
+		/*
+		auto ShadowMapRenderTarget = TLibrary<FRenderTarget2D>::Fetch(RENDER_STAGE_SHADOWMAP_DEBUG);
+		m_ViewportPanel->SetRenderTarget(ShadowMapRenderTarget);
+		*/
 	}
 	
 	void FEditorLayer::OnDetach()

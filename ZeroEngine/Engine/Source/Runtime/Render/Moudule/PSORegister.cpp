@@ -138,13 +138,28 @@ namespace Zero
 
 	void FPSORegister::RegisterShadowPSO()
 	{
-		FShaderDesc ShaderDesc 
 		{
-			.ShaderName = "Shader\\Shadow\\DirectLightShadowMap.hlsl",
-		};
-		FPSODescriptor ShadowDesc;
-		ShadowDesc.Shader = FRenderer::GraphicFactroy->CreateShader(ShaderDesc);
-		FRenderer::GraphicFactroy->CreatePSO(ShaderDesc.ShaderName, ShadowDesc);
+			FShaderDesc ShaderDesc
+			{
+				.ShaderName = "Shader\\Shadow\\DirectLightShadowMap.hlsl",
+			};
+			FPSODescriptor ShadowDesc
+			{
+				.PSOType = EPSOType::PT_Depth
+			};
+			ShadowDesc.Shader = FRenderer::GraphicFactroy->CreateShader(ShaderDesc);
+			FRenderer::GraphicFactroy->CreatePSO(ShaderDesc.ShaderName, ShadowDesc);
+		}
+
+		{
+			FShaderDesc ShaderDesc
+			{
+				.ShaderName = "Shader\\Shadow\\ShadowDebug.hlsl",
+			};
+			FPSODescriptor ShadowDesc;
+			ShadowDesc.Shader = FRenderer::GraphicFactroy->CreateShader(ShaderDesc);
+			FRenderer::GraphicFactroy->CreatePSO(ShaderDesc.ShaderName, ShadowDesc);
+		}
 	}
 
 	void FPSORegister::RegisterTestPSO()

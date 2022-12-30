@@ -5,16 +5,23 @@
 
 namespace Zero
 {
+	enum EPSOType
+	{
+		PT_Normal,	
+		PT_Depth,
+	};
 	struct FPSODescriptor
 	{
 		bool operator==(const FPSODescriptor& Other) const 
 		{
-			return Other.Shader == Shader
+			return Other.PSOType == PSOType
+				&& Other.Shader == Shader
 				&& Other.DepthFunc == DepthFunc
 				&& Other.CullMode == CullMode
 				&& Other.bDepthEnable == bDepthEnable
 				&& Other.TopologyType == TopologyType;
 		}
+		EPSOType PSOType = EPSOType::PT_Normal;
 		Ref<FShader> Shader = nullptr;
 		bool _4xMsaaState = false;
 		UINT _4xMsaaQuality = 0;

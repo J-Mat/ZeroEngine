@@ -7,20 +7,24 @@
 #include "World/Object/MapPropretyObject.h"
 #include "Data/Asset/AssetObject/MaterialAsset.h"
 #include "Render/RHI/PipelineStateObject.h"
+#include "Render/Moudule/ConstantsBufferManager.h"
 
 namespace Zero
 {
 	UMeshRenderComponent::UMeshRenderComponent()
 		: UComponent()
 	{
+		m_PerObjConstantsBuffer = FConstantsBufferManager::GetInstance().GetPerObjectConstantsBuffer();
 	}
 
 	UMeshRenderComponent::~UMeshRenderComponent()
 	{
+		FConstantsBufferManager::GetInstance().PushPerObjectConstantsBufferToPool(m_PerObjConstantsBuffer);
 	}
 
 	void UMeshRenderComponent::PostInit()
 	{
+		m_PerObjConstantsBuffer->SetInt("ShadingMode", m_ShadingMode);
 	}
 
 	void UMeshRenderComponent::SetEnableMaterial(bool bEnable)
@@ -38,22 +42,30 @@ namespace Zero
 		}
 	}
 
-	std::vector<Ref<FMaterial>>& UMeshRenderComponent::GetPassMaterials(uint32_t LayerLayer)
+	std::vector<Ref<FMaterial>>& UMeshRenderComponent::GetPassMaterials(uint32_t RenderLayer)
 	{
-		CORE_ASSERT(m_RenderLayer & LayerLayer, "Must have this RenderLayer");
+		CORE_ASSERT(m_RenderLayer & RenderLayer, "Must have this RenderLayer");
 		//Ref<FTexture2D> Texture = TLibrary<FTexture2D>::Fetch("default");
-		auto& iter = m_Materials.find(LayerLayer);
-		if (iter == m_Materials.end() || m_Materials[LayerLayer].size() != m_SubmeshNum)
+		auto& iter = m_Materials.find(RenderLayer);
+		if (iter == m_Materials.end() || m_Materials[RenderLayer].size() != m_SubmeshNum)
 		{
-			for (size_t i = m_Materials[LayerLayer].size(); i < m_SubmeshNum; i++)
+			for (size_t i = m_Materials[RenderLayer].size(); i < m_SubmeshNum; i++)
 			{
-				Ref<FMaterial> Material = CreateRef<FMaterial>();
-				m_Materials[LayerLayer].emplace_back(Material);
+				Ref<FMaterial> Material;
+				if (RenderLayer == RENDERLAYER_SHADOW)
+				{ 
+					Material = CreateRef<FMaterial>(false);
+				}
+				else
+				{
+					Material = CreateRef<FMaterial>();
+				}
+				m_Materials[RenderLayer].emplace_back(Material);
 			}
 		}	
 		
-		std::vector <Ref<FMaterial>>& OneLayerMaterials = m_Materials[LayerLayer];
-		return m_Materials[LayerLayer];
+		std::vector <Ref<FMaterial>>& OneLayerMaterials = m_Materials[RenderLayer];
+		return m_Materials[RenderLayer];
 	}
 
 	void UMeshRenderComponent::SetParameter(const std::string& ParameterName, EShaderDataType ShaderDataType, void* ValuePtr)
@@ -86,6 +98,12 @@ namespace Zero
 		SwitchPso();
 	}
 
+	void UMeshRenderComponent::SetShadingMode(EShadingMode ShadingMode)
+	{
+		m_ShadingMode = ShadingMode;
+		m_PerObjConstantsBuffer->SetInt("ShadingMode", m_ShadingMode);
+	}
+
 	void UMeshRenderComponent::PostEdit(UProperty* Property)
 	{
 		Supper::PostEdit(Property);
@@ -107,6 +125,10 @@ namespace Zero
 		if (Property->GetPropertyName() == "m_Floats" || Property->GetPropertyName() == "m_Textures" || Property->GetPropertyName() == "m_Colors")
 		{
 			AttachParameters();
+		}
+		if (Property->GetPropertyName() == "m_ShadingMode")
+		{
+			m_PerObjConstantsBuffer->SetInt("ShadingMode", m_ShadingMode);
 		}
 	}
 

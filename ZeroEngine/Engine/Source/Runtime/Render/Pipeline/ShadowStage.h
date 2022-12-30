@@ -5,6 +5,7 @@
 
 namespace Zero
 {
+	class FRenderItem;
 	class FShadowStage : public FRenderStage
 	{
 	public:
@@ -16,6 +17,13 @@ namespace Zero
 		virtual void OnDetach() override;
 		virtual void OnDraw() override;
 	private:
+		void RegisterDebugShadowMap();
+		void RegisterShadowMap();
+		void RenderShadowMapDebug();
+		void RenderShadowMap();
+	private:
+		Ref<FRenderItem> m_ShadowMapDebugItem;
 		std::vector<Ref<FRenderTarget2D>> m_ShadowMapRenderTargets;
+		Ref<FRenderTarget2D> m_ShadowMapDebugRenderTarget;
 	};
 }

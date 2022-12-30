@@ -15,10 +15,7 @@ namespace Zero
 		virtual void OnAttach() {}
 		virtual void OnDetach() {}
 		virtual void OnDraw() = 0;
-		Ref<FRenderTarget2D> GetOutput() { return m_RenderTarget; }
-		void SetInput(Ref<FRenderTarget2D> RenderTarget) { m_RenderTarget = RenderTarget; };
 	protected:
-		Ref<FRenderTarget2D> m_RenderTarget;
 		std::string m_Name = "";
 	};
 	

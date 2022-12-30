@@ -94,8 +94,8 @@ namespace Zero
 	{
 		std::vector<FVertex> Vertex(4);
 		
-		float W2 = 0.5f;
-		float H2 = 0.5f;
+		float W2 = 1.0f;
+		float H2 = 1.0f;
 		// Fill in the front face vertex data.
 		Vertex[0] = FVertex(-W2, -H2, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
 		Vertex[1] = FVertex(-W2, +H2, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
@@ -105,8 +105,8 @@ namespace Zero
 		std::vector<uint32_t> Indexs(6);
 
 		// Fill in the front face index data
-		Indexs[0] = 0; Indexs[1] = 1; Indexs[2] = 2;
-		Indexs[3] = 0; Indexs[4] = 2; Indexs[5] = 3;
+		Indexs[0] = 0; Indexs[1] = 2; Indexs[2] = 1;
+		Indexs[3] = 0; Indexs[4] = 3; Indexs[5] = 2;
 
 		AttachToMeshData(MeshData, Vertex, Indexs);
 	}
@@ -182,6 +182,61 @@ namespace Zero
 		}
 
 		AttachToMeshData(MeshData, Vertices, Indexs);
+	}
+
+	void FMeshGenerator::CreateGrid(FMeshData& MeshData, float Width, float Depth, uint32_t M, uint32_t N)
+	{
+		uint32_t vertexCount = M * N;
+		uint32_t faceCount = (M - 1) * (N - 1) * 2;
+
+		float halfWidth = 0.5f * Width;
+		float halfDepth = 0.5f * Depth;
+
+		float dx = Width / (N - 1);
+		float dz = Depth / (M - 1);
+
+		float du = 1.0f / (N - 1);
+		float dv = 1.0f / (M - 1);
+
+		std::vector<FVertex> Vertices(vertexCount);
+		for (uint32_t i = 0; i < M; ++i)
+		{
+			float z = halfDepth - i * dz;
+			for (uint32_t j = 0; j < N; ++j)
+			{
+				float x = -halfWidth + j * dx;
+
+				Vertices[i * N + j].Position = ZMath::vec3(x, 0.0f, z);
+				Vertices[i * N + j].Normal = ZMath::vec3(0.0f, 1.0f, 0.0f);
+				Vertices[i * N + j].TangentU = ZMath::vec3(1.0f, 0.0f, 0.0f);
+
+				// Stretch texture over grid.
+				Vertices[i * N + j].TexC.x = j * du;
+				Vertices[i * N + j].TexC.y = i * dv;
+			}
+		}
+
+		std::vector<uint32_t> Indices(faceCount * 3);
+
+		// Iterate over each quad and compute indices.
+		uint32_t k = 0;
+		for (uint32_t i = 0; i < M - 1; ++i)
+		{
+			for (uint32_t j = 0; j < N - 1; ++j)
+			{
+				Indices[k] = i * N + j;
+				Indices[k + 1] = i * N + j + 1;
+				Indices[k + 2] = (i + 1) * N + j;
+
+				Indices[k + 3] = (i + 1) * N + j;
+				Indices[k + 4] = i * N + j + 1;
+				Indices[k + 5] = (i + 1) * N + j + 1;
+
+				k += 6; // next quad
+			}
+		}
+
+		AttachToMeshData(MeshData, Vertices, Indices);
 	}
 
 	void FMeshGenerator::CreateCustomModel(std::vector<FMeshData>& MeshDatas, const std::string& Path, FVertexBufferLayout& Layout)

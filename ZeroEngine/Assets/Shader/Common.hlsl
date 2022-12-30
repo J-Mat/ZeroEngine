@@ -63,6 +63,7 @@ struct FMaterial
 cbuffer cbPerObject : register(b0)
 {
     float4x4 Model;
+    int ShadingMode;
 }
 
 cbuffer cbCameraObject : register(b1)

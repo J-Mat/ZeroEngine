@@ -1,19 +1,16 @@
 #include "MeshVertexComponent.h"
 #include "Render/RendererAPI.h"
 #include "World/World.h"
-#include "Render/Moudule/ConstantsBufferManager.h"
 
 namespace Zero
 { 
 	UMeshVertexComponent::UMeshVertexComponent()
 		: UComponent()
 	{
-		m_PerObjConstantsBuffer = FConstantsBufferManager::GetInstance().GetPerObjectConstantsBuffer();
 	}
 
 	UMeshVertexComponent::~UMeshVertexComponent()
 	{
-		FConstantsBufferManager::GetInstance().PushPerObjectConstantsBufferToPool(m_PerObjConstantsBuffer);
 	}
 
 	void UMeshVertexComponent::CreateMesh()

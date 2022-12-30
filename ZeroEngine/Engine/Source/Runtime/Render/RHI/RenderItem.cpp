@@ -64,6 +64,7 @@ namespace Zero
 		{
 			static auto PerObjIndex = m_Material->GetShader()->GetBinder()->GetBinderDesc().m_PerObjIndex ;
 			m_Material->GetShader()->GetBinder()->BindConstantsBuffer(PerObjIndex, m_PerObjectBuffer.get());
+			m_PerObjectBuffer->UploadDataIfDirty();
 		}
 		if (m_SubMesh.IsNull())
 		{

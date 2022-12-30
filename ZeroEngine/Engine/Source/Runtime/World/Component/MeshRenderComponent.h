@@ -9,7 +9,7 @@
 namespace Zero
 {
 	UENUM()
-		enum EPsoType
+	enum EPsoType
 	{
 		UPROPERTY(Invisible)
 		PT_Skybox,
@@ -22,6 +22,16 @@ namespace Zero
 
 		UPROPERTY()
 		PT_ForwardLit,
+	};
+
+	UENUM()
+	enum EShadingMode
+	{
+		UPROPERTY()
+		SM_Light,
+
+		UPROPERTY()
+		SM_Test,
 	};
 
 	class FMaterial;
@@ -45,12 +55,15 @@ namespace Zero
 		Ref<FPipelineStateObject> GetPipelineStateObject();
 		void SetPsoType(EPsoType PosType);
 
+		void SetShadingMode(EShadingMode ShadingMode);
+
 		virtual void PostEdit(UProperty* Property) override;
 		void AttachPso();
 		void AttachParameters();
 		void UpdateSettings();
 		void SwitchPso();
 	private:
+		Ref<IShaderConstantsBuffer> m_PerObjConstantsBuffer = nullptr;
 		std::unordered_map<uint32_t, std::vector<Ref<FMaterial>>> m_Materials;
 		uint32_t m_SubmeshNum = 0;
 		
@@ -66,6 +79,9 @@ namespace Zero
 		UPROPERTY()
 		EPsoType m_Psotype = EPsoType::PT_ForwardLit;
 
+
+		UPROPERTY()
+		EShadingMode m_ShadingMode = EShadingMode::SM_Light;
 
 	public:
 		UPROPERTY(Format = hlsl)

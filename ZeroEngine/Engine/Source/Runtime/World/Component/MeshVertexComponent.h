@@ -24,7 +24,6 @@ namespace Zero
 		void CreateMesh();
 		void GenerateAABB();
 	protected:
-		Ref<IShaderConstantsBuffer> m_PerObjConstantsBuffer = nullptr;
 		Ref<FMesh> m_Mesh;
 		FMeshType m_MeshType;
 		std::vector<FMeshData> m_MeshDatas;

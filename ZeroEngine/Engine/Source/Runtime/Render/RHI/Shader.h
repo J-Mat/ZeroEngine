@@ -26,13 +26,6 @@ namespace Zero
 		int NumRenderTarget = 2;
 		FFrameBufferTexturesFormats Formats = {
 			ETextureFormat::R8G8B8A8,
-			ETextureFormat::None,
-			ETextureFormat::None,
-			ETextureFormat::None,
-			ETextureFormat::None,
-			ETextureFormat::None,
-			ETextureFormat::None,
-			ETextureFormat::None,
 			ETextureFormat::DEPTH32F
 		};
 

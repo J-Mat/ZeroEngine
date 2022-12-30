@@ -14,7 +14,7 @@ namespace Zero
 	public:
 		FDX12ShaderConstantsBuffer(FShaderConstantsDesc& Desc);
 
-		virtual void SetInt(const std::string& Name, const int& Value);
+		virtual void SetInt(const std::string& Name, int Value);
 		virtual void SetFloat(const std::string& Name, const float& Vaue);
 		virtual void SetFloat2(const std::string& Name, const ZMath::vec2& Value);
 		virtual void SetFloat3(const std::string& Name, const ZMath::vec3& Value);

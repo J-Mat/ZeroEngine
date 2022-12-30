@@ -20,7 +20,8 @@ namespace Zero
 		"cbPerObject",
 		0, 
 		{
-			{EShaderDataType::Mat4, "Model"}
+			{EShaderDataType::Mat4, "Model"},
+			{EShaderDataType::Int, "ShadingMode"}
 		}
 	};
 

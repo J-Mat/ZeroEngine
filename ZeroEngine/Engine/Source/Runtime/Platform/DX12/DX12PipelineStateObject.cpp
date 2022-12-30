@@ -46,6 +46,19 @@ namespace Zero
 		PsoDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 		PsoDesc.SampleDesc.Count = 1;	// No 4XMSAA
 		PsoDesc.SampleDesc.Quality = m_PSODescriptor._4xMsaaQuality;	////No 4XMSAA
+
+		switch (m_PSODescriptor.PSOType)
+		{
+		case EPSOType::PT_Normal:
+			break;
+		case EPSOType::PT_Depth:
+			PsoDesc.RasterizerState.DepthBias = 100000;
+			PsoDesc.RasterizerState.DepthBiasClamp = 0.0f;
+			PsoDesc.RasterizerState.SlopeScaledDepthBias = 1.0f;
+		default:
+			break;
+		}
+
 		ThrowIfFailed(FDX12Device::Get()->GetDevice()->CreateGraphicsPipelineState(&PsoDesc, IID_PPV_ARGS(&m_D3DPipelineState)));
 	}
 }

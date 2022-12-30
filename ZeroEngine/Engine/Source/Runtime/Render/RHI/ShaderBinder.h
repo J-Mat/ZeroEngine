@@ -96,7 +96,7 @@ namespace Zero
 		IShaderConstantsBuffer(FShaderConstantsDesc& Desc) : m_Desc(Desc) {}
 		virtual ~IShaderConstantsBuffer() = default;
 
-		virtual void SetInt(const std::string& Name, const int& Value) = 0;
+		virtual void SetInt(const std::string& Name, int Value) = 0;
 		virtual void SetFloat(const std::string& Name, const float& Value) = 0;
 		virtual void SetFloat2(const std::string& Name, const ZMath::vec2& Value) = 0;
 		virtual void SetFloat3(const std::string& Name, const ZMath::vec3& Value) = 0;

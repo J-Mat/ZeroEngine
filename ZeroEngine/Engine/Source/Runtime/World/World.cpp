@@ -12,6 +12,7 @@ namespace Zero
 		m_MainCamera = CreateActor<UCameraActor>();
 		m_RenderItemPool.insert({ RENDERLAYER_OPAQUE, CreateRef<FRenderItemPool>()});
 		m_RenderItemPool.insert({ RENDERLAYER_SKYBOX, CreateRef<FRenderItemPool>()});
+		m_RenderItemPool.insert({ RENDERLAYER_SHADOW, CreateRef<FRenderItemPool>()});
 		
 		m_DIYRenderItemPool = CreateRef<FRenderItemPool>();
 	}

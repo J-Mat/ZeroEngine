@@ -42,7 +42,7 @@ namespace Zero
 		m_ConstantsTableBuffer = CreateRef<FFrameResourceBuffer>(m_Desc.Size);
 	}
 
-	void FDX12ShaderConstantsBuffer::SetInt(const std::string& Name, const int& Value)
+	void FDX12ShaderConstantsBuffer::SetInt(const std::string& Name, int Value)
 	{
 		COPY_DATA_TO_CONSTBUFFER(Name, Value);
 	}

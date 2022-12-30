@@ -43,6 +43,7 @@ namespace Zero
 		}
 	static FVertexBufferLayout s_DefaultVertexLayout;
 	static FVertexBufferLayout s_SkyboxVertexLayout;
+	static FVertexBufferLayout s_DebugVertexLayout;
 
 	private:
 		std::vector<FBufferElement> ElementsList;

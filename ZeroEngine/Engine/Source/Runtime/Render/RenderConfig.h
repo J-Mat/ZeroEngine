@@ -7,10 +7,11 @@ namespace Zero
 	#define	RENDERLAYER_TRANSPARENT  (1 << 1)
 	#define RENDERLAYER_ALPHATEST  (1 << 2)
 	#define	RENDERLAYER_SKYBOX  (1 << 3)
-	#define	RENDERLAYER_SHAWODOW  (1 << 4)
+	#define	RENDERLAYER_SHADOW  (1 << 4)
 
 	#define RENDER_STAGE_FORWARD "ForwardLit"
 	#define RENDER_STAGE_SHADOWMAP "ShadowMap"
+	#define RENDER_STAGE_SHADOWMAP_DEBUG "ShadowMapDebug"
 
 	#define PSO_FORWARDLIT "Shader\\ForwardLit.hlsl"
 	#define PSO_DIRECT_LIGHT "DirectLight"

@@ -20,7 +20,7 @@ namespace Zero
 		virtual void OnDetach() override;
 		virtual void OnDraw() override;
 	private:
-	private:
+		Ref<FRenderTarget2D> m_RenderTarget;
 		Ref<FImageBasedLighting> m_IBLMoudule;
 		bool m_bGenerateIrradianceMap = false;
 	};
