@@ -15,10 +15,13 @@ namespace Zero
 {
 	void FForwardStage::OnAttach()
 	{
-		FRenderTarget2DDesc Desc;
-		Desc.Format = {
-			ETextureFormat::R8G8B8A8,
-			ETextureFormat::DEPTH32F
+		FRenderTarget2DDesc Desc
+		{
+			.RenderTargetName = "ForwardLit",
+			.Format = {
+				ETextureFormat::R8G8B8A8,
+				ETextureFormat::DEPTH32F
+			}
 		};
 		m_RenderTarget = FRenderer::GraphicFactroy->CreateRenderTarget2D(Desc);
 		TLibrary<FRenderTarget2D>::Push(RENDER_STAGE_FORWARD, m_RenderTarget);
@@ -38,8 +41,6 @@ namespace Zero
 
 	void FForwardStage::OnDraw()
 	{
-		m_RenderTarget->ClearBuffer();
-
 		static auto* Settings = FSettingManager::GetInstance().FecthSettings<USceneSettings>(USceneSettings::StaticGetObjectName());
 		
 		if (Settings->m_bUseSkyBox)
@@ -51,8 +52,8 @@ namespace Zero
 			}
 		}
 
-		m_RenderTarget->Bind();
 
+		m_RenderTarget->Bind();
 		if (Settings->m_bUseSkyBox)
 		{
 			static auto SkyboxPSO = TLibrary<FPipelineStateObject>::Fetch(PSO_SKYBOX);

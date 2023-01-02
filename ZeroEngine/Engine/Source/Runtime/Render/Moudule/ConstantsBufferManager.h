@@ -17,9 +17,11 @@ namespace Zero
 
 		Ref<IShaderConstantsBuffer> GetPerObjectConstantsBuffer();
 		void PushPerObjectConstantsBufferToPool(Ref<IShaderConstantsBuffer> Buffer);
+		void PushCameraConstantsBufferToPool(Ref<IShaderConstantsBuffer> Buffer);
 	protected:
 		Ref<IShaderConstantsBuffer> m_GlobalConstantsBuffer = nullptr;
 
 		std::queue<Ref<IShaderConstantsBuffer>> m_IdlePerObjectConstantsBuffer;
+		std::queue<Ref<IShaderConstantsBuffer>> m_IdleCameraConstantsBuffer;
 	};
 }

@@ -50,7 +50,7 @@ namespace  Zero
 			Buffer->SetFloat3(PropertyStr, TransformComponent->GetForwardVector());
 
 			PropertyStr = std::format("DirectLights[{0}].{1}", i, m_DirectLightProperties[PropertyIndex++]);
-			Buffer->SetMatrix4x4(PropertyStr, DirectLightComponent->GetViewProject());
+			Buffer->SetMatrix4x4(PropertyStr, DirectLightComponent->GetProjectView());
 		}
 
 		Buffer->SetInt("PointLightNum", int(m_PointLights.size()));

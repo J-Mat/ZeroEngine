@@ -21,6 +21,7 @@ namespace Zero
 
 	struct FRenderTarget2DDesc
 	{
+		std::string RenderTargetName = "default";
 		uint32_t Width = 900;
 		uint32_t Height = 600;
 		FFrameBufferTexturesFormats Format;
@@ -38,8 +39,9 @@ namespace Zero
 		FRenderTarget2D& operator=(FRenderTarget2D&& other) = default;
 
 		virtual void ClearBuffer() = 0;
-		virtual void Bind() = 0;
+		virtual void Bind(bool bClearBuffer = true) = 0;
 		virtual void UnBind() = 0;
+		virtual void UnBindDepth() = 0;
 		virtual void AttachTexture(EAttachmentIndex AttachmentIndex, Ref<FTexture2D> Texture2D) = 0;
 
 		virtual void Reset()
@@ -62,6 +64,7 @@ namespace Zero
 
 	struct FRenderTargetCubeDesc
 	{
+		std::string RenderTargetName = "default";
 		uint32_t Size = 900;
 		bool bRenderDepth = false;
 		ETextureFormat TextureFormat = ETextureFormat::R8G8B8A8;

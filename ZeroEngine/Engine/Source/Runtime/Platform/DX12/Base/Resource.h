@@ -9,7 +9,7 @@ namespace Zero
 	{
 	public:
 		IResource();
-		IResource(const D3D12_RESOURCE_DESC& ResourceDesc,
+		IResource(const std::string& ResourceName, const D3D12_RESOURCE_DESC& ResourceDesc,
 			const D3D12_CLEAR_VALUE* ClearValue = nullptr);
 		IResource(ComPtr<ID3D12Resource> Resource,
 			const D3D12_CLEAR_VALUE* ClearValue = nullptr);

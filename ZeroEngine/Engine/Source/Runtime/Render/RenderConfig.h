@@ -18,6 +18,7 @@ namespace Zero
 	#define PSO_POINT_LIGHT "PointLight"
 	#define PSO_SKYBOX "SkyBox"
 	#define PSO_FRESNEL "Fresnel"
+	#define PSO_SHADOWMAP "ShadowMap"
 	#define PSO_NDF "NDF"
 	#define PSO_GGX "GGX"
 	#define IBL_BRDF_LUT "IBL_BRDF_LUT"

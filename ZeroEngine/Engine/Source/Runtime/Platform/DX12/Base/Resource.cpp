@@ -1,13 +1,14 @@
 #include "Resource.h"
 #include "../DX12Device.h"
 #include "../MemoryManage/ResourceStateTracker.h"
+#include "Utils.h"
 
 namespace Zero
 {
 	IResource::IResource()
 	{
 	}
-	IResource::IResource(const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* ClearValue)
+	IResource::IResource(const std::string& ResourceName, const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* ClearValue)
 	{
 		auto* D3dDevice = FDX12Device::Get()->GetDevice();
 		
@@ -19,6 +20,8 @@ namespace Zero
 			D3dDevice->CreateCommittedResource(
 				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &ResourceDesc,
 				D3D12_RESOURCE_STATE_COMMON, m_D3DClearValue.get(), IID_PPV_ARGS( &m_D3DResource )));
+
+		m_D3DResource->SetName(Utils::StringToLPCWSTR(ResourceName));
 
 		FResourceStateTracker::AddGlobalResourceState(m_D3DResource.Get(), D3D12_RESOURCE_STATE_COMMON);
 	

@@ -30,7 +30,8 @@ namespace Zero
 		CD3DX12_CLEAR_VALUE OptClear;
 		OptClear.Format = DxgiFormat;
 		memcpy(OptClear.Color, DirectX::Colors::Transparent, 4 * sizeof(float));
-		m_TextureColorCubemap = CreateRef<FDX12TextureCubemap>(TexDesc, &OptClear);
+		std::string ColorTexturName = std::format("{0}_Color", Desc.RenderTargetName);
+		m_TextureColorCubemap = CreateRef<FDX12TextureCubemap>(ColorTexturName, TexDesc, &OptClear);
 
 		if (m_bRenderDepth)
 		{
@@ -49,7 +50,8 @@ namespace Zero
 				.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN,
 				.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL
 			};
-			m_TextureDepthCubemap = CreateRef<FDX12TextureCubemap>(DepthDesc);
+			std::string DepthTexturName = std::format("{0}_Depth", Desc.RenderTargetName);
+			m_TextureDepthCubemap = CreateRef<FDX12TextureCubemap>(DepthTexturName, DepthDesc);
 		}
 		SetViewportRect();
 	}

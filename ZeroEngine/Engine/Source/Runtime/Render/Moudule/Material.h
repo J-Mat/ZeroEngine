@@ -77,9 +77,9 @@ namespace Zero
 		Ref<FShaderConstantsDesc> m_MaterialDesc;
 		Ref<FShaderResourcesDesc> m_ResourcesDesc;
 
-		Ref<IShaderConstantsBuffer> m_MaterialBuffer;
-		Ref<IShaderConstantsBuffer> m_CameraBuffer;
-		Ref<IShaderResourcesBuffer> m_ResourcesBuffer;
+		Ref<IShaderConstantsBuffer> m_MaterialBuffer = nullptr;
+		Ref<IShaderConstantsBuffer> m_CameraBuffer = nullptr;
+		Ref<IShaderResourcesBuffer> m_ResourcesBuffer = nullptr;
 		
 		bool m_bUseMainCamera = true;
 		bool m_bSetIBL = false;

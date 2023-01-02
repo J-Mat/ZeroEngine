@@ -165,12 +165,12 @@ namespace Zero
 			ComPtr<ID3D12Resource> BackBuffer;
 			ThrowIfFailed(m_DxgiSwapChain->GetBuffer(i, IID_PPV_ARGS(&BackBuffer)));
 			
-			m_BackBufferTextures[i] = CreateRef<FDX12Texture2D>(BackBuffer, m_Width, m_Height);
+			std::string BufferName = std::format("BackBuffer[{0}]", i);
+			m_BackBufferTextures[i] = CreateRef<FDX12Texture2D>(BufferName, BackBuffer, m_Width, m_Height);
 			m_BackBufferTextures[i]->RegistGuiShaderResource();
 
 			// Set the names for the backbuffer textures.
 			// Useful for debugging.
-			m_BackBufferTextures[i]->SetName(L"Backbuffer[" + std::to_wstring(i) + L"]");
 		}
 		
 		
@@ -183,7 +183,11 @@ namespace Zero
 		D3D12_CLEAR_VALUE OptClear = {};
 		OptClear.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 		OptClear.DepthStencil = { 1.0F, 0 };
-		m_DepthStencilTexture = CreateRef<FDX12Texture2D>(DepthStencilDesc, &OptClear);
-		m_DepthStencilTexture->SetName(L"DepthStencilTexture");
+		std::string DepthStencilTexture = "DepthStencilTexture";
+		FDX12TextureSettings Settings
+		{
+			.Desc = DepthStencilDesc,
+		};
+		m_DepthStencilTexture = CreateRef<FDX12Texture2D>(DepthStencilTexture, Settings, &OptClear);
 	}
 }

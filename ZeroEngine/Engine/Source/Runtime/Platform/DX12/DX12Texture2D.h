@@ -10,14 +10,23 @@ namespace Zero
 {
     class FDX12Device;
     class FDescriptorAllocation;
+    
+    struct FDX12TextureSettings
+    {
+        D3D12_RESOURCE_DESC Desc;
+		DXGI_FORMAT SRVFormat = DXGI_FORMAT_UNKNOWN;
+		DXGI_FORMAT RTVFormat = DXGI_FORMAT_UNKNOWN;
+		DXGI_FORMAT DSVFormat = DXGI_FORMAT_UNKNOWN;
+		DXGI_FORMAT UAVFormat = DXGI_FORMAT_UNKNOWN;
+    };
 
 	class FDX12Texture2D :public FTexture2D, public IResource
 	{
         friend class FDX12RenderTarget2D;
 	public:
-		FDX12Texture2D(const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* ClearValue = nullptr);
-		FDX12Texture2D(Ref<FImage> ImageData);
-        FDX12Texture2D(ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, const D3D12_CLEAR_VALUE* ClearValue = nullptr);
+		FDX12Texture2D(const std::string& TextureName, const FDX12TextureSettings& TextureSettings, const D3D12_CLEAR_VALUE* ClearValue = nullptr);
+		FDX12Texture2D(const std::string& TextureName, Ref<FImage> ImageData);
+        FDX12Texture2D(const std::string& TextureName, ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, const D3D12_CLEAR_VALUE* ClearValue = nullptr);
 
 
         virtual ZMath::uvec2 GetSize() 

@@ -6,6 +6,7 @@ namespace Zero
 		:IResource()
 	{
 	}
+	/*
 	IBuffer::IBuffer(const D3D12_RESOURCE_DESC& ResDesc)
 		:IResource(ResDesc)
 	{
@@ -15,4 +16,6 @@ namespace Zero
 		:IResource(Resource)
 	{
 	}
+	*/
 }
+

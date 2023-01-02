@@ -10,8 +10,10 @@ namespace Zero
 	{
 	public:
 		IBuffer();
+		/*
 		IBuffer(const D3D12_RESOURCE_DESC& ResDesc);
 		IBuffer(Microsoft::WRL::ComPtr<ID3D12Resource> Resource);
+		*/
 	};
 }
 

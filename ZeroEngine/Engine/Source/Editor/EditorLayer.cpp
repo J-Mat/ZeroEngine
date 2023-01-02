@@ -1,5 +1,6 @@
 #include "EditorLayer.h"
 #include "Render/Pipeline/ForwardStage.h"
+#include "Render/Pipeline/ShadowStage.h"
 #include "Platform/Windows/WinWindow.h"
 #include "EditorCameraController.h"
 #include "Dialog/DialogUtils.h"
@@ -54,10 +55,8 @@ namespace Zero
 
 	void FEditorLayer::RegisterRenderStage()
 	{
-		/*
-		Ref<FRenderStage> ShadowStage = FForwardStage::Create();
+		Ref<FRenderStage> ShadowStage = FShadowStage::Create();
 		m_ScriptablePipeline->PushLayer(ShadowStage);
-		*/
 
 		Ref<FRenderStage> ForwardRendering = FForwardStage::Create();
 		m_ScriptablePipeline->PushLayer(ForwardRendering);
@@ -66,8 +65,8 @@ namespace Zero
 	void FEditorLayer::RegisterEditPanel()
 	{
 		FEditor::RegisterDataUIMapings();
-		FEditor::RegisterPanel("Content", m_ContentBrowserPanel =  CreateRef<FContentBrowserPanel>());
-		FEditor::RegisterPanel("Outline", m_OutlinePanel =  CreateRef<FOutlinePanel>());
+		FEditor::RegisterPanel("Content", m_ContentBrowserPanel = CreateRef<FContentBrowserPanel>());
+		FEditor::RegisterPanel("Outline", m_OutlinePanel = CreateRef<FOutlinePanel>());
 		FEditor::RegisterPanel("PlaceActor", m_PlaceActorPanel = CreateRef<FPlaceActorsPanel>());
 		FEditor::RegisterPanel("Viewport", m_ViewportPanel = CreateRef<FViewportPanel>());
 		FEditor::RegisterPanel("ShadowMap",  m_DebugViewportPanel = CreateRef<FDebugViewportPanel>());
@@ -89,10 +88,8 @@ namespace Zero
 		auto MainViewportRenderTarget = TLibrary<FRenderTarget2D>::Fetch(RENDER_STAGE_FORWARD);
 		m_ViewportPanel->SetRenderTarget(MainViewportRenderTarget);
 
-		/*
 		auto ShadowMapRenderTarget = TLibrary<FRenderTarget2D>::Fetch(RENDER_STAGE_SHADOWMAP_DEBUG);
-		m_ViewportPanel->SetRenderTarget(ShadowMapRenderTarget);
-		*/
+		m_DebugViewportPanel->SetRenderTarget(ShadowMapRenderTarget);
 	}
 	
 	void FEditorLayer::OnDetach()

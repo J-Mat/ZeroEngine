@@ -29,6 +29,10 @@ namespace Zero
 
 	FMaterial::~FMaterial()
 	{
+		if (m_bUseMainCamera)
+		{
+			FConstantsBufferManager::GetInstance().PushCameraConstantsBufferToPool(m_CameraBuffer);
+		}
 	}
 
 	void FMaterial::Tick()
@@ -50,7 +54,7 @@ namespace Zero
 				UCameraActor* Camera = UWorld::GetCurrentWorld()->GetMainCamera();
 				m_CameraBuffer = Camera->GetConstantBuffer();
 			}
-			else
+			else if (m_CameraBuffer == nullptr)
 			{
 				m_CameraBuffer = FConstantsBufferManager::GetInstance().GetCameraConstantBuffer();
 			}
@@ -66,15 +70,18 @@ namespace Zero
 
 	void FMaterial::OnDrawCall()
 	{
-		if (m_MaterialBuffer)
+		if (m_MaterialBuffer != nullptr)
 		{
 			m_MaterialBuffer->UploadDataIfDirty();
 		}
-		if (m_ResourcesBuffer)
+		if (m_ResourcesBuffer != nullptr)
 		{
 			m_ResourcesBuffer->UploadDataIfDirty();
 		}
-		m_CameraBuffer->UploadDataIfDirty();
+		if (m_CameraBuffer != nullptr)
+		{
+			m_CameraBuffer->UploadDataIfDirty();
+		}
 		FConstantsBufferManager::GetInstance().GetGlobalConstantBuffer()->UploadDataIfDirty();
 	}
 

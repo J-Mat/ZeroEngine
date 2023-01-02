@@ -251,4 +251,16 @@ static std::ostream& operator<<(std::ostream& os, ZMath::ivec4& pt)
     os << std::format("[{0}, {1}, {2}, {3}]", pt.x, pt.y, pt.z, pt.w);
     return os;
 }
+static std::ostream& operator<<(std::ostream& os, ZMath::mat4& mat)
+{
+    for (int i = 0; i < 4; ++i)
+    {
+        for (int j = 0; j < 4; ++j)
+        {
+            os << mat[i][j] << " ";
+        }
+        os << "\n";
+    }
+    return os;
+}
 }

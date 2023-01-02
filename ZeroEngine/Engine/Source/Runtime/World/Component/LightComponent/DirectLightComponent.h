@@ -2,23 +2,25 @@
 
 #include "LightComponent.h"
 #include "../TransformComponent.h"
+#include "Render/RenderConfig.h"
 
 namespace Zero
 {
 	class UDirectLightComponnet : public ULightComponent
 	{
 	public:
-		UDirectLightComponnet() = default;
+		UDirectLightComponnet();
 		virtual void PostInit();
 		
-		ZMath::mat4 GetViewProject();
+		ZMath::mat4 GetProjectView();
+		ZMath::mat4 GetProject() { return m_SceneView.Proj; }
+		ZMath::mat4 GetView() { return m_SceneView.View; }
 	
+		FSceneView& GetSceneView() { return m_SceneView; }
 	private:
 		void OnTransfromChanged(UTransformComponent* TransformComponent);
 	private: 
-		float m_Width = 1024;
-		ZMath::mat4 m_Projection = ZMath::orthoLH_NO(m_Width, m_Width, -m_Width, m_Width, -m_Width, m_Width);
-		ZMath::mat4 m_View;
-		ZMath::mat4 m_ViewProject;
+		float m_Width = 50.0f;
+		FSceneView m_SceneView;
 	};
 }

@@ -17,6 +17,17 @@ namespace Zero
 		}
 		static FVertexBufferLayout StandardVertexBufferLayout;
 
+		bool HasProperty(const std::string& ProppertyName) const
+		{
+			for (const auto& Element : ElementsList)
+			{
+				if (Element.Name == ProppertyName)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
 		bool operator==(const FVertexBufferLayout& Other) const
 		{
 			return ElementsList == Other.ElementsList;

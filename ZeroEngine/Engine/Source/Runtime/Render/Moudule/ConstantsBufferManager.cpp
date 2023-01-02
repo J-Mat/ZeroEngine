@@ -53,7 +53,18 @@ namespace Zero
 	}
 	Ref<IShaderConstantsBuffer> FConstantsBufferManager::GetCameraConstantBuffer()
 	{
-		return FRenderer::GraphicFactroy->CreateShaderConstantBuffer(GetPerCameraConstantsDesc());
+		Ref<IShaderConstantsBuffer> Result;
+		if (m_IdleCameraConstantsBuffer.empty())
+		{
+			Result = FRenderer::GraphicFactroy->CreateShaderConstantBuffer(GetPerCameraConstantsDesc());
+		}
+		else
+		{
+			Result = m_IdleCameraConstantsBuffer.front();
+			m_IdleCameraConstantsBuffer.pop();
+		}
+
+		return Result;
 	}
 
 	Ref<IShaderConstantsBuffer> FConstantsBufferManager::GetMaterialConstBufferByDesc(Ref<FShaderConstantsDesc> Desc)
@@ -99,6 +110,10 @@ namespace Zero
 	void FConstantsBufferManager::PushPerObjectConstantsBufferToPool(Ref<IShaderConstantsBuffer> Buffer)
 	{
 		m_IdlePerObjectConstantsBuffer.push(Buffer);
+	}
+	void FConstantsBufferManager::PushCameraConstantsBufferToPool(Ref<IShaderConstantsBuffer> Buffer)
+	{
+		m_IdleCameraConstantsBuffer.push(Buffer);
 	}
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 }

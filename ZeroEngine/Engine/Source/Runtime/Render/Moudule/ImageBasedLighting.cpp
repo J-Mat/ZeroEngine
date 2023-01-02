@@ -30,6 +30,7 @@ namespace Zero
 
 		FRenderTargetCubeDesc IrradianceMapRTCubeDesc =
 		{
+			.RenderTargetName = "IrradianceMap",
 			.Size = 256,
 		};
 		m_IBLIrradianceMapRTCube = FRenderer::GraphicFactroy->CreateRenderTargetCube(IrradianceMapRTCubeDesc);
@@ -64,6 +65,7 @@ namespace Zero
 		{
 			FRenderTargetCubeDesc PrefilterMapRTCubeDesc =
 			{
+				.RenderTargetName = std::format("PrefilterMap_Mip_{0}", Mip),
 				.Size = PrefilterMapSize,
 			};
 			m_PrefilterEnvMapRTCubes[Mip] = FRenderer::GraphicFactroy->CreateRenderTargetCube(PrefilterMapRTCubeDesc);

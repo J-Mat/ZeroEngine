@@ -113,7 +113,6 @@ namespace Zero
 
 		virtual Ref<FMesh> CreateMesh(const std::vector<FMeshData>& MeshDatas, FVertexBufferLayout& Layout)
 		{
-			
 			return CreateRef<FDX12Mesh>(MeshDatas, Layout);
 		}
 
@@ -158,7 +157,7 @@ namespace Zero
 
 		virtual Ref<FTexture2D> CreateTexture2D(Ref<FImage> Image, std::string ImageName)
 		{
-			Ref<FTexture2D> Texture = CreateRef<FDX12Texture2D>(Image);
+			Ref<FTexture2D> Texture = CreateRef<FDX12Texture2D>(ImageName, Image);
 #if	EDITOR_MODE
 			Texture->RegistGuiShaderResource();
 #endif
@@ -176,7 +175,7 @@ namespace Zero
 				if (std::filesystem::exists(TexturePath))
 				{
 					Ref<FImage> Image = CreateRef<FImage>(TexturePath.string());
-					Texture = CreateRef<FDX12Texture2D>(Image);
+					Texture = CreateRef<FDX12Texture2D>(FileName, Image);
 					std::cout << FileName << std::endl;
 					TLibrary<FTexture2D>::Push(FileName, Texture);
 #if	EDITOR_MODE
@@ -216,7 +215,7 @@ namespace Zero
 					Ref<FTexture2D> Texture2D = GetOrCreateTexture2D(Handles[i]);
 					ImageData[i] = Texture2D->GetImage();
 				}
-				TextureCubemap = CreateRef<FDX12TextureCubemap>(ImageData);
+				TextureCubemap = CreateRef<FDX12TextureCubemap>(TextureCubemapName, ImageData);
 			}
 			else
 			{
@@ -228,7 +227,7 @@ namespace Zero
 					Ref<FTexture2D> Texture2D = GetOrCreateTexture2D(Handles[i]);
 					ImageData[i] = Texture2D->GetImage();
 				}
-				TextureCubemap = CreateRef<FDX12TextureCubemap>(ImageData);
+				TextureCubemap = CreateRef<FDX12TextureCubemap>(TextureCubemapName, ImageData);
 			}
 			TLibrary<FTextureCubemap>::Push(TextureCubemapName, TextureCubemap);
 			return TextureCubemap;
@@ -254,8 +253,11 @@ namespace Zero
 			D3D12_CLEAR_VALUE OptClear = {};
 			OptClear.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 			OptClear.DepthStencil = { 1.0F, 0 };
-			Ref<FDX12Texture2D> DepthStencilTexture = CreateRef<FDX12Texture2D>(DepthStencilDesc, &OptClear);
-			DepthStencilTexture->SetName(Utils::String2WString(Name));
+			FDX12TextureSettings Settings
+			{
+				.Desc = DepthStencilDesc
+			};
+			Ref<FDX12Texture2D> DepthStencilTexture = CreateRef<FDX12Texture2D>(Name, Settings, &OptClear);
 			return DepthStencilTexture;
 		}
 

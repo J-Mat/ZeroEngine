@@ -45,6 +45,17 @@ namespace Zero
 			std::wstring result = pwchar;
 			return result;
 		}
+
+		static LPCWSTR StringToLPCWSTR(const std::string& Input)
+		{
+			size_t origsize = Input.length() + 1;
+			const size_t newsize = 100;
+			size_t convertedChars = 0;
+			wchar_t* wcstring = (wchar_t*)malloc(sizeof(wchar_t) * (Input.length() - 1));
+			mbstowcs_s(&convertedChars, wcstring, origsize, Input.c_str(), _TRUNCATE);
+
+			return wcstring;
+		}
 		
 		static std::string GetShaderPath(const std::string& FileName)
 		{

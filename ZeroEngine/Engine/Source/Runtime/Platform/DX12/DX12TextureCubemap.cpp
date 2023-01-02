@@ -2,12 +2,13 @@
 #include "DX12Device.h"
 #include "DX12CommandQueue.h"
 #include "DX12CommandList.h"
+#include "Utils.h"
 
 
 namespace Zero
 {
-	FDX12TextureCubemap::FDX12TextureCubemap(const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* clearValue)
-		: IResource(ResourceDesc, clearValue)
+	FDX12TextureCubemap::FDX12TextureCubemap(const std::string& TextureName, const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* ClearValue)
+		: IResource(TextureName, ResourceDesc, ClearValue)
 	{
 		m_Width = (uint32_t)ResourceDesc.Width;
 		m_Height = (uint32_t)ResourceDesc.Height;
@@ -15,7 +16,7 @@ namespace Zero
 	}
 
 
-	FDX12TextureCubemap::FDX12TextureCubemap(Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT], bool bRenderDepth)
+    FDX12TextureCubemap::FDX12TextureCubemap(const std::string& TextureName, Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT], bool bRenderDepth)
 		:  IResource()
 		, m_bRenderDepth(bRenderDepth)
 	{
@@ -30,6 +31,7 @@ namespace Zero
 				m_Height,
 				ImageData[0]->GetChannel()
 			);
+		Resource->SetName(Utils::StringToLPCWSTR(TextureName));
 		SetResource(Resource);
 		CreateViews();
 	}

@@ -17,8 +17,9 @@ namespace Zero
 		virtual void ClearBuffer() override;
 		virtual void Resize(uint32_t Width, uint32_t Height, uint32_t depth);
 		virtual void AttachTexture(EAttachmentIndex AttachmentIndex, Ref<FTexture2D> Texture2D);
-		virtual void Bind();
+		virtual void Bind(bool bClearBuffer = true) override;
 		virtual void UnBind();
+		virtual void UnBindDepth() override;
 		void SetViewportRect();
 	private:
 

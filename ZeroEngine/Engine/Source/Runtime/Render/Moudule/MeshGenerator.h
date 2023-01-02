@@ -5,6 +5,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include "Render/RHI/VertexBuffer.h"
 
 namespace Zero
 {
@@ -69,7 +70,6 @@ namespace Zero
 		{}
 	};
 
-	class FVertexBufferLayout;
 	class FMeshGenerator : public IPublicSingleton<FMeshGenerator>
 	{
 	public:
@@ -84,7 +84,7 @@ namespace Zero
 		FMeshData ProcessMesh(aiMesh* Mesh, const aiScene* Scene, FVertexBufferLayout& Layout);
 		FVertex MidPoint(const FVertex& V0, const FVertex& V1);
 		void SubDivide(std::vector<FVertex>& Vertexes, std::vector<uint32_t>& Indices);
-		void AttachToMeshData(FMeshData& Meshata, std::vector<FVertex>& Vertexes, std::vector<uint32_t>& Indices);
+		void AttachToMeshData(FMeshData& MeshData, std::vector<FVertex>& Vertexes, std::vector<uint32_t>& Indices, FVertexBufferLayout& VertexLayout = FVertexBufferLayout::s_DefaultVertexLayout);
 	};
 
 

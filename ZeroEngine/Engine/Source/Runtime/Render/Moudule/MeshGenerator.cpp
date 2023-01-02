@@ -94,19 +94,23 @@ namespace Zero
 	{
 		std::vector<FVertex> Vertex(4);
 		
-		float W2 = 1.0f;
+		float W2 = 1.0f; 
 		float H2 = 1.0f;
+		float D2 = 0.0f;
 		// Fill in the front face vertex data.
-		Vertex[0] = FVertex(-W2, -H2, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-		Vertex[1] = FVertex(-W2, +H2, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-		Vertex[2] = FVertex(+W2, +H2, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-		Vertex[3] = FVertex(+W2, -H2, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+		Vertex[0] = FVertex(-W2, -H2, D2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f); 
+		//Vertex[0] = FVertex(0.0, -1.0f, D2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+		Vertex[1] = FVertex(-W2, +H2, D2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f); 
+		//Vertex[1] = FVertex(0.0f, 0.0f, D2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f); 
+		Vertex[2] = FVertex(+W2, +H2, D2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+		//Vertex[2] = FVertex(+1.0f, +0.0f, D2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+		Vertex[3] = FVertex(+1.0f, -1.0f, D2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
 
 		std::vector<uint32_t> Indexs(6);
 
 		// Fill in the front face index data
-		Indexs[0] = 0; Indexs[1] = 2; Indexs[2] = 1;
-		Indexs[3] = 0; Indexs[4] = 3; Indexs[5] = 2;
+		Indexs[0] = 0; Indexs[1] = 1; Indexs[2] = 2;
+		Indexs[3] = 0; Indexs[4] = 2; Indexs[5] = 3;
 
 		AttachToMeshData(MeshData, Vertex, Indexs);
 	}
@@ -433,25 +437,37 @@ namespace Zero
 			Indices.push_back(i * 6 + 4);
 		}
 	}
-	void FMeshGenerator::AttachToMeshData(FMeshData& MeshData, std::vector<FVertex>& Vertexes, std::vector<uint32_t>& Indices)
+	void FMeshGenerator::AttachToMeshData(FMeshData& MeshData, std::vector<FVertex>& Vertexes, std::vector<uint32_t>& Indices, FVertexBufferLayout& VertexLayout)
 	{
 		for(FVertex& Vertex : Vertexes)
 		{
-			MeshData.Vertices.push_back(Vertex.Position.x);
-			MeshData.Vertices.push_back(Vertex.Position.y);
-			MeshData.Vertices.push_back(Vertex.Position.z);
-			MeshData.AABB.Merge(Vertex.Position);
+			if (VertexLayout.HasProperty("POSITION"))
+			{
+				MeshData.Vertices.push_back(Vertex.Position.x);
+				MeshData.Vertices.push_back(Vertex.Position.y);
+				MeshData.Vertices.push_back(Vertex.Position.z);
+				MeshData.AABB.Merge(Vertex.Position);
+			}
 			
-			MeshData.Vertices.push_back(Vertex.Normal.x);
-			MeshData.Vertices.push_back(Vertex.Normal.y);
-			MeshData.Vertices.push_back(Vertex.Normal.z);
+			if (VertexLayout.HasProperty("NORMAL"))
+			{
+				MeshData.Vertices.push_back(Vertex.Normal.x);
+				MeshData.Vertices.push_back(Vertex.Normal.y);
+				MeshData.Vertices.push_back(Vertex.Normal.z);
+			}
 
-			MeshData.Vertices.push_back(Vertex.TangentU.x);
-			MeshData.Vertices.push_back(Vertex.TangentU.y);
-			MeshData.Vertices.push_back(Vertex.TangentU.z);
+			if (VertexLayout.HasProperty("TANGENT"))
+			{
+				MeshData.Vertices.push_back(Vertex.TangentU.x);
+				MeshData.Vertices.push_back(Vertex.TangentU.y);
+				MeshData.Vertices.push_back(Vertex.TangentU.z);
+			}
 			
-			MeshData.Vertices.push_back(Vertex.TexC.x);
-			MeshData.Vertices.push_back(Vertex.TexC.y);
+			if (VertexLayout.HasProperty("TEXCOORD"))
+			{
+				MeshData.Vertices.push_back(Vertex.TexC.x);
+				MeshData.Vertices.push_back(Vertex.TexC.y);
+			}
 		}
 		
 		MeshData.Indices.assign(Indices.begin(), Indices.end());

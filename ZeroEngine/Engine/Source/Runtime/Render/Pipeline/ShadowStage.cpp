@@ -9,9 +9,14 @@ namespace Zero
 {
 	void FShadowStage::RegisterDebugShadowMap()
 	{
-		FRenderTarget2DDesc Desc;
-		Desc.Format = {
-			ETextureFormat::R8G8B8A8,
+		FRenderTarget2DDesc Desc
+		{
+			.RenderTargetName = "ShadowMapDebug",
+			.Width = 400,
+			.Height = 400,
+			.Format = {
+				ETextureFormat::R8G8B8A8
+			}
 		};
 		m_ShadowMapDebugRenderTarget = FRenderer::GraphicFactroy->CreateRenderTarget2D(Desc);
 		TLibrary<FRenderTarget2D>::Push(RENDER_STAGE_SHADOWMAP_DEBUG, m_ShadowMapDebugRenderTarget);
@@ -25,7 +30,7 @@ namespace Zero
 		m_ShadowMapDebugItem = RenderItemPool->Request();
 		m_ShadowMapDebugItem->m_Mesh = FRenderer::GraphicFactroy->CreateMesh(
 			MeshDatas,
-			FVertexBufferLayout::s_DebugVertexLayout
+			FVertexBufferLayout::s_DefaultVertexLayout
 		);
 		m_ShadowMapDebugItem->m_SubMesh = *m_ShadowMapDebugItem->m_Mesh->begin();
 		m_ShadowMapDebugItem->m_Material = CreateRef<FMaterial>(false);
@@ -40,8 +45,9 @@ namespace Zero
 		{
 			FRenderTarget2DDesc Desc
 			{
-				.Width = 2048,
-				.Height = 2048,
+				.RenderTargetName = "ShadowMap",
+				.Width = 200,
+				.Height = 200,
 				.Format = {
 					ETextureFormat::DEPTH32F
 				},
@@ -54,14 +60,17 @@ namespace Zero
 
 	void FShadowStage::RenderShadowMapDebug()
 	{
+		static auto DefaultTexture = FRenderer::GraphicFactroy->GetOrCreateTexture2D("Texture\\yayi.png");
 		m_ShadowMapDebugRenderTarget->Bind();
 
-		if (m_ShadowMapRenderTargets.size() > 0)
+		m_ShadowMapDebugItem->m_PipelineStateObject->Bind();
+		m_ShadowMapDebugItem->m_Material->Tick();
+		m_ShadowMapDebugItem->m_Material->SetPass();
+		if (FLightManager::GetInstance().GetDirectLights().size() > 0)
 		{
 			m_ShadowMapDebugItem->m_Material->SetTexture2D("gShadowMap", m_ShadowMapRenderTargets[0]->GetTexture(EAttachmentIndex::DepthStencil));
 		}
-		m_ShadowMapDebugItem->m_Material->Tick();
-		m_ShadowMapDebugItem->m_Material->SetPass();
+		//m_ShadowMapDebugItem->m_Material->SetTexture2D("gShadowMap", DefaultTexture);
 		m_ShadowMapDebugItem->m_Material->OnDrawCall();
 		m_ShadowMapDebugItem->OnDrawCall();
 		m_ShadowMapDebugRenderTarget->UnBind();
@@ -79,10 +88,11 @@ namespace Zero
 			for (Ref<FRenderItem> RenderItem : *RenderItemPool.get())
 			{
 				RenderItem->m_PipelineStateObject->Bind();
-				const auto& PSODesc = RenderItem->m_PipelineStateObject->GetPSODescriptor();
 				RenderItem->m_Material->Tick();
 				RenderItem->m_Material->SetPass();
-				RenderItem->m_Material->SetCameraProjectViewMat("ProjectionView", DirectLightComponent->GetViewProject());
+				RenderItem->m_Material->SetCameraProjectViewMat("View", DirectLightComponent->GetView());
+				RenderItem->m_Material->SetCameraProjectViewMat("Projection", DirectLightComponent->GetProject());
+				RenderItem->m_Material->SetCameraProjectViewMat("ProjectionView", DirectLightComponent->GetProjectView());
 				RenderItem->m_Material->OnDrawCall();
 				RenderItem->OnDrawCall();
 			}

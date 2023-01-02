@@ -2,19 +2,25 @@
 #include "DX12Device.h"
 #include "DX12CommandQueue.h"
 #include "DX12CommandList.h"
+#include "Utils.h"
 
 
 namespace Zero
 {
-	FDX12Texture2D::FDX12Texture2D(const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* clearValue)
-		: IResource(ResourceDesc, clearValue)
+	FDX12Texture2D::FDX12Texture2D(const std::string& TextureName, const FDX12TextureSettings& TextureSettings, const D3D12_CLEAR_VALUE* ClearValue)
+		: IResource(TextureName, TextureSettings.Desc, ClearValue)
 	{
-		m_Width = (uint32_t)ResourceDesc.Width;
-		m_Height = (uint32_t)ResourceDesc.Height;
+		m_Width = (uint32_t)TextureSettings.Desc.Width;
+		m_Height = (uint32_t)TextureSettings.Desc.Height;
+		m_SRVFormat = TextureSettings.SRVFormat;
+		m_RTVFormat = TextureSettings.RTVFormat;
+		m_DSVFormat = TextureSettings.DSVFormat;
+		m_UAVFormat = TextureSettings.UAVFormat;
 		CreateViews();
 	}
 
-	FDX12Texture2D::FDX12Texture2D(Ref<FImage> ImageData)
+
+	FDX12Texture2D::FDX12Texture2D(const std::string& TextureName, Ref<FImage> ImageData)
 		:  IResource()
 	{
 		m_ImageData = ImageData;
@@ -22,15 +28,17 @@ namespace Zero
 		m_Height = ImageData->GetHeight();
 		CORE_ASSERT(ImageData->GetData() != nullptr, "Image has no data!");
 		auto Resource = FDX12Device::Get()->GetInitWorldCommandList()->CreateTextureResource(ImageData);
+		Resource->SetName(Utils::StringToLPCWSTR(TextureName));
 		SetResource(Resource);
 		CreateViews();
 	}
 
-	FDX12Texture2D::FDX12Texture2D(ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, const D3D12_CLEAR_VALUE* ClearValue)
+    FDX12Texture2D::FDX12Texture2D(const std::string& TextureName, ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, const D3D12_CLEAR_VALUE* ClearValue)
 		: IResource(Resource, ClearValue)
 	{
 		m_Width = Width;
 		m_Height = Height;
+		Resource->SetName(Utils::StringToLPCWSTR(TextureName));
 		CreateViews();
 	}
 
@@ -159,11 +167,16 @@ namespace Zero
 				{
 					m_DepthStencilView = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 				}
-				D3DDevice->CreateDepthStencilView(m_D3DResource.Get(), nullptr,
+				D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc;
+				dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
+				dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+				dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+				dsvDesc.Texture2D.MipSlice = 0;
+				D3DDevice->CreateDepthStencilView(m_D3DResource.Get(), &dsvDesc,
 					m_DepthStencilView.GetDescriptorHandle());
 			}
 			// Create SRV
-			if ((Desc.Flags & D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE) == 0 && CheckSRVSupport())
+			if (((Desc.Flags & D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE) == 0 && CheckSRVSupport()) || m_SRVFormat != DXGI_FORMAT_UNKNOWN)
 			{
 				if (m_ShaderResourceView.IsNull())
 				{
@@ -189,6 +202,7 @@ namespace Zero
 				SrvDesc.Texture2D.MostDetailedMip = 0;
 				SrvDesc.Texture2D.MipLevels = 1;
 				SrvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+				SrvDesc.Texture2D.PlaneSlice = 0;
 				D3DDevice->CreateShaderResourceView(m_D3DResource.Get(), &SrvDesc,
 					m_ShaderResourceView.GetDescriptorHandle());
 			}

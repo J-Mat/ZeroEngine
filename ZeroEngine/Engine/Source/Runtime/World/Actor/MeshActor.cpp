@@ -32,6 +32,7 @@ namespace Zero
 	{
 		int32_t RenderLayer = m_MeshRenderComponent->m_RenderLayer;
 		
+		static auto ShadowPso = TLibrary<FPipelineStateObject>::Fetch(PSO_SHADOWMAP);
 		while (RenderLayer > 0)
 		{
 			uint32_t CurLayer = (RenderLayer & (-RenderLayer));
@@ -45,7 +46,14 @@ namespace Zero
 				Item->m_SubMesh = SubMesh;
 				Item->m_PerObjectBuffer = m_MeshRenderComponent->m_PerObjConstantsBuffer;
 				Item->m_Material = m_MeshRenderComponent->GetPassMaterials(CurLayer)[MaterialIndex];
-				Item->m_PipelineStateObject = m_MeshRenderComponent->GetPipelineStateObject();
+				if (CurLayer == RENDERLAYER_SHADOW)
+				{
+					Item->m_PipelineStateObject = ShadowPso;
+				}
+				else
+				{
+					Item->m_PipelineStateObject = m_MeshRenderComponent->GetPipelineStateObject();
+				}
 				Item->m_Material->SetShader(Item->m_PipelineStateObject->GetPSODescriptor().Shader);
 				Item->SetModelMatrix(m_TransformationComponent->GetTransform());
 				MaterialIndex++;
