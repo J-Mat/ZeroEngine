@@ -46,14 +46,6 @@ namespace Zero
 				Item->m_SubMesh = SubMesh;
 				Item->m_PerObjectBuffer = m_MeshRenderComponent->m_PerObjConstantsBuffer;
 				Item->m_Material = m_MeshRenderComponent->GetPassMaterials(CurLayer)[MaterialIndex];
-				if (CurLayer == RENDERLAYER_SHADOW)
-				{
-					Item->m_PipelineStateObject = ShadowPso;
-				}
-				else
-				{
-					Item->m_PipelineStateObject = m_MeshRenderComponent->GetPipelineStateObject();
-				}
 				Item->m_Material->SetShader(Item->m_PipelineStateObject->GetPSODescriptor().Shader);
 				Item->SetModelMatrix(m_TransformationComponent->GetTransform());
 				MaterialIndex++;

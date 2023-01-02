@@ -57,14 +57,12 @@ namespace Zero
 		if (Settings->m_bUseSkyBox)
 		{
 			static auto SkyboxPSO = TLibrary<FPipelineStateObject>::Fetch(PSO_SKYBOX);
-			SkyboxPSO->Bind();
 			auto RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool(RENDERLAYER_SKYBOX);
 			for (Ref<FRenderItem> RenderItem : *RenderItemPool.get())
 			{
-				RenderItem->m_Material->Tick();
-				RenderItem->m_Material->SetPass();
-				RenderItem->m_Material->OnDrawCall();
-				RenderItem->OnDrawCall();
+				RenderItem->m_PipelineStateObject = SkyboxPSO;
+				RenderItem->PreRender();
+				RenderItem->Render();
 			}
 		}
 
@@ -75,7 +73,7 @@ namespace Zero
 			static Ref<FRenderTarget2D> ShadowMapRenderTarget = TLibrary<FRenderTarget2D>::Fetch(ShadowMapID);
 			for (Ref<FRenderItem> RenderItem : *RenderItemPool.get())
 			{
-				RenderItem->m_PipelineStateObject->Bind();
+				RenderItem->PreRender();
 				const auto& PSODesc = RenderItem->m_PipelineStateObject->GetPSODescriptor();
 				const std::string& ShaderName = PSODesc.Shader->GetDesc().ShaderName;
 				if (m_bGenerateIrradianceMap && !RenderItem->m_Material->IsSetIBL() && ShaderName == PSO_FORWARDLIT)
@@ -86,10 +84,7 @@ namespace Zero
 					RenderItem->m_Material->SetIBL(true);
 				}
 
-				RenderItem->m_Material->Tick();
-				RenderItem->m_Material->SetPass();
-				RenderItem->m_Material->OnDrawCall();
-				RenderItem->OnDrawCall();
+				RenderItem->Render();
 			}
 		}
 		m_RenderTarget->UnBind();

@@ -60,19 +60,15 @@ namespace Zero
 
 	void FShadowStage::RenderShadowMapDebug()
 	{
-		static auto DefaultTexture = FRenderer::GraphicFactroy->GetOrCreateTexture2D("Texture\\yayi.png");
+		//static auto DefaultTexture = FRenderer::GraphicFactroy->GetOrCreateTexture2D("Texture\\yayi.png");
 		m_ShadowMapDebugRenderTarget->Bind();
 
-		m_ShadowMapDebugItem->m_PipelineStateObject->Bind();
-		m_ShadowMapDebugItem->m_Material->Tick();
-		m_ShadowMapDebugItem->m_Material->SetPass();
+		m_ShadowMapDebugItem->PreRender();
 		if (FLightManager::GetInstance().GetDirectLights().size() > 0)
 		{
 			m_ShadowMapDebugItem->m_Material->SetTexture2D("gShadowMap", m_ShadowMapRenderTargets[0]->GetTexture(EAttachmentIndex::DepthStencil));
 		}
-		//m_ShadowMapDebugItem->m_Material->SetTexture2D("gShadowMap", DefaultTexture);
-		m_ShadowMapDebugItem->m_Material->OnDrawCall();
-		m_ShadowMapDebugItem->OnDrawCall();
+		m_ShadowMapDebugItem->Render();
 		m_ShadowMapDebugRenderTarget->UnBind();
 	}
 
@@ -87,14 +83,11 @@ namespace Zero
 			UDirectLightComponnet*  DirectLightComponent = DirectLight->GetComponent<UDirectLightComponnet>();
 			for (Ref<FRenderItem> RenderItem : *RenderItemPool.get())
 			{
-				RenderItem->m_PipelineStateObject->Bind();
-				RenderItem->m_Material->Tick();
-				RenderItem->m_Material->SetPass();
+				RenderItem->PreRender();
 				RenderItem->m_Material->SetCameraProjectViewMat("View", DirectLightComponent->GetView());
 				RenderItem->m_Material->SetCameraProjectViewMat("Projection", DirectLightComponent->GetProject());
 				RenderItem->m_Material->SetCameraProjectViewMat("ProjectionView", DirectLightComponent->GetProjectView());
-				RenderItem->m_Material->OnDrawCall();
-				RenderItem->OnDrawCall();
+				RenderItem->Render();
 			}
 			m_ShadowMapRenderTargets[Index]->UnBind();
 		}

@@ -33,9 +33,15 @@ namespace Zero
 		UPROPERTY()
 		SM_Test,
 	};
-
-	class FMaterial;
+	
 	class FPipelineStateObject;
+	class FMaterial;
+	struct FRenderLayerInfo
+	{
+		Ref<FPipelineStateObject> PipelineStateObject = nullptr;
+		std::vector<Ref<FMaterial>> Materials;
+	};
+
 	UCLASS()
 	class UMeshRenderComponent : public UComponent
 	{
@@ -49,22 +55,20 @@ namespace Zero
 		void SetEnableMaterial(bool bEnable);
 		std::vector<Ref<FMaterial>>& GetPassMaterials(uint32_t LayerLayer);
 		void SetSubmeshNum(uint32_t Num) {	m_SubmeshNum = Num; }
-		void AttachRenderLayer(int32_t RenderLayer){m_RenderLayer |= RenderLayer;}
-		void SetParameter(const std::string& ParameterName, EShaderDataType ShaderDataType, void* ValuePtr);
+		void AttachRenderLayer(int32_t RenderLayer);
+		void SetParameter(const std::string& ParameterName, EShaderDataType ShaderDataType, void* ValuePtr, uint32_t RenderLayer = RENDERLAYER_OPAQUE);
 
-		Ref<FPipelineStateObject> GetPipelineStateObject();
-		void SetPsoType(EPsoType PosType);
+		Ref<FPipelineStateObject> GetPipelineStateObject(uint32_t RenderLayer);
+		void SetPsoType(EPsoType PosType, uint32_t RenderLayer = RENDERLAYER_OPAQUE);
 
 		void SetShadingMode(EShadingMode ShadingMode);
 
 		virtual void PostEdit(UProperty* Property) override;
-		void AttachPso();
 		void AttachParameters();
 		void UpdateSettings();
-		void SwitchPso();
 	private:
 		Ref<IShaderConstantsBuffer> m_PerObjConstantsBuffer = nullptr;
-		std::unordered_map<uint32_t, std::vector<Ref<FMaterial>>> m_Materials;
+		std::unordered_map<uint32_t, FRenderLayerInfo> m_LayerInfo;
 		uint32_t m_SubmeshNum = 0;
 		
 		UPROPERTY(Invisible)
@@ -75,9 +79,6 @@ namespace Zero
 
 		UPROPERTY(Invisible)
 		int32_t m_RenderLayer = 0;
-
-		UPROPERTY()
-		EPsoType m_Psotype = EPsoType::PT_ForwardLit;
 
 
 		UPROPERTY()

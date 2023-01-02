@@ -101,16 +101,13 @@ namespace Zero
 		{ 
 			const FSceneView& SceneView = m_IBLIrradianceMapRTCube->GetSceneView(i);
 			m_IBLIrradianceMapRTCube->SetRenderTarget(i);
-			m_IrradianceMapRenderItem->m_PipelineStateObject->Bind();
-			m_IrradianceMapRenderItem->m_Material->SetPass();
+			m_IrradianceMapRenderItem->PreRender();
 			m_IrradianceMapRenderItem->m_Material->SetCameraViewMat("View", SceneView.View);
 			m_IrradianceMapRenderItem->m_Material->SetCameraViewPos("ViewPos", SceneView.ViewPos);
 			m_IrradianceMapRenderItem->m_Material->SetCameraProjectMat("Projection", SceneView.Proj);
 			m_IrradianceMapRenderItem->m_Material->SetCameraProjectViewMat("ProjectionView", SceneView.ProjectionView);
 			m_IrradianceMapRenderItem->m_Material->SetTextureCubemap("gSkyboxMap", TextureCubmap);
-			m_IrradianceMapRenderItem->m_Material->Tick();
-			m_IrradianceMapRenderItem->m_Material->OnDrawCall();
-			m_IrradianceMapRenderItem->OnDrawCall();
+			m_IrradianceMapRenderItem->Render();
 		}
 		m_IBLIrradianceMapRTCube->UnBind();
 	}
@@ -127,17 +124,14 @@ namespace Zero
 				const FSceneView& SceneView = m_PrefilterEnvMapRTCubes[Mip]->GetSceneView(i);
 				m_PrefilterEnvMapRTCubes[Mip]->SetRenderTarget(i);
 				int32_t Mip_1 = Mip;
-				m_PrefilterMapRenderItem[Mip_1]->m_PipelineStateObject->Bind();
-				m_PrefilterMapRenderItem[Mip_1]->m_Material->SetPass();
+				m_PrefilterMapRenderItem[Mip_1]->PreRender();
 				m_PrefilterMapRenderItem[Mip_1]->m_Material->SetCameraViewMat("View", SceneView.View);
 				m_PrefilterMapRenderItem[Mip_1]->m_Material->SetFloat("Roughness", Roughness);
 				m_PrefilterMapRenderItem[Mip_1]->m_Material->SetCameraViewPos("ViewPos", SceneView.ViewPos);
 				m_PrefilterMapRenderItem[Mip_1]->m_Material->SetCameraProjectMat("Projection", SceneView.Proj);
 				m_PrefilterMapRenderItem[Mip_1]->m_Material->SetCameraProjectViewMat("ProjectionView", SceneView.ProjectionView);
 				m_PrefilterMapRenderItem[Mip_1]->m_Material->SetTextureCubemap("gSkyboxMap", TextureCubmap);
-				m_PrefilterMapRenderItem[Mip_1]->m_Material->Tick();
-				m_PrefilterMapRenderItem[Mip_1]->m_Material->OnDrawCall();
-				m_PrefilterMapRenderItem[Mip_1]->OnDrawCall();
+				m_PrefilterMapRenderItem[Mip_1]->Render();
 			}
 			m_PrefilterEnvMapRTCubes[Mip]->UnBind();
 		}

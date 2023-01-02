@@ -37,14 +37,14 @@ namespace Zero
 		FRenderItem(Ref<FMesh> Mesh, const FSubMesh& SubMesh);
 		~FRenderItem();
 		void SetModelMatrix(const ZMath::mat4& Transform);
-		void OnDrawCall();
 		Ref<FMaterial> m_Material = nullptr;
 		Ref<FPipelineStateObject> m_PipelineStateObject = nullptr;
 		Ref<FMesh> m_Mesh = nullptr;
 		FSubMesh m_SubMesh;
 		Ref<IShaderConstantsBuffer> m_PerObjectBuffer = nullptr;
 		ZMath::mat4 m_Transform;
+		void PreRender();
+		void Render();
 	public:
-		static Ref<FRenderItem> s_DIYRenderItem;
 	};
 }

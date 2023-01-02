@@ -2,6 +2,7 @@
 #include "Shader.h"
 #include "ShaderBinder.h"
 #include "Render/Moudule/Material.h"
+#include "Render/RHI/PipelineStateObject.h"
 
 namespace Zero
 {
@@ -58,8 +59,16 @@ namespace Zero
 		m_Transform = Transform;
 		m_PerObjectBuffer->SetMatrix4x4("Model", Transform);
 	}
-	void FRenderItem::OnDrawCall()
+	
+	void FRenderItem::PreRender()
 	{
+		m_PipelineStateObject->Bind();
+		m_Material->Tick();
+		m_Material->SetPass();
+	}
+	void FRenderItem::Render()
+	{
+		m_Material->OnDrawCall();
 		if (m_PerObjectBuffer != nullptr)
 		{
 			static auto PerObjIndex = m_Material->GetShader()->GetBinder()->GetBinderDesc().m_PerObjIndex ;
