@@ -79,6 +79,12 @@ After getting the buffer and resource layout, take these info to cpp, and make t
 
 ### Image-based Lighting (IBL) 2022-12-27
 
-The framework, the code reflction, the UI design, all of these above are just for this ! 
+The framework, the code reflction, the UI design, all of these above are just for this !
 
 ![1672196485438](image/README/1672196485438.png)
+
+### ShadowMap  2023-1-2
+
+I am gonna do research on several shadow algorithms. PCF, PCSS, CSM, VSM etc.
+
+![1672650765892](image/README/1672650765892.png)
