@@ -64,7 +64,8 @@ PixelOutput PS(VertexOut Pin)
 		float3 V = normalize(ViewPos - Pin.WorldPos); 
 		float3 H = normalize(V + L);
 		float NdotL = max(0.0f, dot(Pin.Normal, L));
-		FinalColor = float3(NdotL, NdotL, NdotL);
+		
+		FinalColor = Albedo / PI + float3(NdotL, NdotL, NdotL);
 	}
 
     // gamma correct
