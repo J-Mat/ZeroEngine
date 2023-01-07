@@ -4,10 +4,10 @@
 namespace Zero
 {
 	#define RENDERLAYER_OPAQUE  (1 << 0)
-	#define	RENDERLAYER_TRANSPARENT  (1 << 1)
-	#define RENDERLAYER_ALPHATEST  (1 << 2)
-	#define	RENDERLAYER_SKYBOX  (1 << 3)
-	#define	RENDERLAYER_SHADOW  (1 << 4)
+	#define	RENDERLAYER_TRANSPARENT  (1 << 2)
+	#define RENDERLAYER_LIGHT  (1 << 3)
+	#define	RENDERLAYER_SKYBOX  (1 << 4)
+	#define	RENDERLAYER_SHADOW  (1 << 5)
 
 	#define RENDER_STAGE_FORWARD "ForwardLit"
 	#define RENDER_STAGE_SHADOWMAP "ShadowMap"

@@ -8,9 +8,8 @@ namespace Zero
 		:UMeshActor()
 	{
 		m_LightComponnet = CreateComponent<UDirectLightComponnet>(this);
-		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_OPAQUE);
-		GetComponent<UMeshRenderComponent>()->SetEnableMaterial(false);
-		GetComponent<UMeshRenderComponent>()->SetPsoType(EPsoType::PT_DirectLight);
+		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_LIGHT, PSO_DIRECT_LIGHT);
+		m_MeshRenderComponent->SetEnableMaterial(false);
 	}
 
 	void UDirectLightActor::PostInit()
@@ -22,7 +21,7 @@ namespace Zero
 	void UDirectLightActor::BuildMesh()
 	{
 		auto& MeshDatas =  m_MeshVertexComponent->GetMeshDatas();
-		FMeshGenerator::GetInstance().CreateCustomModel(MeshDatas, ZConfig::GetAssestsFullPath("Obj/direct_light.obj").string(), FVertexBufferLayout::s_DefaultVertexLayout);
+		FMeshGenerator::GetInstance().CreateCustomModel(MeshDatas, ZConfig::GetAssestsFullPath("Obj/DirectLight.obj").string(), FVertexBufferLayout::s_DefaultVertexLayout);
 		
 		m_MeshVertexComponent->CreateMesh();
 	}

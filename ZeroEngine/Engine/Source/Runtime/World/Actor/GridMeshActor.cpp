@@ -8,8 +8,8 @@ namespace Zero
 	UGridMeshActor::UGridMeshActor()
 		: UMeshActor()
 	{
-		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_OPAQUE);
-		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_SHADOW);
+		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_OPAQUE, PSO_FORWARDLIT);
+		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_SHADOW, PSO_SHADOWMAP);
 	}
 
 	UGridMeshActor::UGridMeshActor(float Width, float Height, uint32_t Rows, uint32_t Cols)
@@ -19,8 +19,8 @@ namespace Zero
 		, m_Rows(Rows)
 		, m_Cols(Cols)
 	{
-		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_OPAQUE);
-		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_SHADOW);
+		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_OPAQUE, PSO_FORWARDLIT);
+		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_SHADOW, PSO_SHADOWMAP);
 	}
 
 	void UGridMeshActor::BuildMesh()

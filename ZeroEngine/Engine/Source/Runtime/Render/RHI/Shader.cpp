@@ -19,7 +19,7 @@ namespace Zero
 		std::cout << "------------------------------------------\n";
 		for (auto Iter : m_CBVParams)
 		{
-			std::cout << std::format("Buffer : {0}, {1}\n", Iter.second.ResourceName, Iter.first);
+			std::cout << std::format("Buffer : {0}, {1}, {2}\n", Iter.second.ResourceName, Iter.second.BindPoint, Iter.second.RegisterSpace);
 			FConstantBufferLayout ConstantBufferLayout;
 			ConstantBufferLayout.m_BufferName = Iter.second.ResourceName;
 			for (const FCBVariableItem& CBVariableItem : Iter.second.VariableList)
@@ -28,7 +28,8 @@ namespace Zero
 				ConstantBufferLayout.m_Elements.push_back(Element);
 				std::cout << std::format("Element : {0}, {1}\n", int(Element.Type), Element.Name);
 			}
-			ConstantBufferLayout.m_BindPoint = Iter.first;
+			ConstantBufferLayout.m_BindPoint = Iter.first.first;
+			ConstantBufferLayout.m_RegisterSpace = Iter.second.RegisterSpace;
 			ConstantBufferLayout.CalculateOffsetsAndStride();
 			m_ShaderBinderDesc.m_ConstantBufferLayouts.push_back(ConstantBufferLayout);
 		}
@@ -37,11 +38,15 @@ namespace Zero
 		{
 			std::cout << std::format("Name : {0}\n", Iter.second.ResourceName);
 			std::cout << std::format("BindPoint : {0}\n", Iter.second.BindPoint);
-			FTextureTableElement TextureTableElement;
-			TextureTableElement.ResourceName = Iter.second.ResourceName;
-			TextureTableElement.Type = Iter.second.ShaderResourceType;
-			TextureTableElement.BindPoint = Iter.second.BindPoint;
-			TextureTableElement.TextureNum = Iter.second.BindCount;
+			std::cout << std::format("RegisterSpace : {0}\n", Iter.second.RegisterSpace);
+			FTextureTableElement TextureTableElement
+			{
+				.Type = Iter.second.ShaderResourceType,
+				.ResourceName = Iter.second.ResourceName,
+				.TextureNum = Iter.second.BindCount,
+				.BindPoint = Iter.second.BindPoint,
+				.RegisterSpace = Iter.second.RegisterSpace
+			};
 			m_ShaderBinderDesc.m_TextureBufferLayout.m_Elements.push_back(TextureTableElement);
 		}
 		std::cout << "------------------------------------------\n";

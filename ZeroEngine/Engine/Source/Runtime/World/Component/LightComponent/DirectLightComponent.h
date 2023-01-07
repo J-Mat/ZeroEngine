@@ -20,7 +20,7 @@ namespace Zero
 	private:
 		void OnTransfromChanged(UTransformComponent* TransformComponent);
 	private: 
-		float m_Width = 50.0f;
+		float m_Width = 80.0f;
 		FSceneView m_SceneView;
 	};
 }

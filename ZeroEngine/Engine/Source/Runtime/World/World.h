@@ -75,6 +75,7 @@ namespace Zero
 		}		
 		
 		UActor* PickActorByMouse(ZMath::FRay Ray);
+		void PickActorByLayer(float& MinValue, uint32_t RenderLayer, ZMath::FRay ViewRay,  UActor* &PickActor);
 		ZMath::vec3 GetRayWorldPos(ZMath::FRay& Ray, float Distance = 2.0f);
 		
 		void SetSceneName(std::string SceneName) { m_SceneName = SceneName; }

@@ -44,36 +44,48 @@ namespace Zero
 
 	std::vector<Ref<FMaterial>>& UMeshRenderComponent::GetPassMaterials(uint32_t RenderLayer)
 	{
-		auto Iter = m_LayerInfo.find(RenderLayer);
-		return Iter->second.Materials;
+		auto& Iter = m_LayerInfo.find(RenderLayer);
+		return Iter->second->Materials;
 	}
 
-	void UMeshRenderComponent::AttachRenderLayer(int32_t RenderLayer)
+	void UMeshRenderComponent::SetSubmeshNum(uint32_t Num)
+	{
+		m_SubmeshNum = Num;
+		for (auto& Iter : m_LayerInfo)
+		{
+			uint32_t RenderLayer = Iter.first;
+			for (size_t i = 0; i < m_SubmeshNum; i++)
+			{
+				Ref<FMaterial> Material;
+				if (RenderLayer == RENDERLAYER_SHADOW)
+				{
+					Material = CreateRef<FMaterial>(false);
+				}
+				else
+				{
+					Material = CreateRef<FMaterial>();
+				}
+				Material->SetShader(Iter.second->PipelineStateObject->GetPSODescriptor().Shader);
+				Iter.second->Materials.push_back(Material);
+			}
+		}
+		
+	}
+
+	void UMeshRenderComponent::AttachRenderLayer(int32_t RenderLayer, const std::string& PsoType)
 	{
 		m_RenderLayer |= RenderLayer;
-		m_LayerInfo.insert({RenderLayer, FRenderLayerInfo()});
-		auto Iter = m_LayerInfo.find(RenderLayer);
-		for (size_t i = 0; i < m_SubmeshNum; i++)
-		{
-			Ref<FMaterial> Material;
-			if (RenderLayer == RENDERLAYER_SHADOW)
-			{ 
-				Material = CreateRef<FMaterial>(false);
-			}
-			else
-			{
-				Material = CreateRef<FMaterial>();
-			}
-			Iter->second.Materials.emplace_back(Material);
-		}
+		Ref<FRenderLayerInfo> RenderLayerInfo = CreateRef<FRenderLayerInfo>();
+		RenderLayerInfo->PipelineStateObject = TLibrary<FPipelineStateObject>::Fetch(PsoType);
+		m_LayerInfo.insert({ RenderLayer, RenderLayerInfo });
 	}
 
 	void UMeshRenderComponent::SetParameter(const std::string& ParameterName, EShaderDataType ShaderDataType, void* ValuePtr, uint32_t RenderLayer)
 	{
-		auto Iter = m_LayerInfo.find(RenderLayer);
+		auto& Iter = m_LayerInfo.find(RenderLayer);
 		if (Iter != m_LayerInfo.end())
 		{
-			auto CurLayerMaterials = Iter->second.Materials;
+			auto& CurLayerMaterials = Iter->second->Materials;
 			for (size_t i = 0; i < m_SubmeshNum; i++)
 			{
 				CurLayerMaterials[i]->SetParameter(ParameterName, ShaderDataType, ValuePtr);
@@ -83,30 +95,8 @@ namespace Zero
 
 	Ref<FPipelineStateObject> UMeshRenderComponent::GetPipelineStateObject(uint32_t RenderLayer)
 	{
-		auto Iter = m_LayerInfo.find(RenderLayer);
-		return Iter->second.PipelineStateObject;
-	}
-
-	void UMeshRenderComponent::SetPsoType(EPsoType PsoType, uint32_t RenderLayer)
-	{
-		auto Iter = m_LayerInfo.find(RenderLayer);
-		switch (PsoType)
-		{
-		case Zero::PT_Skybox:
-			Iter->second.PipelineStateObject= TLibrary<FPipelineStateObject>::Fetch(PSO_SKYBOX);
-			break;
-		case Zero::PT_ForwardLit:
-			Iter->second.PipelineStateObject= TLibrary<FPipelineStateObject>::Fetch(PSO_FORWARDLIT);
-			break;
-		case Zero::PT_DirectLight:
-			Iter->second.PipelineStateObject= TLibrary<FPipelineStateObject>::Fetch(PSO_DIRECT_LIGHT);
-			break;
-		case Zero::PT_PointLight:
-			Iter->second.PipelineStateObject= TLibrary<FPipelineStateObject>::Fetch(PSO_POINT_LIGHT);
-			break;
-		default:
-			break;
-		}
+		auto& Iter = m_LayerInfo.find(RenderLayer);
+		return Iter->second->PipelineStateObject;
 	}
 
 	void UMeshRenderComponent::SetShadingMode(EShadingMode ShadingMode)
@@ -135,24 +125,13 @@ namespace Zero
 
 	void UMeshRenderComponent::AttachParameters()
 	{
-		{
-			for (auto Iter : m_LayerInfo)
-			{
-				auto& CurLayerMaterials = Iter.second.Materials;
-				for (size_t i = 0; i < m_SubmeshNum; i++)
-				{
-					CurLayerMaterials[i]->SetShader(Iter.second.PipelineStateObject->GetPSODescriptor().Shader);
-				}
-			}
-		}
-
 		if (!m_bEnableMaterial)
 		{
 			return;
 		}
-		int32_t RenderLayer = m_RenderLayer;
 		if (m_MaterialHandle != "")
 		{
+			/*
 			UMaterialAsset* MaterialAsset = FAssetManager::GetInstance().Fetch<UMaterialAsset>(m_MaterialHandle);
 			Ref<FShader> Shader = TLibrary<FShader>::Fetch(MaterialAsset->m_ShaderFile);
 			if (Shader != nullptr && GetPipelineStateObject()->GetPSODescriptor().Shader != Shader)
@@ -186,33 +165,34 @@ namespace Zero
 					}
 				}
 			}
+			*/
 		}
 		{
-			auto OpaqueLayer = m_LayerInfo.find(RENDERLAYER_OPAQUE);
+			auto& OpaqueLayer = m_LayerInfo.find(RENDERLAYER_OPAQUE);
 
 			for (size_t i = 0; i < m_SubmeshNum; i++)
 			{
 				for (auto Iter : m_Textures)
 				{
 					if (Iter.second == "")
-					{ 
+					{
 						Iter.second = "default";
 					}
 					const std::string& TextureName = Iter.first;
 					Ref<FTexture2D> Texture = FAssetManager::GetInstance().FetchTexture(Iter.second);
 					if (Texture != nullptr)
 					{
-						OpaqueLayer->second.Materials[i]->SetTexture2D(TextureName, Texture);
+						OpaqueLayer->second->Materials[i]->SetTexture2D(TextureName, Texture);
 					}
 				}
 				for (auto Iter : m_Floats)
 				{
-					OpaqueLayer->second.Materials[i]->SetFloat(Iter.first, Iter.second.Value);
+					OpaqueLayer->second->Materials[i]->SetFloat(Iter.first, Iter.second.Value);
 				}
 
 				for (auto Iter : m_Colors)
 				{
-					OpaqueLayer->second.Materials[i]->SetFloat3(Iter.first, Iter.second);
+					OpaqueLayer->second->Materials[i]->SetFloat3(Iter.first, Iter.second);
 				}
 
 			}
@@ -220,7 +200,13 @@ namespace Zero
 	}
 	void UMeshRenderComponent::UpdateSettings()
 	{
-		const FShaderBinderDesc& ShaderBinderDesc = m_PipelineStateObject->GetPSODescriptor().Shader->GetBinder()->GetBinderDesc();
+		auto& OpaqueLayer = m_LayerInfo.find(RENDERLAYER_OPAQUE);
+		if (OpaqueLayer == m_LayerInfo.end())
+		{
+			return;
+		}
+
+		const FShaderBinderDesc& ShaderBinderDesc = GetPipelineStateObject(RENDERLAYER_OPAQUE)->GetPSODescriptor().Shader->GetBinder()->GetBinderDesc();
 		{
 			UProperty* FloatProperty = GetClassCollection().FindProperty("m_Floats");
 			UMapProperty* MapFloatProperty = dynamic_cast<UMapProperty*>(FloatProperty);
@@ -292,4 +278,5 @@ namespace Zero
 			}
 		}
 	}
+}
 

@@ -11,6 +11,7 @@ namespace Zero
 		SetCurrentWorld(this);
 		m_MainCamera = CreateActor<UCameraActor>();
 		m_RenderItemPool.insert({ RENDERLAYER_OPAQUE, CreateRef<FRenderItemPool>()});
+		m_RenderItemPool.insert({ RENDERLAYER_LIGHT, CreateRef<FRenderItemPool>()});
 		m_RenderItemPool.insert({ RENDERLAYER_SKYBOX, CreateRef<FRenderItemPool>()});
 		m_RenderItemPool.insert({ RENDERLAYER_SHADOW, CreateRef<FRenderItemPool>()});
 		
@@ -53,14 +54,9 @@ namespace Zero
 		m_Actors.push_back(m_MainCamera);
 	}
 
-	UActor* UWorld::PickActorByMouse(ZMath::FRay Ray)
+	void UWorld::PickActorByLayer(float& MinValue, uint32_t RenderLayer, ZMath::FRay ViewRay, UActor*& PickActor)
 	{
-		float MinT = std::numeric_limits<float>::max();
-		UActor* Result = nullptr;
-		const auto& ViewMat = m_MainCamera->GetComponent<UCameraComponent>()->GetView();
-		const auto& InvView = ZMath::inverse(ViewMat);
-		ZMath::FRay ViewRay =  Ray.TransformRay(InvView);
-		const auto& GuidList = m_RenderItemPool[RENDERLAYER_OPAQUE]->GetRenderGuids();
+		const auto& GuidList = m_RenderItemPool[RenderLayer]->GetRenderGuids();
 		for (const auto& Guid : GuidList)
 		{
 			UCoreObject* Obj = GetObjByGuid(Guid);
@@ -74,11 +70,23 @@ namespace Zero
 				float IntersectValue;
 				if (TransformRay.IntersectsAABB(Actor->GetAABB(), IntersectValue))
 				{
-					Result = Actor;
-					MinT = std::min(MinT, IntersectValue);
+					PickActor = Actor;
+					MinValue = std::min(MinValue, IntersectValue);
 				}
 			}
 		}
+	}
+
+	UActor* UWorld::PickActorByMouse(ZMath::FRay Ray)
+	{
+		float MinT = std::numeric_limits<float>::max();
+		UActor* Result = nullptr;
+		const auto& ViewMat = m_MainCamera->GetComponent<UCameraComponent>()->GetView();
+		const auto& InvView = ZMath::inverse(ViewMat);
+		ZMath::FRay ViewRay =  Ray.TransformRay(InvView);
+		const auto& GuidList_1 = m_RenderItemPool[RENDERLAYER_OPAQUE]->GetRenderGuids();
+		PickActorByLayer(MinT, RENDERLAYER_OPAQUE, ViewRay,  Result);
+		PickActorByLayer(MinT, RENDERLAYER_LIGHT, ViewRay,  Result);
 		return Result;
 	}
 	ZMath::vec3 UWorld::GetRayWorldPos(ZMath::FRay& Ray, float Distance)

@@ -9,22 +9,6 @@
 namespace Zero
 {
 	UENUM()
-	enum EPsoType
-	{
-		UPROPERTY(Invisible)
-		PT_Skybox,
-
-		UPROPERTY(Invisible)
-		PT_DirectLight,
-
-		UPROPERTY(Invisible)
-		PT_PointLight,
-
-		UPROPERTY()
-		PT_ForwardLit,
-	};
-
-	UENUM()
 	enum EShadingMode
 	{
 		UPROPERTY()
@@ -54,21 +38,21 @@ namespace Zero
 		void virtual PostInit() override;
 		void SetEnableMaterial(bool bEnable);
 		std::vector<Ref<FMaterial>>& GetPassMaterials(uint32_t LayerLayer);
-		void SetSubmeshNum(uint32_t Num) {	m_SubmeshNum = Num; }
-		void AttachRenderLayer(int32_t RenderLayer);
+		void SetSubmeshNum(uint32_t Num);
+		void AttachRenderLayer(int32_t RenderLayer, const std::string& PsoType);
 		void SetParameter(const std::string& ParameterName, EShaderDataType ShaderDataType, void* ValuePtr, uint32_t RenderLayer = RENDERLAYER_OPAQUE);
 
 		Ref<FPipelineStateObject> GetPipelineStateObject(uint32_t RenderLayer);
-		void SetPsoType(EPsoType PosType, uint32_t RenderLayer = RENDERLAYER_OPAQUE);
 
 		void SetShadingMode(EShadingMode ShadingMode);
 
 		virtual void PostEdit(UProperty* Property) override;
 		void AttachParameters();
 		void UpdateSettings();
+		const std::unordered_map<uint32_t, Ref<FRenderLayerInfo>>& GetLayerInfo() { return m_LayerInfo; }
 	private:
 		Ref<IShaderConstantsBuffer> m_PerObjConstantsBuffer = nullptr;
-		std::unordered_map<uint32_t, FRenderLayerInfo> m_LayerInfo;
+		std::unordered_map<uint32_t, Ref<FRenderLayerInfo>> m_LayerInfo;
 		uint32_t m_SubmeshNum = 0;
 		
 		UPROPERTY(Invisible)
@@ -96,8 +80,5 @@ namespace Zero
 
 		UPROPERTY(Fixed, KeyUnEditable)
 		std::map<std::string, ZMath::FColor3> m_Colors;
-
-	private:
-		Ref<FPipelineStateObject> m_PipelineStateObject = nullptr;
 	};
 }

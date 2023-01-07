@@ -69,7 +69,7 @@ namespace Zero
 
 		virtual void Resize(uint32_t Width, uint32_t Height) { m_SwapChain->Resize(Width, Height); }
 		
-		static std::array<CD3DX12_STATIC_SAMPLER_DESC, 6> GetStaticSamplers();
+		static std::array<CD3DX12_STATIC_SAMPLER_DESC, 7> GetStaticSamplers();
 
 		virtual void PreInitWorld() override;
 

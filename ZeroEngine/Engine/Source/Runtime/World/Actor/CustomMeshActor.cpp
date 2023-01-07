@@ -10,13 +10,17 @@ namespace Zero
 	UCustomMeshActor::UCustomMeshActor()
 		: UMeshActor()
 	{
-		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_OPAQUE);
+		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_OPAQUE, PSO_FORWARDLIT);
+		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_SHADOW, PSO_SHADOWMAP);
 	}
 	UCustomMeshActor::UCustomMeshActor(const std::string& FileName)
 		: UMeshActor()
 		, m_FileName(FileName)
 	{
-		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_OPAQUE);
+		std::filesystem::path Path = m_FileName;
+		SetTagName(Path.stem().string());
+		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_OPAQUE, PSO_FORWARDLIT);
+		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_SHADOW, PSO_SHADOWMAP);
 	}
 
 	void UCustomMeshActor::BuildMesh()

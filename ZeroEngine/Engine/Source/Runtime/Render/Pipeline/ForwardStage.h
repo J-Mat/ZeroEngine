@@ -20,6 +20,9 @@ namespace Zero
 		virtual void OnDetach() override;
 		virtual void OnDraw() override;
 	private:
+		void RawRenderLayer(uint32_t RenderLayerType);
+		void ForwarLitRender();
+	private:
 		Ref<FRenderTarget2D> m_RenderTarget;
 		Ref<FImageBasedLighting> m_IBLMoudule;
 		bool m_bGenerateIrradianceMap = false;

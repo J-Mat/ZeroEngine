@@ -8,9 +8,8 @@ namespace Zero
 		:UMeshActor()
 	{
 		m_LightComponnet = CreateComponent<UPointLightComponnet>(this);
-		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_OPAQUE);
+		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_LIGHT, PSO_POINT_LIGHT);
 		GetComponent<UMeshRenderComponent>()->SetEnableMaterial(false);
-		GetComponent<UMeshRenderComponent>()->SetPsoType(EPsoType::PT_PointLight);
 	}
 
 	void UPointLightActor::PostInit()

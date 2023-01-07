@@ -125,10 +125,11 @@ namespace Zero
 			UINT BindPoint = ResourceDesc.BindPoint;
 			UINT BindCount = ResourceDesc.BindCount;
 
+			std::pair<uint32_t, uint32_t> Key = { ResourceDesc.BindPoint,  ResourceDesc.Space };
 
 			if (ResourceType == D3D_SHADER_INPUT_TYPE::D3D_SIT_CBUFFER)
 			{
-				if (m_CBVParams.find(BindPoint) != m_CBVParams.end())
+				if (m_CBVParams.find(Key) != m_CBVParams.end())
 				{
 					continue;
 				}
@@ -146,11 +147,11 @@ namespace Zero
 					ID3D12ShaderReflectionVariable* ReflectionVariable = Buffer->GetVariableByIndex(BufferIndex);
 					ParseCBVariable(ReflectionVariable, Param.VariableList);
 				}
-				m_CBVParams.insert({BindPoint, Param});
+				m_CBVParams.insert({Key, Param});
 			}
 			else if (ResourceType == D3D_SHADER_INPUT_TYPE::D3D_SIT_STRUCTURED)
 			{
-				if (m_SRVParams.find(BindPoint) != m_SRVParams.end())
+				if (m_SRVParams.find(Key) != m_SRVParams.end())
 				{
 					continue;
 				}
@@ -161,11 +162,11 @@ namespace Zero
 				Param.BindCount = BindCount;
 				Param.RegisterSpace = RegisterSpace;
 
-				m_SRVParams.insert({BindPoint, Param });
+				m_SRVParams.insert({Key, Param });
 			}
 			else if (ResourceType == D3D_SHADER_INPUT_TYPE::D3D_SIT_TEXTURE)
 			{
-				if (m_SRVParams.find(BindPoint) != m_SRVParams.end())
+				if (m_SRVParams.find(Key) != m_SRVParams.end())
 				{
 					continue;
 				}
@@ -179,7 +180,7 @@ namespace Zero
 				Param.RegisterSpace = RegisterSpace;
 				Param.ShaderResourceType = FDX12RHItConverter::GetResourceByDimension(Desc.Dimension);
 
-				m_SRVParams.insert({BindPoint, Param });
+				m_SRVParams.insert({Key, Param });
 			}
 			else if (ResourceType == D3D_SHADER_INPUT_TYPE::D3D_SIT_UAV_RWSTRUCTURED)
 			{

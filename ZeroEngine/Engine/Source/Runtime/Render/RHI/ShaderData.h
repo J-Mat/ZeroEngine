@@ -187,6 +187,7 @@ namespace Zero
 		std::vector<FBufferElement> m_Elements;
 		std::string m_BufferName;
 		int32_t m_BindPoint = 0;
+		int32_t m_RegisterSpace = 0;
 		uint32_t m_Stride = 0;
 	};
 
@@ -196,6 +197,7 @@ namespace Zero
 		std::string ResourceName;
 		uint32_t TextureNum = 1;
 		uint32_t BindPoint = 0;
+		uint32_t RegisterSpace = 0;
 	};
 	
 	class FShaderResourceLayout

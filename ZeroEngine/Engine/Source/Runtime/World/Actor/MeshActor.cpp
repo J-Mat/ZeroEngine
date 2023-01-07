@@ -32,21 +32,20 @@ namespace Zero
 	{
 		int32_t RenderLayer = m_MeshRenderComponent->m_RenderLayer;
 		
-		static auto ShadowPso = TLibrary<FPipelineStateObject>::Fetch(PSO_SHADOWMAP);
-		while (RenderLayer > 0)
+		const auto& LayerInfo = m_MeshRenderComponent->GetLayerInfo();
+		for (const auto Iter : LayerInfo)
 		{
-			uint32_t CurLayer = (RenderLayer & (-RenderLayer));
-			RenderLayer ^= CurLayer;
-			auto RenderItemPool = m_World->GetRenderItemPool(CurLayer);
+			uint32_t Layer = Iter.first;
+			auto RenderItemPool = m_World->GetRenderItemPool(Layer);
 			uint32_t MaterialIndex = 0;
 			for (FSubMesh& SubMesh : *m_MeshVertexComponent->m_Mesh.get())
 			{
 				Ref<FRenderItem> Item = RenderItemPool->Request();
+				Item->m_PipelineStateObject = Iter.second->PipelineStateObject;
 				Item->m_Mesh = m_MeshVertexComponent->m_Mesh;
 				Item->m_SubMesh = SubMesh;
 				Item->m_PerObjectBuffer = m_MeshRenderComponent->m_PerObjConstantsBuffer;
-				Item->m_Material = m_MeshRenderComponent->GetPassMaterials(CurLayer)[MaterialIndex];
-				Item->m_Material->SetShader(Item->m_PipelineStateObject->GetPSODescriptor().Shader);
+				Item->m_Material = Iter.second->Materials[MaterialIndex];
 				Item->SetModelMatrix(m_TransformationComponent->GetTransform());
 				MaterialIndex++;
 
@@ -66,9 +65,9 @@ namespace Zero
 		return m_MeshVertexComponent->m_Mesh->GetAABB();
 	}
 
-	void UMeshActor::SetParameter(const std::string& ParameterName, EShaderDataType ShaderDataType, void* ValuePtr)
+	void UMeshActor::SetParameter(const std::string& ParameterName, EShaderDataType ShaderDataType, void* ValuePtr, uint32_t RenderLayer)
 	{
-		m_MeshRenderComponent->SetParameter(ParameterName, ShaderDataType, ValuePtr);
+		m_MeshRenderComponent->SetParameter(ParameterName, ShaderDataType, ValuePtr, RenderLayer);
 	}
 
 }

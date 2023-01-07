@@ -15,7 +15,10 @@ namespace Zero
 				.ShaderName = PSO_FORWARDLIT,
 			};
 
-			FPSODescriptor ForwadLitDesc;
+			FPSODescriptor ForwadLitDesc{
+				.PSOType =	EPSOType::PT_Normal
+			};
+
 			ForwadLitDesc.Shader = FRenderer::GraphicFactroy->CreateShader(ShaderDesc);
 			FRenderer::GraphicFactroy->CreatePSO(PSO_FORWARDLIT, ForwadLitDesc);
 		}

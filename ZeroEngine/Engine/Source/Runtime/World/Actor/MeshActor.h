@@ -5,6 +5,7 @@
 #include "Render/Moudule/MeshGenerator.h"
 #include "Render/RHI/ShaderData.h"
 #include "MeshActor.reflection.h"
+#include "Render/RenderConfig.h"
 
 namespace Zero
 { 
@@ -23,7 +24,7 @@ namespace Zero
 		virtual void Tick();
 		virtual ZMath::FAABB GetAABB() override;
 		
-		void SetParameter(const std::string& ParameterName, EShaderDataType ShaderDataType, void* ValuePtr);
+		void SetParameter(const std::string& ParameterName, EShaderDataType ShaderDataType, void* ValuePtr, uint32_t RenderLayer = RENDERLAYER_OPAQUE);
 
 	protected:
 		UMeshVertexComponent* m_MeshVertexComponent = nullptr;

@@ -145,7 +145,10 @@ namespace Zero
 
 	void FMaterial::SetFloat3(const std::string& Name, const ZMath::vec3& Value)
 	{
-		m_MaterialBuffer->SetFloat3(Name, Value);
+		if (m_MaterialBuffer)
+		{
+			m_MaterialBuffer->SetFloat3(Name, Value);
+		}
 	}
 
 	void FMaterial::SetFloat4(const std::string& Name, const ZMath::vec4& Value)

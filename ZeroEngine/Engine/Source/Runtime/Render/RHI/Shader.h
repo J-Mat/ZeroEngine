@@ -52,8 +52,8 @@ namespace Zero
 
 		virtual Ref<IShaderBinder> GetBinder() { return m_ShaderBinder; }
 
-		const std::map<uint32_t, FShaderCBVParameter>& GetCBVParams() const { return m_CBVParams; }
-		const std::map<uint32_t, FShaderSRVParameter>& GetSRVParams() const { return m_SRVParams; }
+		const std::map<std::pair<uint32_t, uint32_t>, FShaderCBVParameter>& GetCBVParams() const { return m_CBVParams; }
+		const std::map<std::pair<uint32_t, uint32_t>, FShaderSRVParameter>& GetSRVParams() const { return m_SRVParams; }
 		
 		void GenerateShaderDesc();
 
@@ -64,8 +64,8 @@ namespace Zero
 		FShaderDesc m_ShaderDesc;
 		FShaderBinderDesc m_ShaderBinderDesc;
 
-		std::map<uint32_t, FShaderCBVParameter> m_CBVParams;
-		std::map<uint32_t, FShaderSRVParameter> m_SRVParams;
+		std::map<std::pair<uint32_t, uint32_t>, FShaderCBVParameter> m_CBVParams;
+		std::map<std::pair<uint32_t, uint32_t>, FShaderSRVParameter> m_SRVParams;
 		std::vector<FShaderUAVParameter> m_UAVParams;
 		std::vector<FShaderSamplerParameter> m_SamplerParams;
 	};

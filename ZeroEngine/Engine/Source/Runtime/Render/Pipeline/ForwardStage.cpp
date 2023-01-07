@@ -39,6 +39,55 @@ namespace Zero
 	{
 	}
 
+	void FForwardStage::RawRenderLayer(uint32_t RenderLayerType)
+	{
+		auto RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool(RenderLayerType);
+		for (Ref<FRenderItem> RenderItem : *RenderItemPool.get())
+		{
+			RenderItem->PreRender();
+			RenderItem->Render();
+		}
+	}
+
+	void FForwardStage::ForwarLitRender()
+	{
+		static auto RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool(RENDERLAYER_OPAQUE);
+		static auto LUTTexture2D = TLibrary<FTexture2D>::Fetch(IBL_BRDF_LUT);
+		static std::string ShadowMapID = std::format("{0}_{1}",  RENDER_STAGE_SHADOWMAP,  0);
+		static Ref<FRenderTarget2D> ShadowMapRenderTarget = TLibrary<FRenderTarget2D>::Fetch(ShadowMapID);
+		if (ShadowMapRenderTarget == nullptr)
+		{
+			ShadowMapRenderTarget = TLibrary<FRenderTarget2D>::Fetch(ShadowMapID);
+		}
+		for (Ref<FRenderItem> RenderItem : *RenderItemPool.get())
+		{
+			RenderItem->PreRender();
+			const auto& PSODesc = RenderItem->m_PipelineStateObject->GetPSODescriptor();
+			const std::string& ShaderName = PSODesc.Shader->GetDesc().ShaderName;
+			if (m_bGenerateIrradianceMap && !RenderItem->m_Material->IsSetIBL() && ShaderName == PSO_FORWARDLIT)
+			{
+				RenderItem->m_Material->SetTextureCubemap("IBLIrradianceMap", m_IBLMoudule->GetIrradianceRTCube()->GetColorCubemap());
+				RenderItem->m_Material->SetTextureCubemapArray("IBLPrefilterMaps", m_IBLMoudule->GetPrefilterEnvMapTextureCubes());
+				RenderItem->m_Material->SetTexture2D("_BrdfLUT", LUTTexture2D);
+				RenderItem->m_Material->SetIBL(true);
+			}
+
+			if (ShadowMapRenderTarget != nullptr)
+			{
+				RenderItem->m_Material->SetTexture2D("gShadowMap", ShadowMapRenderTarget->GetTexture(EAttachmentIndex::DepthStencil));
+				const auto& DirectLights = FLightManager::GetInstance().GetDirectLights();
+				if (DirectLights.size() > 0)
+				{
+					UDirectLightActor* DirectLight = DirectLights[0];
+					UDirectLightComponnet* DirectLightComponent = DirectLight->GetComponent<UDirectLightComponnet>();
+					RenderItem->m_Material->SetMatrix4x4("LightProjectionView", DirectLightComponent->GetProjectView());
+				}
+			}
+
+			RenderItem->Render();
+		}
+	}
+
 	void FForwardStage::OnDraw()
 	{
 		static auto* Settings = FSettingManager::GetInstance().FecthSettings<USceneSettings>(USceneSettings::StaticGetObjectName());
@@ -56,37 +105,10 @@ namespace Zero
 		m_RenderTarget->Bind();
 		if (Settings->m_bUseSkyBox)
 		{
-			static auto SkyboxPSO = TLibrary<FPipelineStateObject>::Fetch(PSO_SKYBOX);
-			auto RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool(RENDERLAYER_SKYBOX);
-			for (Ref<FRenderItem> RenderItem : *RenderItemPool.get())
-			{
-				RenderItem->m_PipelineStateObject = SkyboxPSO;
-				RenderItem->PreRender();
-				RenderItem->Render();
-			}
+			RawRenderLayer(RENDERLAYER_SKYBOX);
 		}
-
-		{
-			auto RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool(RENDERLAYER_OPAQUE);
-			static auto LUTTexture2D = TLibrary<FTexture2D>::Fetch(IBL_BRDF_LUT);
-			static std::string ShadowMapID = std::format("{0}_{1}",  RENDER_STAGE_SHADOWMAP,  "_0");
-			static Ref<FRenderTarget2D> ShadowMapRenderTarget = TLibrary<FRenderTarget2D>::Fetch(ShadowMapID);
-			for (Ref<FRenderItem> RenderItem : *RenderItemPool.get())
-			{
-				RenderItem->PreRender();
-				const auto& PSODesc = RenderItem->m_PipelineStateObject->GetPSODescriptor();
-				const std::string& ShaderName = PSODesc.Shader->GetDesc().ShaderName;
-				if (m_bGenerateIrradianceMap && !RenderItem->m_Material->IsSetIBL() && ShaderName == PSO_FORWARDLIT)
-				{
-					RenderItem->m_Material->SetTextureCubemap("IBLIrradianceMap", m_IBLMoudule->GetIrradianceRTCube()->GetColorCubemap());
-					RenderItem->m_Material->SetTextureCubemapArray("IBLPrefilterMaps", m_IBLMoudule->GetPrefilterEnvMapTextureCubes());
-					RenderItem->m_Material->SetTexture2D("_BrdfLUT", LUTTexture2D);
-					RenderItem->m_Material->SetIBL(true);
-				}
-
-				RenderItem->Render();
-			}
-		}
+		RawRenderLayer(RENDERLAYER_LIGHT);
+		ForwarLitRender();
 		m_RenderTarget->UnBind();
 	}
 }

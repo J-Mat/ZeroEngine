@@ -15,8 +15,8 @@ namespace Zero
 		: UMeshActor()
 	{
 		m_bVisibleInEditor = false;
-		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_SKYBOX);
-		GetComponent<UMeshRenderComponent>()->SetEnableMaterial(false);
+		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_SKYBOX, PSO_SKYBOX);
+		m_MeshRenderComponent->SetEnableMaterial(false);
 	}
 
 	void USkyActor::BuildMesh()
@@ -26,7 +26,6 @@ namespace Zero
 		FMeshGenerator::GetInstance().CreateCube(MeshData, 1.0f, 1.0f, 1.0f, 0);
 		MeshDatas.push_back(MeshData);
 		m_MeshVertexComponent->CreateMesh();
-		m_MeshRenderComponent->SetPsoType(EPsoType::PT_Skybox);
 	}
 
 

@@ -72,7 +72,7 @@ namespace Zero
 			OperationIndex = (OperationIndex + 1) % VecOperation.size();
 
 		ImGuizmo::Manipulate(ZMath::value_ptr(CameraView), ZMath::value_ptr(CameraProjection),
-			VecOperation[OperationIndex], ImGuizmo::WORLD, ZMath::value_ptr(Transform),
+			VecOperation[OperationIndex], ImGuizmo::LOCAL, ZMath::value_ptr(Transform),
 			nullptr, nullptr);
 		
 		if (ImGuizmo::IsUsing())
