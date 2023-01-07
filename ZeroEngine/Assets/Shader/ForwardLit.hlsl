@@ -10,10 +10,9 @@ TextureCube IBLIrradianceMap : register(t5);
 
 Texture2D _BrdfLUT : register(t6);
 
-Texture2D _gShadowMap : register(t7);
+TextureCube IBLPrefilterMaps[5] : register(t7);
 
-TextureCube IBLPrefilterMaps[5] : register(t8);
-
+Texture2D _gShadowMap : register(t0, space1);
 
 #include "./PBRLighting.hlsl"
 //#include "./Shadow/ShdowUtils.hlsl"
@@ -51,13 +50,31 @@ float CalcShadowFactor(float4 ShadowPos)
 
     float2 ShadowTexCoord = 0.5f * ProjCoords.xy + 0.5f;
 	ShadowTexCoord.y = 1.0f - ShadowTexCoord.y;
-   	float ClosestDepth = _gShadowMap.Sample(gSamLinearClamp, ShadowTexCoord).r;
 
-   	float CurrentDepth = ProjCoords.z - 0.005f;
+    uint Width, Height, NumMips;
+    _gShadowMap.GetDimensions(0, Width, Height, NumMips);
 
-   	float Shadow = CurrentDepth > ClosestDepth  ? 1.0f : 0.0f;
+    // Texel size.
+    float dx = 1.0f / (float)Width;
 
-    return Shadow;
+	float PercentLit = 0.0f;
+    const float2 Offsets[9] =
+    {
+        float2(-dx,  -dx), float2(0.0f,  -dx), float2(dx,  -dx),
+        float2(-dx, 0.0f), float2(0.0f, 0.0f), float2(dx, 0.0f),
+        float2(-dx,  +dx), float2(0.0f,  +dx), float2(dx,  +dx)
+    };
+
+	float Depth = ProjCoords.z;
+
+    [unroll]
+    for(int i = 0; i < 9; ++i)
+    {
+        PercentLit += _gShadowMap.SampleCmpLevelZero(gSamShadow,
+            ShadowTexCoord.xy + Offsets[i], Depth).r;
+    }
+    
+    return PercentLit / 9.0f;
 }
 
 
@@ -101,7 +118,7 @@ PixelOutput PS(VertexOut Pin)
 		Spec = pow(max(dot(V, ReflectDir), 0.0f), 35.0f) * LightColor;
 
 		float ShadowFactor = CalcShadowFactor(Pin.ShadowPosH);
-		FinalColor =  Ambient + (Diffuse + Spec) * (1.0f - ShadowFactor) * Albedo;
+		FinalColor =  Ambient + (Diffuse + Spec) * ShadowFactor * Albedo;
 ;
 	}
 

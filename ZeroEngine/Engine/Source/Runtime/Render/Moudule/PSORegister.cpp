@@ -146,7 +146,9 @@ namespace Zero
 			{
 				.ShaderName = "Shader\\Shadow\\DirectLightShadowMap.hlsl",
 			};
-			FPSODescriptor ShadowDesc;
+			FPSODescriptor ShadowDesc{
+				.PSOType = EPSOType::PT_Depth
+			};
 			ShadowDesc.Shader = FRenderer::GraphicFactroy->CreateShader(ShaderDesc);
 			FRenderer::GraphicFactroy->CreatePSO(PSO_SHADOWMAP, ShadowDesc);
 		}
