@@ -10,10 +10,10 @@ Actors:
         Properties:
           m_Position:UTransformComponent:
             Type: ZMath::vec3
-            Value: [-17.1743107, 35.7460861, 10.8746347]
+            Value: [1.63272607, 3.83737326, 11.8774214]
           m_Rotation:UTransformComponent:
             Type: ZMath::FRotation
-            Value: [1.06814146, -5.5606184, 0]
+            Value: [0.109955661, -4.0055294, 0]
           m_Scale:UTransformComponent:
             Type: ZMath::vec3
             Value: [1, 1, 1]
@@ -72,13 +72,7 @@ Actors:
                   Value: gDiffuseMap
                 Map-Value:
                   Type: FTextureHandle
-                  Value: default
-              - Map-Key:
-                  Type: std::string
-                  Value: gShadowMap
-                Map-Value:
-                  Type: FTextureHandle
-                  Value: default
+                  Value: Obj\mary\MC003_Kozakura_Mari.png
               - Map-Key:
                   Type: std::string
                   Value: gNormalMap
@@ -177,7 +171,7 @@ Actors:
             Value: [1, 1, 1]
           m_LightIntensity:ULightComponent:
             Type: float
-            Value: 1.5
+            Value: 1
   - ActorName: UGridMeshActor
     Properties:
       m_Tag:UActor:
@@ -223,12 +217,6 @@ Actors:
               - Map-Key:
                   Type: std::string
                   Value: gDiffuseMap
-                Map-Value:
-                  Type: FTextureHandle
-                  Value: ""
-              - Map-Key:
-                  Type: std::string
-                  Value: gShadowMap
                 Map-Value:
                   Type: FTextureHandle
                   Value: ""

@@ -74,14 +74,7 @@ namespace Zero
 
 			if (ShadowMapRenderTarget != nullptr)
 			{
-				RenderItem->m_Material->SetTexture2D("gShadowMap", ShadowMapRenderTarget->GetTexture(EAttachmentIndex::DepthStencil));
-				const auto& DirectLights = FLightManager::GetInstance().GetDirectLights();
-				if (DirectLights.size() > 0)
-				{
-					UDirectLightActor* DirectLight = DirectLights[0];
-					UDirectLightComponnet* DirectLightComponent = DirectLight->GetComponent<UDirectLightComponnet>();
-					RenderItem->m_Material->SetMatrix4x4("LightProjectionView", DirectLightComponent->GetProjectView());
-				}
+				RenderItem->m_Material->SetTexture2D("_gShadowMap", ShadowMapRenderTarget->GetTexture(EAttachmentIndex::DepthStencil));
 			}
 
 			RenderItem->Render();

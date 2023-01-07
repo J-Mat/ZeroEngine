@@ -24,7 +24,7 @@ struct VertexIn
 struct VertexOut
 {
 	float4 PosH : SV_Position;
-	float4 WorldPos : POSITION0;
+	float3 WorldPos : POSITION0;
     float4 ShadowPosH : POSITION1;
 	float2 TexC    : TEXCOORD;
     float3 Normal  : NORMAL;

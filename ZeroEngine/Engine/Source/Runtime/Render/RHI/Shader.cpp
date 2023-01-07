@@ -17,6 +17,7 @@ namespace Zero
 	void FShader::GenerateShaderDesc()
 	{
 		std::cout << "------------------------------------------\n";
+		std::cout << m_ShaderDesc.ShaderName << "\n";
 		for (auto Iter : m_CBVParams)
 		{
 			std::cout << std::format("Buffer : {0}, {1}, {2}\n", Iter.second.ResourceName, Iter.second.BindPoint, Iter.second.RegisterSpace);

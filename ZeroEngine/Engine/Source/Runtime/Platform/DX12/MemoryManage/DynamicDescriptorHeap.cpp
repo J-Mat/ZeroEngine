@@ -49,7 +49,8 @@ namespace Zero
 			uint32_t  NumDescriptors = RootSignature->GetNumDescriptors(RootIndex);
 			FDescriptorTableCache& DescriptorTableCache = m_DescriptorTableCache[RootIndex];
 			DescriptorTableCache.NumDescriptors = NumDescriptors;
-			DescriptorTableCache.m_BaseDescriptor = m_DescriptorHandleCache.get() + CurrentOffset;
+			DescriptorTableCache.BaseDescriptor = m_DescriptorHandleCache.get() + CurrentOffset;
+			DescriptorTableCache.DescriptorOffset = CurrentOffset;
 			
 			CurrentOffset += NumDescriptors;
 
@@ -62,6 +63,7 @@ namespace Zero
 	void FDynamicDescriptorHeap::CommitStagedDescriptorsForDraw(FDX12CommandList& CommandList)
 	{
 		CommitDescriptorTables(CommandList, &ID3D12GraphicsCommandList::SetGraphicsRootDescriptorTable);
+		SetAsShaderResourceHeap();
 	}
 
 	ComPtr<ID3D12DescriptorHeap> FDynamicDescriptorHeap::RequestDescriptorHeap()
@@ -137,13 +139,18 @@ namespace Zero
 		CommandList.SetDescriptorHeap(m_DescriptorHeapType, m_CurrentDescriptorHeap.Get());
 
 		DWORD RootIndex;
-		m_CurrentCPUDescriptorHandle = m_CurrentDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-		m_CurrentGPUDescriptorHandle = m_CurrentDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
 		// Scan from LSB to MSB for a bit set in staleDescriptorsBitMask
 		while (_BitScanForward(&RootIndex, m_StaleDescriptorTableBitMask))
 		{
+			m_CurrentCPUDescriptorHandle = m_CurrentDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+			m_CurrentGPUDescriptorHandle = m_CurrentDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+
+			UINT DescriptorOffset = m_DescriptorTableCache[RootIndex].DescriptorOffset;
+			m_CurrentCPUDescriptorHandle.Offset(DescriptorOffset, m_DescriptorHandleIncrementSize);
+			m_CurrentGPUDescriptorHandle.Offset(DescriptorOffset, m_DescriptorHandleIncrementSize);
+
 			UINT NumSrcDescriptors = m_DescriptorTableCache[RootIndex].NumDescriptors;
-			D3D12_CPU_DESCRIPTOR_HANDLE* pSrcDescriptorHandles = m_DescriptorTableCache[RootIndex].m_BaseDescriptor;
+			D3D12_CPU_DESCRIPTOR_HANDLE* pSrcDescriptorHandles = m_DescriptorTableCache[RootIndex].BaseDescriptor;
 			
 			D3D12_CPU_DESCRIPTOR_HANDLE pDestDescriptorRangeStarts[] = { m_CurrentCPUDescriptorHandle };
 			UINT pDestDescriptorRangeSizes[] = {NumSrcDescriptors};
@@ -159,8 +166,6 @@ namespace Zero
 			}
 
 			// Offset current CPU and GPU descriptor handles.
-			m_CurrentCPUDescriptorHandle.Offset(NumSrcDescriptors, m_DescriptorHandleIncrementSize);
-			m_CurrentGPUDescriptorHandle.Offset(NumSrcDescriptors, m_DescriptorHandleIncrementSize);
 
 			// Flip the stale bit so the descriptor table is not recopied again unless it is updated with a new
 			// descriptor.
@@ -195,7 +200,7 @@ namespace Zero
 		{
 			throw std::length_error("Number of descriptors exceeds the number of descriptors in the descriptor table.");
 		}
-		D3D12_CPU_DESCRIPTOR_HANDLE* DstDescriptor = (DescriptorTableCache.m_BaseDescriptor + Offset);
+		D3D12_CPU_DESCRIPTOR_HANDLE* DstDescriptor = (DescriptorTableCache.BaseDescriptor + Offset);
 		for (uint32_t i = 0; i < NumDescriptors; ++i)
 		{
 			DstDescriptor[i] = CD3DX12_CPU_DESCRIPTOR_HANDLE(SrcDescriptors, i, m_DescriptorHandleIncrementSize);
@@ -225,7 +230,7 @@ namespace Zero
 			while (_BitScanForward(&RootIndex, TableBitMask))
 			{
 				UINT NumSrcDescriptors = m_DescriptorTableCache[RootIndex].NumDescriptors;
-				if (m_DescriptorTableCache[RootIndex].m_BaseDescriptor->ptr)
+				if (m_DescriptorTableCache[RootIndex].BaseDescriptor->ptr)
 				{
 					CommandList->GetD3D12CommandList()->SetGraphicsRootDescriptorTable(RootIndex, m_CurrentGPUDescriptorHandle);
 				}

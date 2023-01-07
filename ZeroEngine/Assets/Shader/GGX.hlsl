@@ -12,7 +12,7 @@ VertexOut VS(VertexIn vin)
 	VertexOut Vout;
 	
 	Vout.PosH = mul(Model, float4(vin.PosL, 1.0f));
-	Vout.WorldPos = Vout.PosH;
+	Vout.WorldPos = Vout.PosH.xyz;
 
 	Vout.PosH = mul(View, Vout.PosH);
 	Vout.PosH = mul(Projection, Vout.PosH);

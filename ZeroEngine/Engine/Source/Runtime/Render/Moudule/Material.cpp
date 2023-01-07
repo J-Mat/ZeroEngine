@@ -188,7 +188,10 @@ namespace Zero
 
 	void FMaterial::SetTexture2D(const std::string& Name, Ref<FTexture2D> Texture)
 	{
-		m_ResourcesBuffer->SetTexture2D(Name, Texture);
+		if (m_ResourcesBuffer)
+		{
+			m_ResourcesBuffer->SetTexture2D(Name, Texture);
+		}
 	}
 
 	void FMaterial::SetTexture2DArray(const std::string& Name, const std::vector<Ref<FTexture2D>> Textures)

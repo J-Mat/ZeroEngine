@@ -12,8 +12,8 @@ namespace Zero
 		FRenderTarget2DDesc Desc
 		{
 			.RenderTargetName = "ShadowMapDebug",
-			.Width = 512,
-			.Height = 512,
+			.Width = 2048,
+			.Height = 2048,
 			.Format = {
 				ETextureFormat::R8G8B8A8
 			}
@@ -46,8 +46,8 @@ namespace Zero
 			FRenderTarget2DDesc Desc
 			{
 				.RenderTargetName = "ShadowMap",
-				.Width = 1024,
-				.Height = 1024,
+				.Width = 2048,
+				.Height = 2048,
 				.Format = {
 					ETextureFormat::DEPTH32F
 				},
@@ -84,11 +84,6 @@ namespace Zero
 			for (Ref<FRenderItem> RenderItem : *RenderItemPool.get())
 			{
 				RenderItem->PreRender();
-				/*
-				RenderItem->m_Material->SetCameraProjectViewMat("View", DirectLightComponent->GetView());
-				RenderItem->m_Material->SetCameraProjectViewMat("Projection", DirectLightComponent->GetProject());
-				RenderItem->m_Material->SetCameraProjectViewMat("ProjectionView", DirectLightComponent->GetProjectView());
-				*/
 				RenderItem->Render();
 			}
 			m_ShadowMapRenderTargets[Index]->UnBind();

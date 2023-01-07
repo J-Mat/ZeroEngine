@@ -109,19 +109,22 @@ namespace Zero
 		{
 			FDescriptorTableCache()
 				: NumDescriptors(0)
-				, m_BaseDescriptor(nullptr)
+				, DescriptorOffset(0)
+				, BaseDescriptor(nullptr)
 			{}
 			
 			void Reset()
 			{
 				NumDescriptors = 0;
-				m_BaseDescriptor = nullptr;
+				DescriptorOffset = 0;
+				BaseDescriptor = nullptr;
 			}
 
 			// The number of descriptors in this descriptor table.
 			uint32_t NumDescriptors;
+			uint32_t DescriptorOffset;
 			// The pointer to the descriptor in the descriptor handle cache.
-			D3D12_CPU_DESCRIPTOR_HANDLE* m_BaseDescriptor;
+			D3D12_CPU_DESCRIPTOR_HANDLE* BaseDescriptor;
 		};
 
 
