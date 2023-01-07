@@ -10,6 +10,7 @@ SamplerState gSamLinearWarp : register(s2);
 SamplerState gSamLinearClamp : register(s3);
 SamplerState gSamAnisotropicWarp : register(s4);
 SamplerState gSamAnisotropicClamp : register(s5);
+SamplerComparisonState gSamShadow : register(s6);
 
 
 struct VertexIn
@@ -23,10 +24,11 @@ struct VertexIn
 struct VertexOut
 {
 	float4 PosH : SV_Position;
+	float4 WorldPos : POSITION0;
+    float4 ShadowPosH : POSITION1;
 	float2 TexC    : TEXCOORD;
     float3 Normal  : NORMAL;
 	float3 Tangent : TANGENT;
-	float3 WorldPos : POSITION;
 };
 
 struct PixelOutput

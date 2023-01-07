@@ -1,0 +1,270 @@
+Scene: shadow.scene
+Actors:
+  - ActorName: UCameraActor
+    Properties:
+      m_Tag:UActor:
+        Type: std::string
+        Value: UCameraActor
+    Component:
+      - ComopnentName: UTransformComponent
+        Properties:
+          m_Position:UTransformComponent:
+            Type: ZMath::vec3
+            Value: [-17.1743107, 35.7460861, 10.8746347]
+          m_Rotation:UTransformComponent:
+            Type: ZMath::FRotation
+            Value: [1.06814146, -5.5606184, 0]
+          m_Scale:UTransformComponent:
+            Type: ZMath::vec3
+            Value: [1, 1, 1]
+      - ComopnentName: UCameraComponent
+        Properties:
+          m_CameraType:UCameraComponent:
+            Type: ECameraType
+            Value: 0
+  - ActorName: UCustomMeshActor
+    Properties:
+      m_Tag:UActor:
+        Type: std::string
+        Value: mary
+      m_FileName:UCustomMeshActor:
+        Type: std::string
+        Value: Obj\mary\mary.obj
+    Component:
+      - ComopnentName: UTransformComponent
+        Properties:
+          m_Position:UTransformComponent:
+            Type: ZMath::vec3
+            Value: [3.92462444, -2.22349453, 6.66817045]
+          m_Rotation:UTransformComponent:
+            Type: ZMath::FRotation
+            Value: [0, -0, 0]
+          m_Scale:UTransformComponent:
+            Type: ZMath::vec3
+            Value: [2, 2, 2]
+      - ComopnentName: UMeshVertexComponent
+        Properties:
+          {}
+      - ComopnentName: UMeshRenderComponent
+        Properties:
+          m_bEnableMaterial:UMeshRenderComponent:
+            Type: bool
+            Value: true
+          m_MaterialHandle:UMeshRenderComponent:
+            Type: FMaterialHandle
+            Value: ""
+          m_RenderLayer:UMeshRenderComponent:
+            Type: int32_t
+            Value: 1
+          m_ShadingMode:UMeshRenderComponent:
+            Type: EShadingMode
+            Value: 1
+          m_ShaderFile:UMeshRenderComponent:
+            Type: FShaderFileHandle
+            Value: Shader\ForwardLit.hlsl
+          m_Textures:UMeshRenderComponent:
+            Type: std::map
+            KeyType: std::string
+            ValueType: FTextureHandle
+            Value:
+              - Map-Key:
+                  Type: std::string
+                  Value: gDiffuseMap
+                Map-Value:
+                  Type: FTextureHandle
+                  Value: default
+              - Map-Key:
+                  Type: std::string
+                  Value: gShadowMap
+                Map-Value:
+                  Type: FTextureHandle
+                  Value: default
+              - Map-Key:
+                  Type: std::string
+                  Value: gNormalMap
+                Map-Value:
+                  Type: FTextureHandle
+                  Value: default
+              - Map-Key:
+                  Type: std::string
+                  Value: gMetallicMap
+                Map-Value:
+                  Type: FTextureHandle
+                  Value: default
+              - Map-Key:
+                  Type: std::string
+                  Value: gRoughnessMap
+                Map-Value:
+                  Type: FTextureHandle
+                  Value: default
+              - Map-Key:
+                  Type: std::string
+                  Value: gEmissionMap
+                Map-Value:
+                  Type: FTextureHandle
+                  Value: default
+          m_Floats:UMeshRenderComponent:
+            Type: std::map
+            KeyType: std::string
+            ValueType: FFloatSlider
+            Value:
+              []
+          m_Colors:UMeshRenderComponent:
+            Type: std::map
+            KeyType: std::string
+            ValueType: ZMath::FColor3
+            Value:
+              []
+  - ActorName: UDirectLightActor
+    Properties:
+      m_Tag:UActor:
+        Type: std::string
+        Value: UDirectLightActor
+    Component:
+      - ComopnentName: UTransformComponent
+        Properties:
+          m_Position:UTransformComponent:
+            Type: ZMath::vec3
+            Value: [-13.801362, 14.5514441, 56.0686035]
+          m_Rotation:UTransformComponent:
+            Type: ZMath::FRotation
+            Value: [-2.67209911, 0.345575422, 3.14159274]
+          m_Scale:UTransformComponent:
+            Type: ZMath::vec3
+            Value: [0.999997437, 0.999999344, 0.999995828]
+      - ComopnentName: UMeshVertexComponent
+        Properties:
+          {}
+      - ComopnentName: UMeshRenderComponent
+        Properties:
+          m_bEnableMaterial:UMeshRenderComponent:
+            Type: bool
+            Value: false
+          m_MaterialHandle:UMeshRenderComponent:
+            Type: FMaterialHandle
+            Value: ""
+          m_RenderLayer:UMeshRenderComponent:
+            Type: int32_t
+            Value: 1
+          m_ShadingMode:UMeshRenderComponent:
+            Type: EShadingMode
+            Value: 0
+          m_ShaderFile:UMeshRenderComponent:
+            Type: FShaderFileHandle
+            Value: Shader\ForwardLit.hlsl
+          m_Textures:UMeshRenderComponent:
+            Type: std::map
+            KeyType: std::string
+            ValueType: FTextureHandle
+            Value:
+              []
+          m_Floats:UMeshRenderComponent:
+            Type: std::map
+            KeyType: std::string
+            ValueType: FFloatSlider
+            Value:
+              []
+          m_Colors:UMeshRenderComponent:
+            Type: std::map
+            KeyType: std::string
+            ValueType: ZMath::FColor3
+            Value:
+              []
+      - ComopnentName: ULightComponent
+        Properties:
+          m_LightColor:ULightComponent:
+            Type: ZMath::FColor3
+            Value: [1, 1, 1]
+          m_LightIntensity:ULightComponent:
+            Type: float
+            Value: 1.5
+  - ActorName: UGridMeshActor
+    Properties:
+      m_Tag:UActor:
+        Type: std::string
+        Value: UGridMeshActor
+    Component:
+      - ComopnentName: UTransformComponent
+        Properties:
+          m_Position:UTransformComponent:
+            Type: ZMath::vec3
+            Value: [3.39269114, -2.59377933, 5.70208073]
+          m_Rotation:UTransformComponent:
+            Type: ZMath::FRotation
+            Value: [0, -0, 0]
+          m_Scale:UTransformComponent:
+            Type: ZMath::vec3
+            Value: [1, 1, 1]
+      - ComopnentName: UMeshVertexComponent
+        Properties:
+          {}
+      - ComopnentName: UMeshRenderComponent
+        Properties:
+          m_bEnableMaterial:UMeshRenderComponent:
+            Type: bool
+            Value: true
+          m_MaterialHandle:UMeshRenderComponent:
+            Type: FMaterialHandle
+            Value: ""
+          m_RenderLayer:UMeshRenderComponent:
+            Type: int32_t
+            Value: 17
+          m_ShadingMode:UMeshRenderComponent:
+            Type: EShadingMode
+            Value: 1
+          m_ShaderFile:UMeshRenderComponent:
+            Type: FShaderFileHandle
+            Value: Shader\ForwardLit.hlsl
+          m_Textures:UMeshRenderComponent:
+            Type: std::map
+            KeyType: std::string
+            ValueType: FTextureHandle
+            Value:
+              - Map-Key:
+                  Type: std::string
+                  Value: gDiffuseMap
+                Map-Value:
+                  Type: FTextureHandle
+                  Value: ""
+              - Map-Key:
+                  Type: std::string
+                  Value: gShadowMap
+                Map-Value:
+                  Type: FTextureHandle
+                  Value: ""
+              - Map-Key:
+                  Type: std::string
+                  Value: gNormalMap
+                Map-Value:
+                  Type: FTextureHandle
+                  Value: ""
+              - Map-Key:
+                  Type: std::string
+                  Value: gMetallicMap
+                Map-Value:
+                  Type: FTextureHandle
+                  Value: ""
+              - Map-Key:
+                  Type: std::string
+                  Value: gRoughnessMap
+                Map-Value:
+                  Type: FTextureHandle
+                  Value: ""
+              - Map-Key:
+                  Type: std::string
+                  Value: gEmissionMap
+                Map-Value:
+                  Type: FTextureHandle
+                  Value: ""
+          m_Floats:UMeshRenderComponent:
+            Type: std::map
+            KeyType: std::string
+            ValueType: FFloatSlider
+            Value:
+              []
+          m_Colors:UMeshRenderComponent:
+            Type: std::map
+            KeyType: std::string
+            ValueType: ZMath::FColor3
+            Value:
+              []

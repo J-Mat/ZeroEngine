@@ -7,9 +7,9 @@ VertexOut VS(VertexIn vin)
 	
 	Vout.PosH = mul(Model, float4(vin.PosL, 1.0f));
 
-	//Vout.PosH = mul(ProjectionView, Vout.PosH);
-	Vout.PosH = mul(View, Vout.PosH);
-	Vout.PosH = mul(Projection, Vout.PosH);
+	Vout.PosH = mul(DirectLights[0].ProjectionView, Vout.PosH);
+	//Vout.PosH = mul(View, Vout.PosH);
+	//Vout.PosH = mul(Projection, Vout.PosH);
 	
 	return Vout;
 };

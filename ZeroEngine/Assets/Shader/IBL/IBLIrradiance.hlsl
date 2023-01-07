@@ -6,7 +6,7 @@ VertexOut VS(VertexIn Vin)
 {
 	VertexOut Vout;
 
-	Vout.WorldPos = Vin.PosL;
+	Vout.WorldPos = float4(Vin.PosL, 1.0f);
 
 	float4 PosW = mul(Model, float4(Vin.PosL, 1.0f));
 	PosW.xyz += ViewPos;
@@ -22,7 +22,7 @@ float4 PS(VertexOut Pin) : SV_TARGET
 	float3 Irradiance = float3(0.0f, 0.0f, 0.0f);
 
 	// The sample direction equals the hemisphere's orientation
-	float3 Normal = normalize(Pin.WorldPos);
+	float3 Normal = normalize(Pin.WorldPos.xyz);
 	float3 Up = float3(0.0, 1.0, 0.0);
 	float3 Right = cross(Up, Normal);
 	Up = cross(Normal, Right);

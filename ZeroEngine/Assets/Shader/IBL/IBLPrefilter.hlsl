@@ -13,7 +13,7 @@ VertexOut VS(VertexIn Vin)
 {
 	VertexOut Vout;
 
-	Vout.WorldPos = Vin.PosL;
+	Vout.WorldPos = float4(Vin.PosL, 1.0f);
 
 	float4 PosW = mul(Model, float4(Vin.PosL, 1.0f));
 	PosW.xyz += ViewPos;
@@ -26,7 +26,7 @@ VertexOut VS(VertexIn Vin)
 
 float4 PS(VertexOut Pin) : SV_TARGET
 {
-	float3 N = normalize(Pin.WorldPos); 
+	float3 N = normalize(Pin.WorldPos.xyz); 
 	float3 R = N;
     float3 V = R;
 

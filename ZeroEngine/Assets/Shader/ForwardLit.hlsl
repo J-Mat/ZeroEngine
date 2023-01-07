@@ -10,16 +10,26 @@ TextureCube IBLIrradianceMap : register(t5);
 
 Texture2D _BrdfLUT : register(t6);
 
-TextureCube IBLPrefilterMaps[5] : register(t7);
+Texture2D gShadowMap : register(t0, space1); 
+TextureCube IBLPrefilterMaps[5] : register(t8);
+
 
 #include "./PBRLighting.hlsl"
+//#include "./Shadow/ShdowUtils.hlsl"
+
+
+cbuffer cbMaterial : register(b3)
+{
+	float4x4 LightProjectionView;
+};
 
 VertexOut VS(VertexIn vin)
 {
 	VertexOut Vout;
 	
 	Vout.PosH = mul(Model, float4(vin.PosL, 1.0f));
-	Vout.WorldPos = Vout.PosH.xyz;
+	Vout.ShadowPosH = mul(LightProjectionView, Vout.PosH);
+	Vout.WorldPos = Vout.PosH;
 
 	Vout.PosH = mul(View, Vout.PosH);
 	Vout.PosH = mul(Projection, Vout.PosH);
@@ -28,9 +38,28 @@ VertexOut VS(VertexIn vin)
 	Vout.Normal = mul((float3x3)Model ,vin.Normal);
 	Vout.Tangent = mul((float3x3)Model, vin.Tangent);
 
+	//if (DirectLightNum > 0)
+	{
+	}
 	return Vout;
 };
 
+float CalcShadowFactor(float4 ShadowPos)
+{
+	// Complete projection by doing division by w.
+	float4 ProjCoords = ShadowPos;
+	ProjCoords.xyz /= ProjCoords.w;
+
+    float2 ShadowTexCoord = 0.5f * ProjCoords.xy + 0.5f;
+	ShadowTexCoord.y = 1.0f - ShadowTexCoord.y;
+   	float ClosestDepth = gShadowMap.Sample(gSamLinearClamp, ShadowTexCoord).r;
+
+   	float CurrentDepth = ProjCoords.z - 0.005f;
+
+   	float Shadow = CurrentDepth > ClosestDepth  ? 1.0f : 0.0f;
+
+    return Shadow;
+}
 
 
 PixelOutput PS(VertexOut Pin)
@@ -49,7 +78,7 @@ PixelOutput PS(VertexOut Pin)
 	if (ShadingMode == 0)
 	{
 
-		float3 ViewDir = normalize(ViewPos - Pin.WorldPos);
+		float3 ViewDir = normalize(ViewPos - Pin.WorldPos.xyz);
 		float3 ReflectDir = reflect(-ViewDir, N);
 		float3 PrefilteredColor  = GetPrefilteredColor(Roughness, ReflectDir);
 		float3 Irradiance = IBLIrradianceMap.Sample(gSamLinearClamp, N).rgb;
@@ -59,13 +88,25 @@ PixelOutput PS(VertexOut Pin)
 	}
 	else if (ShadingMode == 1)
 	{
+		float3 Ambient = 0.6f;
+		/*
 		float3 LightColor = DirectLights[0].Color * DirectLights[0].Intensity;
 		float3 L = normalize(-DirectLights[0].Direction);
 		float3 V = normalize(ViewPos - Pin.WorldPos); 
 		float3 H = normalize(V + L);
 		float NdotL = max(0.0f, dot(Pin.Normal, L));
 		
-		FinalColor = Albedo / PI + float3(NdotL, NdotL, NdotL);
+		float3 Diffuse = NdotL * LightColor * Albedo;
+
+		float Spec = 0.0f;
+		float3 ReflectDir = reflect(-V, N);
+		Spec = pow(max(dot(V, ReflectDir), 0.0f), 35.0f);
+		*/	
+		float4 ShadowPos = mul(LightProjectionView, Pin.WorldPos); 
+		float ShadowFactor = CalcShadowFactor(ShadowPos);
+		float3 Specula = Ambient * (1.0f - ShadowFactor);
+
+		FinalColor = Specula;
 	}
 
     // gamma correct

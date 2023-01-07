@@ -13,7 +13,7 @@ VertexOut VS(VertexIn vin)
 	VertexOut Vout;
 	
 	Vout.PosH = mul(Model, float4(vin.PosL, 1.0f));
-	Vout.WorldPos = Vout.PosH.xyz;
+	Vout.WorldPos = Vout.PosH;
 
 	Vout.PosH = mul(View, Vout.PosH);
 	Vout.PosH = mul(Projection, Vout.PosH);
@@ -38,7 +38,7 @@ PixelOutput PS(VertexOut Pin)
 	float3 Normal = gNormalMap.Sample(gSamAnisotropicWarp, Pin.TexC).xyz;
 	
 	float3 N = NormalSampleToWorldSpace(Normal, Pin.Normal, Pin.Tangent);
-	float3 V = normalize(ViewPos - Pin.WorldPos);
+	float3 V = normalize(ViewPos - Pin.WorldPos.xyz);
 
 	float3 F0 = float3(0.04f, 0.04f, 0.04f);
 	F0 = lerp(F0, Albedo, Metallic);
@@ -46,10 +46,10 @@ PixelOutput PS(VertexOut Pin)
 	float3 Lo = float3(0.0f, 0.0f, 0.0f);
 	for (int i = 0; i < PointLightNum; ++i)
 	{
-		float3 L = normalize(PointLights[i].LightPos - Pin.WorldPos);
+		float3 L = normalize(PointLights[i].LightPos - Pin.WorldPos.xyz);
 		float3 H = normalize(L + V);
 		
-		float Distance = length(PointLights[i].LightPos - Pin.WorldPos);
+		float Distance = length(PointLights[i].LightPos - Pin.WorldPos.xyz);
 		float Attenuation = 1.0f / (Distance * Distance);
 		float3 Radiance = PointLights[i].Color * PointLights[i].Intensity * Attenuation;
 
