@@ -3,6 +3,7 @@
 #include "DX12PipelineStateObject.h"
 #include "DX12RenderTarget2D.h"
 #include "DX12RootSignature.h"
+#include "MemoryManage/DynamicDescriptorHeap.h"
 
 namespace Zero
 {
@@ -19,9 +20,11 @@ namespace Zero
 
 		m_ResourceStateTracker = CreateScope<FResourceStateTracker>();
 
-		for (int i = 0; i < D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES; ++i)
+		for (uint32_t i = 0; i < D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES; ++i)
 		{
 			m_DescriptorHeaps[i] = nullptr;
+			
+			m_DynamicDescriptorHeap[i] = CreateScope<FDynamicDescriptorHeap>(D3D12_DESCRIPTOR_HEAP_TYPE(i));
 		}
 	}
 
@@ -206,7 +209,7 @@ namespace Zero
 		return Resource;
 	}
 
-	void FDX12CommandList::ResolveSubResource(const Ref<IResource>& DstRes, const Ref<IResource> SrcRes, uint32_t DstSubRes, uint32_t SrcSubRes)
+	void FDX12CommandList::ResolveSubResource(const Ref<FResource>& DstRes, const Ref<FResource> SrcRes, uint32_t DstSubRes, uint32_t SrcSubRes)
 	{
 		TransitionBarrier(DstRes, D3D12_RESOURCE_STATE_RESOLVE_DEST, DstSubRes);
 		TransitionBarrier(SrcRes, D3D12_RESOURCE_STATE_RESOLVE_SOURCE, SrcSubRes);
@@ -238,7 +241,7 @@ namespace Zero
 		TrackResource(TexturePtr->GetD3DResource());
 	}
 
-	void FDX12CommandList::CopyResource(const Ref<IResource>& DstRes, const Ref<IResource>& SrcRes)
+	void FDX12CommandList::CopyResource(const Ref<FResource>& DstRes, const Ref<FResource>& SrcRes)
 	{
 		CopyResource(DstRes->GetD3DResource(), SrcRes->GetD3DResource());
 	}
@@ -339,7 +342,7 @@ namespace Zero
 			RenderTargetDescriptors.data(), FALSE, pDSV);
 	}
 
-	void FDX12CommandList::TransitionBarrier(const Ref<IResource>& Resource, D3D12_RESOURCE_STATES StateAfter, UINT Subresource, bool bFlushBarriers)
+	void FDX12CommandList::TransitionBarrier(const Ref<FResource>& Resource, D3D12_RESOURCE_STATES StateAfter, UINT Subresource, bool bFlushBarriers)
 	{
 		if (Resource)
 		{
@@ -361,12 +364,30 @@ namespace Zero
 		}
 	}
 
+	void FDX12CommandList::AliasingBarrier(const Ref<FResource>& BeforeResource, const Ref<FResource>& AfterResource, bool bFlushBarriers)
+	{
+		auto D3DBeforeResourece = BeforeResource ? BeforeResource->GetD3DResource() : nullptr;
+		auto D3DAfterResourece = AfterResource ? AfterResource->GetD3DResource() : nullptr;
+
+		AliasingBarrier(D3DBeforeResourece, D3DAfterResourece, bFlushBarriers);
+	}
+
+	void FDX12CommandList::AliasingBarrier(ComPtr<ID3D12Resource> BeforeResource, ComPtr<ID3D12Resource> AfterResource, bool bFlushBarriers)
+	{
+		auto Barrier = CD3DX12_RESOURCE_BARRIER::Aliasing(BeforeResource.Get(), AfterResource.Get());
+		m_ResourceStateTracker->ResourceBarrier(Barrier);
+		if (bFlushBarriers)
+		{
+			FlushResourceBarriers();
+		}
+	}
+
 	void FDX12CommandList::TrackResource(Microsoft::WRL::ComPtr<ID3D12Object> Object)
 	{
 		m_TrackedObjects.push_back(Object);
 	}
 
-	void FDX12CommandList::TrackResource(const Ref<IResource>& res)
+	void FDX12CommandList::TrackResource(const Ref<FResource>& res)
 	{
 		TrackResource(res->GetD3DResource());
 	}

@@ -43,8 +43,40 @@ VertexOut VS(VertexIn vin)
 	return Vout;
 };
 
+
+#define PCF_SAMPLE_PIXLE_RADIUS    2
+#define PCF_SAMPLE_COUNT           6
+
+float2 ComputeDepthDerivative(float3 projCoords)
+{
+	float2 ddist_duv = 0.0f;
+    
+	// Packing derivatives of u,v, and distance to light source w.r.t. screen space x, and y
+	float3 duvdist_dx = ddx(projCoords);
+	float3 duvdist_dy = ddy(projCoords);
+	
+	// Invert texture Jacobian and use chain rule to compute ddist/du and ddist/dv
+	// |ddist/du| = |du/dx du/dy|-T * |ddist/dx|
+	// |ddist/dv| |dv/dx dv/dy| |ddist/dy|
+
+	// Multiply ddist/dx and ddist/dy by inverse transpose of Jacobian
+	float invDet = 1 / ((duvdist_dx.x * duvdist_dy.y) - (duvdist_dx.y * duvdist_dy.x));
+
+	// Top row of 2x2
+	ddist_duv.x = duvdist_dy.y * duvdist_dx.z; 
+	ddist_duv.x -= duvdist_dx.y * duvdist_dy.z; 
+
+	// Bottom row of 2x2
+	ddist_duv.y = duvdist_dx.x * duvdist_dy.z; 
+	ddist_duv.y -= duvdist_dy.x * duvdist_dx.z; 
+	ddist_duv *= invDet;
+    
+	return ddist_duv;
+}
+
 float CalcShadowFactor(float4 ShadowPos)
 {
+	/*
 	float4 ProjCoords = ShadowPos;
 	ProjCoords.xyz /= ProjCoords.w;
 
@@ -75,6 +107,35 @@ float CalcShadowFactor(float4 ShadowPos)
     }
     
     return PercentLit / 9.0f;
+	*/
+	float4 ProjCoords = ShadowPos;
+	ProjCoords.xyz /= ProjCoords.w;
+
+    float2 ShadowTexCoord = 0.5f * ProjCoords.xy + 0.5f;
+	ShadowTexCoord.y = 1.0f - ShadowTexCoord.y;
+
+	float3 ReceiverPos = float3(ShadowTexCoord.xy, ProjCoords.z);
+	float2 ddist_duv = ComputeDepthDerivative(ReceiverPos);
+    uint Width, Height, NumMips;
+    _gShadowMap.GetDimensions(0, Width, Height, NumMips);
+
+    // Texel size.
+    float dx = 1.0f / (float)Width;
+    float UVRadius = PCF_SAMPLE_PIXLE_RADIUS * dx; 
+	const int SampleCount = PCF_SAMPLE_COUNT;
+	float Visibility = 0.0f;
+    for (int i = 0; i < SampleCount; i++)
+    {
+		float2 UVOffset = (Hammersley(i, SampleCount) * 2.0f - 1.0f) * UVRadius;
+		float2 SampleUV = ReceiverPos.xy + UVOffset;
+		
+		const float FixedBias = 0.003f;
+		float ReceiverDepthBias = ReceiverPos.z + dot(ddist_duv, UVOffset) - FixedBias;
+		
+		Visibility += _gShadowMap.SampleCmpLevelZero(gSamShadow, SampleUV, ReceiverDepthBias).r;
+	}
+    
+	return Visibility / SampleCount;
 }
 
 

@@ -43,4 +43,13 @@ namespace Zero
 	protected:
 		FPSODescriptor m_PSODescriptor;
 	};
+
+	struct FComputePSODescriptor
+	{
+		bool operator==(const FPSODescriptor& Other) const
+		{
+			return Other.Shader == Shader;
+		}
+		Ref<FShader> Shader = nullptr;
+	};
 }

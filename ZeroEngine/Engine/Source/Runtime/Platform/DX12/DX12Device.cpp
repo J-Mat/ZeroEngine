@@ -194,7 +194,7 @@ namespace Zero
 		return m_Adapter->GetDescription();
 	}
 
-	std::array<CD3DX12_STATIC_SAMPLER_DESC, 7> FDX12Device::GetStaticSamplers()
+	std::vector<CD3DX12_STATIC_SAMPLER_DESC> FDX12Device::GetStaticSamplers()
 	{
 		//过滤器POINT,寻址模式WRAP的静态采样器
 		CD3DX12_STATIC_SAMPLER_DESC pointWarp(0,	//着色器寄存器

@@ -13,11 +13,12 @@
 namespace Zero
 {
 	class FDX12PipelineStateObject;
-	class IResource;
+	class FResource;
 	class FDX12Texture2D;
 	class FDX12Device;
 	class IRootSignature;
 	class FDX12RenderTarget2D;
+	class FDynamicDescriptorHeap;
 	class FDX12CommandList : public FCommandList, public std::enable_shared_from_this<FDX12CommandList>
 	{
 	public:
@@ -34,7 +35,7 @@ namespace Zero
 		ComPtr<ID3D12Resource> CreateTextureCubemapResource(Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT], uint32_t Width, uint32_t Height, uint32_t Chanels);
 		ComPtr<ID3D12Resource> CreateRenderTargetResource(uint32_t Width, uint32_t Height);
 
-		void ResolveSubResource(const Ref<IResource>& DstRes, const Ref<IResource> SrcRes, uint32_t DstSubRes = 0, uint32_t SrcSubRes = 0);
+		void ResolveSubResource(const Ref<FResource>& DstRes, const Ref<FResource> SrcRes, uint32_t DstSubRes = 0, uint32_t SrcSubRes = 0);
 
 		void ClearTexture(FDX12Texture2D* TexturePtr, const ZMath::vec4 Color);
 		void ClearDepthStencilTexture(FDX12Texture2D* TexturePtr, D3D12_CLEAR_FLAGS ClearFlags, float Depth = 1.0f, uint8_t Stencil = 0);
@@ -42,7 +43,7 @@ namespace Zero
 		/**
 		* Copy resources.
 		*/
-		void CopyResource(const Ref<IResource>& DstRes, const Ref<IResource>& SrcRes);
+		void CopyResource(const Ref<FResource>& DstRes, const Ref<FResource>& SrcRes);
 		void CopyResource(ComPtr<ID3D12Resource> DstRes, ComPtr<ID3D12Resource> SrcRes);
 
 		/**
@@ -99,13 +100,28 @@ namespace Zero
 		* tracker.
 		* @param subresource The subresource to transition. By default, this is D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES
 		* which indicates that all subresources are transitioned to the same state.
-		* @param flushBarriers Force flush any barriers. Resource barriers need to be flushed before a command (draw,
+		* @param bFlushBarriers Force flush any barriers. Resource barriers need to be flushed before a command (draw,
 		* dispatch, or copy) that expects the resource to be in a particular state can run.
 		*/
-		void TransitionBarrier(const Ref<IResource>& Resource, D3D12_RESOURCE_STATES StateAfter,
+		void TransitionBarrier(const Ref<FResource>& Resource, D3D12_RESOURCE_STATES StateAfter,
 			UINT Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, bool bFlushBarriers = false);
 		void TransitionBarrier(ComPtr<ID3D12Resource> Resource, D3D12_RESOURCE_STATES StateAfter,
 			UINT Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, bool bFlushBarriers = false);
+
+
+		/**
+		 * Add an aliasing barrier to indicate a transition between usages of two
+		 * different resources that occupy the same space in a heap.
+		 *
+		 * @param [beforeResource] The resource that currently occupies the heap (can be null).
+		 * @param [afterResource] The resource that will occupy the space in the heap (can be null).
+		 */
+		void AliasingBarrier(const Ref<FResource>& BeforeResource  = nullptr, 
+							 const Ref<FResource>& AfterResource = nullptr, 
+							 bool bFlushBarriers = false);
+		void AliasingBarrier(ComPtr<ID3D12Resource> BeforeResource,
+							 ComPtr<ID3D12Resource> AfterResource, 
+			                 bool bFlushBarriers = false);
 
 
 		Ref<FDX12CommandList> GetGenerateMipsCommandList() const
@@ -119,7 +135,7 @@ namespace Zero
 		virtual void Execute();
 	private:
 		void TrackResource(Microsoft::WRL::ComPtr<ID3D12Object> Object);
-		void TrackResource(const Ref<IResource>& res);
+		void TrackResource(const Ref<FResource>& res);
 
 	private:
 		std::vector<ComPtr<ID3D12Object>> m_TrackedObjects;
@@ -130,6 +146,12 @@ namespace Zero
 		Scope<FUploadBuffer> m_UploadBuffer;
 		Scope<FResourceStateTracker> m_ResourceStateTracker = nullptr;
 		ID3D12DescriptorHeap* m_DescriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
+
+		// The dynamic descriptor heap allows for descriptors to be staged before
+		// being committed to the command list. Dynamic descriptors need to be
+		// committed before a Draw or Dispatch.
+		Scope<FDynamicDescriptorHeap> m_DynamicDescriptorHeap[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
+
 
 		// For copy queues, it may be necessary to generate mips while loading textures.
 		// Mips can't be generated on copy queues but must be generated on compute or

@@ -11,6 +11,7 @@ namespace Zero
 	{
 	public:
 		FDX12RootSignature(const D3D12_ROOT_SIGNATURE_DESC& RootSignatureDesc);
+		FDX12RootSignature(const std::vector<CD3DX12_ROOT_PARAMETER>& Parameters, const std::vector<CD3DX12_STATIC_SAMPLER_DESC>& Samplers);
 		virtual	~FDX12RootSignature();
 		uint32_t GetNumDescriptors(uint32_t RootIndex);
 		void SetRootSignatureDesc(const D3D12_ROOT_SIGNATURE_DESC& RootSignatureDesc);

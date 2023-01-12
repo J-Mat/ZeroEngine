@@ -12,6 +12,27 @@ namespace Zero
 		SetRootSignatureDesc(RootSignatureDesc);
 	}
 
+
+	FDX12RootSignature::FDX12RootSignature(const std::vector<CD3DX12_ROOT_PARAMETER>& Parameters, const std::vector<CD3DX12_STATIC_SAMPLER_DESC>& Samplers)
+		: m_RootSignatureDesc{}
+		, m_NumDescriptorsPerTable{ 0 }
+		, m_SamplerTableBitMask(0)
+		, m_DescriptorTableBitMask(0)
+	{
+		CD3DX12_ROOT_SIGNATURE_DESC RootSignatureDesc(
+			UINT(Parameters.size()),
+			Parameters.data(),
+			UINT(Samplers.size()),
+			Samplers.data(),
+			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
+		);
+		ComPtr<ID3DBlob> SerializedRootSig = nullptr;
+		ComPtr<ID3DBlob> ErrorBlob = nullptr;
+		ThrowIfFailed(D3D12SerializeRootSignature(&RootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &SerializedRootSig, &ErrorBlob));
+		SetRootSignatureDesc(RootSignatureDesc);
+	}
+
+
 	FDX12RootSignature::~FDX12RootSignature()
 	{
 	}
