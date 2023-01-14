@@ -11,7 +11,7 @@ namespace Zero
     class FDX12Device;
     class FDescriptorAllocation;
 
-	class FDX12TextureCubemap :public FTextureCubemap, public IResource
+	class FDX12TextureCubemap :public FTextureCubemap, public FResource
 	{
 	public:
 		FDX12TextureCubemap(const std::string& TextureName, const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* ClearValue = nullptr);

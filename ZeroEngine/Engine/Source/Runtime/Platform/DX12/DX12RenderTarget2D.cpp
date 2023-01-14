@@ -21,7 +21,7 @@ namespace Zero
 			const ETextureFormat& TextureFormat = Desc.Format[Index];
 			if (TextureFormat == ETextureFormat::None)
 				continue;
-			DXGI_FORMAT DxgiFormat = FDX12RHItConverter::GetTextureFormatByDesc(TextureFormat);
+			DXGI_FORMAT DxgiFormat = FDX12Utils::GetTextureFormatByDesc(TextureFormat);
 			if (TextureFormat != Zero::ETextureFormat::DEPTH32F)
 			{
 				Ref<FTexture2D> Texture;
@@ -54,7 +54,7 @@ namespace Zero
 			}
 			else
 			{
-				DXGI_FORMAT DepthDxgiFormat = FDX12RHItConverter::GetTextureFormatByDesc(Desc.Format[Index]);
+				DXGI_FORMAT DepthDxgiFormat = FDX12Utils::GetTextureFormatByDesc(Desc.Format[Index]);
 				CORE_ASSERT(DepthDxgiFormat == DXGI_FORMAT_D24_UNORM_S8_UINT, "Must be depth format");
 				auto DepthStencilDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D24_UNORM_S8_UINT, m_Width, m_Height);
 				DepthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;

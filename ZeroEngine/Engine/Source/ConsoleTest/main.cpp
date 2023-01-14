@@ -9,46 +9,25 @@
 #include <string>
 #include <stdio.h>
 #include <fstream>
+using namespace std;
 
-using FJsonObj = nlohmann::json;
-using FImagePath = std::string;
-
-class FMaterialConfig :public FJsonObj
-{
-public:
-	FMaterialConfig() {};
-	FMaterialConfig(const std::string& Str)
-	{
-		m_JsonObj = Str;
-		
-	}
-private:
-	void ParseJson() 
-	{
-		m_ShaderFile = m_JsonObj["ShaderFile"];
-		FJsonObj TextureObj = m_JsonObj["Textures"];
-	};
-	std::string m_ShaderFile;
-	std::map<std::string, FImagePath> m_Texture;
-	FJsonObj m_JsonObj;
-	std::string GetShaderFile() { return m_ShaderFile; }
-	//FMaterialConfig& GetTextures() { return  (*this)["Textures"];};
-	
-};
 int main()
 {
-	FJsonObj JsonExport;
-	JsonExport["ShaderFile"] = "ForwardList.hlsl";
-	FJsonObj& Textures = JsonExport["Textures"];
-	Textures["gDiffuseMap"] = nullptr;
-	Textures["gNormalMap"] = nullptr;
-	
-	FMaterialConfig Material = JsonExport.dump();
+	unsigned int v;  // 32-bit value to find the log2 of 
+	while (cin >> v)
+	{
+		unsigned int r; // result of log2(v) will go here
+		unsigned int shift;
 
-	//std::cout << Material.dump();
-	std::cout << JsonExport.dump();
-	std::cout << 11;
-	
+		r = (v > 0xFFFF) << 4; v >>= r;
+		shift = (v > 0xFF) << 3; v >>= shift; r |= shift;
+		shift = (v > 0xF) << 2; v >>= shift; r |= shift;
+		shift = (v > 0x3) << 1; v >>= shift; r |= shift;
+		r |= (v >> 1);
 
+
+		cout << r << endl;
+	}
+	
 	return 0;
 }

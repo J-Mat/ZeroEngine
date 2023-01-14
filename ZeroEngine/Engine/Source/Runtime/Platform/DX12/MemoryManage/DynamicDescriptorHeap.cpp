@@ -34,7 +34,7 @@ namespace Zero
 		// command list.
 		m_StaleDescriptorTableBitMask = 0;
 		
-		const auto& RootSignatureDesc = RootSignature->GetRootSignatureDesc();
+		const auto& RootSignatureDesc = RootSignature->GetRootSignatureDesc_0();
 
 		// Get a bit mask that represents the root parameter indices that match the
 		// descriptor heap type for this dynamic descriptor heap.

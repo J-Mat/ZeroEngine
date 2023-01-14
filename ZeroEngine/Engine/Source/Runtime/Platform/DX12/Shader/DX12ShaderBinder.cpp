@@ -158,7 +158,7 @@ namespace Zero
 	void FDX12ShaderBinder::BuildRootSignature()
 	{
 		size_t ParamterCount = m_Desc.m_ConstantBufferLayouts.size() + m_Desc.m_TextureBufferLayout.GetSrvCount();
-		std::vector<CD3DX12_ROOT_PARAMETER> SlotRootParameter;
+		std::vector<CD3DX12_ROOT_PARAMETER1> SlotRootParameter;
 		SlotRootParameter.resize(ParamterCount);
 		
 		UINT ParameterIndex = 0;
@@ -169,15 +169,28 @@ namespace Zero
 		}
 		
 		UINT SrvIndex = 0;
-		std::vector<CD3DX12_DESCRIPTOR_RANGE> SrvTable(m_Desc.m_TextureBufferLayout.GetSrvCount());
+		std::vector<CD3DX12_DESCRIPTOR_RANGE1> SrvTable(m_Desc.m_TextureBufferLayout.GetSrvCount());
 		for (FTextureTableElement& Element : m_Desc.m_TextureBufferLayout)
 		{
-			SrvTable[SrvIndex].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (UINT)Element.TextureNum, Element.BindPoint, Element.RegisterSpace);
+			SrvTable[SrvIndex].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (UINT)Element.TextureNum, Element.BindPoint, Element.RegisterSpace, D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE);
 			SlotRootParameter[ParameterIndex].InitAsDescriptorTable(1, &SrvTable[SrvIndex], D3D12_SHADER_VISIBILITY_PIXEL);
 			++ParameterIndex;
 			++SrvIndex;
 		}
-		auto StaticSamplers = FDX12Device::GetStaticSamplers();
+
+		D3D12_ROOT_SIGNATURE_FLAGS RootSignatureFlags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
+		auto StaticSamplers = FDX12Device::GetStaticSamplers(m_Desc.m_ShaderSamplers);
+		CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC RootSignatureDesc(
+			UINT(ParamterCount), 
+			SlotRootParameter.data(), 
+			UINT(StaticSamplers.size()), 
+			StaticSamplers.data(),
+			RootSignatureFlags
+		); 
+		/*
 		CD3DX12_ROOT_SIGNATURE_DESC RoogSig(
 			UINT(ParamterCount),
 			SlotRootParameter.data(),
@@ -185,11 +198,10 @@ namespace Zero
 			StaticSamplers.data(),
 			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
 		);
-		ComPtr<ID3DBlob> SerializedRootSig = nullptr;
-		ComPtr<ID3DBlob> ErrorBlob = nullptr;
-		ThrowIfFailed(D3D12SerializeRootSignature(&RoogSig, D3D_ROOT_SIGNATURE_VERSION_1, &SerializedRootSig, &ErrorBlob));
+		*/
+		m_RootSignature = CreateRef<FDX12RootSignature>(RootSignatureDesc.Desc_1_1);
 		
-		m_RootSignature = CreateRef<FDX12RootSignature>(RoogSig);
+		//m_RootSignature = CreateRef<FDX12RootSignature>(RoogSig);
 	}
 
 	void FDX12ShaderBinder::BuildDynamicHeap()

@@ -5,10 +5,10 @@
 
 namespace Zero
 {
-	IResource::IResource()
+	FResource::FResource()
 	{
 	}
-	IResource::IResource(const std::string& ResourceName, const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* ClearValue)
+	FResource::FResource(const std::string& ResourceName, const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* ClearValue)
 	{
 		auto* D3dDevice = FDX12Device::Get()->GetDevice();
 		
@@ -28,7 +28,7 @@ namespace Zero
 		CheckFeatureSupport();
 	}
 
-	IResource::IResource( ComPtr<ID3D12Resource> Resource, const D3D12_CLEAR_VALUE* ClearValue )
+	FResource::FResource( ComPtr<ID3D12Resource> Resource, const D3D12_CLEAR_VALUE* ClearValue )
 	: m_D3DResource(Resource)
 	{
 		if (ClearValue)
@@ -39,7 +39,7 @@ namespace Zero
 		CheckFeatureSupport();
 	}
 
-	void IResource::SetName(const std::wstring& Name)
+	void FResource::SetName(const std::wstring& Name)
 	{
 		m_ResourceName = Name;
 		if (m_D3DResource && !m_ResourceName.empty())
@@ -48,20 +48,20 @@ namespace Zero
 		}
 	}
 
-	void IResource::SetResource(ComPtr<ID3D12Resource> Resource)
+	void FResource::SetResource(ComPtr<ID3D12Resource> Resource)
 	{
 		m_D3DResource = Resource;
 		FResourceStateTracker::AddGlobalResourceState(m_D3DResource.Get(), D3D12_RESOURCE_STATE_COMMON);
 		CheckFeatureSupport();
 	}
 
-	IResource::~IResource()
+	FResource::~FResource()
 	{ 
 		FDX12Device::Get()->Flush();
 		m_D3DResource.Reset();
 	}
 
-	void IResource::CheckFeatureSupport()
+	void FResource::CheckFeatureSupport()
 	{
     	auto Desc              = m_D3DResource->GetDesc();
     	m_FormatSupport.Format = Desc.Format;

@@ -4,6 +4,7 @@
 #include "Render/RenderConfig.h"
 #include "Render/RendererAPI.h"
 #include "Render/RHI/PipelineStateObject.h"
+#include "Platform/DX12/PSO/GenerateMipsPSO.h"
 
 namespace Zero
 {
@@ -165,6 +166,19 @@ namespace Zero
 			ShadowDesc.Shader = FRenderer::GraphicFactroy->CreateShader(ShaderDesc);
 			FRenderer::GraphicFactroy->CreatePSO(ShaderDesc.ShaderName, ShadowDesc);
 		}
+	}
+
+	void FPSORegister::RegisterComputeShader()
+	{
+		return;
+		struct FComputeShaderDesc GenerteMipShader
+		{
+			.ShaderName = GENERATE_MIP_SHADER,
+			.BlockSize_X = 8,
+			.BlockSize_Y = 8,
+			.BlockSize_Z = 1
+		};
+		FRenderer::GraphicFactroy->CreateComputeShader(GenerteMipShader);
 	}
 
 	void FPSORegister::RegisterTestPSO()

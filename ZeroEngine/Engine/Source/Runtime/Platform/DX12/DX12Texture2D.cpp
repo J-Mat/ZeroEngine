@@ -8,7 +8,8 @@
 namespace Zero
 {
 	FDX12Texture2D::FDX12Texture2D(const std::string& TextureName, const FDX12TextureSettings& TextureSettings, const D3D12_CLEAR_VALUE* ClearValue)
-		: IResource(TextureName, TextureSettings.Desc, ClearValue)
+		: FTexture2D()
+		, FResource(TextureName, TextureSettings.Desc, ClearValue)
 	{
 		m_Width = (uint32_t)TextureSettings.Desc.Width;
 		m_Height = (uint32_t)TextureSettings.Desc.Height;
@@ -20,8 +21,9 @@ namespace Zero
 	}
 
 
-	FDX12Texture2D::FDX12Texture2D(const std::string& TextureName, Ref<FImage> ImageData)
-		:  IResource()
+	FDX12Texture2D::FDX12Texture2D(const std::string& TextureName, Ref<FImage> ImageData, bool bNeedMipMap)
+		 : FTexture2D(bNeedMipMap)
+		,  FResource()
 	{
 		m_ImageData = ImageData;
 		m_Width = ImageData->GetWidth();
@@ -30,17 +32,22 @@ namespace Zero
 		auto Resource = FDX12Device::Get()->GetInitWorldCommandList()->CreateTextureResource(ImageData);
 		Resource->SetName(Utils::StringToLPCWSTR(TextureName));
 		SetResource(Resource);
+		if (m_bNeedMipMap)
+		{
+			FDX12Device::Get()->GetInitWorldCommandList()->GenerateMips(this->shared_from_this());
+		}
 		CreateViews();
 	}
 
     FDX12Texture2D::FDX12Texture2D(const std::string& TextureName, ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, const D3D12_CLEAR_VALUE* ClearValue)
-		: IResource(Resource, ClearValue)
+		: FResource(Resource, ClearValue)
 	{
 		m_Width = Width;
 		m_Height = Height;
 		Resource->SetName(Utils::StringToLPCWSTR(TextureName));
 		CreateViews();
 	}
+
 
 	void FDX12Texture2D::Resize(uint32_t Width, uint32_t Height, uint32_t DepthOrArraySize = 1)
 	{
@@ -242,5 +249,79 @@ namespace Zero
 	D3D12_CPU_DESCRIPTOR_HANDLE FDX12Texture2D::GetUnorderedAccessView(uint32_t mip) const
 	{
 		return D3D12_CPU_DESCRIPTOR_HANDLE();
+	}
+
+	DXGI_FORMAT FDX12Texture2D::GetUAVCompatableFormat(DXGI_FORMAT Format)
+	{
+		DXGI_FORMAT UavFormat = Format;
+
+		switch (Format)
+		{
+		case DXGI_FORMAT_R8G8B8A8_TYPELESS:
+		case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
+		case DXGI_FORMAT_B8G8R8A8_UNORM:
+		case DXGI_FORMAT_B8G8R8X8_UNORM:
+		case DXGI_FORMAT_B8G8R8A8_TYPELESS:
+		case DXGI_FORMAT_B8G8R8A8_UNORM_SRGB:
+		case DXGI_FORMAT_B8G8R8X8_TYPELESS:
+		case DXGI_FORMAT_B8G8R8X8_UNORM_SRGB:
+			UavFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+			break;
+		case DXGI_FORMAT_R32_TYPELESS:
+		case DXGI_FORMAT_D32_FLOAT:
+			UavFormat = DXGI_FORMAT_R32_FLOAT;
+			break;
+		}
+
+		return UavFormat;
+	}
+	bool FDX12Texture2D::IsSRGBFormat(DXGI_FORMAT Format)
+	{
+		switch (Format)
+		{
+		case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
+		case DXGI_FORMAT_BC1_UNORM_SRGB:
+		case DXGI_FORMAT_BC2_UNORM_SRGB:
+		case DXGI_FORMAT_BC3_UNORM_SRGB:
+		case DXGI_FORMAT_B8G8R8A8_UNORM_SRGB:
+		case DXGI_FORMAT_B8G8R8X8_UNORM_SRGB:
+		case DXGI_FORMAT_BC7_UNORM_SRGB:
+			return true;
+		default:
+			return false;
+		}
+
+		return false;
+	}
+
+	DXGI_FORMAT FDX12Texture2D::GetSRGBFormat(DXGI_FORMAT Format)
+	{
+		DXGI_FORMAT SrgbFormat = Format;
+		switch (Format)
+		{
+		case DXGI_FORMAT_R8G8B8A8_UNORM:
+			SrgbFormat = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+			break;
+		case DXGI_FORMAT_BC1_UNORM:
+			SrgbFormat = DXGI_FORMAT_BC1_UNORM_SRGB;
+			break;
+		case DXGI_FORMAT_BC2_UNORM:
+			SrgbFormat = DXGI_FORMAT_BC2_UNORM_SRGB;
+			break;
+		case DXGI_FORMAT_BC3_UNORM:
+			SrgbFormat = DXGI_FORMAT_BC3_UNORM_SRGB;
+			break;
+		case DXGI_FORMAT_B8G8R8A8_UNORM:
+			SrgbFormat = DXGI_FORMAT_B8G8R8A8_UNORM_SRGB;
+			break;
+		case DXGI_FORMAT_B8G8R8X8_UNORM:
+			SrgbFormat = DXGI_FORMAT_B8G8R8X8_UNORM_SRGB;
+			break;
+		case DXGI_FORMAT_BC7_UNORM:
+			SrgbFormat = DXGI_FORMAT_BC7_UNORM_SRGB;
+			break;
+		}
+
+		return SrgbFormat;
 	}
 }

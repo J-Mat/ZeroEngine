@@ -7,7 +7,7 @@
 namespace Zero
 {
 	class FDX12Device;
-	class FDX12VertexBuffer :public IVertexBuffer, public IBuffer
+	class FDX12VertexBuffer :public IVertexBuffer, public FBuffer
 	{
 	public:
 		FDX12VertexBuffer(void* _Data, uint32_t _VertexCount, FVertexBufferLayout& _Layout, IVertexBuffer::EType _Type = IVertexBuffer::EType::Static);

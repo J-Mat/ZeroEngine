@@ -33,6 +33,9 @@ namespace Zero
 	class FTexture2D : public ITexture
 	{
 	public:
+		FTexture2D(bool bNeetMipMap = false) :
+			m_bNeedMipMap(bNeetMipMap) 
+		{}
 		virtual ~FTexture2D() = default;
 		virtual Ref<FImage> GetImage() { return m_ImageData; };
 		virtual void Resize(uint32_t Width, uint32_t Height, uint32_t DepthOrArraySize = 1) = 0;
@@ -41,6 +44,7 @@ namespace Zero
 		virtual UINT64 GetGuiShaderReseource() = 0;
 	protected:	
         Ref<FImage> m_ImageData = nullptr;
+		bool m_bNeedMipMap = false;
 	};
 
 	class FTextureCubemap : public ITexture

@@ -194,52 +194,52 @@ namespace Zero
 		return m_Adapter->GetDescription();
 	}
 
-	std::vector<CD3DX12_STATIC_SAMPLER_DESC> FDX12Device::GetStaticSamplers()
+	std::vector<CD3DX12_STATIC_SAMPLER_DESC> FDX12Device::GetStaticSamplers(std::vector<EShaderSampler>& ShaderSamplers)
 	{
 		//过滤器POINT,寻址模式WRAP的静态采样器
-		CD3DX12_STATIC_SAMPLER_DESC pointWarp(0,	//着色器寄存器
+		static CD3DX12_STATIC_SAMPLER_DESC PointWarp(0,	//着色器寄存器
 			D3D12_FILTER_MIN_MAG_MIP_POINT,		//过滤器类型为POINT(常量插值)
 			D3D12_TEXTURE_ADDRESS_MODE_WRAP,	//U方向上的寻址模式为WRAP（重复寻址模式）
 			D3D12_TEXTURE_ADDRESS_MODE_WRAP,	//V方向上的寻址模式为WRAP（重复寻址模式）
 			D3D12_TEXTURE_ADDRESS_MODE_WRAP);	//W方向上的寻址模式为WRAP（重复寻址模式）
 
 		//过滤器POINT,寻址模式CLAMP的静态采样器
-		CD3DX12_STATIC_SAMPLER_DESC pointClamp(1,	//着色器寄存器
+		static CD3DX12_STATIC_SAMPLER_DESC PointClamp(1,	//着色器寄存器
 			D3D12_FILTER_MIN_MAG_MIP_POINT,		//过滤器类型为POINT(常量插值)
 			D3D12_TEXTURE_ADDRESS_MODE_CLAMP,	//U方向上的寻址模式为CLAMP（钳位寻址模式）
 			D3D12_TEXTURE_ADDRESS_MODE_CLAMP,	//V方向上的寻址模式为CLAMP（钳位寻址模式）
 			D3D12_TEXTURE_ADDRESS_MODE_CLAMP);	//W方向上的寻址模式为CLAMP（钳位寻址模式）
 
 		//过滤器LINEAR,寻址模式WRAP的静态采样器
-		CD3DX12_STATIC_SAMPLER_DESC linearWarp(2,	//着色器寄存器
+		static CD3DX12_STATIC_SAMPLER_DESC LinearWarp(2,	//着色器寄存器
 			D3D12_FILTER_MIN_MAG_MIP_LINEAR,		//过滤器类型为LINEAR(线性插值)
 			D3D12_TEXTURE_ADDRESS_MODE_WRAP,	//U方向上的寻址模式为WRAP（重复寻址模式）
 			D3D12_TEXTURE_ADDRESS_MODE_WRAP,	//V方向上的寻址模式为WRAP（重复寻址模式）
 			D3D12_TEXTURE_ADDRESS_MODE_WRAP);	//W方向上的寻址模式为WRAP（重复寻址模式）
 
 		//过滤器LINEAR,寻址模式CLAMP的静态采样器
-		CD3DX12_STATIC_SAMPLER_DESC linearClamp(3,	//着色器寄存器
+		static CD3DX12_STATIC_SAMPLER_DESC LinearClamp(3,	//着色器寄存器
 			D3D12_FILTER_MIN_MAG_MIP_LINEAR,		//过滤器类型为LINEAR(线性插值)
 			D3D12_TEXTURE_ADDRESS_MODE_CLAMP,	//U方向上的寻址模式为CLAMP（钳位寻址模式）
 			D3D12_TEXTURE_ADDRESS_MODE_CLAMP,	//V方向上的寻址模式为CLAMP（钳位寻址模式）
 			D3D12_TEXTURE_ADDRESS_MODE_CLAMP);	//W方向上的寻址模式为CLAMP（钳位寻址模式）
 
 		//过滤器ANISOTROPIC,寻址模式WRAP的静态采样器
-		CD3DX12_STATIC_SAMPLER_DESC anisotropicWarp(4,	//着色器寄存器
+		static CD3DX12_STATIC_SAMPLER_DESC AnisotropicWarp(4,	//着色器寄存器
 			D3D12_FILTER_ANISOTROPIC,			//过滤器类型为ANISOTROPIC(各向异性)
 			D3D12_TEXTURE_ADDRESS_MODE_WRAP,	//U方向上的寻址模式为WRAP（重复寻址模式）
 			D3D12_TEXTURE_ADDRESS_MODE_WRAP,	//V方向上的寻址模式为WRAP（重复寻址模式）
 			D3D12_TEXTURE_ADDRESS_MODE_WRAP);	//W方向上的寻址模式为WRAP（重复寻址模式）
 
 		//过滤器LINEAR,寻址模式CLAMP的静态采样器
-		CD3DX12_STATIC_SAMPLER_DESC anisotropicClamp(5,	//着色器寄存器
+		static CD3DX12_STATIC_SAMPLER_DESC AnisotropicClamp(5,	//着色器寄存器
 			D3D12_FILTER_ANISOTROPIC,			//过滤器类型为ANISOTROPIC(各向异性)
 			D3D12_TEXTURE_ADDRESS_MODE_CLAMP,	//U方向上的寻址模式为CLAMP（钳位寻址模式）
 			D3D12_TEXTURE_ADDRESS_MODE_CLAMP,	//V方向上的寻址模式为CLAMP（钳位寻址模式）
 			D3D12_TEXTURE_ADDRESS_MODE_CLAMP);	//W方向上的寻址模式为CLAMP（钳位寻址模式）
 
 
-		const CD3DX12_STATIC_SAMPLER_DESC shadow(
+		static CD3DX12_STATIC_SAMPLER_DESC Shadow(
 			6, // shaderRegister
 			D3D12_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT, // filter
 			D3D12_TEXTURE_ADDRESS_MODE_BORDER,  // addressU
@@ -250,7 +250,37 @@ namespace Zero
 			D3D12_COMPARISON_FUNC_LESS_EQUAL,
 			D3D12_STATIC_BORDER_COLOR_OPAQUE_BLACK);
 
-		return{ pointWarp, pointClamp, linearWarp, linearClamp, anisotropicWarp, anisotropicClamp, shadow };
+		std::vector<CD3DX12_STATIC_SAMPLER_DESC> Res;
+		for (EShaderSampler ShaderSamplerType : ShaderSamplers)
+		{
+			switch (ShaderSamplerType)
+			{
+			case Zero::EShaderSampler::PointWarp:
+				Res.push_back(PointWarp);
+				break;
+			case Zero::EShaderSampler::PointClamp:
+				Res.push_back(PointClamp);
+				break;
+			case Zero::EShaderSampler::LinearWarp:
+				Res.push_back(LinearWarp);
+				break;
+			case Zero::EShaderSampler::LinearClamp:
+				Res.push_back(LinearClamp);
+				break;
+			case Zero::EShaderSampler::AnisotropicWarp:
+				Res.push_back(AnisotropicWarp);
+				break;
+			case Zero::EShaderSampler::AnisotropicClamp:
+				Res.push_back(AnisotropicClamp);
+				break;
+			case Zero::EShaderSampler::Shadow:
+				Res.push_back(Shadow);
+				break;
+			default:
+				break;
+			}
+		}
+		return Res;
 	}
 
 	void FDX12Device::PreInitWorld()

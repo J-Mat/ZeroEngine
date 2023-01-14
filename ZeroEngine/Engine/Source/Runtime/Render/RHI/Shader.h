@@ -34,13 +34,12 @@ namespace Zero
 		std::string VSEntryPoint = "VS";
 		bool bCreatePS = true;
 		std::string PSEntryPoint = "PS";
-		bool bCreateCS = false;
-		std::string CSEntryPoint = "CS";
 	};
 		
 	struct FShaderSamplerParameter : FShaderParameter
 	{
 	};
+
 	class FShader
 	{
 	public:
@@ -68,6 +67,29 @@ namespace Zero
 		std::map<std::pair<uint32_t, uint32_t>, FShaderSRVParameter> m_SRVParams;
 		std::vector<FShaderUAVParameter> m_UAVParams;
 		std::vector<FShaderSamplerParameter> m_SamplerParams;
+	};
+
+	struct FComputeShaderDesc
+	{
+		std::string ShaderName;
+		FShaderDefines ShaderDefines;
+		std::string CSEntryPoint = "CS";
+		uint32_t BlockSize_X = 8;
+		uint32_t BlockSize_Y = 8;
+		uint32_t BlockSize_Z = 8;
+	};
+
+	class FComputeShader
+	{
+	public:
+		FComputeShader(const FShaderBinderDesc& BinderDesc, const FComputeShaderDesc& Desc);
+		FComputeShader(const FComputeShaderDesc& Desc);
+		virtual void Dispatch(uint32_t X, uint32_t Y, uint32_t Z) = 0;
+		virtual void CreateBinder() = 0;
+	protected:
+		Ref<IShaderBinder> m_ShaderBinder;
+		FComputeShaderDesc m_ComputeShaderDesc;
+		FShaderBinderDesc m_ShaderBinderDesc;
 	};
 	
 }

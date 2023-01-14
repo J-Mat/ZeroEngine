@@ -36,6 +36,17 @@ namespace Zero
 		ST_COMPUTE
 	};
 
+	enum class EShaderSampler
+	{
+		PointWarp, 
+		PointClamp, 
+		LinearWarp, 
+		LinearClamp, 
+		AnisotropicWarp, 
+		AnisotropicClamp, 
+		Shadow
+	};
+
 	static uint32_t ShaderDataTypeSize(EShaderDataType Type)
 	{
 		switch (Type)
@@ -198,6 +209,7 @@ namespace Zero
 		uint32_t TextureNum = 1;
 		uint32_t BindPoint = 0;
 		uint32_t RegisterSpace = 0;
+		bool bWillBeModified = false;
 	};
 	
 	class FShaderResourceLayout
@@ -225,32 +237,36 @@ namespace Zero
 	};
 
 
-	struct FComputeOutputElement
+	struct FReadWriteElement
 	{
 		EShaderResourceType Type;
-		std::string Name;
+		std::string ResourceName;
+		uint32_t TextureNum = 1;
+		uint32_t BindPoint = 0;
+		uint32_t RegisterSpace = 0;
+		bool bWillBeModified = false;
 	};
 
-	class FComputeOutputLayout
+	class FReadWriteResoureceLayout
 	{
 	public:
-		FComputeOutputLayout() {}
-		FComputeOutputLayout(const std::initializer_list<FComputeOutputElement>& elements)
+		FReadWriteResoureceLayout() {}
+		FReadWriteResoureceLayout(const std::initializer_list<FReadWriteElement>& elements)
 			:m_Elements(elements)
 		{
 		}
 
-		size_t SrvCount()
+		size_t GetUavCount()
 		{
 			return m_Elements.size();
 		}
 
-		inline const std::vector<FComputeOutputElement>& GetElements() const { return m_Elements; }
+		inline const std::vector<FReadWriteElement>& GetElements() const { return m_Elements; }
 
-		std::vector<FComputeOutputElement>::iterator begin() { return m_Elements.begin(); }
-		std::vector<FComputeOutputElement>::iterator end() { return m_Elements.end(); }
+		std::vector<FReadWriteElement>::iterator begin() { return m_Elements.begin(); }
+		std::vector<FReadWriteElement>::iterator end() { return m_Elements.end(); }
 
 	private:
-		std::vector<FComputeOutputElement> m_Elements;
+		std::vector<FReadWriteElement> m_Elements;
 	};
 }

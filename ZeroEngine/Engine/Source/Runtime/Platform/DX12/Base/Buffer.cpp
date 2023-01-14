@@ -2,18 +2,18 @@
 
 namespace Zero
 {
-	IBuffer::IBuffer()
-		:IResource()
+	FBuffer::FBuffer()
+		:FResource()
 	{
 	}
 	/*
 	IBuffer::IBuffer(const D3D12_RESOURCE_DESC& ResDesc)
-		:IResource(ResDesc)
+		:FResource(ResDesc)
 	{
 	}
 
 	IBuffer::IBuffer(Microsoft::WRL::ComPtr<ID3D12Resource> Resource)
-		:IResource(Resource)
+		:FResource(Resource)
 	{
 	}
 	*/

@@ -13,9 +13,10 @@
 #include "Render/RHI/Shader.h"
 #include "Render/RHI/RootSignature.h"
 #include "Platform/DX12/Shader/DX12Shader.h"
+#include "Platform/DX12/Shader/DX12ComputeShader.h"
 #include "Platform/DX12/Shader/DX12ShaderBinder.h"
 #include "Platform/DX12/DX12RootSignature.h"
-#include "Platform/DX12/DX12PipelineStateObject.h"
+#include "Platform/DX12/PSO/DX12PipelineStateObject.h"
 #include "Core/Framework/Library.h"
 #include "ZConfig.h"
 #include "Render/Moudule/PSORegister.h"
@@ -70,9 +71,10 @@ namespace Zero
 		virtual Ref<FMesh> CreateMesh(const std::vector<FMeshData>& MeshDatas, FVertexBufferLayout& Layout) = 0;
 		virtual Ref<FMesh> CreateMesh(float* Vertices, uint32_t VertexCount, uint32_t* Indices, uint32_t IndexCount, FVertexBufferLayout& Layout) = 0;
 		virtual Ref<IShaderConstantsBuffer> CreateShaderConstantBuffer(FShaderConstantsDesc& Desc) = 0;
-		virtual Ref<IShaderResourcesBuffer> CreateShaderResourceBuffer(FShaderResourcesDesc& Desc, IRootSignature* RootSignature) = 0;
+		virtual Ref<IShaderResourcesBuffer> CreateShaderResourceBuffer(FShaderResourcesDesc& Desc, FRootSignature* RootSignature) = 0;
 		virtual Ref<FShader> CreateShader(const FShaderBinderDesc& BinderDesc, const FShaderDesc& ShaderDesc) = 0;
 		virtual Ref<FShader> CreateShader(const FShaderDesc& ShaderDesc) = 0;
+		virtual Ref<FComputeShader> CreateComputeShader(const FComputeShaderDesc& ComputeShaderDesc) = 0;
 		virtual Ref<FTexture2D> GetOrCreateTexture2D(const std::string& FileName) = 0;
 		virtual Ref<FTexture2D> CreateTexture2D(Ref<FImage> Image, std::string ImageName) = 0;
 		virtual Ref<FTextureCubemap> GetOrCreateTextureCubemap(FTextureHandle Handles[CUBEMAP_TEXTURE_CNT], std::string TextureCubemapName) = 0;
@@ -127,7 +129,7 @@ namespace Zero
 			return CreateRef<FDX12ShaderConstantsBuffer>(Desc);
 		}
 
-		virtual Ref<IShaderResourcesBuffer> CreateShaderResourceBuffer(FShaderResourcesDesc& Desc, IRootSignature* RootSignature)
+		virtual Ref<IShaderResourcesBuffer> CreateShaderResourceBuffer(FShaderResourcesDesc& Desc, FRootSignature* RootSignature)
 		{
 			FDX12RootSignature* D3DRootSignature = static_cast<FDX12RootSignature*>(RootSignature);
 			return CreateRef<FDX12ShaderResourcesBuffer>(Desc, D3DRootSignature);
@@ -151,6 +153,17 @@ namespace Zero
 			{
 				Shader = CreateRef<FDX12Shader>(ShaderDesc);
 				TLibrary<FShader>::Push(ShaderDesc.ShaderName, Shader);
+			}
+			return Shader;
+		}
+
+		virtual Ref<FComputeShader> CreateComputeShader(const FComputeShaderDesc& ComputeShaderDesc)
+		{
+			Ref<FComputeShader> Shader = TLibrary<FComputeShader>::Fetch(ComputeShaderDesc.ShaderName);
+			if (Shader == nullptr)
+			{
+				Shader = CreateRef<FDX12ComputeShader>(ComputeShaderDesc);
+				TLibrary<FComputeShader>::Push(ComputeShaderDesc.ShaderName, Shader);
 			}
 			return Shader;
 		}
@@ -221,7 +234,7 @@ namespace Zero
 			{
 				TLibrary<FTextureCubemap>::Remove(TextureCubemapName);
 				TextureCubemap.reset();
-				Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT];
+				Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT]	;
 				for (int i = 0; i < CUBEMAP_TEXTURE_CNT; ++i)
 				{
 					Ref<FTexture2D> Texture2D = GetOrCreateTexture2D(Handles[i]);

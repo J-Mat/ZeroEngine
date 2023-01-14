@@ -7,7 +7,7 @@ namespace Zero
 {
 	FDX12IndexBuffer::FDX12IndexBuffer(uint32_t* Indices, uint32_t Count)
 		: IIndexBuffer(Indices, Count)
-		, IBuffer()
+		, FBuffer()
 	{	
 		ComPtr<ID3D12Resource> Resource = FDX12Device::Get()->GetInitWorldCommandList()->CreateDefaultBuffer(m_Data, m_BufferSize);
 		SetResource(Resource);

@@ -7,6 +7,8 @@
 #include "MemoryManage/ResourceStateTracker.h"
 #include "Render/Moudule/Image/Image.h"
 #include "DX12Device.h"
+#include "MemoryManage/DynamicDescriptorHeap.h"
+#include "./PSO/GenerateMipsPSO.h"
 
 
 
@@ -15,10 +17,8 @@ namespace Zero
 	class FDX12PipelineStateObject;
 	class FResource;
 	class FDX12Texture2D;
-	class FDX12Device;
-	class IRootSignature;
+	class FRootSignature;
 	class FDX12RenderTarget2D;
-	class FDynamicDescriptorHeap;
 	class FDX12CommandList : public FCommandList, public std::enable_shared_from_this<FDX12CommandList>
 	{
 	public:
@@ -31,7 +31,9 @@ namespace Zero
 		ComPtr<ID3D12Resource> CreateDefaultBuffer(const void* BufferData, size_t BufferSize, D3D12_RESOURCE_FLAGS Flags = D3D12_RESOURCE_FLAG_NONE);
 
 
-		ComPtr<ID3D12Resource> CreateTextureResource(Ref<FImage> Image);
+		ComPtr<ID3D12Resource> CreateTextureResource(Ref<FImage> Image, bool bGenerateMip = false);
+		void GenerateMips(Ref<FDX12Texture2D> Texture);
+		void GenerateMips_UAV(Ref<FDX12Texture2D> Texture, bool bIsSRGB);
 		ComPtr<ID3D12Resource> CreateTextureCubemapResource(Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT], uint32_t Width, uint32_t Height, uint32_t Chanels);
 		ComPtr<ID3D12Resource> CreateRenderTargetResource(uint32_t Width, uint32_t Height);
 
@@ -86,6 +88,7 @@ namespace Zero
 		* Set the pipeline state object on the command list.
 		*/
 		void SetPipelineState(const Ref<FDX12PipelineStateObject>& PipelineState);
+		void SetPipelineState(ComPtr<ID3D12PipelineState> D3DPipelineState);
 
 		/**
 		* Set the render targets for the graphics rendering pipeline.
@@ -129,7 +132,8 @@ namespace Zero
 			return m_ComputeCommandList;
 		}
 
-		void SetGraphicsRootSignature(const Ref<IRootSignature>& rootSignature);
+		void SetGraphicsRootSignature(Ref<FDX12RootSignature> RootSignature);
+		void SetComputeRootSignature(Ref<FDX12RootSignature> RootSignature);
 
 		virtual void Reset();
 		virtual void Execute();
@@ -138,6 +142,7 @@ namespace Zero
 		void TrackResource(const Ref<FResource>& res);
 
 	private:
+		Scope<FGenerateMipsPSO> m_GenerateMipsPSO = nullptr;
 		std::vector<ComPtr<ID3D12Object>> m_TrackedObjects;
 
 		D3D12_COMMAND_LIST_TYPE  m_CommandListType;

@@ -10,7 +10,7 @@ namespace Zero
 	FDX12RenderTargetCube::FDX12RenderTargetCube(const FRenderTargetCubeDesc& Desc)
 		: FRenderTargetCube(Desc)
 	{
-		DXGI_FORMAT DxgiFormat = FDX12RHItConverter::GetTextureFormatByDesc(Desc.TextureFormat);
+		DXGI_FORMAT DxgiFormat = FDX12Utils::GetTextureFormatByDesc(Desc.TextureFormat);
 		D3D12_RESOURCE_DESC TexDesc = {
 			.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D,
 			.Alignment = 0,

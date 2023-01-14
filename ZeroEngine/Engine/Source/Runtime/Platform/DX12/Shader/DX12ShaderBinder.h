@@ -66,7 +66,7 @@ namespace Zero
 	public:
 		FDX12ShaderBinder(FShaderBinderDesc& Desc);
 		virtual ~FDX12ShaderBinder();
-		virtual IRootSignature* GetRootSignature() { return m_RootSignature.get(); }
+		virtual FRootSignature* GetRootSignature() { return m_RootSignature.get(); }
 		virtual void BindConstantsBuffer(int32_t Slot, IShaderConstantsBuffer* Buffer) override;
 		virtual void Bind() override;
 	private:

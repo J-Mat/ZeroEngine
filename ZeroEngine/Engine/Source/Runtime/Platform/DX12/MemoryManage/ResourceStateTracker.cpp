@@ -24,14 +24,14 @@ namespace Zero
 		{
 			const D3D12_RESOURCE_TRANSITION_BARRIER& TransitionBarrier = Barrier.Transition;
 			
-			// First check if there is already a known "final" state for the given resource.
-			// If there is, the resource has been used on the command list before and
+			// First check if there is already a known "final" state for the given Resource.
+			// If there is, the Resource has been used on the command list before and
 			// already has a known state within the command list execution.
 			const auto Iter = m_FinalResourceState.find(TransitionBarrier.pResource);
 			if (Iter != m_FinalResourceState.end())
 			{
 				auto& ResourceState = Iter->second;
-				// If the known final state of the resource is different...
+				// If the known final state of the Resource is different...
 				if (TransitionBarrier.Subresource == D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES &&
 					!ResourceState.SubResourceState.empty())
 				{
@@ -57,7 +57,7 @@ namespace Zero
 					}
 				}
 			}
-			else  //In this case, the resource is being used on the command list for the first time.
+			else  //In this case, the Resource is being used on the command list for the first time.
 			{
 				// Add a pending barrier. The pending barriers will be resolved
 				// before the command list is executed on the command queue.
@@ -69,7 +69,7 @@ namespace Zero
 		}
 		else
 		{
-			// Just push non-transition barriers to the resource barriers array
+			// Just push non-transition barriers to the Resource barriers array
 			m_ResourceBarriersList.push_back(Barrier);
 		}
 	}
@@ -82,20 +82,24 @@ namespace Zero
 		}
 	}
 
-	void FResourceStateTracker::TransitionResource(IResource& Resource, D3D12_RESOURCE_STATES StateAfter, UINT SubResource)
+	void FResourceStateTracker::TransitionResource(FResource& Resource, D3D12_RESOURCE_STATES StateAfter, UINT SubResource)
 	{
 		TransitionResource(Resource.GetD3DResource().Get(), StateAfter, SubResource);
 	}
 
-	void FResourceStateTracker::UAVBarrier(const IResource* resource)
+	void FResourceStateTracker::UAVBarrier(const FResource* Resource)
 	{
-		//#todo
-		//#to 
+		ID3D12Resource* pResource = Resource != nullptr ? Resource->GetD3DResource().Get() : nullptr;
 
+		ResourceBarrier(CD3DX12_RESOURCE_BARRIER::UAV(pResource));
 	}
 
-	void FResourceStateTracker::AliasBarrier(const IResource* ResourceBefore, const IResource* ResourceAfter)
+	void FResourceStateTracker::AliasBarrier(const FResource* ResourceBefore, const FResource* ResourceAfter)
 	{
+		ID3D12Resource* pResourceBefore = ResourceBefore != nullptr ? ResourceBefore->GetD3DResource().Get() : nullptr;
+		ID3D12Resource* pResourceAfter = ResourceAfter != nullptr ? ResourceAfter->GetD3DResource().Get() : nullptr;
+
+		ResourceBarrier(CD3DX12_RESOURCE_BARRIER::Aliasing(pResourceBefore, pResourceAfter));
 	}
 
 	uint32_t FResourceStateTracker::FlushPendingResourceBarriers(const Ref<FDX12CommandList>& CommandList)
@@ -114,7 +118,7 @@ namespace Zero
 				if (Iter != s_GlobalResourceState.end())
 				{
 					// If all subresources are being transitioned, and there are multiple
-					// subresources of the resource that are in a different state...
+					// subresources of the Resource that are in a different state...
 					FResourcestate& Resourcestate = Iter->second;
 					if (PendingTransiton.Subresource == D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES &&
 						!Resourcestate.SubResourceState.empty())
@@ -137,7 +141,7 @@ namespace Zero
 						auto GlobalState = Iter->second.GetSubresourceState(PendingTransiton.Subresource);
 						if (PendingTransiton.StateAfter != GlobalState)
 						{
-							// Fix-up the before state based on current global state of the resource.
+							// Fix-up the before state based on current global state of the Resource.
 							PendingBarrier.Transition.StateBefore = GlobalState;
 							ToExcuteBarriers.push_back(PendingBarrier);
 						}
@@ -171,7 +175,7 @@ namespace Zero
 	{
 		CORE_ASSERT(s_bLocked, "s_bLocked is unlocked");
 
-		// Commit final resource states to the global resource state array (map).
+		// Commit final Resource states to the global Resource state array (map).
 		for (const auto& ResourceState : m_FinalResourceState)
 		{
 			s_GlobalResourceState[ResourceState.first] = ResourceState.second;

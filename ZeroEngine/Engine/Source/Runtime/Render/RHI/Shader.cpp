@@ -16,6 +16,17 @@ namespace Zero
 
 	void FShader::GenerateShaderDesc()
 	{
+		m_ShaderBinderDesc.m_ShaderSamplers =
+		{
+			EShaderSampler::PointWarp,
+			EShaderSampler::PointClamp,
+			EShaderSampler::LinearWarp,
+			EShaderSampler::LinearClamp,
+			EShaderSampler::AnisotropicWarp,
+			EShaderSampler::AnisotropicClamp,
+			EShaderSampler::Shadow
+		};
+
 		std::cout << "------------------------------------------\n";
 		std::cout << m_ShaderDesc.ShaderName << "\n";
 		for (auto Iter : m_CBVParams)
@@ -77,5 +88,15 @@ namespace Zero
 			}
 		}
 		return true;
+	}
+
+	FComputeShader::FComputeShader(const FShaderBinderDesc& BinderDesc, const FComputeShaderDesc& Desc)
+		:m_ShaderBinderDesc(BinderDesc)
+		, m_ComputeShaderDesc(Desc)
+	{
+	}
+	FComputeShader::FComputeShader(const FComputeShaderDesc& Desc)
+		: m_ComputeShaderDesc(Desc)
+	{
 	}
 }

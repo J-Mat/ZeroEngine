@@ -3,7 +3,7 @@
 #include "Platform/DX12/DX12Device.h"
 #include "DX12ShaderBinder.h"
 #include "../DX12RootSignature.h"
-#include "../DX12PipelineStateObject.h"
+#include "../PSO/DX12PipelineStateObject.h"
 #include "../DX12CommandList.h"
 #include "ZConfig.h"
 
@@ -35,11 +35,6 @@ namespace Zero
 	: FShader(BinderDesc, Desc)
 	{
 		std::string FileName = ZConfig::GetAssestsFullPath(m_ShaderDesc.ShaderName).string();
-		m_ShaderPass[EShaderType::ST_VERTEX] = CompileShader(Utils::String2WString(FileName), nullptr, "VS", "vs_5_1");
-		m_ShaderPass[EShaderType::ST_PIXEL] = CompileShader(Utils::String2WString(FileName), nullptr, "PS", "ps_5_1");
-		
-		GenerateInputLayout();
-		CreateBinder();
 
 		if (m_ShaderDesc.bCreateVS)
 		{
@@ -53,12 +48,8 @@ namespace Zero
 			m_ShaderPass[EShaderType::ST_PIXEL] = PSBlob;
 		}
 
-		if (m_ShaderDesc.bCreateCS)
-		{
-			auto CSBlob  = CompileShader(Utils::String2WString(FileName), nullptr, m_ShaderDesc.CSEntryPoint, "cs_5_1");
-			m_ShaderPass[EShaderType::ST_COMPUTE] = CSBlob;
-			//GetShaderParameters(CSBlob, EShaderType::ST_COMPUTE);
-		}
+		GenerateInputLayout();
+		CreateBinder();
 	}
 
 	FDX12Shader::FDX12Shader(const FShaderDesc& Desc)
@@ -81,13 +72,6 @@ namespace Zero
 			GetShaderParameters(PSBlob, EShaderType::ST_PIXEL);
 		}
 
-		if (m_ShaderDesc.bCreateCS)
-		{
-			auto CSBlob  = CompileShader(Utils::String2WString(FileName), nullptr, m_ShaderDesc.CSEntryPoint, "cs_5_1");
-			m_ShaderPass[EShaderType::ST_COMPUTE] = CSBlob;
-			std::cout << "ShaderType : CS" << std::endl;
-			GetShaderParameters(CSBlob, EShaderType::ST_COMPUTE);
-		}
 		GenerateShaderDesc();
 		m_ShaderBinderDesc.MapCBBufferIndex();
 		GenerateInputLayout();
@@ -178,7 +162,7 @@ namespace Zero
 				Param.BindPoint = BindPoint;
 				Param.BindCount = BindCount;
 				Param.RegisterSpace = RegisterSpace;
-				Param.ShaderResourceType = FDX12RHItConverter::GetResourceByDimension(Desc.Dimension);
+				Param.ShaderResourceType = FDX12Utils::GetResourceByDimension(Desc.Dimension);
 
 				m_SRVParams.insert({Key, Param });
 			}
@@ -246,7 +230,7 @@ namespace Zero
 
 						FCBVariableItem VariableItem;
 						VariableItem.VariableName = std::format("{0}[{1}].{2}", VariableDesc.Name, ArrayIndex, MemberTypeName);
-						VariableItem.ShaderDataType = FDX12RHItConverter::GetTypeByName(MemberTypeDesc.Name);
+						VariableItem.ShaderDataType = FDX12Utils::GetTypeByName(MemberTypeDesc.Name);
 						VariableItem.VariableTypeName = MemberTypeDesc.Name;
 						VariableList.push_back(VariableItem);
 					}
@@ -255,7 +239,7 @@ namespace Zero
 				{
 					FCBVariableItem VariableItem;
 					VariableItem.VariableName = std::format("{0}[{1}]", VariableDesc.Name, ArrayIndex);
-					VariableItem.ShaderDataType = FDX12RHItConverter::GetTypeByName(TypeDesc.Name);
+					VariableItem.ShaderDataType = FDX12Utils::GetTypeByName(TypeDesc.Name);
 					VariableItem.VariableTypeName = TypeDesc.Name;
 					VariableList.push_back(VariableItem);
 				}
@@ -274,7 +258,7 @@ namespace Zero
 
 					FCBVariableItem VariableItem;
 					VariableItem.VariableName = std::format("{0}.{2}", VariableDesc.Name, MemberTypeName);
-					VariableItem.ShaderDataType = FDX12RHItConverter::GetTypeByName(MemberTypeDesc.Name);
+					VariableItem.ShaderDataType = FDX12Utils::GetTypeByName(MemberTypeDesc.Name);
 					VariableItem.VariableTypeName = MemberTypeDesc.Name;
 					VariableList.push_back(VariableItem);
 				}
@@ -283,7 +267,7 @@ namespace Zero
 			{
 				FCBVariableItem VariableItem;
 				VariableItem.VariableName = VariableDesc.Name;
-				VariableItem.ShaderDataType = FDX12RHItConverter::GetTypeByName(TypeDesc.Name);
+				VariableItem.ShaderDataType = FDX12Utils::GetTypeByName(TypeDesc.Name);
 				VariableItem.VariableTypeName = TypeDesc.Name;
 				VariableList.push_back(VariableItem);
 			}
@@ -306,13 +290,12 @@ namespace Zero
 			);
 		}
 	}
-
 	ComPtr<ID3DBlob> FDX12Shader::CompileShader(const std::wstring& Filename, const D3D_SHADER_MACRO* Defines, const std::string& Entrypoint, const std::string& Target)
 	{
 		UINT CompileFlags = 0;
-	#if defined(DEBUG) || defined(_DEBUG)  
+#if defined(DEBUG) || defined(_DEBUG)  
 		CompileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
-	#endif
+#endif
 		HRESULT hr = S_OK;
 
 		ComPtr<ID3DBlob> ByteCode = nullptr;
@@ -331,7 +314,9 @@ namespace Zero
 		);
 
 		if (Errors != nullptr)
+		{
 			OutputDebugStringA((char*)Errors->GetBufferPointer());
+		}
 
 		ThrowIfFailed(hr);
 

@@ -22,8 +22,9 @@ namespace Zero
 	#define PSO_NDF "NDF"
 	#define PSO_GGX "GGX"
 	#define IBL_BRDF_LUT "IBL_BRDF_LUT"
-
-
+	
+	
+	#define GENERATE_MIP_SHADER "Shader\\Compute\\GenerateMips_CS.hlsl"
 
 	enum class ERHI
 	{

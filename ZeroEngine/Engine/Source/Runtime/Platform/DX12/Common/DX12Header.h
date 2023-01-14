@@ -26,7 +26,8 @@ namespace Zero
 		}
 	}
 
-	class FDX12RHItConverter
+
+	class FDX12Utils
 	{
 	public:
 		static D3D12_PRIMITIVE_TOPOLOGY_TYPE GetTopologyType(EPrimitiveTopologyType TopologyType)

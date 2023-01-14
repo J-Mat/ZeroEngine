@@ -10,21 +10,25 @@ namespace Zero
 	public:
 		FShaderBinderDesc() = default;
 		FShaderBinderDesc(
+			std::vector<EShaderSampler>& ShaderSamplers,
 			std::vector<FConstantBufferLayout>& ConstantBufferLayouts,
 			FShaderResourceLayout& ShaderResourceLayout = FShaderResourceLayout(),
-			std::vector<FComputeOutputLayout>& ComputeOutputLayouts = std::vector<FComputeOutputLayout>())
-			: m_ConstantBufferLayouts(ConstantBufferLayouts)
+			FReadWriteResoureceLayout& ReadWriteResourceLayout = FReadWriteResoureceLayout())
+			: m_ShaderSamplers(ShaderSamplers)
+			, m_ConstantBufferLayouts(ConstantBufferLayouts)
 			, m_TextureBufferLayout(ShaderResourceLayout)
-			, m_ComputeOutputLayouts(ComputeOutputLayouts)
+			, m_ReadWriteResourceLayout(ReadWriteResourceLayout)
 		{
 		}
 		~FShaderBinderDesc() {};
 		const FConstantBufferLayout& GetConstantBufferLayoutByName (const std::string& ResourceName) const;
-		const FShaderResourceLayout& GetShaderResourceLayout() const { return m_TextureBufferLayout; }
+		const FShaderResourceLayout& GetTextureResourceLayout() const { return m_TextureBufferLayout; }
+		const FReadWriteResoureceLayout& GetReadWriteResourceLayout() const { return m_ReadWriteResourceLayout; }
 		size_t GetConstantBufferCount() const { return m_ConstantBufferLayouts.size(); }
 		std::vector<FConstantBufferLayout> m_ConstantBufferLayouts;
 		FShaderResourceLayout m_TextureBufferLayout = FShaderResourceLayout();
-		std::vector<FComputeOutputLayout>  m_ComputeOutputLayouts;
+		FReadWriteResoureceLayout  m_ReadWriteResourceLayout;
+		std::vector<EShaderSampler> m_ShaderSamplers;
 		void MapCBBufferIndex();
 	
 	public:
@@ -150,7 +154,7 @@ namespace Zero
 		FShaderResourcesDesc& m_Desc;
 	};
 	
-	class IRootSignature;
+	class FRootSignature;
 	class IShaderBinder
 	{
 	public:
@@ -162,7 +166,7 @@ namespace Zero
 			return Slot < m_ShaderConstantDescs.size() ? m_ShaderConstantDescs[Slot] : nullptr;
 		}
 		virtual Ref<FShaderResourcesDesc> GetShaderResourcesDesc() { return m_ShaderResourceDesc; }
-		virtual IRootSignature* GetRootSignature() { return nullptr; }
+		virtual FRootSignature* GetRootSignature() { return nullptr; }
 		virtual void Bind() = 0;
 		const FShaderBinderDesc& GetBinderDesc() { return m_Desc; }
 	protected:

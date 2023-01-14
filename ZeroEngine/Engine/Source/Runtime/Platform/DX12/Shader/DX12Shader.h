@@ -25,10 +25,10 @@ namespace Zero
 	private:
 		void ParseCBVariable(ID3D12ShaderReflectionVariable* ReflectionVariable, std::vector<FCBVariableItem>& VariableList);
 		void GenerateInputLayout();
-		ComPtr<ID3DBlob> CompileShader(const std::wstring& Filename, const D3D_SHADER_MACRO* Defines, const std::string& Entrypoint, const std::string& Target);
 
 	private:
 		std::vector<D3D12_INPUT_ELEMENT_DESC> m_InputLayoutDesc;
 		std::unordered_map<EShaderType, ComPtr<ID3DBlob>> m_ShaderPass;
+		ComPtr<ID3DBlob> CompileShader(const std::wstring& Filename, const D3D_SHADER_MACRO* Defines, const std::string& Entrypoint, const std::string& Target);
 	};
 }

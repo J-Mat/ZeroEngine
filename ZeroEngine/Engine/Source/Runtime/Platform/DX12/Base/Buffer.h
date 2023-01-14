@@ -6,10 +6,10 @@
 
 namespace Zero
 {
-	class IBuffer : public IResource
+	class FBuffer : public FResource
 	{
 	public:
-		IBuffer();
+		FBuffer();
 		/*
 		IBuffer(const D3D12_RESOURCE_DESC& ResDesc);
 		IBuffer(Microsoft::WRL::ComPtr<ID3D12Resource> Resource);

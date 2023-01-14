@@ -7,19 +7,26 @@
 namespace Zero
 {
 	class FDX12Device;
-	class FDX12RootSignature : public IRootSignature, public std::enable_shared_from_this<FDX12RootSignature>
+	class FDX12RootSignature : public FRootSignature, public std::enable_shared_from_this<FDX12RootSignature>
 	{
 	public:
 		FDX12RootSignature(const D3D12_ROOT_SIGNATURE_DESC& RootSignatureDesc);
+		FDX12RootSignature(const D3D12_ROOT_SIGNATURE_DESC1& RootSignatureDesc);
 		FDX12RootSignature(const std::vector<CD3DX12_ROOT_PARAMETER>& Parameters, const std::vector<CD3DX12_STATIC_SAMPLER_DESC>& Samplers);
 		virtual	~FDX12RootSignature();
 		uint32_t GetNumDescriptors(uint32_t RootIndex);
-		void SetRootSignatureDesc(const D3D12_ROOT_SIGNATURE_DESC& RootSignatureDesc);
+		void SetRootSignatureDesc_0(const D3D12_ROOT_SIGNATURE_DESC& RootSignatureDesc);
+		void SetRootSignatureDesc_1(const D3D12_ROOT_SIGNATURE_DESC1& RootSignatureDesc);
 		uint32_t GetDescriptorTableBitMask(D3D12_DESCRIPTOR_HEAP_TYPE DescriptorHeapType) const;
 
-		const D3D12_ROOT_SIGNATURE_DESC& GetRootSignatureDesc() const
+		const D3D12_ROOT_SIGNATURE_DESC& GetRootSignatureDesc_0() const
 		{
-			return m_RootSignatureDesc;
+			return m_RootSignatureDesc_0;
+		}
+
+		const D3D12_ROOT_SIGNATURE_DESC1& GetRootSignatureDesc_1() const
+		{
+			return m_RootSignatureDesc_1;
 		}
 		ComPtr<ID3D12RootSignature> GetD3D12RootSignature() const
 		{
@@ -27,10 +34,12 @@ namespace Zero
 		}
 		Ref<FDX12RootSignature> AsShared() { return shared_from_this(); }
 	private:
-		void Destroy();
+		void Destroy_0();
+		void Destroy_1();
 
 
-		D3D12_ROOT_SIGNATURE_DESC                  m_RootSignatureDesc;
+		D3D12_ROOT_SIGNATURE_DESC                   m_RootSignatureDesc_0;
+		D3D12_ROOT_SIGNATURE_DESC1                  m_RootSignatureDesc_1;
 		ComPtr<ID3D12RootSignature> m_RootSignature;
 
 		// Need to know the number of descriptors per descriptor table.

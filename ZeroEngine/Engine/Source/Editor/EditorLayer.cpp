@@ -46,6 +46,7 @@ namespace Zero
 
 	void FEditorLayer::RegisterPso()
 	{
+		FPSORegister::GetInstance().RegisterComputeShader();
 		FPSORegister::GetInstance().RegisterDefaultPSO();
 		FPSORegister::GetInstance().RegisterSkyboxPSO();
 		FPSORegister::GetInstance().RegisterIBLPSO();

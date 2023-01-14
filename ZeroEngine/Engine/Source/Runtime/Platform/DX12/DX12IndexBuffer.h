@@ -8,7 +8,7 @@
 
 namespace Zero
 {
-	class FDX12IndexBuffer :public IIndexBuffer, public IBuffer
+	class FDX12IndexBuffer :public IIndexBuffer, public FBuffer
 	{
 	public:
 		FDX12IndexBuffer(uint32_t* Indices, uint32_t Count);

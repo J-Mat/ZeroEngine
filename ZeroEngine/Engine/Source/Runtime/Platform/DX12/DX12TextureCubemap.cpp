@@ -8,7 +8,7 @@
 namespace Zero
 {
 	FDX12TextureCubemap::FDX12TextureCubemap(const std::string& TextureName, const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* ClearValue)
-		: IResource(TextureName, ResourceDesc, ClearValue)
+		: FResource(TextureName, ResourceDesc, ClearValue)
 	{
 		m_Width = (uint32_t)ResourceDesc.Width;
 		m_Height = (uint32_t)ResourceDesc.Height;
@@ -17,7 +17,7 @@ namespace Zero
 
 
     FDX12TextureCubemap::FDX12TextureCubemap(const std::string& TextureName, Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT], bool bRenderDepth)
-		:  IResource()
+		:  FResource()
 		, m_bRenderDepth(bRenderDepth)
 	{
 		m_Width = ImageData[0]->GetWidth();
@@ -37,7 +37,7 @@ namespace Zero
 	}
 
 	FDX12TextureCubemap::FDX12TextureCubemap(ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, bool bRenderDepth, const D3D12_CLEAR_VALUE* ClearValue)
-		: IResource(Resource, ClearValue)
+		: FResource(Resource, ClearValue)
 		, m_bRenderDepth(bRenderDepth)
 	{
 		m_Width = Width;

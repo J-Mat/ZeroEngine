@@ -13,6 +13,7 @@ namespace Zero
 		void RegisterSkyboxPSO();
 		void RegisterIBLPSO();
 		void RegisterShadowPSO();
+		void RegisterComputeShader();
 		void RegisterTestPSO();
 	};
 }

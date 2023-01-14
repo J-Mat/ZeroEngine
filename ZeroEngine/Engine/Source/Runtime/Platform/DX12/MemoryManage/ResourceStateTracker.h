@@ -26,7 +26,7 @@
 namespace Zero
 {
     class FDX12CommandList;
-    class IResource;
+    class FResource;
     class FResourceStateTracker
 	{
 	public:
@@ -49,7 +49,7 @@ namespace Zero
          * which indicates that all subresources should be transitioned to the same state.
          */
         void TransitionResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES stateAfter, UINT subResource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES);
-        void TransitionResource(IResource& resource, D3D12_RESOURCE_STATES stateAfter, UINT subResource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES);
+        void TransitionResource(FResource& resource, D3D12_RESOURCE_STATES stateAfter, UINT subResource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES);
 
         /**
          * Push a UAV resource barrier for the given resource.
@@ -57,7 +57,7 @@ namespace Zero
          * @param resource The resource to add a UAV barrier for. Can be NULL which
          * indicates that any UAV access could require the barrier.
          */
-        void UAVBarrier(const IResource* resource = nullptr);
+        void UAVBarrier(const FResource* resource = nullptr);
 
         /**
          * Push an aliasing barrier for the given resource.
@@ -68,7 +68,7 @@ namespace Zero
          * Either the beforeResource or the afterResource parameters can be NULL which
          * indicates that any placed or reserved resource could cause aliasing.
          */
-        void AliasBarrier(const IResource* ResourceBefore = nullptr, const IResource* ResourceAfter = nullptr);
+        void AliasBarrier(const FResource* ResourceBefore = nullptr, const FResource* ResourceAfter = nullptr);
 
         /**
          * Flush any pending resource barriers to the command list.

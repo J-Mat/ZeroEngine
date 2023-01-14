@@ -20,14 +20,18 @@ namespace Zero
 		DXGI_FORMAT UAVFormat = DXGI_FORMAT_UNKNOWN;
     };
 
-	class FDX12Texture2D :public FTexture2D, public IResource
+	class FDX12Texture2D :public FTexture2D, public FResource, public std::enable_shared_from_this<FDX12Texture2D>
 	{
         friend class FDX12RenderTarget2D;
 	public:
 		FDX12Texture2D(const std::string& TextureName, const FDX12TextureSettings& TextureSettings, const D3D12_CLEAR_VALUE* ClearValue = nullptr);
-		FDX12Texture2D(const std::string& TextureName, Ref<FImage> ImageData);
+        FDX12Texture2D(const std::string& TextureName, Ref<FImage> ImageData, bool bNeedMipMap = false);
         FDX12Texture2D(const std::string& TextureName, ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, const D3D12_CLEAR_VALUE* ClearValue = nullptr);
 
+
+        static DXGI_FORMAT GetUAVCompatableFormat(DXGI_FORMAT Format);
+        static bool IsSRGBFormat(DXGI_FORMAT Format);
+        static DXGI_FORMAT GetSRGBFormat(DXGI_FORMAT Format);
 
         virtual ZMath::uvec2 GetSize() 
         {

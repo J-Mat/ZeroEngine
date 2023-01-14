@@ -6,7 +6,7 @@ namespace Zero
 {
 	FDX12VertexBuffer::FDX12VertexBuffer(void* _Data, uint32_t _VertexCount, FVertexBufferLayout& _Layout, IVertexBuffer::EType _Type)
 		:IVertexBuffer(_Data, _VertexCount, _Layout, _Type)
-		, IBuffer()
+		, FBuffer()
 	{
 		SetResource(FDX12Device::Get()->GetInitWorldCommandList()->CreateDefaultBuffer(m_Data, m_BufferSize));
 		CreateVertexBufferView();
