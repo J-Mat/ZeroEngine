@@ -43,7 +43,7 @@ namespace Zero
 		uint32_t Mips = 1;
 		if (bGenerateMip)
 		{
-			Mips = ZMath::min(ZMath::CalLog2Interger(Image->GetWidth()), ZMath::CalLog2Interger(Image->GetHeight()));
+			Mips = ZMath::min(ZMath::CalLog2Interger(Image->GetWidth()), ZMath::CalLog2Interger(Image->GetHeight())) + 1;
 		}
 		
 		D3D12_RESOURCE_DESC TextureDesc = {};
@@ -236,20 +236,47 @@ namespace Zero
 			}
 		};
 
-		auto Srv = CreateRef<FShaderResoureceView>(Texture, &SrvDesc);
+		auto Srv = CreateRef<FShaderResourceView>(Texture, &SrvDesc);
 		
 		for (uint32_t SrcMip = 0; SrcMip < ResourceDesc.MipLevels - 1u;)
 		{
-			uint64_t SrcWidth = ResourceDesc.Width >> SrcMip;
+			uint32_t SrcWidth = ResourceDesc.Width >> SrcMip;
 			uint32_t SrcHeight = ResourceDesc.Height >> SrcMip;
-			uint32_t DstWidth = static_cast<uint32_t>(SrcWidth >> 1);
+			uint32_t DstWidth = SrcWidth >> 1;
 			uint32_t DstHeight = SrcHeight >> 1;
 
 			// 0b00(0): Both width and height are even.
 			// 0b01(1): Width is odd, height is even.
 			// 0b10(2): Width is even, height is odd.
 			// 0b11(3): Both width and height are odd.
-		}
+			GenerateMipsCB.SrcDimension = ((SrcHeight & 1) << 1) | (SrcWidth & 1);
+
+			// How many mipmap levels to compute this pass (max 4 mips per pass)
+			DWORD MipCount;
+
+			// The number of times we can half the size of the texture and get
+		    // exactly a 50% reduction in size.
+		    // A 1 bit in the width or height indicates an odd dimension.
+		    // The case where either the width or the height is exactly 1 is handled
+		    // as a special case (as the dimension does not require reduction).
+			_BitScanForward(&MipCount, (DstWidth == 1 ? DstHeight : DstWidth) | (DstHeight == 1 ? DstWidth : DstHeight));
+
+			// Maximum number of mips to generate is 4.
+			MipCount = std::min<DWORD>(4, MipCount + 1);
+			// Maximum number of mips to generate is 4
+			MipCount = (SrcMip + MipCount) >= ResourceDesc.MipLevels ? ResourceDesc.MipLevels - SrcMip - 1 : MipCount;
+
+			// Dimensions should not reduce to 0.
+			// This can happen if the width and height are not the same.
+			DstWidth = std::max<DWORD>(1, DstWidth);
+			DstHeight = std::max<DWORD>(1, DstHeight);
+
+			GenerateMipsCB.SrcMipLevel = SrcMip;
+			GenerateMipsCB.NumMipLevels = MipCount;
+			GenerateMipsCB.TexelSize = { 1.0f / DstWidth, 1.0f / DstHeight };
+
+			SetCompute32BitConstants(EGenerateMips::GM_GenerateMipsCB, GenerateMipsCB);
+		} 
 	}
 
 
@@ -548,6 +575,29 @@ namespace Zero
 		}
 	}
 
+	void FDX12CommandList::SetShaderResourceView(uint32_t RootParameterIndex, uint32_t DescriptorOffset, const Ref<FShaderResourceView>& SRV, D3D12_RESOURCE_STATES StateAfter, UINT FirstSubresource, UINT NumSubresource)
+	{
+		auto Resource = SRV->GetResource();
+		if (NumSubresource < D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES)
+		{
+			for (uint32_t i = 0; i < NumSubresource; ++i)
+			{
+				TransitionBarrier(Resource, StateAfter, FirstSubresource + i);
+			}
+		}
+		else
+		{
+			TransitionBarrier(Resource, StateAfter);
+		}
+		
+		m_DynamicDescriptorHeap[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV]->StageDescriptors(
+			RootParameterIndex,
+			DescriptorOffset,
+			1,
+			SRV->GetDescriptorHandle()
+		);
+	}
+
 	void FDX12CommandList::TrackResource(Microsoft::WRL::ComPtr<ID3D12Object> Object)
 	{
 		m_TrackedObjects.push_back(Object);
@@ -614,6 +664,10 @@ namespace Zero
 		return D3DResource;
 	}
 
+	void FDX12CommandList::SetCompute32BitConstants(uint32_t RootParameterIndex, uint32_t NumConstants, const void* Constants)
+	{
+		m_D3DCommandList->SetComputeRoot32BitConstants(RootParameterIndex, NumConstants, Constants, 0);
+	}
 
 	void FDX12CommandList::SetGraphicsRootSignature(Ref<FDX12RootSignature> RootSignature)
 	{

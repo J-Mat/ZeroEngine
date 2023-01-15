@@ -19,6 +19,7 @@ namespace Zero
 	class FDX12Texture2D;
 	class FRootSignature;
 	class FDX12RenderTarget2D;
+	class FShaderResourceView;
 	class FDX12CommandList : public FCommandList, public std::enable_shared_from_this<FDX12CommandList>
 	{
 	public:
@@ -29,8 +30,7 @@ namespace Zero
 		ComPtr<ID3D12GraphicsCommandList> GetD3D12CommandList() { return m_D3DCommandList; }
 
 		ComPtr<ID3D12Resource> CreateDefaultBuffer(const void* BufferData, size_t BufferSize, D3D12_RESOURCE_FLAGS Flags = D3D12_RESOURCE_FLAG_NONE);
-
-
+	
 		ComPtr<ID3D12Resource> CreateTextureResource(Ref<FImage> Image, bool bGenerateMip = false);
 		void GenerateMips(Ref<FDX12Texture2D> Texture);
 		void GenerateMips_UAV(Ref<FDX12Texture2D> Texture, bool bIsSRGB);
@@ -137,6 +137,26 @@ namespace Zero
 
 		virtual void Reset();
 		virtual void Execute();
+
+		/**
+		* Set a set of 32-bit constants on the compute pipeline.
+		*/
+		void SetCompute32BitConstants(uint32_t RootParameterIndex, uint32_t NumConstants, const void* Constants);
+		template<typename T>
+		void SetCompute32BitConstants(uint32_t RootParameterIndex, const T& Constants)
+		{
+			CORE_ASSERT(sizeof(T) % sizeof(uint32_t) == 0, "Size of type must be a multiple of 4 bytes");
+			SetCompute32BitConstants(RootParameterIndex, sizeof(T) % sizeof(uint32_t), &Constants);
+		}
+		
+		/**
+		* Set the SRV on the graphics pipeline.
+		*/
+		void SetShaderResourceView(uint32_t RootParameterIndex, uint32_t DescriptorOffset, const Ref<FShaderResourceView>& SRV,
+			D3D12_RESOURCE_STATES StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
+			UINT FirstSubresource = 0,
+			UINT NumSubresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES);
+
 	private:
 		void TrackResource(Microsoft::WRL::ComPtr<ID3D12Object> Object);
 		void TrackResource(const Ref<FResource>& res);

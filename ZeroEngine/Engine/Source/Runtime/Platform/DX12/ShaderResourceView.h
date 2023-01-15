@@ -1,16 +1,16 @@
 #pragma once
 #include "Core.h"
 #include "Common/DX12Header.h"
-#include "Base/Resource.h"
+#include "Base/Resource.h"f
 #include "MemoryManage/DescriptorAllocation.h"
 
 namespace Zero
 {
-	class FShaderResoureceView
+	class FShaderResourceView
 	{
 	public:
-		FShaderResoureceView(Ref<FResource> Resource, const D3D12_SHADER_RESOURCE_VIEW_DESC* SRV = nullptr);
-		~FShaderResoureceView();
+		FShaderResourceView(Ref<FResource> Resource, const D3D12_SHADER_RESOURCE_VIEW_DESC* SRV = nullptr);
+		~FShaderResourceView();
 		Ref<FResource> GetResource() const
 		{
 			return m_Resource;
