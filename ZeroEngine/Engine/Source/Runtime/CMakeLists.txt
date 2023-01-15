@@ -33,7 +33,7 @@ if (WIN32)
 	)
 endif()
 
-
+add_dependencies(Runtime ZHT)
 
 add_custom_command(
 	TARGET ${ProjectName} 
