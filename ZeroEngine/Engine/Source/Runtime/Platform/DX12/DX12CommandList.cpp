@@ -4,7 +4,8 @@
 #include "DX12RenderTarget2D.h"
 #include "DX12RootSignature.h"
 #include "./PSO/GenerateMipsPSO.h"
-#include "ShaderResourceView.h"
+#include "./ResourceView/ShaderResourceView.h"
+#include "./ResourceView/UnorderedAccessResourceView.h"
 #include "Utils.h"
 
 namespace Zero
@@ -240,9 +241,9 @@ namespace Zero
 		
 		for (uint32_t SrcMip = 0; SrcMip < ResourceDesc.MipLevels - 1u;)
 		{
-			uint32_t SrcWidth = ResourceDesc.Width >> SrcMip;
+			uint64_t SrcWidth = ResourceDesc.Width >> SrcMip;
 			uint32_t SrcHeight = ResourceDesc.Height >> SrcMip;
-			uint32_t DstWidth = SrcWidth >> 1;
+			uint32_t DstWidth = static_cast<uint32_t>(SrcWidth >> 1);
 			uint32_t DstHeight = SrcHeight >> 1;
 
 			// 0b00(0): Both width and height are even.
@@ -276,6 +277,33 @@ namespace Zero
 			GenerateMipsCB.TexelSize = { 1.0f / DstWidth, 1.0f / DstHeight };
 
 			SetCompute32BitConstants(EGenerateMips::GM_GenerateMipsCB, GenerateMipsCB);
+			
+			SetShaderResourceView(EGenerateMips::GM_SrcMip, 0, Srv, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, SrcMip, 1);
+
+			for (uint32_t Mip = 0; Mip < MipCount; ++Mip)
+			{
+				D3D12_UNORDERED_ACCESS_VIEW_DESC UavDesc
+				{
+					.Format = ResourceDesc.Format,
+					.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D,
+					.Texture2D = {
+						.MipSlice = SrcMip + Mip + 1
+					}
+				};
+				auto Uav = CreateRef<FUnorderedAccessResourceView>(Texture, nullptr, &UavDesc);
+				SetUnorderedAccessView(EGenerateMips::GM_OutMip, Mip, Uav, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, SrcMip + Mip + 1, 1);
+			}
+
+			// Pad any unused mip levels with a default UAV. Doing this keeps the DX12 runtime happy.s
+			if (MipCount < 4)
+			{
+				m_DynamicDescriptorHeap[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV]->StageDescriptors(EGenerateMips::GM_OutMip, MipCount, 4 - MipCount, m_GenerateMipsPSO->GetDefaultUAV());
+			}
+			Dispatch(ZMath::DivideByMultiple(DstWidth, 8), ZMath::DivideByMultiple(DstHeight, 8), 1);
+		
+			UAVBarrier(Texture);
+			
+			SrcMip += MipCount;
 		} 
 	}
 
@@ -458,6 +486,17 @@ namespace Zero
 
 	}
 
+	void FDX12CommandList::Dispatch(uint32_t NumGroupsX, uint32_t NumGroupsY, uint32_t NumGroupsZ)
+	{
+		FlushResourceBarriers();	
+
+		for (int i = 0; i < D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES; ++i)
+		{
+			m_DynamicDescriptorHeap[i]->CommitStagedDescriptorsForDispatch(*this);
+		}
+		m_D3DCommandList->Dispatch(NumGroupsX, NumGroupsY, NumGroupsZ);
+	}
+
 	void FDX12CommandList::SetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE HeapType, ID3D12DescriptorHeap* Heap)
 	{
 		if (m_DescriptorHeaps[HeapType] != Heap)
@@ -557,6 +596,25 @@ namespace Zero
 		}
 	}
 
+	void FDX12CommandList::UAVBarrier(const Ref<FResource>& Resource, bool bFlushBarriers)
+	{
+		auto D3DResource = Resource ? Resource->GetD3DResource() : nullptr;
+		UAVBarrier(D3DResource, bFlushBarriers);
+	}
+
+	void FDX12CommandList::UAVBarrier(ComPtr<ID3D12Resource> Resource, bool bFlushBarriers)
+	{
+		auto Barrier = CD3DX12_RESOURCE_BARRIER::UAV(Resource.Get());
+
+		m_ResourceStateTracker->ResourceBarrier(Barrier);
+
+		if (bFlushBarriers)
+		{
+			FlushResourceBarriers();
+		}
+	}
+
+
 	void FDX12CommandList::AliasingBarrier(const Ref<FResource>& BeforeResource, const Ref<FResource>& AfterResource, bool bFlushBarriers)
 	{
 		auto D3DBeforeResourece = BeforeResource ? BeforeResource->GetD3DResource() : nullptr;
@@ -596,6 +654,30 @@ namespace Zero
 			1,
 			SRV->GetDescriptorHandle()
 		);
+	}
+
+	void FDX12CommandList::SetUnorderedAccessView(uint32_t RootParameterIndex, uint32_t DescriptorOffset, const Ref<FUnorderedAccessResourceView>& Uav, D3D12_RESOURCE_STATES StateAfter /*= D3D12_RESOURCE_STATE_UNORDERED_ACCESS*/, UINT FirstSubresource /*= 0*/, UINT NumSubresources /*= D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES*/)
+	{
+		auto Resource = Uav->GetResource();
+		if (Resource)
+		{
+			if (NumSubresources < D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES)
+			{
+				for (uint32_t i = 0; i < NumSubresources; ++i)
+				{
+					TransitionBarrier(Resource, StateAfter, FirstSubresource + i);
+				}
+			}
+			else
+			{
+				TransitionBarrier(Resource, StateAfter);
+			}
+
+			TrackResource(Resource);
+		}
+
+		m_DynamicDescriptorHeap[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV]->StageDescriptors(RootParameterIndex, DescriptorOffset, 1, Uav->GetDescriptorHandle());
+
 	}
 
 	void FDX12CommandList::TrackResource(Microsoft::WRL::ComPtr<ID3D12Object> Object)

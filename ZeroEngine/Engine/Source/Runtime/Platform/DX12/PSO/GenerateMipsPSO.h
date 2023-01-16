@@ -37,6 +37,10 @@ namespace Zero
 		FGenerateMipsPSO();
 		ComPtr<ID3D12PipelineState> GetPipelineState() { return m_D3DPipelineState;}
 		Ref<FDX12RootSignature> GetRootSignature() { return m_RootSignature; }
+		D3D12_CPU_DESCRIPTOR_HANDLE GetDefaultUAV() const
+		{
+			return m_DefaultUAV.GetDescriptorHandle();
+		}
 	private:
 		Ref<FDX12RootSignature> m_RootSignature;
 		ComPtr<ID3D12PipelineState> m_D3DPipelineState;

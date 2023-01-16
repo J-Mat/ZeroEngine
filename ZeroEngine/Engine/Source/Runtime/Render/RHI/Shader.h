@@ -84,8 +84,6 @@ namespace Zero
 	public:
 		FComputeShader(const FShaderBinderDesc& BinderDesc, const FComputeShaderDesc& Desc);
 		FComputeShader(const FComputeShaderDesc& Desc);
-		virtual void Dispatch(uint32_t X, uint32_t Y, uint32_t Z) = 0;
-		virtual void CreateBinder() = 0;
 	protected:
 		Ref<IShaderBinder> m_ShaderBinder;
 		FComputeShaderDesc m_ComputeShaderDesc;

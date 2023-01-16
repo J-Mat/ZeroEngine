@@ -20,6 +20,7 @@ namespace Zero
 	class FRootSignature;
 	class FDX12RenderTarget2D;
 	class FShaderResourceView;
+	class FUnorderedAccessResourceView;
 	class FDX12CommandList : public FCommandList, public std::enable_shared_from_this<FDX12CommandList>
 	{
 	public:
@@ -55,6 +56,7 @@ namespace Zero
 		void DrawIndexed(uint32_t indexCount, uint32_t instanceCount = 1, uint32_t startIndex = 0, int32_t baseVertex = 0,
 			uint32_t startInstance = 0);
 
+		void Dispatch(uint32_t NumGroupsX, uint32_t NumGroupsY, uint32_t NumGroupsZ);
 		/**
 		 * Close the command list.
 		* Used by the command queue.
@@ -111,6 +113,18 @@ namespace Zero
 		void TransitionBarrier(ComPtr<ID3D12Resource> Resource, D3D12_RESOURCE_STATES StateAfter,
 			UINT Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, bool bFlushBarriers = false);
 
+		/**
+		 * Add a UAV barrier to ensure that any writes to a resource have completed
+		 * before reading from the resource.
+		 *
+		 * @param [resource} The resource to add a UAV barrier for (can be null).
+		 * @param flushBarriers Force flush any barriers. Resource barriers need to be
+		 * flushed before a command (draw, dispatch, or copy) that expects the resource
+		 * to be in a particular state can run.
+		 */
+		void UAVBarrier(const Ref<FResource>& Resource = nullptr, bool bFlushBarriers = false);
+		void UAVBarrier(ComPtr<ID3D12Resource> Resource, bool bFlushBarriers = false);
+
 
 		/**
 		 * Add an aliasing barrier to indicate a transition between usages of two
@@ -156,6 +170,17 @@ namespace Zero
 			D3D12_RESOURCE_STATES StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
 			UINT FirstSubresource = 0,
 			UINT NumSubresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES);
+
+
+		/**
+		* Set an inline UAV.
+		*
+		* Note: Only Buffer resoruces can be used with inline UAV's.
+		*/
+		void SetUnorderedAccessView(uint32_t RootParameterIndex, uint32_t DescriptorOffset,  const Ref<FUnorderedAccessResourceView>& Uav,
+			D3D12_RESOURCE_STATES StateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+			UINT FirstSubresource = 0,
+			UINT NumSubresources = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES);
 
 	private:
 		void TrackResource(Microsoft::WRL::ComPtr<ID3D12Object> Object);

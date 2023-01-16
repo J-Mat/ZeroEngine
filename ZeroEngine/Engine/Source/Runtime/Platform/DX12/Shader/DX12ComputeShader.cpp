@@ -19,10 +19,6 @@ namespace Zero
 		m_ShaderPass = CompileShader(Utils::String2WString(FileName), nullptr, m_ComputeShaderDesc.CSEntryPoint, "cs_5_1");
 	}
 
-	void FDX12ComputeShader::Dispatch(uint32_t X, uint32_t Y, uint32_t Z)
-	{
-		
-	}
 	void FDX12ComputeShader::CreateBinder()
 	{
 		m_ShaderBinder = CreateRef<FDX12ShaderBinder>(m_ShaderBinderDesc);

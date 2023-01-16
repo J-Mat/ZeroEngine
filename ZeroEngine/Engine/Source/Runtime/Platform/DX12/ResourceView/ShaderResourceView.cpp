@@ -1,10 +1,10 @@
 #include "ShaderResourceView.h"
-#include "DX12Device.h"
-#include "Base/Resource.h"
+#include "../DX12Device.h"
+#include "../Base/Resource.h"
 
 namespace Zero
 {
-	FShaderResoureceView::FShaderResoureceView(Ref<FResource> Resource, const D3D12_SHADER_RESOURCE_VIEW_DESC* SRVPtr)
+	FShaderResourceView::FShaderResourceView(Ref<FResource> Resource, const D3D12_SHADER_RESOURCE_VIEW_DESC* SRVPtr)
 		: m_Resource(Resource)
 	{
 		auto D3DResourece = m_Resource != nullptr ? m_Resource->GetD3DResource() : nullptr;
@@ -15,7 +15,7 @@ namespace Zero
 			m_Descriptor.GetDescriptorHandle()
 		);
 	}
-	FShaderResoureceView::~FShaderResoureceView()
+	FShaderResourceView::~FShaderResourceView()
 	{
 	}
 }

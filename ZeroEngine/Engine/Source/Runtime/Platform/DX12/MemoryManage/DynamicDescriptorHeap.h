@@ -63,6 +63,7 @@ namespace Zero
 		void ParseRootSignature(const Ref<FDX12RootSignature>& RootSignature);
 
 		void CommitStagedDescriptorsForDraw(FDX12CommandList& CommandList);
+		void CommitStagedDescriptorsForDispatch(FDX12CommandList& CommandList);
 
 		void Reset();
 		

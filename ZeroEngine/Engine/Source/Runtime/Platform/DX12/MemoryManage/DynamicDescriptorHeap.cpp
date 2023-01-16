@@ -66,6 +66,11 @@ namespace Zero
 		SetAsShaderResourceHeap();
 	}
 
+	void FDynamicDescriptorHeap::CommitStagedDescriptorsForDispatch(FDX12CommandList& CommandList)
+	{
+		CommitDescriptorTables(CommandList, &ID3D12GraphicsCommandList::SetComputeRootDescriptorTable);
+	}
+
 	ComPtr<ID3D12DescriptorHeap> FDynamicDescriptorHeap::RequestDescriptorHeap()
 	{
 		ComPtr<ID3D12DescriptorHeap> DescriptorHeap;

@@ -170,7 +170,6 @@ namespace Zero
 
 	void FPSORegister::RegisterComputeShader()
 	{
-		return;
 		struct FComputeShaderDesc GenerteMipShader
 		{
 			.ShaderName = GENERATE_MIP_SHADER,
