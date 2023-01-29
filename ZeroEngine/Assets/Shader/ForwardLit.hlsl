@@ -165,7 +165,6 @@ PixelOutput PS(VertexOut Pin)
 	}
 	else if (ShadingMode == 1)
 	{
-		/*
 		float3 Ambient = 0.05f * Albedo;
 		float3 LightColor = DirectLights[0].Color * DirectLights[0].Intensity;
 		float3 L = normalize(-DirectLights[0].Direction);
@@ -181,8 +180,7 @@ PixelOutput PS(VertexOut Pin)
 
 		float ShadowFactor = CalcShadowFactor(Pin.ShadowPosH);
 		FinalColor =  Ambient + (Diffuse + Spec) * ShadowFactor * Albedo;
-		*/
-		FinalColor = Albedo;
+		//FinalColor =  float3(ShadowFactor, ShadowFactor, ShadowFactor); //Ambient + (Diffuse + Spec) * ShadowFactor * Albedo;
 	}
 
     // gamma correct
