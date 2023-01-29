@@ -3,6 +3,13 @@
 - [LearningDX12](https://github.com/J-Mat/ZeroEngine/tree/main/LearningDX12 "LearningDX12")  Dragon book source code, managed by cmake.
 - [ZeroEngine](https://github.com/J-Mat/ZeroEngine/tree/main/ZeroEngine "ZeroEngine")  Renderer based dx12
 
+## Credits
+
+- [TheCherno/Hazel: Hazel Engine (github.com)](https://github.com/TheCherno/Hazel)
+- [hebohang/HEngine: HEngine - 2D/3D Game Engine written in C++20 (github.com)](https://github.com/hebohang/HEngine)
+- [jpvanoosten/LearningDirectX12: This repository is intended to be used as a code repository for learning DirectX 12. (github.com)](https://github.com/jpvanoosten/LearningDirectX12)
+- [SuikaSibyl/SibylEngine2021 (github.com)](https://github.com/SuikaSibyl/SibylEngine2021)
+
 ## MileStone
 
 ### ClearValue **2022-08-23**
