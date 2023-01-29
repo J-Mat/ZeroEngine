@@ -32,8 +32,8 @@ namespace Zero
 
 		ComPtr<ID3D12Resource> CreateDefaultBuffer(const void* BufferData, size_t BufferSize, D3D12_RESOURCE_FLAGS Flags = D3D12_RESOURCE_FLAG_NONE);
 	
-		ComPtr<ID3D12Resource> CreateTextureResource(Ref<FImage> Image, bool bGenerateMip = false);
-		void GenerateMips(Ref<FDX12Texture2D> Texture);
+		Ref<FResource> CreateTextureResource(const std::string& TextureName, Ref<FImage> Image, bool bGenerateMip = false);
+		void GenerateMips(Ref<FResource> TextureResource);
 		void GenerateMips_UAV(Ref<FDX12Texture2D> Texture, bool bIsSRGB);
 		ComPtr<ID3D12Resource> CreateTextureCubemapResource(Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT], uint32_t Width, uint32_t Height, uint32_t Chanels);
 		ComPtr<ID3D12Resource> CreateRenderTargetResource(uint32_t Width, uint32_t Height);
@@ -207,13 +207,13 @@ namespace Zero
 		// Mips can't be generated on copy queues but must be generated on compute or
 		// direct queues. In this case, a Compute command list is generated and executed
 		// after the copy queue is finished uploading the first sub resource.
-		Ref<FDX12CommandList> m_ComputeCommandList;
+		Ref<FDX12CommandList> m_ComputeCommandList = nullptr;
 
 
 		// Keep track of the currently bound root signatures to minimize root
 		// signature changes.
-		ID3D12RootSignature* m_RootSignature;
+		ID3D12RootSignature* m_RootSignature = nullptr;
 		// Keep track of the currently bond pipeline state object to minimize PSO changes.
-		ID3D12PipelineState* m_PipelineState;
+		ID3D12PipelineState* m_PipelineState = nullptr;
 	};
 }

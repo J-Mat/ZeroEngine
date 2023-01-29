@@ -83,7 +83,7 @@ namespace Zero
 		
 		// Generate mips command lists.
 		std::vector<Ref<FDX12CommandList>> GenerateMipsCommandLists;
-		GenerateMipsCommandLists.reserve(CommandLists.size() * 2);
+		GenerateMipsCommandLists.reserve(CommandLists.size());
 
 		// Command lists that need to be executed.
 		std::vector<ID3D12CommandList*> D3DCommandLists;
@@ -104,10 +104,10 @@ namespace Zero
 			
 			ToBeQueued.push_back(PendingCommandList);
 			ToBeQueued.push_back(CommandList);
-			auto generateMipsCommandList = CommandList->GetGenerateMipsCommandList();
-			if (generateMipsCommandList)
+			auto GenerateMipsCommandList = CommandList->GetGenerateMipsCommandList();
+			if (GenerateMipsCommandList)
 			{
-				GenerateMipsCommandLists.push_back(generateMipsCommandList);
+				GenerateMipsCommandLists.push_back(GenerateMipsCommandList);
 			}
 		}
 		

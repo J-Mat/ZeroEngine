@@ -22,8 +22,18 @@ namespace Zero
 		
 
 		// Get the factory that was used to create the adapter.
-		ComPtr<IDXGIFactory4>  DxgiFactory;
+		ComPtr<IDXGIFactory>  DxgiFactory;
+		ComPtr<IDXGIFactory5>  DxgiFactory5;
 		ThrowIfFailed(CreateDXGIFactory1(IID_PPV_ARGS(&DxgiFactory)));
+		ThrowIfFailed(DxgiFactory.As(&DxgiFactory5));
+
+		// Check for tearing support.
+		BOOL allowTearing = FALSE;
+		if (SUCCEEDED(
+			DxgiFactory5->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(BOOL))))
+		{
+			m_bTearingSupported = (allowTearing == TRUE);
+		}
 		
 		// Query the windows client width and height.
 		RECT WindowRect;
@@ -32,32 +42,42 @@ namespace Zero
 		m_Width = WindowRect.right - WindowRect.left;
 		m_Height = WindowRect.bottom - WindowRect.top;
 		
-		DXGI_SWAP_CHAIN_DESC SwapChainDesc;
-		SwapChainDesc.BufferDesc.Width = m_Width;
-		SwapChainDesc.BufferDesc.Height = m_Height;
-		SwapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
-		SwapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
-		SwapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		SwapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-		SwapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-
-		SwapChainDesc.SampleDesc.Count = 1;
-		SwapChainDesc.SampleDesc.Quality = 0;
+		DXGI_SWAP_CHAIN_DESC1 SwapChainDesc;
+		SwapChainDesc.Width = m_Width;
+		SwapChainDesc.Height = m_Height;
+		SwapChainDesc.Format = m_RenderTargetFormat;
+		SwapChainDesc.Stereo = FALSE;
+		SwapChainDesc.SampleDesc = { 1, 0 };
 		SwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		SwapChainDesc.BufferCount = s_BufferCount;
-		SwapChainDesc.OutputWindow = m_hWnd;
-		SwapChainDesc.Windowed = true;
+		SwapChainDesc.Scaling = DXGI_SCALING_STRETCH;
 		SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-		SwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+		SwapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
+
+		// It is recommended to always allow tearing if tearing support is available.
+		SwapChainDesc.Flags =  m_bTearingSupported? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
+		SwapChainDesc.Flags |= DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
 		
-		ThrowIfFailed(
-			DxgiFactory->CreateSwapChain(
-				D3DComandQueue.Get(),
-				&SwapChainDesc,
-				m_DxgiSwapChain.GetAddressOf()
-			)
-		);
+		// Now create the swap chain.
+		ComPtr<IDXGISwapChain1> dxgiSwapChain1;
+		ThrowIfFailed(DxgiFactory5->CreateSwapChainForHwnd(m_CommandQueue.GetD3DCommandQueue().Get(), m_hWnd, &SwapChainDesc, nullptr,
+			nullptr, &dxgiSwapChain1));
 		
+		// Cast to swapchain4
+		ThrowIfFailed(dxgiSwapChain1.As(&m_DxgiSwapChain));
+
+
+		// Disable the Alt+Enter fullscreen toggle feature. Switching to fullscreen
+	// will be handled manually.
+		ThrowIfFailed(DxgiFactory5->MakeWindowAssociation(m_hWnd, DXGI_MWA_NO_ALT_ENTER));
+
+		// Initialize the current back buffer index.
+		m_CurrentBackBufferIndex = m_DxgiSwapChain->GetCurrentBackBufferIndex();
+		// Set maximum frame latency to reduce input latency.
+		m_DxgiSwapChain->SetMaximumFrameLatency(s_BufferCount - 1);
+		// Get the SwapChain's waitable object.
+		m_hFrameLatencyWaitableObject = m_DxgiSwapChain->GetFrameLatencyWaitableObject();
+
 		UpdateRenderTargetViews();
 
 		m_RenderTarget = CreateRef<FDX12RenderTarget2D>();
@@ -144,7 +164,13 @@ namespace Zero
 		CommandList->TransitionBarrier(BufferBuffer->GetD3DResource(), D3D12_RESOURCE_STATE_PRESENT);
 		m_CommandQueue.ExecuteCommandList(CommandList);
 
-		ThrowIfFailed(m_DxgiSwapChain->Present(0, 0));
+
+		bool VSync = false;
+		bool m_bFullscreen = false;
+		UINT syncInterval = VSync ? 1 : 0;
+		UINT presentFlags = m_bTearingSupported  && !m_bFullscreen && !VSync ? DXGI_PRESENT_ALLOW_TEARING : 0;
+
+		ThrowIfFailed(m_DxgiSwapChain->Present(syncInterval, presentFlags));
 
 		m_FenceValues[m_CurrentBackBufferIndex] = m_CommandQueue.Signal();
 

@@ -16,7 +16,7 @@ namespace Zero
 	public:	 
 		static const UINT s_BufferCount = 2;
 		
-		FDX12SwapChain(HWND hWnd, DXGI_FORMAT RenderTargetFormat = DXGI_FORMAT_R10G10B10A2_UNORM);
+		FDX12SwapChain(HWND hWnd, DXGI_FORMAT RenderTargetFormat = DXGI_FORMAT_R8G8B8A8_UNORM);
 		virtual ~FDX12SwapChain();
 
         /**
@@ -39,7 +39,7 @@ namespace Zero
 	private:
 
 		FDX12CommandQueue& m_CommandQueue;
-		ComPtr<IDXGISwapChain> m_DxgiSwapChain;
+		ComPtr<IDXGISwapChain4> m_DxgiSwapChain;
 		Ref<FDX12Texture2D> m_BackBufferTextures[s_BufferCount];
 		Ref<FDX12Texture2D> m_DepthStencilTexture;
 		mutable Ref<FDX12RenderTarget2D>  m_RenderTarget;

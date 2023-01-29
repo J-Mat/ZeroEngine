@@ -15,7 +15,7 @@ namespace Zero
 		Ref<FTexture2D> Texture = TLibrary<FTexture2D>::Fetch(*TextureHandlePtr);
 		if (Texture == nullptr)
 		{
-			Texture = FRenderer::GraphicFactroy->GetOrCreateTexture2D(*TextureHandlePtr);
+			Texture = FRenderer::GraphicFactroy->GetOrCreateTexture2D(*TextureHandlePtr, false);
 		}		
 		ImTextureID TextureID = (ImTextureID)Texture->GetGuiShaderReseource();
 		ImGui::Image(TextureID, ButtonSize, { 0,0 }, { 1,1 });

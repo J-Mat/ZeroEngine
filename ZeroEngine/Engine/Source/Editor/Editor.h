@@ -20,7 +20,7 @@ namespace Zero
 		static void RegisterDataUIMapings();
 		static Ref<FTexture2D> CreateIcon(const std::string&& FileName)
 		{
-			auto Icon = FRenderer::GraphicFactroy->GetOrCreateTexture2D(FileName);
+			auto Icon = FRenderer::GraphicFactroy->GetOrCreateTexture2D(FileName, false);
 			return Icon;
 		}
 		static void Reset();

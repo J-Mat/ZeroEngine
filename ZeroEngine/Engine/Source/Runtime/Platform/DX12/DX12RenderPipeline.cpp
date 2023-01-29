@@ -22,8 +22,8 @@ namespace Zero
 	void FDX12RenderPipeline::DrawFrame()
 	{
 		auto& CommandQueue = FDX12Device::Get()->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
-		FDX12Device::Get()->SetRenderCommandList(CommandQueue.GetCommandList());
 		FDX12Device::Get()->SetInitWorldCommandList(CommandQueue.GetCommandList());
+		FDX12Device::Get()->SetRenderCommandList(CommandQueue.GetCommandList());
 		auto SwapChain = FDX12Device::Get()->GetSwapChain();
 
 

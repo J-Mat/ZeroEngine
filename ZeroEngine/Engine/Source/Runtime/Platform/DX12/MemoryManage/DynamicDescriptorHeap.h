@@ -37,6 +37,7 @@ namespace Zero
 
 
 		void SetAsShaderResourceHeap();
+		void SetComputeAsShaderResourceHeap(FDX12CommandList& CommandList);
 
 
 		/**

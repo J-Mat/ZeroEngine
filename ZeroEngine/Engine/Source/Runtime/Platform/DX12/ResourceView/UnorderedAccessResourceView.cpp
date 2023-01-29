@@ -15,7 +15,7 @@ namespace Zero
 		{
 			auto ResourceDesc = m_Resource->GetD3D12ResourceDesc();
 
-			CORE_ASSERT(ResourceDesc.Flags & D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS != 0, "Can not support unordered access!");
+			CORE_ASSERT((ResourceDesc.Flags & D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS) != 0, "Can not support unordered access!");
 		}
 
 		m_Descriptor = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);

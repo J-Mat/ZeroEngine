@@ -74,7 +74,7 @@ namespace Zero
 
 			if (ShadowMapRenderTarget != nullptr)
 			{
-				RenderItem->m_Material->SetTexture2D("_gShadowMap", ShadowMapRenderTarget->GetTexture(EAttachmentIndex::DepthStencil));
+				//RenderItem->m_Material->SetTexture2D("_gShadowMap", ShadowMapRenderTarget->GetTexture(EAttachmentIndex::DepthStencil));
 			}
 
 			RenderItem->Render();

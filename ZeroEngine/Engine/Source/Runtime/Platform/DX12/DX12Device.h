@@ -81,7 +81,9 @@ namespace Zero
 		Ref<FDX12CommandList> GetRenderCommandList() { return m_RenderCommandList; }
 		void SetRenderCommandList(Ref<FDX12CommandList> CommandList) { m_RenderCommandList = CommandList; }
 		Ref<FDX12CommandList> GetInitWorldCommandList() { return m_InitWorldCommandList; }
+		Ref<FDX12CommandList> GetComputeCommandList() { return m_ComputeCommandList; }
 		void SetInitWorldCommandList(Ref<FDX12CommandList> CommandList) { m_InitWorldCommandList = CommandList; }
+		void SetComputeCommandList(Ref<FDX12CommandList> CommandList) { m_ComputeCommandList = CommandList; }
 
 	private:
 		static FDX12Device* m_Instance;
@@ -119,5 +121,6 @@ namespace Zero
 		std::map<uint32_t, Ref<FDX12CommandList>> m_ActiveCommandListMap;
 		Ref<FDX12CommandList> m_RenderCommandList = nullptr;;
 		Ref<FDX12CommandList> m_InitWorldCommandList = nullptr;;
+		Ref<FDX12CommandList> m_ComputeCommandList = nullptr;;
 	};
 }

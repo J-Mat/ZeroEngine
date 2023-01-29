@@ -29,13 +29,8 @@ namespace Zero
 		m_Width = ImageData->GetWidth();
 		m_Height = ImageData->GetHeight();
 		CORE_ASSERT(ImageData->GetData() != nullptr, "Image has no data!");
-		auto Resource = FDX12Device::Get()->GetInitWorldCommandList()->CreateTextureResource(ImageData);
-		Resource->SetName(Utils::StringToLPCWSTR(TextureName));
-		SetResource(Resource);
-		if (m_bNeedMipMap)
-		{
-			FDX12Device::Get()->GetInitWorldCommandList()->GenerateMips(this->shared_from_this());
-		}
+		auto Resource = FDX12Device::Get()->GetInitWorldCommandList()->CreateTextureResource(TextureName, ImageData, m_bNeedMipMap);
+		SetResource(Resource->GetD3DResource());
 		CreateViews();
 	}
 

@@ -69,6 +69,7 @@ namespace Zero
 	void FDynamicDescriptorHeap::CommitStagedDescriptorsForDispatch(FDX12CommandList& CommandList)
 	{
 		CommitDescriptorTables(CommandList, &ID3D12GraphicsCommandList::SetComputeRootDescriptorTable);
+		SetComputeAsShaderResourceHeap(CommandList);
 	}
 
 	ComPtr<ID3D12DescriptorHeap> FDynamicDescriptorHeap::RequestDescriptorHeap()
@@ -245,6 +246,38 @@ namespace Zero
 			}
 		}
 	}
+
+	void FDynamicDescriptorHeap::SetComputeAsShaderResourceHeap(FDX12CommandList& CommandList)
+	{
+		if (!m_CurrentDescriptorHeap)
+		{
+			return;
+		}
+		uint32_t TableBitMask = m_DescriptorTableBitMask;
+		DWORD RootIndex;
+		
+		CommandList.SetDescriptorHeap(m_DescriptorHeapType,  m_CurrentDescriptorHeap.Get());
+
+		m_CurrentCPUDescriptorHandle = m_CurrentDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+		m_CurrentGPUDescriptorHandle = m_CurrentDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+
+		if (m_CurrentDescriptorHeap != nullptr)
+		{
+			// Scan from LSB to MSB for a bit set in staleDescriptorsBitMask
+			while (_BitScanForward(&RootIndex, TableBitMask))
+			{
+				UINT NumSrcDescriptors = m_DescriptorTableCache[RootIndex].NumDescriptors;
+				if (m_DescriptorTableCache[RootIndex].BaseDescriptor->ptr)
+				{
+					CommandList.GetD3D12CommandList()->SetComputeRootDescriptorTable(RootIndex, m_CurrentGPUDescriptorHandle);
+				}
+				m_CurrentCPUDescriptorHandle.Offset(NumSrcDescriptors, m_DescriptorHandleIncrementSize);
+				m_CurrentGPUDescriptorHandle.Offset(NumSrcDescriptors, m_DescriptorHandleIncrementSize);
+				TableBitMask ^= (1 << RootIndex);
+			}
+		}
+	}
+
 
 	void FDynamicDescriptorHeap::StageInlineCBV(uint32_t RootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
 	{

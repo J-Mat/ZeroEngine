@@ -20,7 +20,7 @@ Texture2D _gShadowMap : register(t0, space1);
 
 cbuffer cbMaterial : register(b3)
 {
-	float4x4 LightProjectionView;
+	float MipLevel;
 };
 
 VertexOut VS(VertexIn vin)
@@ -144,7 +144,7 @@ PixelOutput PS(VertexOut Pin)
 	PixelOutput Out;
 	float3 FinalColor = 0.0f;
 	float2 UV = float2(Pin.TexC.x, 1.0f - Pin.TexC.y);
-	float3 Albedo = pow(gDiffuseMap.Sample(gSamAnisotropicWarp, UV).rgb, 2.2f);
+	float3 Albedo = pow(gDiffuseMap.SampleLevel(gSamAnisotropicWarp, UV, 3).rgb, 2.2f);
 	float3 EmissiveColor = pow(gEmissionMap.Sample(gSamAnisotropicWarp, UV).rgb, 2.2f);
 	float Metallic = gMetallicMap.Sample(gSamAnisotropicWarp, UV).r; 
 	float Roughness = gRoughnessMap.Sample(gSamAnisotropicWarp, UV).r;
@@ -165,6 +165,7 @@ PixelOutput PS(VertexOut Pin)
 	}
 	else if (ShadingMode == 1)
 	{
+		/*
 		float3 Ambient = 0.05f * Albedo;
 		float3 LightColor = DirectLights[0].Color * DirectLights[0].Intensity;
 		float3 L = normalize(-DirectLights[0].Direction);
@@ -180,7 +181,8 @@ PixelOutput PS(VertexOut Pin)
 
 		float ShadowFactor = CalcShadowFactor(Pin.ShadowPosH);
 		FinalColor =  Ambient + (Diffuse + Spec) * ShadowFactor * Albedo;
-;
+		*/
+		FinalColor = Albedo;
 	}
 
     // gamma correct

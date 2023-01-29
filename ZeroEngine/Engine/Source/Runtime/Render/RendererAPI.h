@@ -75,8 +75,8 @@ namespace Zero
 		virtual Ref<FShader> CreateShader(const FShaderBinderDesc& BinderDesc, const FShaderDesc& ShaderDesc) = 0;
 		virtual Ref<FShader> CreateShader(const FShaderDesc& ShaderDesc) = 0;
 		virtual Ref<FComputeShader> CreateComputeShader(const FComputeShaderDesc& ComputeShaderDesc) = 0;
-		virtual Ref<FTexture2D> GetOrCreateTexture2D(const std::string& FileName) = 0;
-		virtual Ref<FTexture2D> CreateTexture2D(Ref<FImage> Image, std::string ImageName) = 0;
+		virtual Ref<FTexture2D> GetOrCreateTexture2D(const std::string& FileName, bool bNeedMipMap = false) = 0;
+		virtual Ref<FTexture2D> CreateTexture2D(Ref<FImage> Image, std::string ImageName, bool bNeedMipMap = false) = 0;
 		virtual Ref<FTextureCubemap> GetOrCreateTextureCubemap(FTextureHandle Handles[CUBEMAP_TEXTURE_CNT], std::string TextureCubemapName) = 0;
 		virtual Ref<FRenderTarget2D> CreateRenderTarget2D(const FRenderTarget2DDesc& Desc) = 0;
 		virtual Ref<FRenderTargetCube> CreateRenderTargetCube(const FRenderTargetCubeDesc& Desc) = 0;
@@ -168,9 +168,9 @@ namespace Zero
 			return Shader;
 		}
 
-		virtual Ref<FTexture2D> CreateTexture2D(Ref<FImage> Image, std::string ImageName)
+		virtual Ref<FTexture2D> CreateTexture2D(Ref<FImage> Image, std::string ImageName, bool bNeedMipMap = false)
 		{
-			Ref<FTexture2D> Texture = CreateRef<FDX12Texture2D>(ImageName, Image);
+			Ref<FTexture2D> Texture = CreateRef<FDX12Texture2D>(ImageName, Image, bNeedMipMap);
 #if	EDITOR_MODE
 			Texture->RegistGuiShaderResource();
 #endif
@@ -178,7 +178,7 @@ namespace Zero
 			return Texture;
 		}
 
-		virtual Ref<FTexture2D> GetOrCreateTexture2D(const std::string& FileName)
+		virtual Ref<FTexture2D> GetOrCreateTexture2D(const std::string& FileName, bool bNeedMipMap = false)
 		{
 			std::filesystem::path TextureFileName = FileName;
 			Ref<FTexture2D> Texture = TLibrary<FTexture2D>::Fetch(FileName);
@@ -188,7 +188,7 @@ namespace Zero
 				if (std::filesystem::exists(TexturePath))
 				{
 					Ref<FImage> Image = CreateRef<FImage>(TexturePath.string());
-					Texture = CreateRef<FDX12Texture2D>(FileName, Image);
+					Texture = CreateRef<FDX12Texture2D>(FileName, Image, bNeedMipMap);
 					std::cout << FileName << std::endl;
 					TLibrary<FTexture2D>::Push(FileName, Texture);
 #if	EDITOR_MODE

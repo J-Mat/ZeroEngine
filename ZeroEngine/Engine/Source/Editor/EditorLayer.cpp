@@ -35,12 +35,13 @@ namespace Zero
 
 		{
 			Ref<FImage> Image = CreateRef<FImage>(ZConfig::GetAssestsFullPath("Texture\\DefaultTexture.png").string());
-			FRenderer::GraphicFactroy->CreateTexture2D(Image, "default");
+			FRenderer::GraphicFactroy->CreateTexture2D(Image, "default", false);
 		}
+
 
 		{
 			Ref<FImage> Image = CreateRef<FImage>(ZConfig::GetAssestsFullPath("Texture\\pbr\\IBL_BRDF_LUT.png").string());
-			FRenderer::GraphicFactroy->CreateTexture2D(Image, IBL_BRDF_LUT);
+			FRenderer::GraphicFactroy->CreateTexture2D(Image, IBL_BRDF_LUT, false);
 		}
 	}
 

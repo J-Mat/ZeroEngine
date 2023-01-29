@@ -146,7 +146,7 @@ namespace Zero
 				}
 				else
 				{
-					SubResourceState[SubResource] = State;
+					SubResourceState[SubResource] = InState;
 				}
 			}
 

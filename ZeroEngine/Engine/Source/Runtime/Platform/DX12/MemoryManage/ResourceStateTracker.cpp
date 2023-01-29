@@ -104,7 +104,7 @@ namespace Zero
 
 	uint32_t FResourceStateTracker::FlushPendingResourceBarriers(const Ref<FDX12CommandList>& CommandList)
 	{
-		CORE_ASSERT(s_bLocked, "Barrier is unlocked!");
+		//CORE_ASSERT(s_bLocked, "Barrier is unlocked!");
 		
 		FResourceBarriers ToExcuteBarriers;
 		ToExcuteBarriers.reserve(m_PendingResourceBarriersList.size());
@@ -173,7 +173,7 @@ namespace Zero
 
 	void FResourceStateTracker::CommitFinalResourceStates()
 	{
-		CORE_ASSERT(s_bLocked, "s_bLocked is unlocked");
+		//CORE_ASSERT(s_bLocked, "s_bLocked is unlocked");
 
 		// Commit final Resource states to the global Resource state array (map).
 		for (const auto& ResourceState : m_FinalResourceState)

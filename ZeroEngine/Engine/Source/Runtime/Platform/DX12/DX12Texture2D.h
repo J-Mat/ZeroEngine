@@ -25,7 +25,7 @@ namespace Zero
         friend class FDX12RenderTarget2D;
 	public:
 		FDX12Texture2D(const std::string& TextureName, const FDX12TextureSettings& TextureSettings, const D3D12_CLEAR_VALUE* ClearValue = nullptr);
-        FDX12Texture2D(const std::string& TextureName, Ref<FImage> ImageData, bool bNeedMipMap = false);
+        FDX12Texture2D(const std::string& TextureName, Ref<FImage> ImageData, bool bNeedMipMap = true);
         FDX12Texture2D(const std::string& TextureName, ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, const D3D12_CLEAR_VALUE* ClearValue = nullptr);
 
 
@@ -47,28 +47,6 @@ namespace Zero
         D3D12_UNORDERED_ACCESS_VIEW_DESC GetUAVDesc(const D3D12_RESOURCE_DESC& ResDesc, UINT MipSlice, UINT ArraySlice = 0, UINT PlaneSlice = 0);
 
 		void CreateViews();
-
-        bool CheckSRVSupport() const
-        {
-            return CheckFormatSupport(D3D12_FORMAT_SUPPORT1_SHADER_SAMPLE);
-        }
-
-        bool CheckRTVSupport() const
-        {
-            return CheckFormatSupport(D3D12_FORMAT_SUPPORT1_RENDER_TARGET);
-        }
-
-        bool CheckUAVSupport() const
-        {
-            return CheckFormatSupport(D3D12_FORMAT_SUPPORT1_TYPED_UNORDERED_ACCESS_VIEW) &&
-                CheckFormatSupport(D3D12_FORMAT_SUPPORT2_UAV_TYPED_LOAD) &&
-                CheckFormatSupport(D3D12_FORMAT_SUPPORT2_UAV_TYPED_STORE);
-        }
-
-        bool CheckDSVSupport() const
-        {
-            return CheckFormatSupport(D3D12_FORMAT_SUPPORT1_DEPTH_STENCIL);
-        }
 
         /**
         * Get the RTV for the texture.
