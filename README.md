@@ -9,6 +9,7 @@
 - [hebohang/HEngine: HEngine - 2D/3D Game Engine written in C++20 (github.com)](https://github.com/hebohang/HEngine)
 - [jpvanoosten/LearningDirectX12: This repository is intended to be used as a code repository for learning DirectX 12. (github.com)](https://github.com/jpvanoosten/LearningDirectX12)
 - [SuikaSibyl/SibylEngine2021 (github.com)](https://github.com/SuikaSibyl/SibylEngine2021)
+- [zhanjinzhao/TotoroEngine: A toy 3D game engine using DirectX 12. (github.com)](https://github.com/zhanjinzhao/TotoroEngine)
 
 ## MileStone
 
