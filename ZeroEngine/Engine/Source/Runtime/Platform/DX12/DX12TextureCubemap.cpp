@@ -7,11 +7,11 @@
 
 namespace Zero
 {
-	FDX12TextureCubemap::FDX12TextureCubemap(const std::string& TextureName, const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* ClearValue)
-		: FResource(TextureName, ResourceDesc, ClearValue)
+	FDX12TextureCubemap::FDX12TextureCubemap(const std::string& TextureName, const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* FTextureClearValue)
+		: FResource(TextureName, ResourceDesc, FTextureClearValue)
 	{
-		m_Width = (uint32_t)ResourceDesc.Width;
-		m_Height = (uint32_t)ResourceDesc.Height;
+		m_TextureDesc.Width = (uint32_t)ResourceDesc.Width;
+		m_TextureDesc.Height  = (uint32_t)ResourceDesc.Height;
 		CreateViews();
 	}
 
@@ -20,15 +20,15 @@ namespace Zero
 		:  FResource()
 		, m_bRenderDepth(bRenderDepth)
 	{
-		m_Width = ImageData[0]->GetWidth();
-		m_Height = ImageData[0]->GetHeight();
+		m_TextureDesc.Width = ImageData[0]->GetWidth();
+		m_TextureDesc.Height = ImageData[0]->GetHeight();
 		CORE_ASSERT(ImageData[0]->GetData() != nullptr, "Image has no data!");
 
 		auto Resource = 
 			FDX12Device::Get()->GetInitWorldCommandList()->CreateTextureCubemapResource(
 				ImageData,
-				m_Width, 
-				m_Height,
+				m_TextureDesc.Width, 
+				m_TextureDesc.Height,
 				ImageData[0]->GetChannel()
 			);
 		Resource->SetName(Utils::StringToLPCWSTR(TextureName));
@@ -36,12 +36,12 @@ namespace Zero
 		CreateViews();
 	}
 
-	FDX12TextureCubemap::FDX12TextureCubemap(ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, bool bRenderDepth, const D3D12_CLEAR_VALUE* ClearValue)
-		: FResource(Resource, ClearValue)
+	FDX12TextureCubemap::FDX12TextureCubemap(ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, bool bRenderDepth, const D3D12_CLEAR_VALUE* FTextureClearValue)
+		: FResource(Resource, FTextureClearValue)
 		, m_bRenderDepth(bRenderDepth)
 	{
-		m_Width = Width;
-		m_Height = Height;
+		m_TextureDesc.Width = Width;
+		m_TextureDesc.Height = Height;
 		CreateViews();
 	}
 

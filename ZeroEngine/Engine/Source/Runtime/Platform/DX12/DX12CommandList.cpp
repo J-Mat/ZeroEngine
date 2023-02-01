@@ -144,7 +144,7 @@ namespace Zero
 		{
 			// Describe an alias resource that is used to copy the original texture.
 			D3D12_RESOURCE_DESC AliasDesc = ResourceDesc;
-			// Placed resources can't be render targets or depth-stencil views.
+			// Placed resources can't be render targets or Depth-Stencil views.
 			AliasDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 			AliasDesc.Flags &= ~(D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET | D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
 			
@@ -455,7 +455,7 @@ namespace Zero
 	{
 		TransitionBarrier(TexturePtr->GetD3DResource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, true);
 		float ClearColor[4] = { Color.r, Color.g, Color.b, Color.a };
-		m_D3DCommandList->ClearRenderTargetView(TexturePtr->GetRenderTargetView(), ClearColor, 0, nullptr);
+		m_D3DCommandList->ClearRenderTargetView(TexturePtr->GetRTV(), ClearColor, 0, nullptr);
 
 		TrackResource(TexturePtr->GetD3DResource());
 	}
@@ -463,7 +463,7 @@ namespace Zero
 	void FDX12CommandList::ClearDepthStencilTexture(FDX12Texture2D* TexturePtr, D3D12_CLEAR_FLAGS ClearFlags, float Depth, uint8_t Stencil)
 	{
 		TransitionBarrier(TexturePtr->GetD3DResource(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, true);
-		m_D3DCommandList->ClearDepthStencilView(TexturePtr->GetDepthStencilView(), ClearFlags, Depth, Stencil, 0, nullptr);
+		m_D3DCommandList->ClearDepthStencilView(TexturePtr->GetDSV(), ClearFlags, Depth, Stencil, 0, nullptr);
 
 		TrackResource(TexturePtr->GetD3DResource());
 	}
@@ -574,7 +574,7 @@ namespace Zero
 		if (DepthTexture)
 		{
 			TransitionBarrier(DepthTexture->GetD3DResource(), D3D12_RESOURCE_STATE_DEPTH_WRITE);
-			DepthStencilDescriptor = DepthTexture->GetDepthStencilView();
+			DepthStencilDescriptor = DepthTexture->GetDSV();
 			TrackResource(DepthTexture->GetD3DResource());
 		}
 

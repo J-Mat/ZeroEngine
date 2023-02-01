@@ -67,7 +67,7 @@ namespace Zero
 		virtual Ref<IDevice> CreateDevice() = 0;
 		virtual FLayer* CreatGuiLayer() = 0;
 		virtual Ref<FWinWindow> CreatePlatformWindow(const FWindowsConfig& Config) = 0;
-		virtual Ref<IVertexBuffer> CreateVertexBuffer(void* data, uint32_t VertexCount, FVertexBufferLayout& Layout, IVertexBuffer::EType Type = IVertexBuffer::EType::Static) = 0;
+		virtual Ref<FVertexBuffer> CreateVertexBuffer(void* data, uint32_t VertexCount, FVertexBufferLayout& Layout, FVertexBuffer::EType Type = FVertexBuffer::EType::Static) = 0;
 		virtual Ref<FMesh> CreateMesh(const std::vector<FMeshData>& MeshDatas, FVertexBufferLayout& Layout) = 0;
 		virtual Ref<FMesh> CreateMesh(float* Vertices, uint32_t VertexCount, uint32_t* Indices, uint32_t IndexCount, FVertexBufferLayout& Layout) = 0;
 		virtual Ref<IShaderConstantsBuffer> CreateShaderConstantBuffer(FShaderConstantsDesc& Desc) = 0;
@@ -77,6 +77,7 @@ namespace Zero
 		virtual Ref<FComputeShader> CreateComputeShader(const FComputeShaderDesc& ComputeShaderDesc) = 0;
 		virtual Ref<FTexture2D> GetOrCreateTexture2D(const std::string& FileName, bool bNeedMipMap = false) = 0;
 		virtual Ref<FTexture2D> CreateTexture2D(Ref<FImage> Image, std::string ImageName, bool bNeedMipMap = false) = 0;
+		virtual Ref<FTexture2D> CreateTexture2D(const std::string& TextureName, const FTextureDesc& Desc) = 0;
 		virtual Ref<FTextureCubemap> GetOrCreateTextureCubemap(FTextureHandle Handles[CUBEMAP_TEXTURE_CNT], std::string TextureCubemapName) = 0;
 		virtual Ref<FRenderTarget2D> CreateRenderTarget2D(const FRenderTarget2DDesc& Desc) = 0;
 		virtual Ref<FRenderTargetCube> CreateRenderTargetCube(const FRenderTargetCubeDesc& Desc) = 0;
@@ -101,7 +102,7 @@ namespace Zero
 			return new FDX12GuiLayer();
 		}
 
-		virtual Ref<IVertexBuffer> CreateVertexBuffer(void* data, uint32_t VertexCount, FVertexBufferLayout& Layout, IVertexBuffer::EType Type = IVertexBuffer::EType::Static)
+		virtual Ref<FVertexBuffer> CreateVertexBuffer(void* data, uint32_t VertexCount, FVertexBufferLayout& Layout, FVertexBuffer::EType Type = FVertexBuffer::EType::Static)
 		{
 			return CreateRef<FDX12VertexBuffer>(data, VertexCount, Layout, Type);
 		}
@@ -175,6 +176,12 @@ namespace Zero
 			Texture->RegistGuiShaderResource();
 #endif
 			TLibrary<FTexture2D>::Push(ImageName, Texture);
+			return Texture;
+		}
+
+		virtual Ref<FTexture2D> CreateTexture2D(const std::string& TextureName, const FTextureDesc& Desc)
+		{
+			Ref<FTexture2D> Texture = CreateRef<FDX12Texture2D>(TextureName, Desc);
 			return Texture;
 		}
 
@@ -259,10 +266,10 @@ namespace Zero
 		virtual Ref<FTexture2D> CreateDepthStencilTexture(uint32_t Width, uint32_t Height, const std::string& Name)
 		{
 			auto DepthStencilDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D24_UNORM_S8_UINT, Width, Height);
-			// Must be set on textures that will be used as a depth-stencil buffer.
+			// Must be set on textures that will be used as a Depth-Stencil buffer.
 			DepthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
-			// Specify optimized clear values for the depth buffer.
+			// Specify optimized clear values for the Depth buffer.
 			D3D12_CLEAR_VALUE OptClear = {};
 			OptClear.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 			OptClear.DepthStencil = { 1.0F, 0 };

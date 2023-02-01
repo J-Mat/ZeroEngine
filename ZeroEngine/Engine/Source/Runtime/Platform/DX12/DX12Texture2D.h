@@ -1,7 +1,7 @@
 #pragma once
 #include "Core.h"
 #include "Common/DX12Header.h"
-#include "Base/Resource.h"
+#include "Resource.h"
 #include "Render/RHI/Texture.h"
 #include "Render/Moudule/Image/Image.h"
 #include "./MemoryManage/DescriptorAllocation.h"
@@ -23,10 +23,14 @@ namespace Zero
 	class FDX12Texture2D :public FTexture2D, public FResource, public std::enable_shared_from_this<FDX12Texture2D>
 	{
         friend class FDX12RenderTarget2D;
+    private: 
+        D3D12_CLEAR_VALUE GetClearValue();
+        void AttachHeapTypeAndResourceState(D3D12_HEAP_TYPE& D3DHeapType, D3D12_RESOURCE_STATES& D3DResourceState, D3D12_RESOURCE_DESC& ResourceDesc);
 	public:
-		FDX12Texture2D(const std::string& TextureName, const FDX12TextureSettings& TextureSettings, const D3D12_CLEAR_VALUE* ClearValue = nullptr);
+		FDX12Texture2D(const std::string& TextureName, const FTextureDesc Desc);
+		FDX12Texture2D(const std::string& TextureName, const FDX12TextureSettings& TextureSettings, const D3D12_CLEAR_VALUE* FTextureClearValue = nullptr);
         FDX12Texture2D(const std::string& TextureName, Ref<FImage> ImageData, bool bNeedMipMap = true);
-        FDX12Texture2D(const std::string& TextureName, ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, const D3D12_CLEAR_VALUE* ClearValue = nullptr);
+        FDX12Texture2D(const std::string& TextureName, ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, const D3D12_CLEAR_VALUE* FTextureClearValue = nullptr);
 
 
         static DXGI_FORMAT GetUAVCompatableFormat(DXGI_FORMAT Format);
@@ -51,17 +55,17 @@ namespace Zero
         /**
         * Get the RTV for the texture.
         */
-        D3D12_CPU_DESCRIPTOR_HANDLE GetRenderTargetView() const;
+        D3D12_CPU_DESCRIPTOR_HANDLE GetRTV() const;
 
         /**
         * Get the DSV for the texture.
         */
-        D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilView() const;
+        D3D12_CPU_DESCRIPTOR_HANDLE GetDSV() const;
 
         /**
         * Get the default SRV for the texture.
         */
-        D3D12_CPU_DESCRIPTOR_HANDLE GetShaderResourceView() const;
+        D3D12_CPU_DESCRIPTOR_HANDLE GetSRV() const;
 
         /**
         * Get the UAV for the texture at a specific mip level.
@@ -69,6 +73,8 @@ namespace Zero
         */
         D3D12_CPU_DESCRIPTOR_HANDLE GetUnorderedAccessView(uint32_t mip) const;
 
+    private:
+        D3D12_RESOURCE_FLAGS BindFlagsByTextureDesc();
         
 	private:
 		FDescriptorAllocation m_RenderTargetView;
@@ -77,6 +83,7 @@ namespace Zero
 		FDescriptorAllocation m_UnorderedAccessView;
         FLightDescrptorAllocation m_GuiAllocation;
         bool m_bHasGuiResource = false;
+        D3D12_PLACED_SUBRESOURCE_FOOTPRINT m_Footprint{};
     private:
         DXGI_FORMAT m_SRVFormat = DXGI_FORMAT_UNKNOWN;
         DXGI_FORMAT m_RTVFormat = DXGI_FORMAT_UNKNOWN;

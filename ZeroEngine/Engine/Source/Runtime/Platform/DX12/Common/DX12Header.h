@@ -12,6 +12,7 @@
 #include "Render/RenderConfig.h"
 #include "Render/RHI/ShaderData.h"
 #include "Render/RHI/Texture.h"
+#include "Render/ResourceCommon.h"
 
 namespace Zero
 { 
@@ -119,6 +120,254 @@ namespace Zero
 				break;
 			}
 			return DXGI_FORMAT_UNKNOWN;
+		}
+
+
+		static constexpr DXGI_FORMAT ConvertResourceFormat(EResourceFormat _format)
+		{
+			switch (_format)
+			{
+			case EResourceFormat::UNKNOWN:
+				return DXGI_FORMAT_UNKNOWN;
+
+			case EResourceFormat::R32G32B32A32_FLOAT:
+				return DXGI_FORMAT_R32G32B32A32_FLOAT;
+
+			case EResourceFormat::R32G32B32A32_UINT:
+				return DXGI_FORMAT_R32G32B32A32_UINT;
+
+			case EResourceFormat::R32G32B32A32_SINT:
+				return DXGI_FORMAT_R32G32B32A32_SINT;
+
+			case EResourceFormat::R32G32B32_FLOAT:
+				return DXGI_FORMAT_R32G32B32_FLOAT;
+
+			case EResourceFormat::R32G32B32_UINT:
+				return DXGI_FORMAT_R32G32B32_UINT;
+
+			case EResourceFormat::R32G32B32_SINT:
+				return DXGI_FORMAT_R32G32B32_SINT;
+
+			case EResourceFormat::R16G16B16A16_FLOAT:
+				return DXGI_FORMAT_R16G16B16A16_FLOAT;
+
+			case EResourceFormat::R16G16B16A16_UNORM:
+				return DXGI_FORMAT_R16G16B16A16_UNORM;
+
+			case EResourceFormat::R16G16B16A16_UINT:
+				return DXGI_FORMAT_R16G16B16A16_UINT;
+
+			case EResourceFormat::R16G16B16A16_SNORM:
+				return DXGI_FORMAT_R16G16B16A16_SNORM;
+
+			case EResourceFormat::R16G16B16A16_SINT:
+				return DXGI_FORMAT_R16G16B16A16_SINT;
+
+			case EResourceFormat::R32G32_FLOAT:
+				return DXGI_FORMAT_R32G32_FLOAT;
+
+			case EResourceFormat::R32G32_UINT:
+				return DXGI_FORMAT_R32G32_UINT;
+
+			case EResourceFormat::R32G32_SINT:
+				return DXGI_FORMAT_R32G32_SINT;
+
+			case EResourceFormat::R32G8X24_TYPELESS:
+				return DXGI_FORMAT_R32G8X24_TYPELESS;
+
+			case EResourceFormat::D32_FLOAT_S8X24_UINT:
+				return DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
+
+			case EResourceFormat::R10G10B10A2_UNORM:
+				return DXGI_FORMAT_R10G10B10A2_UNORM;
+
+			case EResourceFormat::R10G10B10A2_UINT:
+				return DXGI_FORMAT_R10G10B10A2_UINT;
+
+			case EResourceFormat::R11G11B10_FLOAT:
+				return DXGI_FORMAT_R11G11B10_FLOAT;
+
+			case EResourceFormat::R8G8B8A8_UNORM:
+				return DXGI_FORMAT_R8G8B8A8_UNORM;
+
+			case EResourceFormat::R8G8B8A8_UNORM_SRGB:
+				return DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+
+			case EResourceFormat::R8G8B8A8_UINT:
+				return DXGI_FORMAT_R8G8B8A8_UINT;
+
+			case EResourceFormat::R8G8B8A8_SNORM:
+				return DXGI_FORMAT_R8G8B8A8_SNORM;
+
+			case EResourceFormat::R8G8B8A8_SINT:
+				return DXGI_FORMAT_R8G8B8A8_SINT;
+
+			case EResourceFormat::R16G16_FLOAT:
+				return DXGI_FORMAT_R16G16_FLOAT;
+
+			case EResourceFormat::R16G16_UNORM:
+				return DXGI_FORMAT_R16G16_UNORM;
+
+			case EResourceFormat::R16G16_UINT:
+				return DXGI_FORMAT_R16G16_UINT;
+
+			case EResourceFormat::R16G16_SNORM:
+				return DXGI_FORMAT_R16G16_SNORM;
+
+			case EResourceFormat::R16G16_SINT:
+				return DXGI_FORMAT_R16G16_SINT;
+
+			case EResourceFormat::R32_TYPELESS:
+				return DXGI_FORMAT_R32_TYPELESS;
+
+			case EResourceFormat::D32_FLOAT:
+				return DXGI_FORMAT_D32_FLOAT;
+
+			case EResourceFormat::R32_FLOAT:
+				return DXGI_FORMAT_R32_FLOAT;
+
+			case EResourceFormat::R32_UINT:
+				return DXGI_FORMAT_R32_UINT;
+
+			case EResourceFormat::R32_SINT:
+				return DXGI_FORMAT_R32_SINT;
+
+			case EResourceFormat::R8G8_UNORM:
+				return DXGI_FORMAT_R8G8_UNORM;
+
+			case EResourceFormat::R8G8_UINT:
+				return DXGI_FORMAT_R8G8_UINT;
+
+			case EResourceFormat::R8G8_SNORM:
+				return DXGI_FORMAT_R8G8_SNORM;
+
+			case EResourceFormat::R8G8_SINT:
+				return DXGI_FORMAT_R8G8_SINT;
+
+			case EResourceFormat::R16_TYPELESS:
+				return DXGI_FORMAT_R16_TYPELESS;
+
+			case EResourceFormat::R16_FLOAT:
+				return DXGI_FORMAT_R16_FLOAT;
+
+			case EResourceFormat::D16_UNORM:
+				return DXGI_FORMAT_D16_UNORM;
+
+			case EResourceFormat::R16_UNORM:
+				return DXGI_FORMAT_R16_UNORM;
+
+			case EResourceFormat::R16_UINT:
+				return DXGI_FORMAT_R16_UINT;
+
+			case EResourceFormat::R16_SNORM:
+				return DXGI_FORMAT_R16_SNORM;
+
+			case EResourceFormat::R16_SINT:
+				return DXGI_FORMAT_R16_SINT;
+
+			case EResourceFormat::R8_UNORM:
+				return DXGI_FORMAT_R8_UNORM;
+
+			case EResourceFormat::R8_UINT:
+				return DXGI_FORMAT_R8_UINT;
+
+			case EResourceFormat::R8_SNORM:
+				return DXGI_FORMAT_R8_SNORM;
+
+			case EResourceFormat::R8_SINT:
+				return DXGI_FORMAT_R8_SINT;
+
+			case EResourceFormat::BC1_UNORM:
+				return DXGI_FORMAT_BC1_UNORM;
+
+			case EResourceFormat::BC1_UNORM_SRGB:
+				return DXGI_FORMAT_BC1_UNORM_SRGB;
+
+			case EResourceFormat::BC2_UNORM:
+				return DXGI_FORMAT_BC2_UNORM;
+
+			case EResourceFormat::BC2_UNORM_SRGB:
+				return DXGI_FORMAT_BC2_UNORM_SRGB;
+
+			case EResourceFormat::BC3_UNORM:
+				return DXGI_FORMAT_BC3_UNORM;
+
+			case EResourceFormat::BC3_UNORM_SRGB:
+				return DXGI_FORMAT_BC3_UNORM_SRGB;
+
+			case EResourceFormat::BC4_UNORM:
+				return DXGI_FORMAT_BC4_UNORM;
+
+			case EResourceFormat::BC4_SNORM:
+				return DXGI_FORMAT_BC4_SNORM;
+
+			case EResourceFormat::BC5_UNORM:
+				return DXGI_FORMAT_BC5_UNORM;
+
+			case EResourceFormat::BC5_SNORM:
+				return DXGI_FORMAT_BC5_SNORM;
+
+			case EResourceFormat::B8G8R8A8_UNORM:
+				return DXGI_FORMAT_B8G8R8A8_UNORM;
+
+			case EResourceFormat::B8G8R8A8_UNORM_SRGB:
+				return DXGI_FORMAT_B8G8R8A8_UNORM_SRGB;
+
+			case EResourceFormat::BC6H_UF16:
+				return DXGI_FORMAT_BC6H_UF16;
+
+			case EResourceFormat::BC6H_SF16:
+				return DXGI_FORMAT_BC6H_SF16;
+
+			case EResourceFormat::BC7_UNORM:
+				return DXGI_FORMAT_BC7_UNORM;
+
+			case EResourceFormat::BC7_UNORM_SRGB:
+				return DXGI_FORMAT_BC7_UNORM_SRGB;
+
+			}
+			return DXGI_FORMAT_UNKNOWN;
+		}
+
+		static D3D12_RESOURCE_FLAGS BindFlagsByResourceFlags(EResourceBindFlag BindFlags)
+		{
+			D3D12_RESOURCE_FLAGS Flags = D3D12_RESOURCE_FLAG_NONE;
+			if (HasAnyFlag(BindFlags, EResourceBindFlag::DepthStencil))
+			{
+				Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
+				if (!HasAnyFlag(BindFlags, EResourceBindFlag::ShaderResource))
+				{
+					Flags |= D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE;
+				}
+			}
+			if (HasAnyFlag(BindFlags, EResourceBindFlag::RenderTarget))
+			{
+				Flags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+			}
+			if (HasAllFlags(BindFlags, EResourceBindFlag::UnorderedAccess))
+			{
+				Flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+			}
+			return Flags;
+		}
+
+		static constexpr D3D12_RESOURCE_STATES ConvertToD3DResourceState(EResourceState State)
+		{
+			D3D12_RESOURCE_STATES ApiState = D3D12_RESOURCE_STATE_COMMON;
+			if (HasAnyFlag(State, EResourceState::VertexAndConstantBuffer)) ApiState |= D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
+			if (HasAnyFlag(State, EResourceState::IndexBuffer)) ApiState |= D3D12_RESOURCE_STATE_INDEX_BUFFER;
+			if (HasAnyFlag(State, EResourceState::RenderTarget)) ApiState |= D3D12_RESOURCE_STATE_RENDER_TARGET;
+			if (HasAnyFlag(State, EResourceState::UnorderedAccess)) ApiState |= D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+			if (HasAnyFlag(State, EResourceState::DepthWrite)) ApiState |= D3D12_RESOURCE_STATE_DEPTH_WRITE;
+			if (HasAnyFlag(State, EResourceState::DepthRead)) ApiState |= D3D12_RESOURCE_STATE_DEPTH_READ;
+			if (HasAnyFlag(State, EResourceState::NonPixelShaderResource)) ApiState |= D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+			if (HasAnyFlag(State, EResourceState::PixelShaderResource)) ApiState |= D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+			if (HasAnyFlag(State, EResourceState::IndirectArgument)) ApiState |= D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT;
+			if (HasAnyFlag(State, EResourceState::CopyDest)) ApiState |= D3D12_RESOURCE_STATE_COPY_DEST;
+			if (HasAnyFlag(State, EResourceState::CopySource)) ApiState |= D3D12_RESOURCE_STATE_COPY_SOURCE;
+			if (HasAnyFlag(State, EResourceState::RaytracingAccelerationStructure)) ApiState |= D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE;
+			return ApiState;
 		}
 	};
 }

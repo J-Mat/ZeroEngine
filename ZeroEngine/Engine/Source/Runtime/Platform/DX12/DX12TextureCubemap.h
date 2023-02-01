@@ -1,7 +1,7 @@
 #pragma once
 #include "Core.h"
 #include "Common/DX12Header.h"
-#include "Base/Resource.h"
+#include "Resource.h"
 #include "Render/RHI/Texture.h"
 #include "Render/Moudule/Image/Image.h"
 #include "./MemoryManage/DescriptorAllocation.h"
@@ -14,9 +14,9 @@ namespace Zero
 	class FDX12TextureCubemap :public FTextureCubemap, public FResource
 	{
 	public:
-		FDX12TextureCubemap(const std::string& TextureName, const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* ClearValue = nullptr);
+		FDX12TextureCubemap(const std::string& TextureName, const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* FTextureClearValue = nullptr);
         FDX12TextureCubemap(const std::string& TextureName, Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT], bool bRenderDepth = false);
-        FDX12TextureCubemap(ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, bool bRenderDepth = false, const D3D12_CLEAR_VALUE* ClearValue = nullptr);
+        FDX12TextureCubemap(ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, bool bRenderDepth = false, const D3D12_CLEAR_VALUE* FTextureClearValue = nullptr);
 
 
         virtual ZMath::uvec2 GetSize() 

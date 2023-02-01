@@ -1,6 +1,6 @@
 #include "ResourceStateTracker.h"
 #include "../DX12CommandList.h"
-#include "../Base/Resource.h"
+#include "../Resource.h"
 
 namespace Zero
 {

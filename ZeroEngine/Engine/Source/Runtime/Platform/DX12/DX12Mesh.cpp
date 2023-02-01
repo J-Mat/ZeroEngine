@@ -1,10 +1,10 @@
 #include "DX12Mesh.h"
 #include "Render/RHI/Shader.h"
 #include "Render/Moudule/MeshGenerator.h"
-#include "Render/RHI/VertexBuffer.h"
-#include "Render/RHI/IndexBuffer.h"
-#include "DX12VertexBuffer.h"
-#include "DX12IndexBuffer.h"
+#include "Render/RHI/Buffer/VertexBuffer.h"
+#include "Render/RHI/Buffer/IndexBuffer.h"
+#include "Buffer/DX12VertexBuffer.h"
+#include "Buffer/DX12IndexBuffer.h"
 #include "DX12CommandList.h"
 
 namespace Zero
@@ -12,8 +12,11 @@ namespace Zero
 	FDX12Mesh::FDX12Mesh(float* Vertices, uint32_t VertexCount, uint32_t* Indices, uint32_t IndexCount, FVertexBufferLayout& Layout)
 		: FMesh()
 	{
-		m_D3DVertexBuffer = CreateRef<FDX12VertexBuffer>(Vertices, VertexCount, Layout);
+		auto VectexBufferDesc = FBufferDesc::VertexBufferDesc(VertexCount, Layout.GetStride());
+		m_D3DVertexBuffer = CreateRef<FDX12VertexBuffer>(Vertices, VectexBufferDesc, Layout);
 		m_VertexBuffer = m_D3DVertexBuffer;
+
+		auto IndexBufferDesc = FBufferDesc::IndexBufferDesc(IndexCount);
 		m_D3DIndexBuffer = CreateRef<FDX12IndexBuffer>(Indices, IndexCount);
 		m_IndexBuffer = m_D3DIndexBuffer;
 		FSubMesh SubMesh;

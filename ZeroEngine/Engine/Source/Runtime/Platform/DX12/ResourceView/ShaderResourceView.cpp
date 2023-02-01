@@ -1,6 +1,6 @@
 #include "ShaderResourceView.h"
 #include "../DX12Device.h"
-#include "../Base/Resource.h"
+#include "../Resource.h"
 
 namespace Zero
 {

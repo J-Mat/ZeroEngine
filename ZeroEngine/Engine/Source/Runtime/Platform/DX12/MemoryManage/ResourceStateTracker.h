@@ -9,7 +9,7 @@
  *  The ResourceStateTracker tracks the known state of a (sub)resource within a command list.
  *  It is often difficult (or impossible) to know the current state of a (sub)resource if
  *  it is being used in multiple command lists. For example when doing shadow mapping,
- *  a depth buffer resource is being used as a depth-stencil view in a command list
+ *  a Depth buffer resource is being used as a Depth-Stencil view in a command list
  *  that is generating the shadow map for a light source, but needs to be used as
  *  a shader-resource view in a command list that is performing shadow mapping. If
  *  the command lists are being generated in separate threads, the exact state of the

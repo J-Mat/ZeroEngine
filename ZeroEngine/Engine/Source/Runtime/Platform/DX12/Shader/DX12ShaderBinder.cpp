@@ -229,7 +229,7 @@ namespace Zero
 		if (m_Desc.Mapper.FetchResource(Name, Item))
 		{
 			FDX12Texture2D* D3DTexture = static_cast<FDX12Texture2D*>(Texture.get());
-			m_SrvDynamicDescriptorHeap->StageDescriptors(Item.SRTIndex, Item.Offset, 1, D3DTexture->GetShaderResourceView());
+			m_SrvDynamicDescriptorHeap->StageDescriptors(Item.SRTIndex, Item.Offset, 1, D3DTexture->GetSRV());
 			m_Desc.Mapper.SetTextureID(Name); 
 			m_bIsDirty = true;
 		}
@@ -244,7 +244,7 @@ namespace Zero
 			for (auto Texture : Textures)
 			{
 				FDX12Texture2D* D3DTexture = static_cast<FDX12Texture2D*>(Texture.get());
-				m_SrvDynamicDescriptorHeap->StageDescriptors(Item.SRTIndex, Offset++, 1, D3DTexture->GetShaderResourceView());
+				m_SrvDynamicDescriptorHeap->StageDescriptors(Item.SRTIndex, Offset++, 1, D3DTexture->GetSRV());
 			}
 			m_Desc.Mapper.SetTextureID(Name); 
 			m_bIsDirty = true;

@@ -55,7 +55,7 @@ namespace Zero
 			else
 			{
 				DXGI_FORMAT DepthDxgiFormat = FDX12Utils::GetTextureFormatByDesc(Desc.Format[Index]);
-				CORE_ASSERT(DepthDxgiFormat == DXGI_FORMAT_D24_UNORM_S8_UINT, "Must be depth format");
+				CORE_ASSERT(DepthDxgiFormat == DXGI_FORMAT_D24_UNORM_S8_UINT, "Must be Depth format");
 				auto DepthStencilDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D24_UNORM_S8_UINT, m_Width, m_Height);
 				DepthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
@@ -144,7 +144,7 @@ namespace Zero
 			if (Texture)
 			{
 				CommandList->TransitionBarrier(Texture->GetD3DResource(), D3D12_RESOURCE_STATE_RENDER_TARGET);
-				Handles.push_back(Texture->GetRenderTargetView());
+				Handles.push_back(Texture->GetRTV());
 			}
 		}
 		if (m_Textures[EAttachmentIndex::DepthStencil].get() != nullptr)
@@ -152,7 +152,7 @@ namespace Zero
 			auto* DsvTexture = static_cast<FDX12Texture2D*>(m_Textures[EAttachmentIndex::DepthStencil].get());
 			if (Handles.size() == 0)
 			{ 
-				CommandList->GetD3D12CommandList()->OMSetRenderTargets(0, nullptr, false, &DsvTexture->GetDepthStencilView());
+				CommandList->GetD3D12CommandList()->OMSetRenderTargets(0, nullptr, false, &DsvTexture->GetDSV());
 			}
 			else
 			{
@@ -161,7 +161,7 @@ namespace Zero
 					UINT(Handles.size()),
 					Handles.data(),
 					false,
-					&DsvTexture->GetDepthStencilView()
+					&DsvTexture->GetDSV()
 				);
 			}
 		}

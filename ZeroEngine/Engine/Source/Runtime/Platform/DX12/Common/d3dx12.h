@@ -554,20 +554,20 @@ struct CD3DX12_CLEAR_VALUE : public D3D12_CLEAR_VALUE
     {}
     CD3DX12_CLEAR_VALUE(
         DXGI_FORMAT format,
-        const FLOAT color[4])
+        const FLOAT Color[4])
     {
         Format = format;
-        memcpy(Color, color, sizeof(Color));
+        memcpy(Color, Color, sizeof(Color));
     }
     CD3DX12_CLEAR_VALUE(
         DXGI_FORMAT format,
-        FLOAT depth,
-        UINT8 stencil)
+        FLOAT Depth,
+        UINT8 Stencil)
     {
         Format = format;
         /* Use memcpy to preserve NAN values */
-        memcpy(&DepthStencil.Depth, &depth, sizeof(depth));
-        DepthStencil.Stencil = stencil;
+        memcpy(&DepthStencil.Depth, &Depth, sizeof(Depth));
+        DepthStencil.Stencil = Stencil;
     }
 };
 
@@ -685,13 +685,13 @@ struct CD3DX12_TILE_REGION_SIZE : public D3D12_TILE_REGION_SIZE
         BOOL useBox,
         UINT width,
         UINT16 height,
-        UINT16 depth)
+        UINT16 Depth)
     {
         NumTiles = numTiles;
         UseBox = useBox;
         Width = width;
         Height = height;
-        Depth = depth;
+        Depth = Depth;
     }
 };
 
@@ -810,13 +810,13 @@ struct CD3DX12_SUBRESOURCE_FOOTPRINT : public D3D12_SUBRESOURCE_FOOTPRINT
         DXGI_FORMAT format,
         UINT width,
         UINT height,
-        UINT depth,
+        UINT Depth,
         UINT rowPitch)
     {
         Format = format;
         Width = width;
         Height = height;
-        Depth = depth;
+        Depth = Depth;
         RowPitch = rowPitch;
     }
     explicit CD3DX12_SUBRESOURCE_FOOTPRINT(
@@ -1803,13 +1803,13 @@ struct CD3DX12_RESOURCE_DESC : public D3D12_RESOURCE_DESC
         DXGI_FORMAT format,
         UINT64 width,
         UINT height,
-        UINT16 depth,
+        UINT16 Depth,
         UINT16 mipLevels = 0,
         D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE,
         D3D12_TEXTURE_LAYOUT layout = D3D12_TEXTURE_LAYOUT_UNKNOWN,
         UINT64 alignment = 0)
     {
-        return CD3DX12_RESOURCE_DESC(D3D12_RESOURCE_DIMENSION_TEXTURE3D, alignment, width, height, depth,
+        return CD3DX12_RESOURCE_DESC(D3D12_RESOURCE_DIMENSION_TEXTURE3D, alignment, width, height, Depth,
             mipLevels, format, 1, 0, layout, flags);
     }
     inline UINT16 Depth() const
@@ -2526,7 +2526,7 @@ struct CD3DX12_PIPELINE_STATE_STREAM_PARSE_HELPER : public ID3DX12PipelineParser
         PipelineStream.DSVFormat = DSVFormat;
         if (!SeenDSS && DSVFormat != DXGI_FORMAT_UNKNOWN)
         {
-            // Re-enable depth for the default state.
+            // Re-enable Depth for the default state.
             static_cast<D3D12_DEPTH_STENCIL_DESC1&>(PipelineStream.DepthStencilState).DepthEnable = true;
         }
     }
@@ -2713,7 +2713,7 @@ inline bool operator==(const D3D12_CLEAR_VALUE& a, const D3D12_CLEAR_VALUE& b)
 }
 inline bool operator==(const D3D12_RENDER_PASS_BEGINNING_ACCESS_CLEAR_PARAMETERS& a, const D3D12_RENDER_PASS_BEGINNING_ACCESS_CLEAR_PARAMETERS& b)
 {
-    return a.ClearValue == b.ClearValue;
+    return a.FTextureClearValue == b.FTextureClearValue;
 }
 inline bool operator==(const D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS& a, const D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS& b)
 {

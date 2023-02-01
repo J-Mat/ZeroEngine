@@ -28,5 +28,5 @@ namespace Zero
 	}
 
 
-	std::function<IIndexBuffer*(unsigned int*, uint32_t)> CreateIndexBufferFuncs = {}; 
+	std::function<FIndexBuffer*(unsigned int*, uint32_t)> CreateIndexBufferFuncs = {}; 
 }

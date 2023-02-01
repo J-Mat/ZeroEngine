@@ -18,6 +18,7 @@
 #include <comdef.h>
 #include <mutex>
 #include <filesystem>
+#include <compare>
 
 #include <map>
 #include <set>

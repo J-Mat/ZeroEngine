@@ -13,8 +13,8 @@ namespace Zero
 		bool IsNull() { return Index == -1; }
 	};
 	
-	class IVertexBuffer;
-	class IIndexBuffer;
+	class FVertexBuffer;
+	class FIndexBuffer;
 	class FMesh
 	{
 	public:
@@ -28,8 +28,8 @@ namespace Zero
 		ZMath::FAABB& GetAABB() { return AABB; };
 		void Merge(ZMath::FAABB& Other) { AABB.Merge(Other); };
 	protected:
-		Ref<IVertexBuffer>	m_VertexBuffer;
-		Ref<IIndexBuffer>	m_IndexBuffer;
+		Ref<FVertexBuffer>	m_VertexBuffer;
+		Ref<FIndexBuffer>	m_IndexBuffer;
 		std::vector<FSubMesh> m_SubMeshes;
 		ZMath::FAABB AABB;
 	};

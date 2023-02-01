@@ -200,12 +200,12 @@ namespace Zero
 		}
 		
 		
-		// Resize the depth texture.
+		// Resize the Depth texture.
 		auto DepthStencilDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D24_UNORM_S8_UINT, m_Width, m_Height);
-		// Must be set on textures that will be used as a depth-stencil buffer.
+		// Must be set on textures that will be used as a Depth-Stencil buffer.
 		DepthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
-		// Specify optimized clear values for the depth buffer.
+		// Specify optimized clear values for the Depth buffer.
 		D3D12_CLEAR_VALUE OptClear = {};
 		OptClear.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 		OptClear.DepthStencil = { 1.0F, 0 };

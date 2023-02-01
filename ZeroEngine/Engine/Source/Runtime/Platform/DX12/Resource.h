@@ -10,9 +10,9 @@ namespace Zero
 	public:
 		FResource();
 		FResource(const std::string& ResourceName, const D3D12_RESOURCE_DESC& ResourceDesc,
-			const D3D12_CLEAR_VALUE* ClearValue = nullptr);
+			const D3D12_CLEAR_VALUE* FTextureClearValue = nullptr);
 		FResource(ComPtr<ID3D12Resource> Resource,
-			const D3D12_CLEAR_VALUE* ClearValue = nullptr);
+			const D3D12_CLEAR_VALUE* FTextureClearValue = nullptr);
 
 		void SetName(const std::wstring& Name);
 		const std::wstring& GetName() const { return m_ResourceName; }

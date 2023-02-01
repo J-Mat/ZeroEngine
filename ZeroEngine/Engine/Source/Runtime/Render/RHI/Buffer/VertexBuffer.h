@@ -1,7 +1,8 @@
 #pragma once
 #include "Core.h"
-#include "ShaderData.h"
-#include "GraphicDevice.h"
+#include "Buffer.h"
+#include "../ShaderData.h"
+#include "../GraphicDevice.h"
 
 
 namespace Zero
@@ -62,27 +63,14 @@ namespace Zero
 	};
 
 
-	class IVertexBuffer
+	class FVertexBuffer : public FBuffer
 	{
 	public:
-		enum class EType
-		{
-			Static,
-			Dynamic,
-			Stream,
-		};
-		IVertexBuffer(void* _Data, uint32_t _VertexCount, FVertexBufferLayout& _Layout, IVertexBuffer::EType _Type)
-			: m_Data(_Data),
-			m_VertexCount(_VertexCount),
-			m_Layout(_Layout),
-			m_Type(_Type),
-			m_BufferSize(_VertexCount * sizeof(float))
+		FVertexBuffer(void* Data, const FBufferDesc& Desc, FVertexBufferLayout& _Layout)
+			: FBuffer(Data, Desc),
+			m_Layout(_Layout)
 		{}
 	public:
-		void* m_Data = nullptr;
-		uint32_t m_VertexCount = 0;
 		FVertexBufferLayout m_Layout;
-		EType m_Type;
-		size_t m_BufferSize = 0;
 	};
 }

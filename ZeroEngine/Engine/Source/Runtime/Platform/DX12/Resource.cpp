@@ -8,13 +8,13 @@ namespace Zero
 	FResource::FResource()
 	{
 	}
-	FResource::FResource(const std::string& ResourceName, const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* ClearValue)
+	FResource::FResource(const std::string& ResourceName, const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* FTextureClearValue)
 	{
 		auto* D3dDevice = FDX12Device::Get()->GetDevice();
 		
-		if (ClearValue)
+		if (FTextureClearValue)
 		{
-			m_D3DClearValue = CreateScope<D3D12_CLEAR_VALUE>(*ClearValue);
+			m_D3DClearValue = CreateScope<D3D12_CLEAR_VALUE>(*FTextureClearValue);
 		}
 		ThrowIfFailed(
 			D3dDevice->CreateCommittedResource(
@@ -28,12 +28,12 @@ namespace Zero
 		CheckFeatureSupport();
 	}
 
-	FResource::FResource( ComPtr<ID3D12Resource> Resource, const D3D12_CLEAR_VALUE* ClearValue )
+	FResource::FResource( ComPtr<ID3D12Resource> Resource, const D3D12_CLEAR_VALUE* FTextureClearValue )
 	: m_D3DResource(Resource)
 	{
-		if (ClearValue)
+		if (FTextureClearValue)
 		{
-			m_D3DClearValue = CreateScope<D3D12_CLEAR_VALUE>(*ClearValue);
+			m_D3DClearValue = CreateScope<D3D12_CLEAR_VALUE>(*FTextureClearValue);
 		}
 		FResourceStateTracker::AddGlobalResourceState(m_D3DResource.Get(), D3D12_RESOURCE_STATE_COMMON);
 		CheckFeatureSupport();
