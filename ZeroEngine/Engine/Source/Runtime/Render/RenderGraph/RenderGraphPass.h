@@ -75,7 +75,7 @@ namespace Zero
 	class FRenderGraph;
 	class FRenderGraphBuilder;
 
-	class FRenderGraphPassBase
+	class FRGPassBase
 	{
 		friend FRenderGraph;
 		friend FRenderGraphBuilder;
@@ -93,10 +93,11 @@ namespace Zero
 			bool bReadOnly;
 		};
 	public:
-		explicit FRenderGraphPassBase(char const* Name, ERGPassType Type = ERGPassType::Graphics, ERGPassFlags Flags = ERGPassFlags::None)
+		explicit FRGPassBase(char const* Name, ERGPassType Type = ERGPassType::Graphics, ERGPassFlags Flags = ERGPassFlags::None)
 			:  m_Name(Name), m_Type(Type), m_Flags(Flags)
 		{}
-		virtual ~FRenderGraphPassBase() = default;
+		virtual ~FRGPassBase() = default;
+		ERGPassType GetPassType() const { return m_Type; }
 	protected:
 		virtual void Setup(FRenderGraphBuilder&) = 0;
 		virtual void Execute(FRenderGraphContext&) const = 0;
@@ -133,13 +134,13 @@ namespace Zero
 	};
 	
 	template<typename FPassData>
-	class FRederGraphPass final : public FRenderGraphPassBase
+	class FRederGraphPass final : public FRGPassBase
 	{
 	public:
 		using SetupFunc = std::function<void(FPassData&, FRenderGraphBuilder&)> ;
 		using ExcuteFunc = std::function<void(FPassData&, FRenderGraphContext&)>;
 		FRederGraphPass(char const* Name, SetupFunc&& Setup, ExecuteFunc&& Execute, ERGPassType Type = ERGPassType::Graphics, ERGPassFlags Flags = ERGPassFlags::None)
-			: FRenderGraphPassBase(Name, Type, Flags),
+			: FRGPassBase(Name, Type, Flags),
 			m_SetupFunc(std::move(Setup)),
 			m_ExcuteFunc(std::move(Execute))
 		{}
@@ -166,13 +167,13 @@ namespace Zero
 		}
 	};
 	template<>
-	class FRederGraphPass<void> final : public FRenderGraphPassBase
+	class FRederGraphPass<void> final : public FRGPassBase
 	{
 	public:
 		using SetupFunc = std::function<void(FRenderGraphBuilder&)> ;
 		using ExcuteFunc = std::function<void(FRenderGraphContext&)>;
 		FRederGraphPass(char const* Name, SetupFunc&& Setup, ExcuteFunc&& Execute, ERGPassType Type = ERGPassType::Graphics, ERGPassFlags Flags = ERGPassFlags::None)
-			: FRenderGraphPassBase(Name, Setup, Flags),
+			: FRGPassBase(Name, Setup, Flags),
 			m_SetupFunc(std::move(Setup)),
 			m_ExcuteFunc(std::move(Execute))
 		{}

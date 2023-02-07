@@ -5,7 +5,7 @@
 
 namespace Zero
 {
-	class FRenderGraphPassBase;
+	class FRGPassBase;
 	class FRenderGraph;
 
 	template<ERGResourceType ResourceType>
@@ -14,21 +14,21 @@ namespace Zero
 	template<>
 	struct FRGResourceTraits<ERGResourceType::Texture>
 	{
-		using Resourece = FTexture2D;
-		using ResoureDesc = FTextureDesc;
+		using FResourece = FTexture2D;
+		using FResoureDesc = FTextureDesc;
 	};
 	
 	template<>
 	struct FRGResourceTraits<ERGResourceType::Buffer>
 	{
-		using Resource = FBuffer;
-		using ResoureDesc = FBufferDesc;
+		using FResource = FBuffer;
+		using FResoureDesc = FBufferDesc;
 	};
 
 	struct FRGResource
 	{
 		FRGResource(uint32_t _ID, bool _bImported, char const* _Name)
-		: ID(_ID), bImported(_bImported), RefCount(0), Name(_Name), 
+		: ID(_ID), bImported(_bImported), RefCount(0), Name(_Name)
 		{}
 
 		uint32_t ID;
@@ -36,24 +36,24 @@ namespace Zero
 		uint32_t RefCount;
 		char const* Name;
 
-		FRenderGraphPassBase* Writer = nullptr;
-		FRenderGraphPassBase* LastUsedBy = nullptr;
+		FRGPassBase* Writer = nullptr;
+		FRGPassBase* LastUsedBy = nullptr;
 	};
 
 	template<ERGResourceType ResourceType>
 	struct FTypedRGResource :  FRGResource
 	{
-		using FResource = FRGResourceTraits<ResourceType>::Resourece;
-		using FResourceDesc = FRGResourceTraits<ResourceType>::ResoureDesc;
+		using FResource = FRGResourceTraits<ResourceType>::FResource;
+		using FResourceDesc = FRGResourceTraits<ResourceType>::FResoureDesc;
 		
-		FTypedRGResource(size_t ID, Resource* _Resource, char const* Name = "")
+		FTypedRGResource(size_t ID, Ref<FResource> _Resource, char const* Name = "")
 			: FRGResource(ID, true, Name), Resource(_Resource), desc(_Resource->GetDesc())
 		{}
 
-		FTypedRGResource(size_t ID, ResourceDesc const& _Desc, char const* Name = "")
+		FTypedRGResource(size_t ID, FResourceDesc const& _Desc, char const* Name = "")
 			: FRGResource(ID, false, Name), Resource(nullptr), Desc(_Desc)
 		{}
-		FResource* Resource;
+		Ref<FResource> Resource;
 		FResourceDesc Desc;
 	};
 	using FRGTexture = FTypedRGResource<ERGResourceType::Texture>;

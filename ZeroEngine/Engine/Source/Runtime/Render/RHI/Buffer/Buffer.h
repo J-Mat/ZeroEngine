@@ -43,6 +43,14 @@ namespace Zero
 		}
 	};
 
+
+	struct FBufferSubresourceDesc
+	{
+		uint64_t Offset = 0;
+		uint64_t Size = uint64_t(-1);
+		std::strong_ordering operator<=>(FBufferSubresourceDesc const& Other) const = default;
+	};
+
 	class FBuffer
 	{
 	public:

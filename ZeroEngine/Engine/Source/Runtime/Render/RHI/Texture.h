@@ -120,10 +120,10 @@ namespace Zero
 		uint32_t Height = 0;
 		uint32_t Depth = 0;
 		uint32_t ArraySize = 1;
-		uint32_t Miplevels = 1;
+		uint32_t MipLevels = 1;
 		uint32_t SampleCount = 1;
 		EResourceUsage HeapType = EResourceUsage::Default;
-		EResourceBindFlag BindFlags = EResourceBindFlag::None;
+		EResourceBindFlag ResourceBindFlags = EResourceBindFlag::None;
 		EResourceState InitialState = EResourceState::PixelShaderResource | EResourceState::NonPixelShaderResource;
 		FTextureClearValue ClearValue{};
 		EResourceFormat Format = EResourceFormat::UNKNOWN;
@@ -133,7 +133,7 @@ namespace Zero
 		{
 			return Type == Desc.Type && Width == Desc.Width && Height == Desc.Height && ArraySize == Desc.ArraySize
 				&& Format == Desc.Format && SampleCount == Desc.SampleCount && HeapType == Desc.HeapType
-				&& HasAllFlags(BindFlags, Desc.BindFlags);
+				&& HasAllFlags(ResourceBindFlags, Desc.ResourceBindFlags);
 		}
 	};
 

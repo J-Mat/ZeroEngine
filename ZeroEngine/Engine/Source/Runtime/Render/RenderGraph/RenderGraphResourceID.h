@@ -84,7 +84,7 @@ namespace Zero
 			ID = (ViewID << 32) | ResourceHandle.ID;
 		}
 		uint32_t GetViewID() const { return ID >> 32; }
-		uint32_t GetResourceId() const { return static_cast<uint32_t>(ID);};
+		uint32_t GetResourceID() const { return static_cast<uint32_t>(ID);};
 
 		void Invalidate() { ID = InvalidID; }
 		bool IsValid() const { return ID != InvalidID; }
@@ -99,6 +99,7 @@ namespace Zero
 		RenderTarget,
 		DepthStencil
 	};
+
 	template<ERGResourceType ResourceType, ERGDescriptorType ResourceViewType>
 	struct FTypedRGResourceDescriptorId : FRGResourceDescriptorID
 	{
@@ -108,11 +109,11 @@ namespace Zero
 		{
 			if constexpr (ResourceType == ERGResourceType::Buffer)
 			{
-				return FRGBufferID(FRGResourceDescriptorID::GetResourceId())
+				return FRGBufferID(FRGResourceDescriptorID::GetResourceID());
 			}
 			else if constexpr(ResourceType == ERGResourceType::Texture)
 			{
-				return FRGTextureID(FRGResourceDescriptorID::GetResourceId())
+				return FRGTextureID(FRGResourceDescriptorID::GetResourceID());
 			}
 		}
 	};

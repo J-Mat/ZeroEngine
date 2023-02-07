@@ -23,6 +23,7 @@
 #include <map>
 #include <set>
 #include <vector>
+#include <stack>
 #include <array>
 #include <deque>
 #include <queue>

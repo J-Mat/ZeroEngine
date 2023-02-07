@@ -10,7 +10,7 @@ namespace Zero
 	D3D12_CLEAR_VALUE FDX12Texture2D::GetClearValue()
 	{
 		D3D12_CLEAR_VALUE ClearValue{};
-		if (HasAnyFlag(m_TextureDesc.BindFlags, EResourceBindFlag::DepthStencil) 
+		if (HasAnyFlag(m_TextureDesc.ResourceBindFlags, EResourceBindFlag::DepthStencil) 
 			&& m_TextureDesc.ClearValue.EActiveMember == FTextureClearValue::EActiveMember::DepthStencil)
 		{
 			ClearValue.DepthStencil.Depth = m_TextureDesc.ClearValue.DepthStencil.Depth;
@@ -34,7 +34,7 @@ namespace Zero
 				break;
 			}
 		}
-		else if (HasAnyFlag(m_TextureDesc.BindFlags, EResourceBindFlag::RenderTarget) 
+		else if (HasAnyFlag(m_TextureDesc.ResourceBindFlags, EResourceBindFlag::RenderTarget) 
 			&& m_TextureDesc.ClearValue.EActiveMember == FTextureClearValue::EActiveMember::Color)
 		{
 			ClearValue.Color[0] = m_TextureDesc.ClearValue.Color.Color[0];
@@ -108,7 +108,7 @@ namespace Zero
 			.Width = m_TextureDesc.Width,
 			.Height = m_TextureDesc.Height,
 			.DepthOrArraySize = (UINT16)m_TextureDesc.ArraySize,
-			.MipLevels = m_TextureDesc.Miplevels,
+			.MipLevels = m_TextureDesc.MipLevels,
 			.Format = FDX12Utils::ConvertResourceFormat(m_TextureDesc.Format),
 			.SampleDesc =
 			{
@@ -116,7 +116,7 @@ namespace Zero
 				.Quality = 0
 			},
 			.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN,
-			.Flags = FDX12Utils::BindFlagsByResourceFlags(m_TextureDesc.BindFlags),
+			.Flags = FDX12Utils::BindFlagsByResourceFlags(m_TextureDesc.ResourceBindFlags),
 		};
 		D3D12_CLEAR_VALUE ClearValue = GetClearValue();
 		
