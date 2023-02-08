@@ -24,6 +24,27 @@ namespace Zero
 
     void FRenderGraph::FDependencyLevel::Execute()
     {
+		for (auto Pass : m_Passes)
+		{
+			if (Pass->IsCulled())
+			{
+				continue;
+			}
+
+			FRenderGraphContext RenderGraphContexts();
+		}
+    }
+
+    void FRenderGraph::Build()
+    {
+        BuildAdjacencyLists();
+        TopologicalSort();
+        BuildDependencyLevels();
+        CullPasses();
+    }
+
+    void FRenderGraph::Execute()
+    {
     }
 
     FRGTextureID FRenderGraph::GetTextureID(FRGResourceName Name)
@@ -36,6 +57,22 @@ namespace Zero
     {
         CORE_ASSERT(!IsBufferDeclared(Name), std::format("{0} is not Declared!", Name.Name));
         return m_BufferNameIDMap[Name];
+    }
+
+    void FRenderGraph::AddBufferBindFlags(FRGResourceName Name, EResourceBindFlag Flags)
+    {
+        FRGBufferID Handle = m_BufferNameIDMap[Name];
+        CORE_ASSERT(IsValidBufferHandle(Handle), "Resource has not been declared!");
+        auto RGBuffer = GetRGBuffer(Handle);
+        RGBuffer->Desc.ResourceBindFlag |= Flags;
+    }
+
+    void FRenderGraph::AddTextureBindFlags(FRGResourceName Name, EResourceBindFlag Flags)
+    {
+        FRGTextureID Handle = m_TextureNameIDMap[Name];
+        CORE_ASSERT(IsValidTextureHandle(Handle), "Resource has not been declared!");
+        auto RGTexture = GetRGTexture(Handle);
+        RGTexture->Desc.ResourceBindFlags |= Flags;
     }
 
     void FRenderGraph::BuildAdjacencyLists()
@@ -198,6 +235,56 @@ namespace Zero
     Ref<FBuffer> FRenderGraph::GetBuffer(FRGBufferID RGBufferID)
     {
         return GetRGBuffer(RGBufferID)->Resource;
+    }
+
+    FRGRenderTargetID FRenderGraph::RenderTarget(FRGResourceName Name, const FTextureSubresourceDesc& Desc)
+    {
+        FRGTextureID Handle = m_TextureNameIDMap[Name];
+        CORE_ASSERT(IsValidTextureHandle(Handle), "Resource has not been declared!");
+        Ref<FRGTexture> RGTexture = GetRGTexture(Handle);
+        RGTexture->Desc.ResourceBindFlags |= EResourceBindFlag::RenderTarget;
+        if (RGTexture->Desc.InitialState == EResourceState::Common)
+        { 
+            RGTexture->Desc.InitialState = EResourceState::RenderTarget;
+        }
+        
+        std::vector<std::pair<FTextureSubresourceDesc, ERGDescriptorType>>& ViewDescs = m_TextureViewDescMap[Handle];
+        for (size_t i = 0; i < ViewDescs.size(); ++i)
+        { 
+            auto const& [_Desc, _Type] = ViewDescs[i];
+            if (Desc == _Desc && _Type == ERGDescriptorType::RenderTarget)
+            { 
+                return FRGRenderTargetID(i, Handle);
+            }
+        }
+        size_t ViewID = ViewDescs.size();
+        ViewDescs.emplace_back(Desc, ERGDescriptorType::RenderTarget);
+        return FRGRenderTargetID(ViewID, Handle);
+    }
+
+    FRGDepthStencilID FRenderGraph::DepthStencil(FRGResourceName Name, const FTextureSubresourceDesc& Desc)
+    {
+        FRGTextureID Handle = m_TextureNameIDMap[Name];
+        CORE_ASSERT(IsValidTextureHandle(Handle), "Resource has not been declared!");
+        Ref<FRGTexture> RGTexture = GetRGTexture(Handle);
+        RGTexture->Desc.ResourceBindFlags |= EResourceBindFlag::DepthStencil;
+        if (RGTexture->Desc.InitialState == EResourceState::Common)
+        { 
+            RGTexture->Desc.InitialState = EResourceState::DepthRead;
+        }
+        
+        std::vector<std::pair<FTextureSubresourceDesc, ERGDescriptorType>>& ViewDescs = m_TextureViewDescMap[Handle];
+        for (size_t i = 0; i < ViewDescs.size(); ++i)
+        { 
+            auto const& [_Desc, _Type] = ViewDescs[i];
+            if (Desc == _Desc && _Type == ERGDescriptorType::DepthStencil)
+            { 
+                return FRGDepthStencilID(i, Handle);
+            }
+        }
+        size_t ViewID = ViewDescs.size();
+        ViewDescs.emplace_back(Desc, ERGDescriptorType::DepthStencil);
+        return FRGDepthStencilID(ViewID, Handle);
     }
 
     FRGTextureReadOnlyID FRenderGraph::ReadTexture(FRGResourceName Name, const FTextureSubresourceDesc& Desc)

@@ -66,7 +66,12 @@ namespace Zero
 		FRenderGraphContext(FRenderGraphContext const&) = delete;
 		FRenderGraphContext& operator=(FRenderGraphContext const&) = delete;
 
-		FTexture2D const& GetTexture(FRGTextureID ResID) const;
-		FBuffer  const& GetBuffer(FRGBufferID ResID) const;
+		Ref<FTexture2D> const& GetTexture(FRGTextureID ResID) const;
+		Ref<FBuffer>  const& GetBuffer(FRGBufferID ResID) const;
+	private:
+		FRenderGraphContext(FRenderGraph& RenderGraph, FRGPassBase& RGPass);
+	private:
+		FRenderGraph& m_RenderGrpah;
+		FRGPassBase& m_RgPass;
 	};
 }

@@ -24,7 +24,7 @@ namespace Zero
 	};
 	DEFINE_ENUM_BIT_OPERATORS(ERGPassFlags);
 
-	enum RGReadAccess : uint8_t
+	enum ERGReadAccess : uint8_t
 	{
 		ReadAccess_PixelShader,
 		ReadAccess_NonPixelShader,
@@ -88,8 +88,8 @@ namespace Zero
 		struct FDepthStencilInfo
 		{
 			FRGDepthStencilID RGDepthStencilID;
-			ERGLoadAccessOp DepthAccess;
-			ERGLoadAccessOp StencilAccess;
+			ERGLoadStoreAccessOp DepthAccess;
+			ERGLoadStoreAccessOp StencilAccess;
 			bool bReadOnly;
 		};
 	public:

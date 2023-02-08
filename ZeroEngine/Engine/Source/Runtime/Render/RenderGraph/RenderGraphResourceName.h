@@ -1,9 +1,9 @@
 #pragma once
 #include "Utils/HashUtil.h"
 
-#define RG_RES_NAME(name) FRGResourceName(#name, adria::crc64(#name)) 
-#define RG_RES_NAME_IDX(name, idx) FRGResourceName(#name, adria::crc64(#name) + idx)
-#define RG_STR_RES_NAME(name) FRGResourceName(name) FRGResourceName(name, adria::crc64(name)) 
+#define RG_RES_NAME(name) FRGResourceName(#name, Zero::crc64(#name)) 
+#define RG_RES_NAME_IDX(name, idx) FRGResourceName(#name, Zero::crc64(#name) + idx)
+#define RG_STR_RES_NAME(name) FRGResourceName(name) FRGResourceName(name, Zero::crc64(name)) 
 #define RG_STR_RES_NAME_IDX(name, idx) FRGResourceName(name, idx) FRGResourceName(name, Zero::crc64(name) + idx)
 
 namespace Zero

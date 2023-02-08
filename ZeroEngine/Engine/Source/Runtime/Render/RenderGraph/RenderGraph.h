@@ -43,6 +43,19 @@ namespace Zero
 		FRenderGraph(FRGResourcePool& Pool) :
 			m_ResourcePool(Pool)
 		{}
+
+		template<typename PassData, typename... FArgs> requires std::is_constructible_v<FRederGraphPass<PassData>, FArgs...>
+		decltype(auto) AddPass(FArgs&&... Args)
+		{
+			m_Passes.emplace_back(CreateScope<FRederGraphPass<PassData>>(std::forward<FArgs>(Args)...));
+			FRenderGraphBuilder Builder(*this, *m_Passes.back());
+			m_Passes.back()->Setup(Builder);
+			return *decltype<FRederGraphPass<PassData>*>(m_Passes.back().get());
+		}
+
+		void Build();
+		void Execute();
+
 	private:
 		FRGResourcePool m_ResourcePool;
 		std::vector<Ref<FRGPassBase>> m_Passes;
@@ -65,8 +78,10 @@ namespace Zero
 		mutable std::map<FRGBufferID, std::vector<std::pair<FResourceCpuHandle, ERGDescriptorType>>> m_BufferViewMap;
 
 	private:
-		FRGTextureID GetTextureId(FRGResourceName Name);
-		FRGBufferID GetBufferId(FRGResourceName Name);
+		FRGTextureID GetTextureID(FRGResourceName Name);
+		FRGBufferID GetBufferID(FRGResourceName Name);
+		void AddBufferBindFlags(FRGResourceName Name,  EResourceBindFlag Flags);
+		void AddTextureBindFlags(FRGResourceName Name, EResourceBindFlag Flags);
 
 		void BuildAdjacencyLists();
 		void TopologicalSort();
@@ -92,6 +107,8 @@ namespace Zero
 		inline Ref<FRGBuffer> GetRGBuffer(FRGBufferID RGBufferID) const;
 		Ref<FBuffer> GetBuffer(FRGBufferID RGBufferID);
 		
+		FRGRenderTargetID RenderTarget(FRGResourceName name, const FTextureSubresourceDesc& desc);
+		FRGDepthStencilID DepthStencil(FRGResourceName name, const FTextureSubresourceDesc& desc);
 		FRGTextureReadOnlyID ReadTexture(FRGResourceName Name, const FTextureSubresourceDesc& Desc); 
 		FRGTextureReadWriteID WriteTexture(FRGResourceName Name, const FTextureSubresourceDesc& Desc);
 		FRGBufferReadOnlyID ReadBuffer(FRGResourceName Name, const FBufferSubresourceDesc& Desc);
