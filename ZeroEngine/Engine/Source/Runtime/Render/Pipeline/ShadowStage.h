@@ -22,6 +22,7 @@ namespace Zero
 		void RenderShadowMapDebug();
 		void RenderShadowMap();
 	private:
+		FCommandListHandle CommandListHandle;
 		Ref<FRenderItem> m_ShadowMapDebugItem;
 		std::vector<Ref<FRenderTarget2D>> m_ShadowMapRenderTargets;
 		Ref<FRenderTarget2D> m_ShadowMapDebugRenderTarget;

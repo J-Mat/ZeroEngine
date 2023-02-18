@@ -2,17 +2,10 @@
 #include "Core.h"
 #include "Utils/EnumUtil.h"
 #include "RenderGraphContext.h"
+#include "Render/RenderConfig.h"
 
 namespace Zero
-{
-	enum class ERGPassType : uint8_t
-	{
-		Graphics,
-		Compute,
-		ComputeAsync,
-		Copy
-	};
-	
+{	
 	enum class ERGPassFlags : uint32_t
 	{
 		None = 0x00,
@@ -93,14 +86,14 @@ namespace Zero
 			bool bReadOnly;
 		};
 	public:
-		explicit FRGPassBase(char const* Name, ERGPassType Type = ERGPassType::Graphics, ERGPassFlags Flags = ERGPassFlags::None)
+		FRGPassBase(const char * Name, ERenderPassType Type = ERenderPassType::Graphics, ERGPassFlags Flags = ERGPassFlags::None)
 			:  m_Name(Name), m_Type(Type), m_Flags(Flags)
 		{}
 		virtual ~FRGPassBase() = default;
-		ERGPassType GetPassType() const { return m_Type; }
+		ERenderPassType GetPassType() const { return m_Type; }
 	protected:
 		virtual void Setup(FRenderGraphBuilder&) = 0;
-		virtual void Execute(FRenderGraphContext&) const = 0;
+		virtual void Execute(FRenderGraphContext&, FCommandListHandle CommandListHandle) const = 0;
 
 		bool IsCulled() const { return CanBeCulled() && m_RefCount == 0; }
 		bool CanBeCulled() const { return !HasAnyFlag(m_Flags, ERGPassFlags::ForceNoCull); }
@@ -111,7 +104,7 @@ namespace Zero
 
 	private:
 		std::string m_Name;
-		ERGPassType m_Type;
+		ERenderPassType m_Type;
 		ERGPassFlags m_Flags;
 		size_t m_RefCount = 0ull;
 		
@@ -138,8 +131,8 @@ namespace Zero
 	{
 	public:
 		using SetupFunc = std::function<void(FPassData&, FRenderGraphBuilder&)> ;
-		using ExcuteFunc = std::function<void(FPassData&, FRenderGraphContext&)>;
-		FRederGraphPass(char const* Name, SetupFunc&& Setup, ExecuteFunc&& Execute, ERGPassType Type = ERGPassType::Graphics, ERGPassFlags Flags = ERGPassFlags::None)
+		using ExcuteFunc = std::function<void(FPassData&, FRenderGraphContext&, FCommandListHandle)>;
+		FRederGraphPass(const char* Name, SetupFunc&& Setup, ExcuteFunc&& Execute, ERenderPassType Type = ERenderPassType::Graphics, ERGPassFlags Flags = ERGPassFlags::None)
 			: FRGPassBase(Name, Type, Flags),
 			m_SetupFunc(std::move(Setup)),
 			m_ExcuteFunc(std::move(Execute))
@@ -156,14 +149,14 @@ namespace Zero
 	private:
 		void Setup(RenderGraphBuilder& Builder) override
 		{
-			ADRIA_ASSERT(m_SetupFunc != nullptr && "setup function is null!");
+			ADRIA_ASSERT(m_SetupFunc != nullptr, "setup function is null!");
 			m_SetupFunc(m_PassData, Builder);
 		}
 
-		void Execute(FRenderGraphContext& Context) const override
+		void Execute(FRenderGraphContext& Context, FCommandListHandle CommandListHandle) const override
 		{
-			CORE_ASSERT(m_ExcuteFunc != nullptr && "execute function is null!");
-			m_ExcuteFunc(m_PassData);
+			CORE_ASSERT(m_ExcuteFunc != nullptr, "execute function is null!");
+			m_ExcuteFunc(m_PassData, Context, CommandListHandle);
 		}
 	};
 	template<>
@@ -171,9 +164,9 @@ namespace Zero
 	{
 	public:
 		using SetupFunc = std::function<void(FRenderGraphBuilder&)> ;
-		using ExcuteFunc = std::function<void(FRenderGraphContext&)>;
-		FRederGraphPass(char const* Name, SetupFunc&& Setup, ExcuteFunc&& Execute, ERGPassType Type = ERGPassType::Graphics, ERGPassFlags Flags = ERGPassFlags::None)
-			: FRGPassBase(Name, Setup, Flags),
+		using ExcuteFunc = std::function<void(FRenderGraphContext&, FCommandListHandle)>;
+		FRederGraphPass(char const* Name, SetupFunc&& Setup, ExcuteFunc&& Execute, ERenderPassType Type = ERenderPassType::Graphics, ERGPassFlags Flags = ERGPassFlags::None)
+			: FRGPassBase(Name, Type, Flags),
 			m_SetupFunc(std::move(Setup)),
 			m_ExcuteFunc(std::move(Execute))
 		{}
@@ -186,9 +179,10 @@ namespace Zero
 			m_SetupFunc(Builder);
 		}
 
-		void Execute(FRenderGraphContext& Context) const override
+		void Execute(FRenderGraphContext& Context, FCommandListHandle CommandListHandle) const override
 		{
-			m_ExcuteFunc(Context);
+			CORE_ASSERT(m_ExcuteFunc != nullptr, "execute function is null!");
+			m_ExcuteFunc(Context, CommandListHandle);
 		}
 	};
 }

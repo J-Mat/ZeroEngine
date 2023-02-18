@@ -1,10 +1,10 @@
 #pragma once
 #include "Core.h"
 #include "ForwardLitPass.h"
+#include "../RenderGraph/RenderGraphResourcePool.h"
 
 namespace Zero
 {
-	class FRGResourcePool;
 	class FRenderer
 	{
 	public:

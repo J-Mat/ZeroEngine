@@ -23,6 +23,7 @@ namespace Zero
 		void RawRenderLayer(uint32_t RenderLayerType);
 		void ForwarLitRender();
 	private:
+		FCommandListHandle m_CommandListHandle;
 		Ref<FRenderTarget2D> m_RenderTarget;
 		Ref<FImageBasedLighting> m_IBLMoudule;
 		bool m_bGenerateIrradianceMap = false;

@@ -8,8 +8,8 @@
 
 namespace Zero
 {
-	class FResource;
-	class FDX12IndexBuffer :public FIndexBuffer, public FResource
+	class FDX12Resource;
+	class FDX12IndexBuffer :public FIndexBuffer, public FDX12Resource
 	{
 	public:
 		FDX12IndexBuffer(void* Indices, const FBufferDesc& Desc);

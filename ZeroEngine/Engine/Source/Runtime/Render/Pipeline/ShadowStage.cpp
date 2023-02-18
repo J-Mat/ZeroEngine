@@ -15,9 +15,10 @@ namespace Zero
 			.RenderTargetName = "ShadowMapDebug",
 			.Width = 2048,
 			.Height = 2048,
-			.Format = {
-				ETextureFormat::R8G8B8A8
-			}
+			.ColorFormat = {
+				EResourceFormat::B8G8R8A8_UNORM
+			},
+			.bNeedDepth = false
 		};
 		m_ShadowMapDebugRenderTarget = FRenderer::GraphicFactroy->CreateRenderTarget2D(Desc);
 		TLibrary<FRenderTarget2D>::Push(RENDER_STAGE_SHADOWMAP_DEBUG, m_ShadowMapDebugRenderTarget);
@@ -49,9 +50,10 @@ namespace Zero
 				.RenderTargetName = "ShadowMap",
 				.Width = 2048,
 				.Height = 2048,
-				.Format = {
-					ETextureFormat::DEPTH32F
+				.ColorFormat = {
 				},
+				.bNeedDepth = true,
+				.DepthFormat = EResourceFormat::D24_UNORM_S8_UINT 
 			};
 			m_ShadowMapRenderTargets[Index] = FRenderer::GraphicFactroy->CreateRenderTarget2D(Desc);
 			std::string ShadowMapName = std::format("{0}_{1}", RENDER_STAGE_SHADOWMAP, Index);
@@ -62,15 +64,15 @@ namespace Zero
 	void FShadowStage::RenderShadowMapDebug()
 	{
 		//static auto DefaultTexture = FRenderer::GraphicFactroy->GetOrCreateTexture2D("Texture\\yayi.png");
-		m_ShadowMapDebugRenderTarget->Bind();
+		m_ShadowMapDebugRenderTarget->Bind(CommandListHandle);
 
-		m_ShadowMapDebugItem->PreRender();
+		m_ShadowMapDebugItem->PreRender(CommandListHandle);
 		if (FLightManager::GetInstance().GetDirectLights().size() > 0)
 		{
-			m_ShadowMapDebugItem->m_Material->SetTexture2D("gShadowMap", m_ShadowMapRenderTargets[0]->GetTexture(EAttachmentIndex::DepthStencil));
+			m_ShadowMapDebugItem->m_Material->SetTexture2D("gShadowMap", m_ShadowMapRenderTargets[0]->GetDepthTexture());
 		}
-		m_ShadowMapDebugItem->Render();
-		m_ShadowMapDebugRenderTarget->UnBind();
+		m_ShadowMapDebugItem->Render(CommandListHandle);
+		m_ShadowMapDebugRenderTarget->UnBind(CommandListHandle);
 	}
 
 	void FShadowStage::RenderShadowMap()
@@ -79,15 +81,15 @@ namespace Zero
 		for (int32_t Index = 0; Index < DirectLights.size(); ++Index)
 		{
 			UDirectLightActor* DirectLight = DirectLights[Index];
-			m_ShadowMapRenderTargets[Index]->Bind();
+			m_ShadowMapRenderTargets[Index]->Bind(CommandListHandle);
 			auto RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool(RENDERLAYER_SHADOW);
 			UDirectLightComponnet*  DirectLightComponent = DirectLight->GetComponent<UDirectLightComponnet>();
 			for (Ref<FRenderItem> RenderItem : *RenderItemPool.get())
 			{
-				RenderItem->PreRender();
-				RenderItem->Render();
+				RenderItem->PreRender(CommandListHandle);
+				RenderItem->Render(CommandListHandle);
 			}
-			m_ShadowMapRenderTargets[Index]->UnBind();
+			m_ShadowMapRenderTargets[Index]->UnBind(CommandListHandle);
 		}
 	}
 
@@ -104,6 +106,6 @@ namespace Zero
 	void FShadowStage::OnDraw()
 	{
 		RenderShadowMap();
-		RenderShadowMapDebug();
+		//RenderShadowMapDebug();
 	}
 }

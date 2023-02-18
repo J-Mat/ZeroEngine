@@ -142,7 +142,7 @@ namespace Zero
 
 	FDX12Texture2D::FDX12Texture2D(const std::string& TextureName, const FDX12TextureSettings& TextureSettings, const D3D12_CLEAR_VALUE* FTextureClearValue)
 		: FTexture2D()
-		, FResource(TextureName, TextureSettings.Desc, FTextureClearValue)
+		, FDX12Resource(TextureName, TextureSettings.Desc, FTextureClearValue)
 	{
 		m_TextureDesc.Width = (uint32_t)TextureSettings.Desc.Width;
 		m_TextureDesc.Height = (uint32_t)TextureSettings.Desc.Height;
@@ -156,7 +156,7 @@ namespace Zero
 
 	FDX12Texture2D::FDX12Texture2D(const std::string& TextureName, Ref<FImage> ImageData, bool bNeedMipMap)
 		 : FTexture2D(bNeedMipMap)
-		,  FResource()
+		,  FDX12Resource()
 	{
 		m_ImageData = ImageData;
 		m_TextureDesc.Width = ImageData->GetWidth();
@@ -168,7 +168,7 @@ namespace Zero
 	}
 
     FDX12Texture2D::FDX12Texture2D(const std::string& TextureName, ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, const D3D12_CLEAR_VALUE* FTextureClearValue)
-		: FResource(Resource, FTextureClearValue)
+		: FDX12Resource(Resource, FTextureClearValue)
 	{
 		m_TextureDesc.Width = Width;
 		m_TextureDesc.Height = Height;
@@ -359,19 +359,208 @@ namespace Zero
 		}
 	}
 
-	D3D12_CPU_DESCRIPTOR_HANDLE FDX12Texture2D::GetRTV() const
+	void FDX12Texture2D::MakeSRVs(const std::vector<FTextureSubresourceDesc>& Descs)
 	{
-		return m_RenderTargetView.GetDescriptorHandle();
+		bool bCheckSRVSupport =  CheckSRVSupport();
+		CORE_ASSERT(bCheckSRVSupport, "Check SRVSupport");
+		m_ShaderResourceView = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, uint32_t(Descs.size()));
+		for (uint32_t i = 0; i < Descs.size();++i)
+		{ 
+			auto& SubresourceDesc = Descs[i];
+			D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc
+			{
+				.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D,
+				.Texture2D = {
+					.MostDetailedMip = SubresourceDesc.FirstMip,
+					.MipLevels = SubresourceDesc.MipCount,
+					.PlaneSlice = 0,
+					.ResourceMinLODClamp = 0.0f,
+				},
+			};
+			FDX12Device::Get()->GetDevice()->CreateShaderResourceView(m_D3DResource.Get(), &SrvDesc,
+				m_ShaderResourceView.GetDescriptorHandle(i));
+
+		}
 	}
 
-	D3D12_CPU_DESCRIPTOR_HANDLE FDX12Texture2D::GetDSV() const
+	void FDX12Texture2D::MakeRTVs(const std::vector<FTextureSubresourceDesc>& Descs)
 	{
-		return m_DepthStencilView.GetDescriptorHandle();
+		bool bCheckRTVSupport =  CheckRTVSupport();
+		CORE_ASSERT(bCheckRTVSupport, "Check RTVSupport");
+		m_RenderTargetView = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+		for (uint32_t i = 0; i < Descs.size();++i)
+		{ 
+			auto& SubresourceDesc = Descs[i];
+			D3D12_RENDER_TARGET_VIEW_DESC RTVDesc;
+			switch (m_TextureDesc.Format)
+			{ 
+			case EResourceFormat::R16_TYPELESS:	
+				RTVDesc.Format = DXGI_FORMAT_R16_UNORM;
+				break;
+			case EResourceFormat::R32_TYPELESS:
+				RTVDesc.Format = DXGI_FORMAT_R32_FLOAT;
+				break;
+			case EResourceFormat::R24G8_TYPELESS:
+				RTVDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+				break;
+			case EResourceFormat::R32G8X24_TYPELESS:
+				RTVDesc.Format = DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
+				break;
+			default:
+				RTVDesc.Format = FDX12Utils::ConvertResourceFormat(m_TextureDesc.Format);
+				break;
+			}
+			if (m_TextureDesc.ArraySize > 1)
+			{
+				if (m_TextureDesc.SampleCount > 1)
+				{
+					RTVDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DMSARRAY;
+					RTVDesc.Texture2DMSArray.FirstArraySlice = SubresourceDesc.FirstSlice;
+					RTVDesc.Texture2DMSArray.ArraySize = SubresourceDesc.SliceCount;
+				}
+				else
+				{
+					RTVDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DARRAY;
+					RTVDesc.Texture2DArray.FirstArraySlice = SubresourceDesc.FirstSlice;
+					RTVDesc.Texture2DArray.ArraySize = SubresourceDesc.SliceCount;
+					RTVDesc.Texture2DArray.MipSlice = SubresourceDesc.FirstMip;
+				}
+			}
+			else
+			{
+				if (m_TextureDesc.SampleCount > 1)
+				{
+					RTVDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DMS;
+				}
+				else
+				{
+					RTVDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+					RTVDesc.Texture2D.MipSlice = SubresourceDesc.FirstMip;
+				}
+			}
+			FDX12Device::Get()->GetDevice()->CreateRenderTargetView(m_D3DResource.Get(), &RTVDesc,
+				m_RenderTargetView.GetDescriptorHandle(i));
+		}
 	}
 
-	D3D12_CPU_DESCRIPTOR_HANDLE FDX12Texture2D::GetSRV() const
+	void FDX12Texture2D::MakeDSVs(const std::vector<FTextureSubresourceDesc>& Descs)
 	{
-		return m_ShaderResourceView.GetDescriptorHandle();
+		bool bCheckDSVSupport = CheckDSVSupport();
+		CORE_ASSERT(bCheckDSVSupport, "Check DSVSupport");
+		m_DepthStencilView = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+		for (uint32_t i = 0; i < Descs.size(); ++i)
+		{
+			auto& SubresourceDesc = Descs[i];
+			D3D12_DEPTH_STENCIL_VIEW_DESC DSVDesc;
+			switch (m_TextureDesc.Format)
+			{
+			case EResourceFormat::R16_TYPELESS:
+				DSVDesc.Format = DXGI_FORMAT_D16_UNORM;
+				break;
+			case EResourceFormat::R32_TYPELESS:
+				DSVDesc.Format = DXGI_FORMAT_D32_FLOAT;
+				break;
+			case EResourceFormat::R24G8_TYPELESS:
+				DSVDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+				break;
+			case EResourceFormat::R32G8X24_TYPELESS:
+				DSVDesc.Format = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
+				break;
+			default:
+				DSVDesc.Format = FDX12Utils::ConvertResourceFormat(m_TextureDesc.Format);
+				break;
+			}
+			if (m_TextureDesc.ArraySize > 1)
+			{
+				if (m_TextureDesc.SampleCount > 1)
+				{
+					DSVDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2DMSARRAY;
+					DSVDesc.Texture2DMSArray.FirstArraySlice = SubresourceDesc.FirstSlice;	
+					DSVDesc.Texture2DMSArray.ArraySize = SubresourceDesc.SliceCount;
+				}
+				else
+				{
+					DSVDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2DARRAY;
+					DSVDesc.Texture2DArray.FirstArraySlice = SubresourceDesc.FirstSlice;
+					DSVDesc.Texture2DArray.ArraySize = SubresourceDesc.SliceCount;
+					DSVDesc.Texture2DArray.MipSlice = SubresourceDesc.FirstMip;
+				}
+			}
+			else
+			{
+				if (m_TextureDesc.SampleCount > 1)
+				{
+					DSVDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2DMS;
+				}
+				else
+				{
+					DSVDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+					DSVDesc.Texture2D.MipSlice = SubresourceDesc.FirstMip;
+				}
+			}
+			FDX12Device::Get()->GetDevice()->CreateDepthStencilView(m_D3DResource.Get(), &DSVDesc,
+				m_DepthStencilView.GetDescriptorHandle(i));
+		}
+	}
+
+	void FDX12Texture2D::MakeUAVs(const std::vector<FTextureSubresourceDesc>& Descs)
+	{
+		bool bCheckUAVSupport = CheckUAVSupport();
+		CORE_ASSERT(bCheckUAVSupport, "Check UAVSupport");
+		m_UnorderedAccessView = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		for (uint32_t i = 0; i < Descs.size(); ++i)
+		{ 
+			auto& SubresourceDesc = Descs[i];
+			D3D12_UNORDERED_ACCESS_VIEW_DESC UAVDesc;
+			switch (m_TextureDesc.Format)
+			{
+			case EResourceFormat::R16_TYPELESS:
+				UAVDesc.Format = DXGI_FORMAT_R16_UNORM;
+				break;
+			case EResourceFormat::R32_TYPELESS:
+				UAVDesc.Format = DXGI_FORMAT_D32_FLOAT;
+				break;
+			case EResourceFormat::R24G8_TYPELESS:
+				UAVDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+				break;
+			case EResourceFormat::R32G8X24_TYPELESS:
+				UAVDesc.Format = DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
+				break;
+			default:
+				UAVDesc.Format = FDX12Utils::ConvertResourceFormat(m_TextureDesc.Format);
+				break;
+			}
+			if (m_TextureDesc.ArraySize > 1)
+			{
+				UAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2DARRAY;
+				UAVDesc.Texture2DArray.FirstArraySlice = SubresourceDesc.FirstSlice;
+				UAVDesc.Texture2DArray.ArraySize = SubresourceDesc.SliceCount;
+				UAVDesc.Texture2DArray.MipSlice = SubresourceDesc.FirstMip;
+			}
+			else
+			{
+				UAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+				UAVDesc.Texture2D.MipSlice = SubresourceDesc.FirstMip;
+			}
+			FDX12Device::Get()->GetDevice()->CreateUnorderedAccessView(m_D3DResource.Get(), nullptr, &UAVDesc,
+				m_UnorderedAccessView.GetDescriptorHandle(i));
+		}
+	}
+
+
+	D3D12_CPU_DESCRIPTOR_HANDLE FDX12Texture2D::GetRTV(uint32_t ViewID) const
+	{
+		return m_RenderTargetView.GetDescriptorHandle(ViewID);
+	}
+
+	D3D12_CPU_DESCRIPTOR_HANDLE FDX12Texture2D::GetDSV(uint32_t ViewID) const
+	{
+		return m_DepthStencilView.GetDescriptorHandle(ViewID);
+	}
+
+	D3D12_CPU_DESCRIPTOR_HANDLE FDX12Texture2D::GetSRV(uint32_t ViewID) const
+	{
+		return m_ShaderResourceView.GetDescriptorHandle(ViewID);
 	}
 
 	D3D12_CPU_DESCRIPTOR_HANDLE FDX12Texture2D::GetUnorderedAccessView(uint32_t mip) const

@@ -21,10 +21,10 @@ namespace Zero
 
 	FRGTextureReadOnlyID FRenderGraphBuilder::ReadTextureImpl(FRGResourceName Name, ERGReadAccess ReadAcess, const FTextureSubresourceDesc& Desc)
 	{
-		CORE_ASSERT(m_RgPass.m_Type != ERGPassType::Copy, "Invalid Call in Copy Pass");
+		CORE_ASSERT(m_RgPass.m_Type != ERenderPassType::Copy, "Invalid Call in Copy Pass");
 		FRGTextureReadOnlyID RGTextureReadOnlyID = m_RenderGrpah.ReadTexture(Name, Desc);
 		FRGTextureID RGTextureID = RGTextureReadOnlyID.GetResourceID();
-		if (m_RgPass.GetPassType() == ERGPassType::Graphics)
+		if (m_RgPass.GetPassType() == ERenderPassType::Graphics)
 		{ 
 			switch (ReadAcess)
 			{
@@ -41,7 +41,7 @@ namespace Zero
 				CORE_ASSERT(false, "Invalid Read Flag!");
 			}
 		}
-		else if (m_RgPass.GetPassType() == ERGPassType::Compute || m_RgPass.GetPassType() == ERGPassType::ComputeAsync)
+		else if (m_RgPass.GetPassType() == ERenderPassType::Compute || m_RgPass.GetPassType() == ERenderPassType::ComputeAsync)
 		{
 			m_RgPass.m_TextureStateMap[RGTextureID] = EResourceState::NonPixelShaderResource;
 		}
@@ -51,7 +51,7 @@ namespace Zero
 
 	FRGTextureReadWriteID FRenderGraphBuilder::WriteTextureImpl(FRGResourceName Name, const FTextureSubresourceDesc& Desc)
 	{
-		CORE_ASSERT(m_RgPass.m_Type != ERGPassType::Copy, "Invalid Call in Copy Pass");
+		CORE_ASSERT(m_RgPass.m_Type != ERenderPassType::Copy, "Invalid Call in Copy Pass");
 		FRGTextureReadWriteID RGTextureWriteOnlyID = m_RenderGrpah.WriteTexture(Name, Desc);
 		FRGTextureID RGTextureID = RGTextureWriteOnlyID.GetResourceID();
 		m_RgPass.m_TextureStateMap[RGTextureID] = EResourceState::UnorderedAccess;
@@ -70,7 +70,7 @@ namespace Zero
 
 	FRGRenderTargetID FRenderGraphBuilder::WriteRenderTargetImpl(FRGResourceName Name, ERGLoadStoreAccessOp LoadStoreOp, const FTextureSubresourceDesc& Desc)
 	{
-		CORE_ASSERT(m_RgPass.m_Type != ERGPassType::Copy, "Invalid Call in Copy Pass");
+		CORE_ASSERT(m_RgPass.m_Type != ERenderPassType::Copy, "Invalid Call in Copy Pass");
 		FRGRenderTargetID RenderTargetID = m_RenderGrpah.RenderTarget(Name, Desc);
 		FRGTextureID ResID = RenderTargetID.GetResourceID();
 		m_RgPass.m_TextureStateMap[ResID] = EResourceState::RenderTarget;
@@ -95,7 +95,7 @@ namespace Zero
 
 	FRGDepthStencilID FRenderGraphBuilder::WriteDepthStencilImpl(FRGResourceName Name, ERGLoadStoreAccessOp LoadStoreOp, ERGLoadStoreAccessOp StencilLoadStoreOp, const FTextureSubresourceDesc& Desc)
 	{
-		CORE_ASSERT(m_RgPass.m_Type != ERGPassType::Copy, "Invalid Call in Copy Pass");
+		CORE_ASSERT(m_RgPass.m_Type != ERenderPassType::Copy, "Invalid Call in Copy Pass");
 		FRGDepthStencilID DepthStencilID = m_RenderGrpah.DepthStencil(Name, Desc);
 		FRGTextureID ResID = DepthStencilID.GetResourceID();
 		m_RgPass.m_TextureStateMap[ResID] = EResourceState::DepthWrite;
@@ -106,6 +106,7 @@ namespace Zero
 			.StencilAccess = StencilLoadStoreOp,
 			.bReadOnly = false
 		};
+		m_RgPass.m_DepthStencil = DepthStencilInfo;
 		if (!m_RgPass.m_TextureCreates.contains(ResID) && !m_RgPass.ActAsCreatorWhenWriting())
 		{
 			DummyReadTexture(Name);
@@ -121,7 +122,7 @@ namespace Zero
 
 	FRGDepthStencilID FRenderGraphBuilder::ReadDepthStencilImpl(FRGResourceName Name, ERGLoadStoreAccessOp LoadStoreOp, ERGLoadStoreAccessOp StencilLoadStoreOps, const FTextureSubresourceDesc& Desc)
 	{
-		CORE_ASSERT(m_RgPass.m_Type != ERGPassType::Copy, "Invalid Call in Copy Pass");
+		CORE_ASSERT(m_RgPass.m_Type != ERenderPassType::Copy, "Invalid Call in Copy Pass");
 		FRGDepthStencilID RGDepthStencilID = m_RenderGrpah.DepthStencil(Name, Desc);
 		FRGTextureID ResID = RGDepthStencilID.GetResourceID();
 		m_RgPass.m_TextureStateMap[ResID] = EResourceState::RenderTarget;
@@ -147,14 +148,14 @@ namespace Zero
 
 	FRGBufferReadOnlyID FRenderGraphBuilder::ReadBufferImpl(FRGResourceName Name, ERGReadAccess ReadAccess, const FBufferSubresourceDesc& Desc)
 	{
-		CORE_ASSERT(m_RgPass.m_Type != ERGPassType::Copy, "Invalid Call in Copy Pass");
+		CORE_ASSERT(m_RgPass.m_Type != ERenderPassType::Copy, "Invalid Call in Copy Pass");
 		FRGBufferReadOnlyID ReadOnlyID = m_RenderGrpah.ReadBuffer(Name, Desc);
-		if (m_RgPass.GetPassType() == ERGPassType::Compute)
+		if (m_RgPass.GetPassType() == ERenderPassType::Compute)
 		{
 			ReadAccess = ERGReadAccess::ReadAccess_NonPixelShader;
 		}
 		FRGBufferID ResID = ReadOnlyID.GetResourceID();
-		if (m_RgPass.GetPassType() == ERGPassType::Graphics)
+		if (m_RgPass.GetPassType() == ERenderPassType::Graphics)
 		{ 
 			switch (ReadAccess)
 			{
@@ -171,7 +172,7 @@ namespace Zero
 				CORE_ASSERT(false, "Invalid Read Flag!");
 			}
 		}
-		else if (m_RgPass.GetPassType() == ERGPassType::Compute || m_RgPass.GetPassType() == ERGPassType::ComputeAsync)
+		else if (m_RgPass.GetPassType() == ERenderPassType::Compute || m_RgPass.GetPassType() == ERenderPassType::ComputeAsync)
 		{ 
 			m_RgPass.m_BufferStateMap[ResID] = EResourceState::NonPixelShaderResource;
 		}
@@ -181,7 +182,7 @@ namespace Zero
 
 	FRGBufferReadWriteID FRenderGraphBuilder::WriteBufferImpl(FRGResourceName Name, const FBufferSubresourceDesc& Desc)
 	{
-		CORE_ASSERT(m_RgPass.m_Type != ERGPassType::Copy, "Invalid Call in Copy Pass");
+		CORE_ASSERT(m_RgPass.m_Type != ERenderPassType::Copy, "Invalid Call in Copy Pass");
 		FRGBufferReadWriteID RGBufferReadWriteID = m_RenderGrpah.WriteBuffer(Name, Desc);
 		FRGBufferID RGBufferID = RGBufferReadWriteID.GetResourceID();
 		m_RgPass.m_BufferStateMap[RGBufferID] = EResourceState::UnorderedAccess;
@@ -200,7 +201,7 @@ namespace Zero
 
 	FRGBufferReadWriteID FRenderGraphBuilder::WriteBufferImpl(FRGResourceName Name, FRGResourceName CounterName, const FBufferSubresourceDesc& Desc)
 	{
-		CORE_ASSERT(m_RgPass.m_Type != ERGPassType::Copy, "Invalid Call in Copy Pass");
+		CORE_ASSERT(m_RgPass.m_Type != ERenderPassType::Copy, "Invalid Call in Copy Pass");
 		FRGBufferReadWriteID RGBufferReadWriteID = m_RenderGrpah.WriteBuffer(Name, Desc);
 		FRGBufferID CounterID = m_RenderGrpah.GetBufferID(CounterName);
 		FRGBufferID ResID = RGBufferReadWriteID.GetResourceID();

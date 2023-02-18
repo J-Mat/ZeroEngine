@@ -6,14 +6,14 @@ namespace Zero
 {
 	struct FBufferDesc
 	{
-		uint64_t Size = 0;
+		uint32_t Size = 0;
 		EResourceUsage ResourceUsage = EResourceUsage::Default;
 		EResourceBindFlag ResourceBindFlag = EResourceBindFlag::None;
 		EBufferMiscFlag BufferMiscFlag = EBufferMiscFlag::None;
 		uint32_t Stride = 0;
 		uint32_t Count = 0;
 		EResourceFormat Format = EResourceFormat::UNKNOWN;
-		std::strong_ordering operator<=>(FBufferDesc const& other) const = default;
+		std::strong_ordering operator<=>(FBufferDesc const& Other) const = default;
 
 		static FBufferDesc VertexBufferDesc(uint32_t VertexCount, uint32_t Stride)
 		{
@@ -35,9 +35,9 @@ namespace Zero
 				.Size = IndexCount * (bSmallIndex ? 2 : 4),
 				.ResourceUsage = EResourceUsage::Default,
 				.ResourceBindFlag = EResourceBindFlag::None,
-				.Stride = bSmallIndex ? 2 : 4,
+				.Stride = bSmallIndex ? uint32_t(2) : uint32_t(4),
 				.Count = IndexCount,	
-				.Format = bSmallIndex ? EResourceFormat::R16G16_UINT : EResourceFormat::R32G32_UINT
+				.Format = bSmallIndex ? EResourceFormat::R16_UINT : EResourceFormat::R32_UINT
 			};
 			return Desc;
 		}
@@ -46,8 +46,8 @@ namespace Zero
 
 	struct FBufferSubresourceDesc
 	{
-		uint64_t Offset = 0;
-		uint64_t Size = uint64_t(-1);
+		uint64_t Offset;
+		uint64_t Size;
 		std::strong_ordering operator<=>(FBufferSubresourceDesc const& Other) const = default;
 	};
 
@@ -58,9 +58,15 @@ namespace Zero
 			m_Data(Data),
 			m_Desc(Desc)
 		{}
+
+		FBuffer(std::string BufferName, const FBufferDesc& Desc) :
+			m_BufferName(BufferName),
+			m_Desc(Desc)
+		{}
 		const FBufferDesc& GetDesc() { return m_Desc; }
 	protected:
 		FBufferDesc m_Desc;
+		std::string m_BufferName;
 		void* m_Data = 0;
 	};
 }

@@ -36,7 +36,7 @@ namespace Zero
 		m_ResourceStateTracker->FlushResourceBarriers(shared_from_this());
 	}
 
-	Ref<FResource> FDX12CommandList::CreateTextureResource(const std::string& TextureName, Ref<FImage> Image, bool bGenerateMip)
+	Ref<FDX12Resource> FDX12CommandList::CreateTextureResource(const std::string& TextureName, Ref<FImage> Image, bool bGenerateMip)
 	{
 		ID3D12Device* D3DDevice = FDX12Device::Get()->GetDevice();
 		ComPtr<ID3D12Resource> TextureD3DResource;
@@ -99,7 +99,7 @@ namespace Zero
 		TrackResource(UploadResource);
 		TrackResource(TextureD3DResource);
 		
-		Ref<FResource> TextureResource = CreateRef<FResource>(TextureD3DResource);
+		Ref<FDX12Resource> TextureResource = CreateRef<FDX12Resource>(TextureD3DResource);
 		TextureResource->SetName(Utils::StringToLPCWSTR(TextureName));
 
 		TransitionBarrier(TextureD3DResource.Get(), D3D12_RESOURCE_STATE_COMMON);
@@ -112,11 +112,11 @@ namespace Zero
 	}
 
 
-	void FDX12CommandList::GenerateMips(Ref<FResource> TextureResource)
+	void FDX12CommandList::GenerateMips(Ref<FDX12Resource> TextureResource)
 	{
 		if (m_CommandListType != D3D12_COMMAND_LIST_TYPE_COMPUTE)
 		{
-			m_ComputeCommandList = FDX12Device::Get()->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_COMPUTE).GetCommandList();
+			m_ComputeCommandList = FDX12Device::Get()->GetCommandQueue(ERenderPassType::Compute).GetCommandList();
 			m_ComputeCommandList->GenerateMips(TextureResource);
 			return;
 		}
@@ -319,7 +319,7 @@ namespace Zero
 	}
 
 
-	ComPtr<ID3D12Resource> FDX12CommandList::CreateTextureCubemapResource(Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT], uint32_t Width, uint32_t Height, uint32_t Chanels)
+	ComPtr<ID3D12Resource> FDX12CommandList::CreateTextureCubemapResource(Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT], uint64_t Width, uint32_t Height, uint32_t Chanels)
 	{
 
 		ID3D12Device* D3DDevice = FDX12Device::Get()->GetDevice();
@@ -436,7 +436,7 @@ namespace Zero
 		return Resource;
 	}
 
-	void FDX12CommandList::ResolveSubResource(const Ref<FResource>& DstRes, const Ref<FResource> SrcRes, uint32_t DstSubRes, uint32_t SrcSubRes)
+	void FDX12CommandList::ResolveSubResource(const Ref<FDX12Resource>& DstRes, const Ref<FDX12Resource> SrcRes, uint32_t DstSubRes, uint32_t SrcSubRes)
 	{
 		TransitionBarrier(DstRes, D3D12_RESOURCE_STATE_RESOLVE_DEST, DstSubRes);
 		TransitionBarrier(SrcRes, D3D12_RESOURCE_STATE_RESOLVE_SOURCE, SrcSubRes);
@@ -468,7 +468,7 @@ namespace Zero
 		TrackResource(TexturePtr->GetD3DResource());
 	}
 
-	void FDX12CommandList::CopyResource(const Ref<FResource>& DstRes, const Ref<FResource>& SrcRes)
+	void FDX12CommandList::CopyResource(const Ref<FDX12Resource>& DstRes, const Ref<FDX12Resource>& SrcRes)
 	{
 		CopyResource(DstRes->GetD3DResource(), SrcRes->GetD3DResource());
 	}
@@ -503,7 +503,7 @@ namespace Zero
 
 		for (int i = 0; i < D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES; ++i)
 		{
-			m_DynamicDescriptorHeap[i]->CommitStagedDescriptorsForDispatch(*this);
+			m_DynamicDescriptorHeap[i]->CommitStagedDescriptorsForDispatch(m_CommandListHandle);
 		}
 		m_D3DCommandList->Dispatch(NumGroupsX, NumGroupsY, NumGroupsZ);
 	}
@@ -549,42 +549,7 @@ namespace Zero
 		m_D3DCommandList->SetPipelineState(m_PipelineState);
 	}
 
-	void FDX12CommandList::SetRenderTarget(const FDX12RenderTarget2D& RenderTarget)
-	{
-		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> RenderTargetDescriptors;
-		RenderTargetDescriptors.reserve(EAttachmentIndex::NumAttachmentPoints);
-
-		const auto& Textures = RenderTarget.GetTextures();
-
-		for (int i = EAttachmentIndex::Color0; i <= EAttachmentIndex::Color7; ++i)
-		{
-			auto* Texture = static_cast<FDX12Texture2D*>(Textures[i].get());
-			if (Texture)
-			{
-				TransitionBarrier(Texture->GetD3DResource(), D3D12_RESOURCE_STATE_RENDER_TARGET);
-				RenderTargetDescriptors.push_back(Texture->GetRenderTargetView());
-
-				TrackResource(Texture->GetD3DResource());
-			}
-		}
-
-		auto* DepthTexture = static_cast<FDX12Texture2D*>(RenderTarget.GetTexture(EAttachmentIndex::DepthStencil).get());
-
-		CD3DX12_CPU_DESCRIPTOR_HANDLE DepthStencilDescriptor(D3D12_DEFAULT);
-		if (DepthTexture)
-		{
-			TransitionBarrier(DepthTexture->GetD3DResource(), D3D12_RESOURCE_STATE_DEPTH_WRITE);
-			DepthStencilDescriptor = DepthTexture->GetDSV();
-			TrackResource(DepthTexture->GetD3DResource());
-		}
-
-		D3D12_CPU_DESCRIPTOR_HANDLE* pDSV = DepthStencilDescriptor.ptr != 0 ? &DepthStencilDescriptor : nullptr;
-
-		m_D3DCommandList->OMSetRenderTargets(static_cast<UINT>(RenderTargetDescriptors.size()),
-			RenderTargetDescriptors.data(), FALSE, pDSV);
-	}
-
-	void FDX12CommandList::TransitionBarrier(const Ref<FResource>& Resource, D3D12_RESOURCE_STATES StateAfter, UINT Subresource, bool bFlushBarriers)
+	void FDX12CommandList::TransitionBarrier(const Ref<FDX12Resource>& Resource, D3D12_RESOURCE_STATES StateAfter, UINT Subresource, bool bFlushBarriers)
 	{
 		if (Resource)
 		{
@@ -606,7 +571,7 @@ namespace Zero
 		}
 	}
 
-	void FDX12CommandList::UAVBarrier(const Ref<FResource>& Resource, bool bFlushBarriers)
+	void FDX12CommandList::UAVBarrier(const Ref<FDX12Resource>& Resource, bool bFlushBarriers)
 	{
 		auto D3DResource = Resource ? Resource->GetD3DResource() : nullptr;
 		UAVBarrier(D3DResource, bFlushBarriers);
@@ -625,7 +590,7 @@ namespace Zero
 	}
 
 
-	void FDX12CommandList::AliasingBarrier(const Ref<FResource>& BeforeResource, const Ref<FResource>& AfterResource, bool bFlushBarriers)
+	void FDX12CommandList::AliasingBarrier(const Ref<FDX12Resource>& BeforeResource, const Ref<FDX12Resource>& AfterResource, bool bFlushBarriers)
 	{
 		auto D3DBeforeResourece = BeforeResource ? BeforeResource->GetD3DResource() : nullptr;
 		auto D3DAfterResourece = AfterResource ? AfterResource->GetD3DResource() : nullptr;
@@ -695,7 +660,7 @@ namespace Zero
 		m_TrackedObjects.push_back(Object);
 	}
 
-	void FDX12CommandList::TrackResource(const Ref<FResource>& res)
+	void FDX12CommandList::TrackResource(const Ref<FDX12Resource>& res)
 	{
 		TrackResource(res->GetD3DResource());
 	}

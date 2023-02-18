@@ -1,5 +1,4 @@
 #include "RendererAPI.h"
-#include "Platform/DX12/DX12IndexBuffer.h"
 
 
 namespace Zero

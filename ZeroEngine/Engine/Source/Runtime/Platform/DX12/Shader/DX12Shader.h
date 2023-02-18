@@ -18,7 +18,7 @@ namespace Zero
 		FDX12Shader(const FShaderDesc& Desc);
 
 		virtual void CreateBinder();
-		virtual void Use() override;
+		virtual void Use(FCommandListHandle CommandList) override;
 
 		
 		void GetShaderParameters(ComPtr<ID3DBlob> PassBlob, EShaderType ShaderType);

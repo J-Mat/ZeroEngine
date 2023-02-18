@@ -4,7 +4,7 @@
 
 namespace Zero
 {
-	FShaderResourceView::FShaderResourceView(Ref<FResource> Resource, const D3D12_SHADER_RESOURCE_VIEW_DESC* SRVPtr)
+	FShaderResourceView::FShaderResourceView(Ref<FDX12Resource> Resource, const D3D12_SHADER_RESOURCE_VIEW_DESC* SRVPtr)
 		: m_Resource(Resource)
 	{
 		auto D3DResourece = m_Resource != nullptr ? m_Resource->GetD3DResource() : nullptr;

@@ -2,7 +2,7 @@
 #include "MeshGenerator.h"
 #include "Platform/DX12/Common/DX12Header.h"
 #include <stdarg.h>
-#include "Render/RHI/VertexBuffer.h"
+#include "Render/RHI/Buffer/VertexBuffer.h"
 
 namespace Zero
 {

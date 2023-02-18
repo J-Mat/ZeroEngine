@@ -1,5 +1,5 @@
 #pragma once
-#include "PCH.h"
+#include "Core.h"
 
 namespace Zero
 {
@@ -15,7 +15,7 @@ namespace Zero
 
 		virtual void Resize(uint32_t Width, uint32_t Hegiht) {}
 		virtual void BindRenderTarget() {}
-		virtual void SetRenderTarget() = 0;
+		virtual void SetRenderTarget(FCommandListHandle CommandListHandle) = 0;
 		virtual void PreparePresent() {}
 		virtual UINT Present(Ref<FTexture2D> Texture = nullptr) = 0;
 

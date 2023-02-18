@@ -21,9 +21,13 @@ namespace Zero
 
 	void FDX12RenderPipeline::DrawFrame()
 	{
-		auto& CommandQueue = FDX12Device::Get()->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
-		FDX12Device::Get()->SetInitWorldCommandList(CommandQueue.GetCommandList());
-		FDX12Device::Get()->SetRenderCommandList(CommandQueue.GetCommandList());
+		FDX12Device::Get()->BeginFrame();
+		FCommandListHandle SingleThreadCommandListHandle = FDX12Device::Get()->GenerateCommanList(ERenderPassType::Graphics);
+		FDX12Device::Get()->SetSingleThreadCommandList(SingleThreadCommandListHandle);
+
+		FCommandListHandle InitWorldCommandListHandle = FDX12Device::Get()->GenerateCommanList(ERenderPassType::Graphics);
+		FDX12Device::Get()->SetInitWorldCommandList(InitWorldCommandListHandle);
+
 		auto SwapChain = FDX12Device::Get()->GetSwapChain();
 
 
@@ -31,7 +35,8 @@ namespace Zero
 
 		FApplication::Get().PostDraw();
 
-		CommandQueue.ExecuteCommandList(FDX12Device::Get()->GetInitWorldCommandList());
+		auto InitComandList = FDX12Device::Get()->GetCommanList(InitWorldCommandListHandle);
+		FDX12Device::Get()->GetCommandQueue(ERenderPassType::Graphics).ExecuteCommandList(InitComandList);
 		SwapChain->Present();
 	}
 	

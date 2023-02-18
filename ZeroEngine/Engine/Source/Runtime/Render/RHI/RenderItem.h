@@ -43,8 +43,8 @@ namespace Zero
 		FSubMesh m_SubMesh;
 		Ref<IShaderConstantsBuffer> m_PerObjectBuffer = nullptr;
 		ZMath::mat4 m_Transform;
-		void PreRender();
-		void Render();
+		void PreRender(FCommandListHandle ComamndListHandle);
+		void Render(FCommandListHandle ComamndListHandle);
 	public:
 	};
 }

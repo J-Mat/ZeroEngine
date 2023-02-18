@@ -123,15 +123,6 @@ namespace Zero
 			m_InFlightCommandLists.Push({ FenceValue, CommandList});
 		}
 
-		// If there are any command lists that generate mips then execute those
-		// after the initial resource command lists have finished.
-		if (GenerateMipsCommandLists.size() > 0)
-		{
-			auto& ComputeQueue = FDX12Device::Get()->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_COMPUTE);
-			ComputeQueue.Wait(*this);
-			ComputeQueue.ExecuteCommandLists(GenerateMipsCommandLists);
-		}
-
 		return FenceValue;
 	}
 

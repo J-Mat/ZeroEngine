@@ -8,7 +8,7 @@ namespace Zero
 {
 	FDX12IndexBuffer::FDX12IndexBuffer(void* Indices, const FBufferDesc& Desc)
 		: FIndexBuffer(Indices, Desc)
-		, FResource()
+		, FDX12Resource()
 	{
 		ComPtr<ID3D12Resource> Resource = FDX12Device::Get()->GetInitWorldCommandList()->CreateDefaultBuffer(m_Data, m_Desc.Size);
 		SetResource(Resource);

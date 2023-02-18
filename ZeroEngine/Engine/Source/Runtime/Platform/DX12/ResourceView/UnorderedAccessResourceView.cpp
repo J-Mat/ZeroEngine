@@ -3,7 +3,7 @@
 
 namespace Zero
 {
-	FUnorderedAccessResourceView::FUnorderedAccessResourceView(Ref<FResource> Resource, Ref<FResource> CounterResource, const D3D12_UNORDERED_ACCESS_VIEW_DESC* UAVPtr)
+	FUnorderedAccessResourceView::FUnorderedAccessResourceView(Ref<FDX12Resource> Resource, Ref<FDX12Resource> CounterResource, const D3D12_UNORDERED_ACCESS_VIEW_DESC* UAVPtr)
 		: m_Resource(Resource)
 		, m_CounterResource(CounterResource)
 	{

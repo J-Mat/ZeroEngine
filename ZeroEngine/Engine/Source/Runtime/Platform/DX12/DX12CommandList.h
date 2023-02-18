@@ -15,7 +15,7 @@
 namespace Zero
 {
 	class FDX12PipelineStateObject;
-	class FResource;
+	class FDX12Resource;
 	class FDX12Texture2D;
 	class FRootSignature;
 	class FDX12RenderTarget2D;
@@ -32,13 +32,13 @@ namespace Zero
 
 		ComPtr<ID3D12Resource> CreateDefaultBuffer(const void* BufferData, size_t BufferSize, D3D12_RESOURCE_FLAGS Flags = D3D12_RESOURCE_FLAG_NONE);
 	
-		Ref<FResource> CreateTextureResource(const std::string& TextureName, Ref<FImage> Image, bool bGenerateMip = false);
-		void GenerateMips(Ref<FResource> TextureResource);
+		Ref<FDX12Resource> CreateTextureResource(const std::string& TextureName, Ref<FImage> Image, bool bGenerateMip = false);
+		void GenerateMips(Ref<FDX12Resource> TextureResource);
 		void GenerateMips_UAV(Ref<FDX12Texture2D> Texture, bool bIsSRGB);
-		ComPtr<ID3D12Resource> CreateTextureCubemapResource(Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT], uint32_t Width, uint32_t Height, uint32_t Chanels);
+		ComPtr<ID3D12Resource> CreateTextureCubemapResource(Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT], uint64_t Width, uint32_t Height, uint32_t Chanels);
 		ComPtr<ID3D12Resource> CreateRenderTargetResource(uint32_t Width, uint32_t Height);
 
-		void ResolveSubResource(const Ref<FResource>& DstRes, const Ref<FResource> SrcRes, uint32_t DstSubRes = 0, uint32_t SrcSubRes = 0);
+		void ResolveSubResource(const Ref<FDX12Resource>& DstRes, const Ref<FDX12Resource> SrcRes, uint32_t DstSubRes = 0, uint32_t SrcSubRes = 0);
 
 		void ClearTexture(FDX12Texture2D* TexturePtr, const ZMath::vec4 Color);
 		void ClearDepthStencilTexture(FDX12Texture2D* TexturePtr, D3D12_CLEAR_FLAGS ClearFlags, float Depth = 1.0f, uint8_t Stencil = 0);
@@ -46,7 +46,7 @@ namespace Zero
 		/**
 		* Copy resources.
 		*/
-		void CopyResource(const Ref<FResource>& DstRes, const Ref<FResource>& SrcRes);
+		void CopyResource(const Ref<FDX12Resource>& DstRes, const Ref<FDX12Resource>& SrcRes);
 		void CopyResource(ComPtr<ID3D12Resource> DstRes, ComPtr<ID3D12Resource> SrcRes);
 
 		/**
@@ -93,11 +93,6 @@ namespace Zero
 		void SetPipelineState(ComPtr<ID3D12PipelineState> D3DPipelineState);
 
 		/**
-		* Set the render targets for the graphics rendering pipeline.
-		*/
-		void SetRenderTarget(const FDX12RenderTarget2D& RenderTarget);
-
-		/**
 		* Transition a resource to a particular state.
 		*
 		* @param resource The resource to transition.
@@ -108,7 +103,7 @@ namespace Zero
 		* @param bFlushBarriers Force flush any barriers. Resource barriers need to be flushed before a command (draw,
 		* dispatch, or copy) that expects the resource to be in a particular state can run.
 		*/
-		void TransitionBarrier(const Ref<FResource>& Resource, D3D12_RESOURCE_STATES StateAfter,
+		void TransitionBarrier(const Ref<FDX12Resource>& Resource, D3D12_RESOURCE_STATES StateAfter,
 			UINT Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, bool bFlushBarriers = false);
 		void TransitionBarrier(ComPtr<ID3D12Resource> Resource, D3D12_RESOURCE_STATES StateAfter,
 			UINT Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, bool bFlushBarriers = false);
@@ -122,7 +117,7 @@ namespace Zero
 		 * flushed before a command (draw, dispatch, or copy) that expects the resource
 		 * to be in a particular state can run.
 		 */
-		void UAVBarrier(const Ref<FResource>& Resource = nullptr, bool bFlushBarriers = false);
+		void UAVBarrier(const Ref<FDX12Resource>& Resource = nullptr, bool bFlushBarriers = false);
 		void UAVBarrier(ComPtr<ID3D12Resource> Resource, bool bFlushBarriers = false);
 
 
@@ -133,8 +128,8 @@ namespace Zero
 		 * @param [beforeResource] The resource that currently occupies the heap (can be null).
 		 * @param [afterResource] The resource that will occupy the space in the heap (can be null).
 		 */
-		void AliasingBarrier(const Ref<FResource>& BeforeResource  = nullptr, 
-							 const Ref<FResource>& AfterResource = nullptr, 
+		void AliasingBarrier(const Ref<FDX12Resource>& BeforeResource  = nullptr, 
+							 const Ref<FDX12Resource>& AfterResource = nullptr, 
 							 bool bFlushBarriers = false);
 		void AliasingBarrier(ComPtr<ID3D12Resource> BeforeResource,
 							 ComPtr<ID3D12Resource> AfterResource, 
@@ -184,7 +179,7 @@ namespace Zero
 
 	private:
 		void TrackResource(Microsoft::WRL::ComPtr<ID3D12Object> Object);
-		void TrackResource(const Ref<FResource>& res);
+		void TrackResource(const Ref<FDX12Resource>& res);
 
 	private:
 		Scope<FGenerateMipsPSO> m_GenerateMipsPSO = nullptr;

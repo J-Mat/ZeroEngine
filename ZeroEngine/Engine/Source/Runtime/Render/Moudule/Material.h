@@ -2,6 +2,7 @@
 #include "Core.h"
 #include "Delegate.h"
 #include "Render/RHI/ShaderData.h"
+#include "Render/RenderConfig.h"
 
 namespace Zero
 {
@@ -32,8 +33,8 @@ namespace Zero
 		FMaterial(bool bUseMainCamera = true);
 		~FMaterial();	
 		void Tick();
-		void SetPass();
-		void OnDrawCall();
+		void SetPass(FCommandListHandle CommandListHanle);
+		void OnDrawCall(FCommandListHandle CommandListHanle);
 		void SetShader(Ref<FShader> Shader);
 		void SetShader(const std::string& ShaderFile);
 		Ref<FShader> GetShader() { return m_Shader; }

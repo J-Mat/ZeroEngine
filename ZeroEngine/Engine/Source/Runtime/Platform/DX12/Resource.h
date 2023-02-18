@@ -1,17 +1,17 @@
 #pragma once
-#include "../Common/DX12Header.h"
+#include "Common/DX12Header.h"
 #include "Core.h"
 
 namespace Zero
 {
 	class FDX12Device;
-	class FResource 
+	class FDX12Resource 
 	{
 	public:
-		FResource();
-		FResource(const std::string& ResourceName, const D3D12_RESOURCE_DESC& ResourceDesc,
+		FDX12Resource();
+		FDX12Resource(const std::string& ResourceName, const D3D12_RESOURCE_DESC& ResourceDesc,
 			const D3D12_CLEAR_VALUE* FTextureClearValue = nullptr);
-		FResource(ComPtr<ID3D12Resource> Resource,
+		FDX12Resource(ComPtr<ID3D12Resource> Resource,
 			const D3D12_CLEAR_VALUE* FTextureClearValue = nullptr);
 
 		void SetName(const std::wstring& Name);
@@ -61,7 +61,7 @@ namespace Zero
         }
 
 		void CheckFeatureSupport();
-		virtual ~FResource();
+		virtual ~FDX12Resource();
 	protected:
 		std::wstring                 m_ResourceName;
 		ComPtr<ID3D12Resource>   	m_D3DResource;

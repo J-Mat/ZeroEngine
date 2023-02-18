@@ -9,9 +9,9 @@ namespace Zero
 	class FShaderResourceView
 	{
 	public:
-		FShaderResourceView(Ref<FResource> Resource, const D3D12_SHADER_RESOURCE_VIEW_DESC* SRV = nullptr);
+		FShaderResourceView(Ref<FDX12Resource> Resource, const D3D12_SHADER_RESOURCE_VIEW_DESC* SRV = nullptr);
 		~FShaderResourceView();
-		Ref<FResource> GetResource() const
+		Ref<FDX12Resource> GetResource() const
 		{
 			return m_Resource;
 		}
@@ -21,7 +21,7 @@ namespace Zero
 			return m_Descriptor.GetDescriptorHandle();
 		}
 	private:
-		Ref<FResource> m_Resource;
+		Ref<FDX12Resource> m_Resource;
 		FDescriptorAllocation  m_Descriptor;
 	};
 }

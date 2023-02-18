@@ -60,9 +60,9 @@ namespace Zero
 
 	void FDX12Device::Flush()
 	{
-		m_DirectCommandQueue->Flush();
-		m_ComputeCommandQueue->Flush();
-		m_CopyCommandQueue->Flush();
+		m_CommandQueue[ERenderPassType::Graphics]->Flush();
+		m_CommandQueue[ERenderPassType::Compute]->Flush();
+		m_CommandQueue[ERenderPassType::Copy]->Flush();
 	}
 
 	void FDX12Device::CreateSwapChain(HWND hWnd)
@@ -143,9 +143,17 @@ namespace Zero
 	
 	void FDX12Device::CreateCommandQueue()
 	{
-		m_DirectCommandQueue = CreateScope<FDX12CommandQueue>(D3D12_COMMAND_LIST_TYPE_DIRECT);
-		m_ComputeCommandQueue = CreateScope<FDX12CommandQueue>(D3D12_COMMAND_LIST_TYPE_COMPUTE);
-		m_CopyCommandQueue = CreateScope<FDX12CommandQueue>(D3D12_COMMAND_LIST_TYPE_COPY);
+		m_CommandQueue.resize(ERenderPassType::TypeNum);
+
+		m_CommandQueue[ERenderPassType::Graphics] = CreateScope<FDX12CommandQueue>(D3D12_COMMAND_LIST_TYPE_DIRECT);
+		m_CommandLists.push_back({});
+
+		m_CommandQueue[ERenderPassType::Compute] = CreateScope<FDX12CommandQueue>(D3D12_COMMAND_LIST_TYPE_COMPUTE);
+		m_CommandLists.push_back({});
+
+		m_CommandQueue[ERenderPassType::Copy] = CreateScope<FDX12CommandQueue>(D3D12_COMMAND_LIST_TYPE_COPY);
+		m_CommandLists.push_back({});
+		
 	}
 
 	void FDX12Device::CreateDescriptors()
@@ -168,26 +176,11 @@ namespace Zero
 		m_HighestRootSignatureVersion = FeatureData.HighestVersion;
 	}
 
-	FDX12CommandQueue& FDX12Device::GetCommandQueue(D3D12_COMMAND_LIST_TYPE Type)
+	FDX12CommandQueue& FDX12Device::GetCommandQueue(ERenderPassType Type)
 	{
-		FDX12CommandQueue* CommandQueue;
-		switch (Type)
-		{
-		case D3D12_COMMAND_LIST_TYPE_DIRECT:
-			CommandQueue = m_DirectCommandQueue.get();
-			break;
-		case D3D12_COMMAND_LIST_TYPE_COMPUTE:
-			CommandQueue = m_ComputeCommandQueue.get();
-			break;
-		case D3D12_COMMAND_LIST_TYPE_COPY:
-			CommandQueue = m_CopyCommandQueue.get();
-			break;
-		default:
-			CORE_ASSERT(false, "Invalid command queue type.");
-		}
-
-		return *CommandQueue;
+		return *m_CommandQueue[Type].get();
 	}
+
 	std::wstring FDX12Device::GetDescription() const
 	{
 		return m_Adapter->GetDescription();
@@ -282,14 +275,37 @@ namespace Zero
 		return Res;
 	}
 
+
+	FCommandListHandle FDX12Device::GenerateCommanList(ERenderPassType RenderPassType)
+	{
+		auto CommanList = m_CommandQueue[uint32_t(RenderPassType)]->GetCommandList();
+		m_CommandLists[RenderPassType].push_back(CommanList);
+		auto Handle = FCommandListHandle(m_CommandLists[RenderPassType].size() - 1);
+		CommanList->SetComandListHandle(Handle);
+		return Handle;
+	}
+
+	Ref<FDX12CommandList> FDX12Device::GetCommanList(FCommandListHandle Hanle, ERenderPassType RenderPassType)
+	{
+		return m_CommandLists[uint32_t(RenderPassType)][Hanle];
+	}
+
 	void FDX12Device::PreInitWorld()
 	{
-		SetInitWorldCommandList(m_DirectCommandQueue->GetCommandList());
+		FCommandListHandle InitWorldCommandListHandle = GenerateCommanList(ERenderPassType::Graphics);
+		FDX12Device::Get()->SetInitWorldCommandList(InitWorldCommandListHandle);
 	}
 
 	void FDX12Device::FlushInitCommandList()
 	{
-		m_DirectCommandQueue->ExecuteCommandList(m_InitWorldCommandList);
+		m_CommandQueue[ERenderPassType::Graphics]->ExecuteCommandList(GetCommanList(m_InitWorldCommandListHandle));
+	}
+
+	void FDX12Device::BeginFrame()
+	{
+		m_CommandLists[ERenderPassType::Graphics].clear();
+		m_CommandLists[ERenderPassType::Compute].clear();
+		m_CommandLists[ERenderPassType::Copy].clear();
 	}
 	
 	uint32_t FDX12Device::RegisterActiveComandlist(Ref<FDX12CommandList> CommandList)

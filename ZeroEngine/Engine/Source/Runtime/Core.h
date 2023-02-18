@@ -85,6 +85,7 @@ namespace Zero
 	using FMaterialHandle = std::string;
 	using FAssetHandle = Utils::Guid;
 	using FShaderFileHandle = std::string;
+	using FCommandListHandle = uint32_t;
 	
 	struct FFloatSlider
 	{

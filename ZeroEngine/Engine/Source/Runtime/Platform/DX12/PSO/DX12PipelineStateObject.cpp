@@ -12,11 +12,12 @@ namespace Zero
 		CreatePsoObj();
 	}
 
-	void FDX12PipelineStateObject::Bind()
+	void FDX12PipelineStateObject::Bind(FCommandListHandle CommandListHandle)
 	{
-		Ref<FDX12CommandList> CommandList = FDX12Device::Get()->GetRenderCommandList();
+		Ref<FDX12CommandList> CommandList = FDX12Device::Get()->GetCommanList(CommandListHandle);
 		CommandList->GetD3D12CommandList()->SetPipelineState(m_D3DPipelineState.Get());
 	}
+
 	void FDX12PipelineStateObject::CreatePsoObj()
 	{
 		auto* D3DShader = static_cast<FDX12Shader*>(m_PSODescriptor.Shader.get());
@@ -43,8 +44,11 @@ namespace Zero
 		PsoDesc.RasterizerState.CullMode = FDX12Utils::GetCullMode(m_PSODescriptor.CullMode);
 		PsoDesc.RasterizerState.FrontCounterClockwise = false;
 		for (int i = 0; i < D3DShader->m_ShaderDesc.NumRenderTarget; i++)
-			PsoDesc.RTVFormats[i] = FDX12Utils::GetTextureFormatByDesc(D3DShader->m_ShaderDesc.Formats[i]);
-		PsoDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+			PsoDesc.RTVFormats[i] = FDX12Utils::ConvertResourceFormat(D3DShader->m_ShaderDesc.Formats[i]);
+		if (D3DShader->m_ShaderDesc.bNeedDetph)
+		{
+			PsoDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		}
 		PsoDesc.SampleDesc.Count = 1;	// No 4XMSAA
 		PsoDesc.SampleDesc.Quality = m_PSODescriptor._4xMsaaQuality;	////No 4XMSAA
 

@@ -22,7 +22,7 @@ namespace Zero
 	};
 	struct FRGBufferDesc
 	{
-		uint64_t Size = 0;
+		uint32_t Size = 0;
 		uint32_t Stride = 0;
 		EResourceUsage ResourceUsage = EResourceUsage::Default;
 		EBufferMiscFlag MiscFlags = EBufferMiscFlag::None;
@@ -78,85 +78,71 @@ namespace Zero
 		FRGTextureReadOnlyID ReadTexture(FRGResourceName Name, ERGReadAccess RGReadAccess = ERGReadAccess::ReadAccess_AllShader,
 			uint32_t FirstMip = 0, uint32_t MipCount = -1, uint32_t FirstSlice = 0, uint32_t SliceCount = -1)
 		{
-			return ReadTextureImpl(Name, RGReadAccess,
-				FTextureSubresourceDesc{
-					.FirstSlice = FirstSlice,
-					.SliceCount = SliceCount,
-					.FirstMip = FirstMip,
-					.MipCount = MipCount
-				}
-			);
+			FTextureSubresourceDesc Desc;
+			Desc.FirstSlice = FirstSlice;
+			Desc.SliceCount = SliceCount;
+			Desc.FirstMip = FirstMip;
+			Desc.MipCount = MipCount;
+			return ReadTextureImpl(Name, RGReadAccess, Desc);
 		}
 
 		FRGTextureReadWriteID WriteTexture(FRGResourceName Name,
 			uint32_t FirstMip = 0, uint32_t MipCount = -1, uint32_t FirstSlice = 0, uint32_t SliceCount = -1)
 		{
-			return WriteTextureImpl(Name,
-				FTextureSubresourceDesc{
-					.FirstSlice = FirstSlice,
-					.SliceCount = SliceCount,
-					.FirstMip = FirstMip,
-					.MipCount = MipCount
-				}
-			);
+			FTextureSubresourceDesc Desc;
+			Desc.FirstSlice = FirstSlice;
+			Desc.SliceCount = SliceCount;
+			Desc.FirstMip = FirstMip;
+			Desc.MipCount = MipCount;
+			return WriteTextureImpl(Name, Desc);
 		}
 
 		FRGRenderTargetID WriteRenderTarget(FRGResourceName Name, ERGLoadStoreAccessOp LoadStoreAccessOp,
 			uint32_t FirstMip = 0, uint32_t MipCount = -1, uint32_t FirstSlice = 0, uint32_t SliceCount = -1)
 		{
-			return WriteRenderTargetImpl(Name, LoadStoreAccessOp,
-				FTextureSubresourceDesc{
-					.FirstSlice = FirstSlice,
-					.SliceCount = SliceCount,
-					.FirstMip = FirstMip,
-					.MipCount = MipCount
-				}
-			);
+			FTextureSubresourceDesc Desc;
+			Desc.FirstSlice = FirstSlice;
+			Desc.SliceCount = SliceCount;
+			Desc.FirstMip = FirstMip;
+			Desc.MipCount = MipCount;
+			return WriteRenderTargetImpl(Name, LoadStoreAccessOp, Desc);
 		}
 
 		FRGDepthStencilID WriteDepthStencil(FRGResourceName Name, ERGLoadStoreAccessOp LoadStoreAccessOp,
 			uint32_t FirstMip = 0, uint32_t MipCount = -1, uint32_t FirstSlice = 0, uint32_t SliceCount = -1)
 		{
-			return WriteDepthStencilImpl(Name, LoadStoreAccessOp, ERGLoadStoreAccessOp::NoAccess_NoAccess,
-				FTextureSubresourceDesc{
-					.FirstSlice = FirstSlice,
-					.SliceCount = SliceCount,
-					.FirstMip = FirstMip,
-					.MipCount = MipCount
-				}
-			);
+			FTextureSubresourceDesc Desc;
+			Desc.FirstSlice = FirstSlice;
+			Desc.SliceCount = SliceCount;
+			Desc.FirstMip = FirstMip,
+			Desc.MipCount = MipCount;
+			return WriteDepthStencilImpl(Name, LoadStoreAccessOp, ERGLoadStoreAccessOp::NoAccess_NoAccess, Desc);
 		}
 		FRGDepthStencilID ReadDepthStencil(FRGResourceName Name, ERGLoadStoreAccessOp LoadStoreAccessOp, ERGLoadStoreAccessOp StencilLoadStoreOp,
 			uint32_t FirstMip = 0, uint32_t MipCount = -1, uint32_t FirstSlice = 0, uint32_t SliceCount = -1)
 		{
-			return ReadDepthStencilImpl(Name, LoadStoreAccessOp, StencilLoadStoreOp,
-				FTextureSubresourceDesc{
-					.FirstSlice = FirstSlice,
-					.SliceCount = SliceCount,
-					.FirstMip = FirstMip,
-					.MipCount = MipCount
-				}
-			);
+			FTextureSubresourceDesc Desc;
+			Desc.FirstSlice = FirstSlice;
+			Desc.SliceCount = SliceCount;
+			Desc.FirstMip = FirstMip;
+			Desc.MipCount = MipCount;
+			return ReadDepthStencilImpl(Name, LoadStoreAccessOp, StencilLoadStoreOp, Desc);
 		}
 		
 		FRGBufferReadOnlyID ReadBuffer(FRGResourceName Name, ERGReadAccess ReadAccess = ERGReadAccess::ReadAccess_AllShader, uint32_t Offset = 0, uint32_t Size = -1)
 		{
-			return ReadBufferImpl(Name, ReadAccess, 
-				FBufferSubresourceDesc{
-					.Offset = Offset,
-					.Size = Size
-				}
-			);
+			FBufferSubresourceDesc Desc;
+			Desc.Offset = Offset;
+			Desc.Size = Size;
+			return ReadBufferImpl(Name, ReadAccess, Desc);
 		}
 
 		FRGBufferReadWriteID WriteBuffer(FRGResourceName Name, uint32_t Offset = 0, uint32_t Size = -1)
 		{
-			return WriteBufferImpl(Name,
-				FBufferSubresourceDesc{
-					.Offset = Offset,
-					.Size = Size
-				}
-			);
+			FBufferSubresourceDesc Desc;
+			Desc.Offset = Offset;
+			Desc.Size = Size;
+			return WriteBufferImpl(Name, Desc);
 		}
 		
 		void SetViewport(uint32_t Width, uint32_t Height);

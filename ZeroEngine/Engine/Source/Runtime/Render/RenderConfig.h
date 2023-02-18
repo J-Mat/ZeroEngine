@@ -33,6 +33,15 @@ namespace Zero
 		RHI_NUM
 	};
 
+	enum ERenderPassType
+	{
+		Graphics,
+		Compute,
+		Copy,
+		ComputeAsync,
+		TypeNum,
+	};
+
 	enum class ERayTracerAPI
 	{
 		CpuSoftware,

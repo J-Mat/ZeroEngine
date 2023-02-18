@@ -28,6 +28,7 @@ namespace Zero
 
 		void Invalidate() { ID = InvalidID; }
 		bool IsValid() const { return ID != InvalidID;}
+		auto operator<=>(FRGResourceID const&) const = default;
 		uint32_t ID;
 	};
 	
@@ -44,7 +45,7 @@ namespace Zero
 	template<ERGResourceMode Mode>
 	struct FRGTextureModeID : FRGTextureID
 	{
-		using RGTextureID::FRGTextureID;
+		using FRGTextureID::FRGTextureID;
 	private:
 		friend class FRenderGraphBuilder;
 		friend class FRenderGraph;
@@ -81,7 +82,7 @@ namespace Zero
 		FRGResourceDescriptorID(uint32_t ViewID, FRGResourceID ResourceHandle) 
 			: ID(InvalidID) 
 		{
-			ID = (ViewID << 32) | ResourceHandle.ID;
+			ID = ((uint64_t)ViewID << 32) | ResourceHandle.ID;
 		}
 		uint32_t GetViewID() const { return ID >> 32; }
 		uint32_t GetResourceID() const { return static_cast<uint32_t>(ID);};

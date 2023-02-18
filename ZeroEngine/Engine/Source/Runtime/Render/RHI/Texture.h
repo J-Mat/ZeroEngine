@@ -93,17 +93,6 @@ namespace Zero
 	};
 
 
-	enum class ETextureFormat
-	{
-		None,
-		R8G8B8,
-		R8G8B8A8,
-		INT32,
-		R16G16B16A16,
-		R32G32B32A32,
-		DEPTH32F,
-	};
-
 	enum class ETextureType : uint8_t
 	{
 		TextureType_1D,
@@ -111,16 +100,16 @@ namespace Zero
 		TextureType_3D
 	};
 
-	using FFrameBufferTexturesFormats = std::vector<ETextureFormat>;
+	using FFrameBufferTexturesFormats = std::vector<EResourceFormat>;
 
 	struct FTextureDesc
 	{
 		ETextureType Type = ETextureType::TextureType_2D;
-		uint32_t Width = 0;
+		uint64_t Width = 0;
 		uint32_t Height = 0;
 		uint32_t Depth = 0;
 		uint32_t ArraySize = 1;
-		uint32_t MipLevels = 1;
+		uint16_t MipLevels = 1;
 		uint32_t SampleCount = 1;
 		EResourceUsage HeapType = EResourceUsage::Default;
 		EResourceBindFlag ResourceBindFlags = EResourceBindFlag::None;
@@ -139,12 +128,11 @@ namespace Zero
 
 	struct FTextureSubresourceDesc
 	{
-		uint32_t FirstSlice = 0;
-		uint32_t SliceCount = static_cast<uint32_t>(-1);
-		uint32_t FirstMip = 0;
-		uint32_t MipCount = static_cast<uint32_t>(-1);
-
-		std::strong_ordering operator<=>(FTextureSubresourceDesc const& other) const = default;
+		uint32_t FirstSlice;
+		uint32_t SliceCount;
+		uint32_t FirstMip;
+		uint32_t MipCount;
+		std::strong_ordering operator<=>(FTextureSubresourceDesc const& Other) const = default;
 	};
 
 	class ITexture
@@ -155,7 +143,7 @@ namespace Zero
 			m_TextureDesc(TextureDesc)
 		{}
 		virtual ~ITexture() = default;
-		virtual uint32_t GetWidth() { return m_TextureDesc.Width; };
+		virtual uint64_t GetWidth() { return m_TextureDesc.Width; };
 		virtual uint32_t GetHeight() { return m_TextureDesc.Height; };
 		virtual void Bind(uint32_t Slot) {};
 		FTextureDesc const& GetDesc() const { return m_TextureDesc; }
@@ -179,6 +167,10 @@ namespace Zero
 		virtual ZMath::uvec2 GetSize() = 0;
 		virtual void RegistGuiShaderResource() = 0;
 		virtual UINT64 GetGuiShaderReseource() = 0;
+		virtual void MakeSRVs(const std::vector<FTextureSubresourceDesc>& Descs) {};
+		virtual void MakeRTVs(const std::vector<FTextureSubresourceDesc>& Descs) {};
+		virtual void MakeDSVs(const std::vector<FTextureSubresourceDesc>& Descs) {};
+		virtual void MakeUAVs(const std::vector<FTextureSubresourceDesc>& Descs) {};
 	protected:	
         Ref<FImage> m_ImageData = nullptr;
 		bool m_bNeedMipMap = false;

@@ -36,7 +36,7 @@ namespace Zero
 	public:
 		FPipelineStateObject(const FPSODescriptor& PSODescriptor);
 		virtual ~FPipelineStateObject() = default;
-		virtual void Bind() = 0;
+		virtual void Bind(FCommandListHandle CommandListHandle) = 0;
 		virtual void CreatePsoObj() = 0;
 		const FPSODescriptor& GetPSODescriptor() const {return m_PSODescriptor;}
 		void SetShader(Ref<FShader> Shader);

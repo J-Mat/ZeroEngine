@@ -20,8 +20,9 @@ namespace Zero
 		void InitIrradianceMap();
 		void InitPrefilerMap();
 		void CreateIBLIrradianceMap();
-		void CreateIBLPrefilterEnvMap();
+		void CreateIBLPrefilterEnvMap();	
 	private:
+		FCommandListHandle m_CommandListHandle;
 		Ref<FRenderItem> m_IrradianceMapRenderItem = nullptr;
 		Ref<FRenderItem> m_PrefilterMapRenderItem[5];
 		Ref<FRenderTargetCube> m_IBLIrradianceMapRTCube = nullptr;

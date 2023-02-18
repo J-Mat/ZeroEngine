@@ -106,7 +106,7 @@ namespace Zero
 		
 		std::lock_guard<std::mutex> Lock(m_AllocationMutex);
 
-		StaleDescriptorQueue.emplace( Offset, m_Descriptor.GetNumHandles() );
+		m_StaleDescriptorQueue.emplace( Offset, m_Descriptor.GetNumHandles() );
 	}
 
 
@@ -151,14 +151,14 @@ namespace Zero
 	{
 		std::lock_guard<std::mutex> Lock(m_AllocationMutex);
 		
-		while (!StaleDescriptorQueue.empty())
+		while (!m_StaleDescriptorQueue.empty())
 		{
-			auto& StaleDescriptor = StaleDescriptorQueue.front();
+			auto& StaleDescriptor = m_StaleDescriptorQueue.front();
 			uint32_t Offset = StaleDescriptor.Offset;
 			uint32_t Size = StaleDescriptor.Size;
 			FreeBlock(Offset, Size);
 
-			StaleDescriptorQueue.pop();
+			m_StaleDescriptorQueue.pop();
 		}
 	}
 }

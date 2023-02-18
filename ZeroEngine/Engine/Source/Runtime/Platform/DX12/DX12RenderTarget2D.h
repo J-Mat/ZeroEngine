@@ -14,12 +14,13 @@ namespace Zero
 	public:
 		FDX12RenderTarget2D();
 		FDX12RenderTarget2D(FRenderTarget2DDesc Desc);
-		virtual void ClearBuffer() override;
+		virtual void ClearBuffer(FCommandListHandle CommandListHandle) override;
 		virtual void Resize(uint32_t Width, uint32_t Height, uint32_t Depth);
-		virtual void AttachTexture(EAttachmentIndex AttachmentIndex, Ref<FTexture2D> Texture2D);
-		virtual void Bind(bool bClearBuffer = true) override;
-		virtual void UnBind();
-		virtual void UnBindDepth() override;
+		virtual void AttachColorTexture(uint32_t AttachmentIndex, Ref<FTexture2D> Texture2D, uint32_t ViewID = 0) override;
+		virtual void AttachDepthTexture(Ref<FTexture2D> Texture2D) override;
+		virtual void Bind(FCommandListHandle CommanListHandle, bool bClearBuffer = true) override;
+		virtual void UnBind(FCommandListHandle CommandListHandle);
+		virtual void UnBindDepth(FCommandListHandle CommandListHandle) override;
 		void SetViewportRect();
 	private:
 

@@ -138,20 +138,20 @@ namespace Zero
 	{
 	}
 
-	void FDX12ShaderBinder::BindConstantsBuffer(int32_t Slot, IShaderConstantsBuffer* Buffer)
+	void FDX12ShaderBinder::BindConstantsBuffer(FCommandListHandle CommandListHandle, int32_t Slot, IShaderConstantsBuffer* Buffer)
 	{
 		if (Slot >= 0)
 		{
 			FDX12ShaderConstantsBuffer* D3DBuffer = static_cast<FDX12ShaderConstantsBuffer*>(Buffer);
 			D3D12_GPU_VIRTUAL_ADDRESS GPUAddress = D3DBuffer->GetFrameResourceBuffer()->GetCurrentGPUAddress();
-			Ref<FDX12CommandList> CommandList = FDX12Device::Get()->GetRenderCommandList();
+			Ref<FDX12CommandList> CommandList = FDX12Device::Get()->GetCommanList(CommandListHandle);
 			CommandList->GetD3D12CommandList()->SetGraphicsRootConstantBufferView(Slot, GPUAddress);
 		}
 	}
 
-	void FDX12ShaderBinder::Bind()
+	void FDX12ShaderBinder::Bind(FCommandListHandle CommandListHandle)
 	{
-		Ref<FDX12CommandList> CommandList = FDX12Device::Get()->GetRenderCommandList();
+		Ref<FDX12CommandList> CommandList = FDX12Device::Get()->GetCommanList(CommandListHandle);
 		CommandList->SetGraphicsRootSignature(m_RootSignature);
 	}
 
@@ -280,17 +280,16 @@ namespace Zero
 
 	}
 
-	void FDX12ShaderResourcesBuffer::UploadDataIfDirty()
+	void FDX12ShaderResourcesBuffer::UploadDataIfDirty(FCommandListHandle CommandListHandle)
 	{
 		if (m_bIsDirty)
 		{
-			Ref<FDX12CommandList> CommandList = FDX12Device::Get()->GetRenderCommandList();
-			m_SrvDynamicDescriptorHeap->CommitStagedDescriptorsForDraw(*CommandList.get());
+			m_SrvDynamicDescriptorHeap->CommitStagedDescriptorsForDraw(CommandListHandle);
 			m_bIsDirty = false;
 		}
 		else
 		{
-			m_SrvDynamicDescriptorHeap->SetAsShaderResourceHeap();
+			m_SrvDynamicDescriptorHeap->SetAsShaderResourceHeap(CommandListHandle);
 		}
 	}
 }

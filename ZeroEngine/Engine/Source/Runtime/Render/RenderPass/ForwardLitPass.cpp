@@ -32,7 +32,7 @@ namespace Zero
 					FRGTextureDesc DepthDesc = {
 						.Width = m_Width,
 						.Height = m_Height,
-						.ClearValue = FTextureClearValue(1.0f, 0.0f),
+						.ClearValue = FTextureClearValue(1.0f, 0),
 						.Format = EResourceFormat::R32_TYPELESS
 					};
 					Builder.DeclareTexture(RG_RES_NAME(DepthStencil), DepthDesc);
@@ -52,18 +52,18 @@ namespace Zero
 
 				Builder.SetViewport(m_Width, m_Height);
 			},
-			[=](FRenderGraphContext& Context)
+			[=](FRenderGraphContext& Context, FCommandListHandle CommandListHandle)
 			{
 				static auto RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool(RENDERLAYER_OPAQUE);
 				for (Ref<FRenderItem> RenderItem : *RenderItemPool.get())
 				{
-					RenderItem->PreRender();
+					RenderItem->PreRender(CommandListHandle);
 					const auto& PSODesc = RenderItem->m_PipelineStateObject->GetPSODescriptor();
 					const std::string& ShaderName = PSODesc.Shader->GetDesc().ShaderName;
-					RenderItem->Render();
+					RenderItem->Render(CommandListHandle);
 				}
 			},
-			ERGPassType::Graphics,
+			ERenderPassType::Graphics,
 			ERGPassFlags::None
 		);
 	}

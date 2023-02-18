@@ -18,9 +18,8 @@ namespace Zero
 		FRenderTarget2DDesc Desc
 		{
 			.RenderTargetName = "ForwardLit",
-			.Format = {
-				ETextureFormat::R8G8B8A8,
-				ETextureFormat::DEPTH32F
+			.ColorFormat = {
+				EResourceFormat::R8G8B8A8_UNORM,
 			}
 		};
 		m_RenderTarget = FRenderer::GraphicFactroy->CreateRenderTarget2D(Desc);
@@ -44,8 +43,8 @@ namespace Zero
 		auto RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool(RenderLayerType);
 		for (Ref<FRenderItem> RenderItem : *RenderItemPool.get())
 		{
-			RenderItem->PreRender();
-			RenderItem->Render();
+			RenderItem->PreRender(m_CommandListHandle);
+			RenderItem->Render(m_CommandListHandle);
 		}
 	}
 
@@ -61,7 +60,7 @@ namespace Zero
 		}
 		for (Ref<FRenderItem> RenderItem : *RenderItemPool.get())
 		{
-			RenderItem->PreRender();
+			RenderItem->PreRender(m_CommandListHandle);
 			const auto& PSODesc = RenderItem->m_PipelineStateObject->GetPSODescriptor();
 			const std::string& ShaderName = PSODesc.Shader->GetDesc().ShaderName;
 			if (m_bGenerateIrradianceMap && !RenderItem->m_Material->IsSetIBL() && ShaderName == PSO_FORWARDLIT)
@@ -74,15 +73,16 @@ namespace Zero
 
 			if (ShadowMapRenderTarget != nullptr)
 			{
-				RenderItem->m_Material->SetTexture2D("_gShadowMap", ShadowMapRenderTarget->GetTexture(EAttachmentIndex::DepthStencil));
+				RenderItem->m_Material->SetTexture2D("_gShadowMap", ShadowMapRenderTarget->GetDepthTexture());
 			}
 
-			RenderItem->Render();
+			RenderItem->Render(m_CommandListHandle);
 		}
 	}
 
 	void FForwardStage::OnDraw()
 	{
+		m_CommandListHandle = FRenderer::GetDevice()->GetSingleThreadCommadList();
 		static auto* Settings = FSettingManager::GetInstance().FecthSettings<USceneSettings>(USceneSettings::StaticGetObjectName());
 		
 		if (Settings->m_bUseSkyBox)
@@ -95,13 +95,13 @@ namespace Zero
 		}
 
 
-		m_RenderTarget->Bind();
+		m_RenderTarget->Bind(m_CommandListHandle);
 		if (Settings->m_bUseSkyBox)
 		{
 			RawRenderLayer(RENDERLAYER_SKYBOX);
 		}
 		RawRenderLayer(RENDERLAYER_LIGHT);
 		ForwarLitRender();
-		m_RenderTarget->UnBind();
+		m_RenderTarget->UnBind(m_CommandListHandle);
 	}
 }

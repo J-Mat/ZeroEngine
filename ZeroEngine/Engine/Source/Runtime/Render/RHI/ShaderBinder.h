@@ -149,7 +149,7 @@ namespace Zero
 		virtual void SetTextureCubemap(const std::string& Name, Ref<FTextureCubemap> Texture) = 0;
 		virtual void SetTextureCubemapArray(const std::string& Name, const std::vector<Ref<FTextureCubemap>>& TextureCubes) = 0;
 
-		virtual void UploadDataIfDirty() = 0;
+		virtual void UploadDataIfDirty(FCommandListHandle CommandListHandle) = 0;
 	protected:
 		FShaderResourcesDesc& m_Desc;
 	};
@@ -160,14 +160,14 @@ namespace Zero
 	public:
 		IShaderBinder(FShaderBinderDesc& Desc);
 		virtual ~IShaderBinder() { m_ShaderConstantDescs.clear(); }
-		virtual void BindConstantsBuffer(int32_t Slot, IShaderConstantsBuffer* Buffer) = 0;
+		virtual void BindConstantsBuffer(FCommandListHandle CommandListHandle, int32_t Slot, IShaderConstantsBuffer* Buffer) = 0;
 		virtual Ref<FShaderConstantsDesc> GetShaderConstantsDesc(int32_t Slot) 
 		{ 
 			return Slot < m_ShaderConstantDescs.size() ? m_ShaderConstantDescs[Slot] : nullptr;
 		}
 		virtual Ref<FShaderResourcesDesc> GetShaderResourcesDesc() { return m_ShaderResourceDesc; }
 		virtual FRootSignature* GetRootSignature() { return nullptr; }
-		virtual void Bind() = 0;
+		virtual void Bind(FCommandListHandle CommandListHandle) = 0;
 		const FShaderBinderDesc& GetBinderDesc() { return m_Desc; }
 	protected:
 		void InitMappers();

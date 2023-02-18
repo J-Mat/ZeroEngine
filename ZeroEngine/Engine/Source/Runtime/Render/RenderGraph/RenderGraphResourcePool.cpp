@@ -22,6 +22,7 @@ namespace Zero
 		}
 		++m_FrameIndex;
 	}
+
 	Ref<FTexture2D> FRGResourcePool::AllocateTexture(FTextureDesc const& Desc)
 	{
 		for (auto& [PoolTexture, bActive] : m_TexturePool)
@@ -35,8 +36,27 @@ namespace Zero
 		}
 		std::string TextureName = std::format("PoolTexture_{0}", m_TexturePool.size());
 		auto Texture = FRenderer::GraphicFactroy->CreateTexture2D(TextureName, Desc);
-		m_TexturePool.emplace_back(FPooledTexture{ Texture, false });
+		std::pair<FPooledTexture, bool> Pair = { FPooledTexture(Texture, false), false };
+		m_TexturePool.emplace_back(Pair);
 		return Texture;
+	}
+
+	Ref<FBuffer> FRGResourcePool::AllocateBuffer(const FBufferDesc& Desc)
+	{
+		for (auto& [PoolBuffer, bActive] : m_BufferPool)
+		{ 
+			if (bActive && PoolBuffer.Buffer->GetDesc() == Desc)
+			{
+				PoolBuffer.LastUsedFrame = m_FrameIndex;
+				bActive = true;
+				return PoolBuffer.Buffer;
+			}
+		}
+		std::string BufferName = std::format("PoolBuffer_{0}", m_BufferPool.size());
+		auto Buffer = FRenderer::GraphicFactroy->CreateBuffer(BufferName, Desc);
+		std::pair<FPooledBuffer, bool> Pair = { FPooledBuffer(Buffer, false), false };
+		m_BufferPool.emplace_back(Pair);
+		return Buffer;
 	}
 
 	void FRGResourcePool::ReleaseTexture(Ref<FTexture2D> Texture)
@@ -44,6 +64,18 @@ namespace Zero
 		for (auto& [PooledTexture, bActive] : m_TexturePool)
 		{
 			if (bActive && PooledTexture.Texture == Texture)
+			{
+				bActive = false;
+				return;
+			}
+		}
+	}
+
+	void FRGResourcePool::ReleaseBuffer(Ref<FBuffer> Buffer)
+	{
+		for (auto& [PooledBuffer, bActive] : m_BufferPool)
+		{
+			if (bActive && PooledBuffer.Buffer == Buffer)
 			{
 				bActive = false;
 				return;

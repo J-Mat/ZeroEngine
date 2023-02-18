@@ -82,19 +82,19 @@ namespace Zero
 		}
 	}
 
-	void FResourceStateTracker::TransitionResource(FResource& Resource, D3D12_RESOURCE_STATES StateAfter, UINT SubResource)
+	void FResourceStateTracker::TransitionResource(FDX12Resource& Resource, D3D12_RESOURCE_STATES StateAfter, UINT SubResource)
 	{
 		TransitionResource(Resource.GetD3DResource().Get(), StateAfter, SubResource);
 	}
 
-	void FResourceStateTracker::UAVBarrier(const FResource* Resource)
+	void FResourceStateTracker::UAVBarrier(const FDX12Resource* Resource)
 	{
 		ID3D12Resource* pResource = Resource != nullptr ? Resource->GetD3DResource().Get() : nullptr;
 
 		ResourceBarrier(CD3DX12_RESOURCE_BARRIER::UAV(pResource));
 	}
 
-	void FResourceStateTracker::AliasBarrier(const FResource* ResourceBefore, const FResource* ResourceAfter)
+	void FResourceStateTracker::AliasBarrier(const FDX12Resource* ResourceBefore, const FDX12Resource* ResourceAfter)
 	{
 		ID3D12Resource* pResourceBefore = ResourceBefore != nullptr ? ResourceBefore->GetD3DResource().Get() : nullptr;
 		ID3D12Resource* pResourceAfter = ResourceAfter != nullptr ? ResourceAfter->GetD3DResource().Get() : nullptr;

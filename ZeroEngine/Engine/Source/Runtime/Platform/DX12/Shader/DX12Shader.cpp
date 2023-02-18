@@ -84,9 +84,9 @@ namespace Zero
 		m_ShaderBinder = CreateRef<FDX12ShaderBinder>(m_ShaderBinderDesc);
 	}
 
-	void FDX12Shader::Use()
+	void FDX12Shader::Use(FCommandListHandle CommandListHandle)
 	{
-		m_ShaderBinder->Bind();
+		m_ShaderBinder->Bind(CommandListHandle);
 	}
 
 	void FDX12Shader::GetShaderParameters(ComPtr<ID3DBlob> PassBlob, EShaderType ShaderType)

@@ -24,7 +24,7 @@ namespace Zero
 		Ref<FDX12Device> AsShared() { return shared_from_this(); }
 
 		ID3D12Device* GetDevice() { return m_D3DDevice.Get(); }
-		FDX12CommandQueue& GetCommandQueue(D3D12_COMMAND_LIST_TYPE Type = D3D12_COMMAND_LIST_TYPE_DIRECT);
+		FDX12CommandQueue& GetCommandQueue(ERenderPassType Type);
 
 		D3D_ROOT_SIGNATURE_VERSION GetHighestRootSignatureVersion() const
 		{
@@ -71,19 +71,24 @@ namespace Zero
 		
 		static std::vector<CD3DX12_STATIC_SAMPLER_DESC> GetStaticSamplers(std::vector<EShaderSampler>& ShaderSamplers);
 
-		virtual void PreInitWorld() override;
 
+		virtual FCommandListHandle GenerateCommanList(ERenderPassType RenderPassType = ERenderPassType::Graphics) override;
+		Ref<FDX12CommandList> GetCommanList(FCommandListHandle Hanle, ERenderPassType RenderPassType = ERenderPassType::Graphics);
+		void SetSingleThreadCommandList(FCommandListHandle Handle) { m_SingleThreadCommandListHandle = Handle; }
+		virtual  FCommandListHandle GetSingleThreadCommadList() override { return m_SingleThreadCommandListHandle; } 
+
+		void SetInitWorldCommandList(FCommandListHandle Handle) {  m_InitWorldCommandListHandle = Handle; }
+		FCommandListHandle GetInitWorldCommadListHandle() { return m_InitWorldCommandListHandle; };
+		Ref<FDX12CommandList> GetInitWorldCommandList() { return GetCommanList(m_InitWorldCommandListHandle); }
+		virtual void PreInitWorld() override;
 		virtual void FlushInitCommandList() override;
+		
+
+		virtual void BeginFrame();
 		
 		uint32_t RegisterActiveComandlist(Ref<FDX12CommandList> CommandList);
 		void UnRegisterActiveComandlist(uint32_t ID);
 		Ref<FDX12CommandList> GetActiveCommandList(uint32_t Slot);
-		Ref<FDX12CommandList> GetRenderCommandList() { return m_RenderCommandList; }
-		void SetRenderCommandList(Ref<FDX12CommandList> CommandList) { m_RenderCommandList = CommandList; }
-		Ref<FDX12CommandList> GetInitWorldCommandList() { return m_InitWorldCommandList; }
-		Ref<FDX12CommandList> GetComputeCommandList() { return m_ComputeCommandList; }
-		void SetInitWorldCommandList(Ref<FDX12CommandList> CommandList) { m_InitWorldCommandList = CommandList; }
-		void SetComputeCommandList(Ref<FDX12CommandList> CommandList) { m_ComputeCommandList = CommandList; }
 
 	private:
 		static FDX12Device* m_Instance;
@@ -96,15 +101,16 @@ namespace Zero
 
 		
 	private:
+		FCommandListHandle m_SingleThreadCommandListHandle = -1;
+		FCommandListHandle m_InitWorldCommandListHandle = -1;
 		UINT m_RtvDescriptorSize;
 		UINT m_DsvDescriptorSize;
 		UINT m_Cbv_Srv_UavDescriptorSize;
 		ComPtr<ID3D12Device> m_D3DDevice;
 		Ref<FAdapter> m_Adapter;
 
-		Scope<FDX12CommandQueue> m_DirectCommandQueue;
-		Scope<FDX12CommandQueue> m_ComputeCommandQueue;
-		Scope<FDX12CommandQueue> m_CopyCommandQueue;
+		std::vector<Scope<FDX12CommandQueue>> m_CommandQueue;
+		std::vector<std::vector<Ref<FDX12CommandList>>> m_CommandLists;
 
 		Ref<FDescriptorAllocator> m_DescriptorAllocators[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
 		
@@ -119,8 +125,5 @@ namespace Zero
 		
 		uint32_t m_CommandListID = 0;
 		std::map<uint32_t, Ref<FDX12CommandList>> m_ActiveCommandListMap;
-		Ref<FDX12CommandList> m_RenderCommandList = nullptr;;
-		Ref<FDX12CommandList> m_InitWorldCommandList = nullptr;;
-		Ref<FDX12CommandList> m_ComputeCommandList = nullptr;;
 	};
 }

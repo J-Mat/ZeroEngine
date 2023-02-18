@@ -14,9 +14,9 @@ namespace Zero
 	public:
 		FDX12RenderTargetCube(const FRenderTargetCubeDesc& Desc);
 		void SetViewportRect();
-		virtual void SetRenderTarget(uint32_t Index) override;
-		virtual void Bind() override;
-		virtual void UnBind() override;
+		virtual void SetRenderTarget(uint32_t Index, FCommandListHandle CommandListHandle) override;
+		virtual void Bind(FCommandListHandle CommandListHandle) override;
+		virtual void UnBind(FCommandListHandle CommandListHandle) override;
 	private:
 		D3D12_VIEWPORT m_ViewPort = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 		D3D12_RECT m_ScissorRect = { 0, 0, 0, 0 };

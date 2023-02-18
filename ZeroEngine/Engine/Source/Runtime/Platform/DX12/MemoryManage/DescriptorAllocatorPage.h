@@ -55,7 +55,7 @@ namespace Zero
 
 		FFreeListByOffset m_FreeListByOffset;
 		FFreeListBySize  m_FreeListBySize;
-		FStaleDescriptorQueue StaleDescriptorQueue;
+		FStaleDescriptorQueue m_StaleDescriptorQueue;
 		ComPtr<ID3D12DescriptorHeap> m_D3DDescriptorHeap;
 		D3D12_DESCRIPTOR_HEAP_TYPE m_HeapType;
 		CD3DX12_CPU_DESCRIPTOR_HANDLE m_BaseDescriptor;

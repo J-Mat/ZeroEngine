@@ -20,7 +20,7 @@ namespace Zero
 		DXGI_FORMAT UAVFormat = DXGI_FORMAT_UNKNOWN;
     };
 
-	class FDX12Texture2D :public FTexture2D, public FResource, public std::enable_shared_from_this<FDX12Texture2D>
+	class FDX12Texture2D :public FTexture2D, public FDX12Resource, public std::enable_shared_from_this<FDX12Texture2D>
 	{
         friend class FDX12RenderTarget2D;
     private: 
@@ -52,20 +52,25 @@ namespace Zero
 
 		void CreateViews();
 
+        virtual void MakeSRVs(const std::vector<FTextureSubresourceDesc>& Descs) override; 
+        virtual void MakeRTVs(const std::vector<FTextureSubresourceDesc>& Descs) override; 
+        virtual void MakeDSVs(const std::vector<FTextureSubresourceDesc>& Descs) override; 
+        virtual void MakeUAVs(const std::vector<FTextureSubresourceDesc>& Descs) override; 
+
         /**
         * Get the RTV for the texture.
         */
-        D3D12_CPU_DESCRIPTOR_HANDLE GetRTV() const;
+        D3D12_CPU_DESCRIPTOR_HANDLE GetRTV(uint32_t ViewID = 0) const;
 
         /**
         * Get the DSV for the texture.
         */
-        D3D12_CPU_DESCRIPTOR_HANDLE GetDSV() const;
+        D3D12_CPU_DESCRIPTOR_HANDLE GetDSV(uint32_t ViewID = 0) const;
 
         /**
         * Get the default SRV for the texture.
         */
-        D3D12_CPU_DESCRIPTOR_HANDLE GetSRV() const;
+        D3D12_CPU_DESCRIPTOR_HANDLE GetSRV(uint32_t ViewID = 0) const;
 
         /**
         * Get the UAV for the texture at a specific mip level.
@@ -73,9 +78,6 @@ namespace Zero
         */
         D3D12_CPU_DESCRIPTOR_HANDLE GetUnorderedAccessView(uint32_t mip) const;
 
-    private:
-        D3D12_RESOURCE_FLAGS BindFlagsByTextureDesc();
-        
 	private:
 		FDescriptorAllocation m_RenderTargetView;
 		FDescriptorAllocation m_DepthStencilView;
@@ -84,6 +86,13 @@ namespace Zero
         FLightDescrptorAllocation m_GuiAllocation;
         bool m_bHasGuiResource = false;
         D3D12_PLACED_SUBRESOURCE_FOOTPRINT m_Footprint{};
+
+
+		std::vector<FDescriptorAllocation> m_SRVs;
+		std::vector<FDescriptorAllocation> m_UAVs;
+		std::vector<FDescriptorAllocation> m_RTVs;
+		std::vector<FDescriptorAllocation> m_DSVs;
+
     private:
         DXGI_FORMAT m_SRVFormat = DXGI_FORMAT_UNKNOWN;
         DXGI_FORMAT m_RTVFormat = DXGI_FORMAT_UNKNOWN;

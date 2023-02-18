@@ -60,16 +60,16 @@ namespace Zero
 			"The root signature requires more than the maximum number of descriptors per descriptor heap. Consider increasing the maximum number of descriptors per descriptor heap.");
 	}
 
-	void FDynamicDescriptorHeap::CommitStagedDescriptorsForDraw(FDX12CommandList& CommandList)
+	void FDynamicDescriptorHeap::CommitStagedDescriptorsForDraw(FCommandListHandle CommandListHandle)
 	{
-		CommitDescriptorTables(CommandList, &ID3D12GraphicsCommandList::SetGraphicsRootDescriptorTable);
-		SetAsShaderResourceHeap();
+		CommitDescriptorTables(CommandListHandle, &ID3D12GraphicsCommandList::SetGraphicsRootDescriptorTable);
+		SetAsShaderResourceHeap(CommandListHandle);
 	}
 
-	void FDynamicDescriptorHeap::CommitStagedDescriptorsForDispatch(FDX12CommandList& CommandList)
+	void FDynamicDescriptorHeap::CommitStagedDescriptorsForDispatch(FCommandListHandle CommandListHandle)
 	{
-		CommitDescriptorTables(CommandList, &ID3D12GraphicsCommandList::SetComputeRootDescriptorTable);
-		SetComputeAsShaderResourceHeap(CommandList);
+		CommitDescriptorTables(CommandListHandle, &ID3D12GraphicsCommandList::SetComputeRootDescriptorTable);
+		SetComputeAsShaderResourceHeap(CommandListHandle);
 	}
 
 	ComPtr<ID3D12DescriptorHeap> FDynamicDescriptorHeap::RequestDescriptorHeap()
@@ -119,9 +119,9 @@ namespace Zero
 		return NumStaleDescriptors;
 	}
 
-	void FDynamicDescriptorHeap::CommitDescriptorTables(FDX12CommandList& CommandList, std::function<void(ID3D12GraphicsCommandList*, UINT, D3D12_GPU_DESCRIPTOR_HANDLE)> SetFunc)
-
+	void FDynamicDescriptorHeap::CommitDescriptorTables(FCommandListHandle CommandListHandle, std::function<void(ID3D12GraphicsCommandList*, UINT, D3D12_GPU_DESCRIPTOR_HANDLE)> SetFunc)
 	{
+		auto CommandList = FDX12Device::Get()->GetCommanList(CommandListHandle);
 		uint32_t NumDescriptorsToCommit = ComputeStaleDescriptorCount();
 		if (NumDescriptorsToCommit > 0)
 		{
@@ -130,7 +130,7 @@ namespace Zero
 				m_CurrentDescriptorHeap = RequestDescriptorHeap();
 				m_NumFreeHandles = m_NumDescriptorsPerHeap;
 				
-				CommandList.SetDescriptorHeap(m_DescriptorHeapType, m_CurrentDescriptorHeap.Get());
+				CommandList->SetDescriptorHeap(m_DescriptorHeapType, m_CurrentDescriptorHeap.Get());
 
 				// When updating the descriptor heap on the command list, all descriptor
 				// tables must be (re)recopied to the new descriptor heap (not just
@@ -142,7 +142,7 @@ namespace Zero
 		{
 			return;
 		}
-		CommandList.SetDescriptorHeap(m_DescriptorHeapType, m_CurrentDescriptorHeap.Get());
+		CommandList->SetDescriptorHeap(m_DescriptorHeapType, m_CurrentDescriptorHeap.Get());
 
 		DWORD RootIndex;
 		// Scan from LSB to MSB for a bit set in staleDescriptorsBitMask
@@ -168,7 +168,7 @@ namespace Zero
 					pSrcDescriptorHandles, nullptr, m_DescriptorHeapType);
 
 				// Set the descriptors on the command list using the passed-in setter function.
-				SetFunc(CommandList.GetD3D12CommandList().Get(), RootIndex, m_CurrentGPUDescriptorHandle);
+				SetFunc(CommandList->GetD3D12CommandList().Get(), RootIndex, m_CurrentGPUDescriptorHandle);
 			}
 
 			// Offset current CPU and GPU descriptor handles.
@@ -215,7 +215,7 @@ namespace Zero
 		m_StaleDescriptorTableBitMask |= (1 << RootParameterIndex);
 	}
 
-	void FDynamicDescriptorHeap::SetAsShaderResourceHeap()
+	void FDynamicDescriptorHeap::SetAsShaderResourceHeap(FCommandListHandle CommanListHandle)
 	{ 
 		if (!m_CurrentDescriptorHeap)
 		{
@@ -224,7 +224,7 @@ namespace Zero
 		uint32_t TableBitMask = m_DescriptorTableBitMask;
 		DWORD RootIndex;
 		
-		auto CommandList = FDX12Device::Get()->GetRenderCommandList();
+		auto CommandList = FDX12Device::Get()->GetCommanList(CommanListHandle);
 		CommandList->SetDescriptorHeap(m_DescriptorHeapType,  m_CurrentDescriptorHeap.Get());
 
 		m_CurrentCPUDescriptorHandle = m_CurrentDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
@@ -247,8 +247,10 @@ namespace Zero
 		}
 	}
 
-	void FDynamicDescriptorHeap::SetComputeAsShaderResourceHeap(FDX12CommandList& CommandList)
+
+	void FDynamicDescriptorHeap::SetComputeAsShaderResourceHeap(FCommandListHandle CommandListHandle)
 	{
+		auto CommandList = FDX12Device::Get()->GetCommanList(CommandListHandle);
 		if (!m_CurrentDescriptorHeap)
 		{
 			return;
@@ -256,7 +258,7 @@ namespace Zero
 		uint32_t TableBitMask = m_DescriptorTableBitMask;
 		DWORD RootIndex;
 		
-		CommandList.SetDescriptorHeap(m_DescriptorHeapType,  m_CurrentDescriptorHeap.Get());
+		CommandList->SetDescriptorHeap(m_DescriptorHeapType,  m_CurrentDescriptorHeap.Get());
 
 		m_CurrentCPUDescriptorHandle = m_CurrentDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 		m_CurrentGPUDescriptorHandle = m_CurrentDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
@@ -269,7 +271,7 @@ namespace Zero
 				UINT NumSrcDescriptors = m_DescriptorTableCache[RootIndex].NumDescriptors;
 				if (m_DescriptorTableCache[RootIndex].BaseDescriptor->ptr)
 				{
-					CommandList.GetD3D12CommandList()->SetComputeRootDescriptorTable(RootIndex, m_CurrentGPUDescriptorHandle);
+					CommandList->GetD3D12CommandList()->SetComputeRootDescriptorTable(RootIndex, m_CurrentGPUDescriptorHandle);
 				}
 				m_CurrentCPUDescriptorHandle.Offset(NumSrcDescriptors, m_DescriptorHandleIncrementSize);
 				m_CurrentGPUDescriptorHandle.Offset(NumSrcDescriptors, m_DescriptorHandleIncrementSize);

@@ -29,7 +29,7 @@ namespace Zero
 		void SetFullScreen(bool bFullScreen);
 		void WaitForSwapChain();
 		virtual const Ref<FRenderTarget2D> GetRenderTarget() override;
-		virtual void SetRenderTarget() override;
+		virtual void SetRenderTarget(FCommandListHandle CommandListHandle) override;
 		virtual UINT Present(Ref<FTexture2D> Texture = nullptr) override;
 	
 		

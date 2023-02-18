@@ -109,7 +109,7 @@ namespace Zero
 				.ShaderName = "Shader\\IBL\\IBLIrradiance.hlsl",
 				.NumRenderTarget = 1,
 				.Formats = {
-					ETextureFormat::R8G8B8A8,
+					EResourceFormat::B8G8R8A8_UNORM
 				},
 			};
 			FPSODescriptor IrradianceMapPSODesc
@@ -127,7 +127,7 @@ namespace Zero
 				.ShaderName = "Shader\\IBL\\IBLPrefilter.hlsl",
 				.NumRenderTarget = 1,
 				.Formats = {
-					ETextureFormat::R8G8B8A8,
+					EResourceFormat::B8G8R8A8_UNORM
 				},
 			};
 			FPSODescriptor PrefilterMapPSODesc
@@ -187,7 +187,7 @@ namespace Zero
 			.ShaderName = "Shader\\Test.hlsl",
 			.NumRenderTarget = 1,
 			.Formats = {
-				ETextureFormat::R8G8B8A8,
+				EResourceFormat::B8G8R8A8_UNORM
 			},
 		};
 		FPSODescriptor TestPSODesc

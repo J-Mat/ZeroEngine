@@ -1,6 +1,6 @@
 #pragma once
 #include <optional>
-#include "Utils/EnumUtil.h"
+#include "EnumUtil.h"
 
 namespace Zero
 {
@@ -144,7 +144,4 @@ namespace Zero
 	{
 		return HasAnyFlag(State, EResourceState::RenderTarget | EResourceState::UnorderedAccess | EResourceState::DepthWrite | EResourceState::CopyDest);
 	}
-
-	using FResourceCpuHandle = void*;
-
 }

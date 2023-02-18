@@ -50,7 +50,7 @@ namespace Zero
 			m_Passes.emplace_back(CreateScope<FRederGraphPass<PassData>>(std::forward<FArgs>(Args)...));
 			FRenderGraphBuilder Builder(*this, *m_Passes.back());
 			m_Passes.back()->Setup(Builder);
-			return *decltype<FRederGraphPass<PassData>*>(m_Passes.back().get());
+			return *dynamic_cast<FRederGraphPass<PassData>*>(m_Passes.back().get());
 		}
 
 		void Build();
@@ -71,11 +71,18 @@ namespace Zero
 		std::map<FRGResourceName, FRGBufferID>  m_BufferNameIDMap;
 		std::map<FRGBufferReadWriteID, FRGBufferID> m_BufferUavCounterMap;
 
-		mutable std::map<FRGTextureID, std::vector<std::pair<FTextureSubresourceDesc, ERGDescriptorType>>> m_TextureViewDescMap;
-		mutable std::map<FRGTextureID, std::vector<std::pair<FResourceCpuHandle, ERGDescriptorType>>> m_TextureViewMap;
+		// mutable std::map<FRGTextureID, std::vector<std::pair<FTextureSubresourceDesc, ERGDescriptorType>>> m_TextureViewDescMap;
+		std::map<FRGTextureID, std::vector<FTextureSubresourceDesc>> m_SRVTexDescMap;
+		std::map<FRGTextureID, std::vector<FTextureSubresourceDesc>> m_DSVTexDescMap;
+		std::map<FRGTextureID, std::vector<FTextureSubresourceDesc>> m_RTVTexDescMap;
+		std::map<FRGTextureID, std::vector<FTextureSubresourceDesc>> m_UAVTexDescMap;
 		
-		mutable std::map<FRGBufferID, std::vector<std::pair<FBufferSubresourceDesc, ERGDescriptorType>>> m_BufferViewDescMap;
-		mutable std::map<FRGBufferID, std::vector<std::pair<FResourceCpuHandle, ERGDescriptorType>>> m_BufferViewMap;
+		//mutable std::map<FRGBufferID, std::vector<std::pair<FBufferSubresourceDesc, ERGDescriptorType>>> m_BufferViewDescMap;
+
+		std::map<FRGBufferID, std::vector<FBufferSubresourceDesc>> m_SRVBufferDescMap;
+		std::map<FRGBufferID, std::vector<FBufferSubresourceDesc>> m_DSVBufferDescMap;
+		std::map<FRGBufferID, std::vector<FBufferSubresourceDesc>> m_RTVBufferDescMap;
+		std::map<FRGBufferID, std::vector<FBufferSubresourceDesc>> m_UAVBufferDescMap;
 
 	private:
 		FRGTextureID GetTextureID(FRGResourceName Name);
@@ -95,9 +102,10 @@ namespace Zero
 		bool IsTextureDeclared(FRGResourceName ResourceName);
 		bool IsBufferDeclared(FRGResourceName ResourceName);
 
-
 		bool IsValidTextureHandle(FRGTextureID RGTextureID) const;
 		bool IsValidBufferHandle(FRGBufferID RGBufferID) const;
+		
+		void SetTextureUsage(FRGTextureID RGTextureID);
 		
 		void ImportTexture(FRGResourceName Name, Ref<FTexture2D> Texture);
 		void ImportBuffer(FRGResourceName Name, Ref<FBuffer> Buffer);
@@ -113,12 +121,5 @@ namespace Zero
 		FRGTextureReadWriteID WriteTexture(FRGResourceName Name, const FTextureSubresourceDesc& Desc);
 		FRGBufferReadOnlyID ReadBuffer(FRGResourceName Name, const FBufferSubresourceDesc& Desc);
 		FRGBufferReadWriteID WriteBuffer(FRGResourceName Name, const FBufferSubresourceDesc& Desc);
-	
-		FResourceCpuHandle GetRenderTarget(FRGRenderTargetID ID) const;
-		FResourceCpuHandle GetDepthStencil(FRGRenderTargetID ID) const;
-		FResourceCpuHandle GetReadOnlyTexture(FRGTextureReadOnlyID ID) const;
-		FResourceCpuHandle GetReadWriteTexture(FRGTextureReadWriteID ID) const;
-		FResourceCpuHandle GetReadOnlyBuffer(FRGBufferReadOnlyID ID) const;
-		FResourceCpuHandle GetReadWriteBuffer(FRGBufferReadWriteID ID) const;
 	};
 }

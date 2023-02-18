@@ -8,7 +8,7 @@ namespace Zero
 {
 	FDX12SwapChain::FDX12SwapChain(HWND hWnd, DXGI_FORMAT RenderTargetFormat)
 		: FSwapChain()
-		, m_CommandQueue(FDX12Device::Get()->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT))
+		, m_CommandQueue(FDX12Device::Get()->GetCommandQueue(ERenderPassType::Graphics))
 		, m_hWnd(hWnd) 
 		, m_RenderTargetFormat(RenderTargetFormat)
 		, m_bTearingSupported(false)
@@ -130,20 +130,21 @@ namespace Zero
 
 	const Ref<FRenderTarget2D> FDX12SwapChain::GetRenderTarget()
 	{
-		m_RenderTarget->AttachTexture(EAttachmentIndex::Color0, m_BackBufferTextures[m_CurrentBackBufferIndex]);
-		m_RenderTarget->AttachTexture(EAttachmentIndex::DepthStencil, m_DepthStencilTexture);
+		m_RenderTarget->AttachColorTexture(0, m_BackBufferTextures[m_CurrentBackBufferIndex]);
+		m_RenderTarget->AttachDepthTexture(m_DepthStencilTexture);
 		TLibrary<FRenderTarget2D>::Push("MainViewport", m_RenderTarget);
 		return m_RenderTarget;
 	}
 
-	void FDX12SwapChain::SetRenderTarget()
+	void FDX12SwapChain::SetRenderTarget(FCommandListHandle CommandListHandle)
 	{
-		GetRenderTarget()->Bind();
+		GetRenderTarget()->Bind(CommandListHandle);
 	}
 
 	UINT FDX12SwapChain::Present(Ref<FTexture2D> Texture)
 	{
-		auto CommandList = FDX12Device::Get()->GetRenderCommandList();
+		auto CommandListHandle = FDX12Device::Get()->GetSingleThreadCommadList();
+		auto CommandList = FDX12Device::Get()->GetCommanList(CommandListHandle);
 		
 		Ref<FDX12Texture2D> BufferBuffer = m_BackBufferTextures[m_CurrentBackBufferIndex];
 		

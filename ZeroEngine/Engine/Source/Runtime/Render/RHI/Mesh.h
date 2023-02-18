@@ -22,8 +22,8 @@ namespace Zero
 		using Iter = std::vector<FSubMesh>::iterator;
 		Iter begin() { return m_SubMeshes.begin(); }
 		Iter end() { return m_SubMeshes.end(); }
-		virtual void Draw() = 0;
-		virtual void DrawSubMesh(FSubMesh& SubMesh) = 0;
+		virtual void Draw(FCommandListHandle CommandListHandle) = 0;
+		virtual void DrawSubMesh(FSubMesh& SubMesh, FCommandListHandle CommandListHandle) = 0;
 		uint32_t GetSubMeshNum() { return uint32_t(m_SubMeshes.size()); }
 		ZMath::FAABB& GetAABB() { return AABB; };
 		void Merge(ZMath::FAABB& Other) { AABB.Merge(Other); };

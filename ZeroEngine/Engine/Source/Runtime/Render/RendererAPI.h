@@ -2,7 +2,7 @@
 #include "Core.h"
 #include "Core/Framework/Layer.h"
 #include "Platform/DX12/GUI/DX12GuiLayer.h"
-#include "Platform/DX12/DX12VertexBuffer.h"
+#include "Platform/DX12/Buffer/DX12VertexBuffer.h"
 #include "Platform/DX12/DX12Texture2D.h"
 #include "Platform/DX12/DX12TextureCubemap.h"
 #include "Platform/DX12/DX12Mesh.h"
@@ -67,7 +67,6 @@ namespace Zero
 		virtual Ref<IDevice> CreateDevice() = 0;
 		virtual FLayer* CreatGuiLayer() = 0;
 		virtual Ref<FWinWindow> CreatePlatformWindow(const FWindowsConfig& Config) = 0;
-		virtual Ref<FVertexBuffer> CreateVertexBuffer(void* data, uint32_t VertexCount, FVertexBufferLayout& Layout, FVertexBuffer::EType Type = FVertexBuffer::EType::Static) = 0;
 		virtual Ref<FMesh> CreateMesh(const std::vector<FMeshData>& MeshDatas, FVertexBufferLayout& Layout) = 0;
 		virtual Ref<FMesh> CreateMesh(float* Vertices, uint32_t VertexCount, uint32_t* Indices, uint32_t IndexCount, FVertexBufferLayout& Layout) = 0;
 		virtual Ref<IShaderConstantsBuffer> CreateShaderConstantBuffer(FShaderConstantsDesc& Desc) = 0;
@@ -78,6 +77,7 @@ namespace Zero
 		virtual Ref<FTexture2D> GetOrCreateTexture2D(const std::string& FileName, bool bNeedMipMap = false) = 0;
 		virtual Ref<FTexture2D> CreateTexture2D(Ref<FImage> Image, std::string ImageName, bool bNeedMipMap = false) = 0;
 		virtual Ref<FTexture2D> CreateTexture2D(const std::string& TextureName, const FTextureDesc& Desc) = 0;
+		virtual Ref<FBuffer> CreateBuffer(const std::string& BufferName, const FBufferDesc& Desc) = 0;
 		virtual Ref<FTextureCubemap> GetOrCreateTextureCubemap(FTextureHandle Handles[CUBEMAP_TEXTURE_CNT], std::string TextureCubemapName) = 0;
 		virtual Ref<FRenderTarget2D> CreateRenderTarget2D(const FRenderTarget2DDesc& Desc) = 0;
 		virtual Ref<FRenderTargetCube> CreateRenderTargetCube(const FRenderTargetCubeDesc& Desc) = 0;
@@ -101,13 +101,6 @@ namespace Zero
 		{
 			return new FDX12GuiLayer();
 		}
-
-		virtual Ref<FVertexBuffer> CreateVertexBuffer(void* data, uint32_t VertexCount, FVertexBufferLayout& Layout, FVertexBuffer::EType Type = FVertexBuffer::EType::Static)
-		{
-			return CreateRef<FDX12VertexBuffer>(data, VertexCount, Layout, Type);
-		}
-
-
 
 		virtual Ref<FWinWindow> CreatePlatformWindow(const FWindowsConfig& Config)
 		{
@@ -177,6 +170,12 @@ namespace Zero
 #endif
 			TLibrary<FTexture2D>::Push(ImageName, Texture);
 			return Texture;
+		}
+
+		virtual Ref<FBuffer> CreateBuffer(const std::string& BufferName, const FBufferDesc& Desc)
+		{
+			Ref<FBuffer> Buffer = CreateRef<FBuffer>(BufferName, Desc);
+			return Buffer;
 		}
 
 		virtual Ref<FTexture2D> CreateTexture2D(const std::string& TextureName, const FTextureDesc& Desc)

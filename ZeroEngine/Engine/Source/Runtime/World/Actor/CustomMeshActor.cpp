@@ -2,7 +2,7 @@
 #include "../Component/MeshVertexComponent.h"
 #include "Render/Moudule/MeshGenerator.h"
 #include "Utils/ZConfig.h"
-#include "Render/RHI/VertexBuffer.h"
+#include "Render/RHI/Buffer/VertexBuffer.h"
 #include "../Component/MeshRenderComponent.h"
 
 namespace Zero

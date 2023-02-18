@@ -60,28 +60,29 @@ namespace Zero
 		m_PerObjectBuffer->SetMatrix4x4("Model", Transform);
 	}
 	
-	void FRenderItem::PreRender()
+	void FRenderItem::PreRender(FCommandListHandle ComamndListHandle)
 	{
-		m_PipelineStateObject->Bind();
+		m_PipelineStateObject->Bind(ComamndListHandle);
 		m_Material->Tick();
-		m_Material->SetPass();
+		m_Material->SetPass(ComamndListHandle);
 	}
-	void FRenderItem::Render()
+
+	void FRenderItem::Render(FCommandListHandle ComamndListHandle)
 	{
-		m_Material->OnDrawCall();
+		m_Material->OnDrawCall(ComamndListHandle);
 		if (m_PerObjectBuffer != nullptr)
 		{
 			static auto PerObjIndex = m_Material->GetShader()->GetBinder()->GetBinderDesc().m_PerObjIndex ;
-			m_Material->GetShader()->GetBinder()->BindConstantsBuffer(PerObjIndex, m_PerObjectBuffer.get());
+			m_Material->GetShader()->GetBinder()->BindConstantsBuffer(ComamndListHandle, PerObjIndex, m_PerObjectBuffer.get());
 			m_PerObjectBuffer->UploadDataIfDirty();
 		}
 		if (m_SubMesh.IsNull())
 		{
-			m_Mesh->Draw();
+			m_Mesh->Draw(ComamndListHandle);
 		}
 		else
 		{
-			m_Mesh->DrawSubMesh(m_SubMesh);
+			m_Mesh->DrawSubMesh(m_SubMesh, ComamndListHandle);
 		}
 	}
 }

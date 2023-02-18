@@ -17,7 +17,7 @@ namespace Zero
         {
             return m_D3DPipelineState;
         }
-        virtual void Bind() override;
+        virtual void Bind(FCommandListHandle CommandListHandle) override;
         virtual void CreatePsoObj() override;
 
     private:

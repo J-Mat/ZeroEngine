@@ -1,13 +1,12 @@
 #include "DX12VertexBuffer.h"
 #include "../DX12Device.h"
 #include "../DX12CommandList.h"
-#include "../Resource.h"
 
 namespace Zero
 {
 	FDX12VertexBuffer::FDX12VertexBuffer(void* Data, const FBufferDesc& Desc, FVertexBufferLayout& _Layout)
 		:FVertexBuffer(Data, Desc, _Layout),
-		FResource()
+		FDX12Resource()
 	{
 		SetResource(FDX12Device::Get()->GetInitWorldCommandList()->CreateDefaultBuffer(m_Data, m_Desc.Size));
 		CreateVertexBufferView();

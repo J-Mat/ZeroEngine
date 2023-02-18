@@ -10,11 +10,11 @@ namespace Zero
 	{
 	public:
 		FUnorderedAccessResourceView(
-			Ref<FResource> Resource, 
-			Ref<FResource> CounterResource = nullptr,
+			Ref<FDX12Resource> Resource, 
+			Ref<FDX12Resource> CounterResource = nullptr,
 			const D3D12_UNORDERED_ACCESS_VIEW_DESC* UAVPtr = nullptr);
 		~FUnorderedAccessResourceView();
-		Ref<FResource> GetResource() const
+		Ref<FDX12Resource> GetResource() const
 		{
 			return m_Resource;
 		}
@@ -24,8 +24,8 @@ namespace Zero
 			return m_Descriptor.GetDescriptorHandle();
 		}
 	private:
-		Ref<FResource> m_Resource;
-		Ref<FResource> m_CounterResource;
+		Ref<FDX12Resource> m_Resource;
+		Ref<FDX12Resource> m_CounterResource;
 		FDescriptorAllocation  m_Descriptor;
 			
 	};

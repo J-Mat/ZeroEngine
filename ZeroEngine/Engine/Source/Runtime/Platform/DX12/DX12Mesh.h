@@ -17,8 +17,8 @@ namespace Zero
 	public:
 		FDX12Mesh(float* Vertices, uint32_t VertexCount, uint32_t* indices, uint32_t IndexCount, FVertexBufferLayout& Layout);
 		FDX12Mesh(std::vector<FMeshData> meshDatas, FVertexBufferLayout& Layout);
-		virtual void Draw();
-		virtual void DrawSubMesh(FSubMesh& SubMesh);
+		virtual void Draw(FCommandListHandle CommandListHandle);
+		virtual void DrawSubMesh(FSubMesh& SubMesh, FCommandListHandle CommandListHandle);
 	private:
 		Ref<FDX12VertexBuffer> m_D3DVertexBuffer;
 		Ref<FDX12IndexBuffer> m_D3DIndexBuffer;

@@ -2,7 +2,7 @@
 #include "Core.h"
 #include "ShaderData.h"
 #include "ShaderBinder.h"
-#include "VertexBuffer.h"
+#include "./Buffer/VertexBuffer.h"
 #include "Texture.h"
 
 namespace Zero
@@ -23,11 +23,14 @@ namespace Zero
 		std::string ShaderName;
 		bool bUseAlphaBlending = false;
 		FVertexBufferLayout VertexBufferLayout = FVertexBufferLayout::s_DefaultVertexLayout;
-		int NumRenderTarget = 2;
+		int32_t NumRenderTarget = 1;
 		FFrameBufferTexturesFormats Formats = {
-			ETextureFormat::R8G8B8A8,
-			ETextureFormat::DEPTH32F
+			EResourceFormat::R8G8B8A8_UNORM,
 		};
+		
+		bool bNeedDetph = true;
+		EResourceFormat DepthFormat = EResourceFormat::D24_UNORM_S8_UINT;
+		
 
 		FShaderDefines ShaderDefines;
 		bool bCreateVS = true;
@@ -46,7 +49,7 @@ namespace Zero
 		FShader(const FShaderBinderDesc& BinderDesc, const FShaderDesc& Desc);
 		FShader(const FShaderDesc& Desc);
 		virtual ~FShader() {}
-		virtual void Use() = 0;
+		virtual void Use(FCommandListHandle CommandList) = 0;
 		virtual void CreateBinder() = 0;
 
 		virtual Ref<IShaderBinder> GetBinder() { return m_ShaderBinder; }

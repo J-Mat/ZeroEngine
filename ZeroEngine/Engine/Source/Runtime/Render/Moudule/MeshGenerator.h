@@ -5,7 +5,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-#include "Render/RHI/VertexBuffer.h"
+#include "Render/RHI/Buffer/VertexBuffer.h"
 
 namespace Zero
 {

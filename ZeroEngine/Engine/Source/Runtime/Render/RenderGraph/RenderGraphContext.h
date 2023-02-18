@@ -14,15 +14,15 @@ namespace Zero
 	template<>
 	struct FRGResourceTraits<ERGResourceType::Texture>
 	{
-		using FResourece = FTexture2D;
-		using FResoureDesc = FTextureDesc;
+		using FResource = FTexture2D;
+		using FResourceDesc = FTextureDesc;
 	};
 	
 	template<>
 	struct FRGResourceTraits<ERGResourceType::Buffer>
 	{
 		using FResource = FBuffer;
-		using FResoureDesc = FBufferDesc;
+		using FResourceDesc = FBufferDesc;
 	};
 
 	struct FRGResource
@@ -44,13 +44,13 @@ namespace Zero
 	struct FTypedRGResource :  FRGResource
 	{
 		using FResource = FRGResourceTraits<ResourceType>::FResource;
-		using FResourceDesc = FRGResourceTraits<ResourceType>::FResoureDesc;
+		using FResourceDesc = FRGResourceTraits<ResourceType>::FResourceDesc;
 		
-		FTypedRGResource(size_t ID, Ref<FResource> _Resource, char const* Name = "")
-			: FRGResource(ID, true, Name), Resource(_Resource), desc(_Resource->GetDesc())
+		FTypedRGResource(uint32_t ID, Ref<FResource> _Resource, char const* Name = "")
+			: FRGResource(ID, true, Name), Resource(_Resource), Desc(_Resource->GetDesc())
 		{}
 
-		FTypedRGResource(size_t ID, FResourceDesc const& _Desc, char const* Name = "")
+		FTypedRGResource(uint32_t ID, FResourceDesc const& _Desc, char const* Name = "")
 			: FRGResource(ID, false, Name), Resource(nullptr), Desc(_Desc)
 		{}
 		Ref<FResource> Resource;
@@ -66,8 +66,8 @@ namespace Zero
 		FRenderGraphContext(FRenderGraphContext const&) = delete;
 		FRenderGraphContext& operator=(FRenderGraphContext const&) = delete;
 
-		Ref<FTexture2D> const& GetTexture(FRGTextureID ResID) const;
-		Ref<FBuffer>  const& GetBuffer(FRGBufferID ResID) const;
+		Ref<FTexture2D> GetTexture(FRGTextureID ResID) const;
+		Ref<FBuffer> GetBuffer(FRGBufferID ResID) const;
 	private:
 		FRenderGraphContext(FRenderGraph& RenderGraph, FRGPassBase& RGPass);
 	private:

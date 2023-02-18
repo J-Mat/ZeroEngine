@@ -53,7 +53,7 @@ namespace Zero
 		virtual void SetTextureCubemap(const std::string& Name, Ref<FTextureCubemap> Texture) override;
 		virtual void SetTextureCubemapArray(const std::string& Name, const std::vector<Ref<FTextureCubemap>>& TextureCubes) override;
 
-		virtual void UploadDataIfDirty() override;
+		virtual void UploadDataIfDirty(FCommandListHandle CommandListHandle) override;
 	private:
 
 		Ref<FDynamicDescriptorHeap> m_SrvDynamicDescriptorHeap;
@@ -67,8 +67,8 @@ namespace Zero
 		FDX12ShaderBinder(FShaderBinderDesc& Desc);
 		virtual ~FDX12ShaderBinder();
 		virtual FRootSignature* GetRootSignature() { return m_RootSignature.get(); }
-		virtual void BindConstantsBuffer(int32_t Slot, IShaderConstantsBuffer* Buffer) override;
-		virtual void Bind() override;
+		virtual void BindConstantsBuffer(FCommandListHandle CommandListHandle, int32_t Slot, IShaderConstantsBuffer* Buffer) override;
+		virtual void Bind(FCommandListHandle CommandListHandle) override;
 	private:
 		void BuildRootSignature();
 		void BuildDynamicHeap();

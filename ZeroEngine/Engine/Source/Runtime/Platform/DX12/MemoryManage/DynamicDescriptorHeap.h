@@ -36,8 +36,8 @@ namespace Zero
 			const D3D12_CPU_DESCRIPTOR_HANDLE SrcDescriptors);
 
 
-		void SetAsShaderResourceHeap();
-		void SetComputeAsShaderResourceHeap(FDX12CommandList& CommandList);
+		void SetAsShaderResourceHeap(FCommandListHandle CommanListHandle);
+		void SetComputeAsShaderResourceHeap(FCommandListHandle CommandListHandle);
 
 
 		/**
@@ -63,8 +63,8 @@ namespace Zero
 		*/
 		void ParseRootSignature(const Ref<FDX12RootSignature>& RootSignature);
 
-		void CommitStagedDescriptorsForDraw(FDX12CommandList& CommandList);
-		void CommitStagedDescriptorsForDispatch(FDX12CommandList& CommandList);
+		void CommitStagedDescriptorsForDraw(FCommandListHandle CommandListHandle);
+		void CommitStagedDescriptorsForDispatch(FCommandListHandle CommandListHandle);
 
 		void Reset();
 		
@@ -90,7 +90,7 @@ namespace Zero
 		* be passed as an argument to the function.
 		*/
 		void CommitDescriptorTables(
-			FDX12CommandList& CommandList,
+			FCommandListHandle CommandListHandle,
 			std::function<void(ID3D12GraphicsCommandList*, UINT, D3D12_GPU_DESCRIPTOR_HANDLE)> SetFunc);
 		void CommitInlineDescriptors(
 			FDX12CommandList& CommandList, const D3D12_GPU_VIRTUAL_ADDRESS* bufferLocations, uint32_t& BitMask,

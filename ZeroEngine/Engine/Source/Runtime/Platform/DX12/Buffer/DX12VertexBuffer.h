@@ -2,12 +2,12 @@
 #include "Core.h"
 #include "../Common/DX12Header.h"
 #include "Render/RHI/Buffer/VertexBuffer.h"
+#include "../Resource.h"
 
 namespace Zero
 {
 	class FDX12Device;
-	class FResource;
-	class FDX12VertexBuffer :public FVertexBuffer, public FResource
+	class FDX12VertexBuffer :public FVertexBuffer, public FDX12Resource
 	{
 	public:
 		FDX12VertexBuffer(void* _Data, const FBufferDesc& Desc, FVertexBufferLayout& _Layout);

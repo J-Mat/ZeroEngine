@@ -19,6 +19,16 @@ namespace Zero
                 continue;
             m_TextureReads.insert(Pass->m_TextureCreates.begin(), Pass->m_TextureCreates.end());
             m_TextureDestroys.insert(Pass->m_TextureDestroys.begin(), Pass->m_TextureDestroys.end());
+            for (auto [RGTextureID, State] : Pass->m_TextureStateMap)
+            { 
+                m_TextureStateMap[RGTextureID] |= State;
+            }
+            m_BufferReads.insert(Pass->m_BufferCreates.begin(), Pass->m_BufferCreates.end());
+            m_BufferDestroys.insert(Pass->m_BufferDestroys.begin(), Pass->m_BufferDestroys.end());
+            for (auto [RGTextureID, State] : Pass->m_BufferStateMap)
+            { 
+                m_BufferStateMap[RGTextureID] |= State;
+            }
         }
     }
 
@@ -31,7 +41,7 @@ namespace Zero
 				continue;
 			}
 
-			FRenderGraphContext RenderGraphContexts();
+			//FRenderGraphContext RenderGraphContexts();
 		}
     }
 
@@ -43,8 +53,51 @@ namespace Zero
         CullPasses();
     }
 
+    void FRenderGraph::SetTextureUsage(FRGTextureID RGTextureID)
+    {
+        for (auto& [RGTextureID, Descs] : m_SRVTexDescMap)
+        { 
+            Ref<FTexture2D> Texture = GetTexture(RGTextureID);
+            Texture->MakeSRVs(Descs);
+        }
+
+        for (auto& [RGTextureID, Descs] : m_UAVTexDescMap)
+        { 
+            Ref<FTexture2D> Texture = GetTexture(RGTextureID);
+            Texture->MakeUAVs(Descs);
+        }
+
+        for (auto& [RGTextureID, Descs] : m_RTVTexDescMap)
+        { 
+            Ref<FTexture2D> Texture = GetTexture(RGTextureID);
+            Texture->MakeRTVs(Descs);
+        }
+    }
+
     void FRenderGraph::Execute()
     {
+        m_ResourcePool.Tick();
+        for (auto& DependencyLevel : m_DependencyLevels)
+        { 
+            DependencyLevel.Setup();
+        }
+
+        for (size_t i = 0; i < m_DependencyLevels.size(); ++i)
+        {
+            auto& DependencyLevel = m_DependencyLevels[i];
+            for (auto RGTextureID : DependencyLevel.m_TextureCreates)
+            {
+                Ref<FRGTexture> RGTexture = GetRGTexture(RGTextureID);
+                RGTexture->Resource = m_ResourcePool.AllocateTexture(RGTexture->Desc);
+                SetTextureUsage(RGTextureID);
+            }
+
+            for (auto RGBufferID : DependencyLevel.m_BufferCreates)
+            { 
+                Ref<FRGBuffer> RGBuffer = GetRGBuffer(RGBufferID);
+                RGBuffer->Resource = m_ResourcePool.AllocateBuffer(RGBuffer->Desc);
+            }
+        }
     }
 
     FRGTextureID FRenderGraph::GetTextureID(FRGResourceName Name)
@@ -168,8 +221,8 @@ namespace Zero
         CORE_ASSERT(m_TextureNameIDMap.find(Name) == m_TextureNameIDMap.end(), "Texture with that name has already been declared");
         FTextureDesc TextureDesc{};
         FillTextureDesc(Desc, TextureDesc);
-        m_Textures.emplace_back(CreateRef<FRGTexture>(m_Textures.size(), TextureDesc, Name));
-        auto RGTextureID = FRGTextureID(m_Textures.size() - 1);
+        m_Textures.emplace_back(CreateRef<FRGTexture>(uint32_t(m_Textures.size()), TextureDesc, Name));
+        auto RGTextureID = FRGTextureID(uint32_t(m_Textures.size() - 1));
         m_TextureNameIDMap[Name] = RGTextureID;
         return RGTextureID;
     }
@@ -179,8 +232,8 @@ namespace Zero
         CORE_ASSERT(m_BufferNameIDMap.find(Name) == m_BufferNameIDMap.end(), "Buffer with that name has already been declared");
         FBufferDesc BufferDesc{};
         FillBufferDesc(Desc, BufferDesc);
-        m_Buffers.emplace_back(CreateRef<FRGBuffer>(m_Buffers.size(), BufferDesc, Name));
-        auto RGBufferID = FRGBufferID(m_Buffers.size() - 1);
+        m_Buffers.emplace_back(CreateRef<FRGBuffer>(uint32_t(m_Buffers.size()), BufferDesc, Name));
+        auto RGBufferID = FRGBufferID(uint32_t(m_Buffers.size() - 1));
         m_BufferNameIDMap[Name] = RGBufferID;
         return RGBufferID;
     }
@@ -197,24 +250,25 @@ namespace Zero
 
     bool FRenderGraph::IsValidTextureHandle(FRGTextureID RGTextureID) const
     {
-        return RGTextureID.IsValid() && RGTextureID.ID < m_Textures.size();
+        return RGTextureID.IsValid() && RGTextureID.ID < uint32_t(m_Textures.size());
     }
 
     bool FRenderGraph::IsValidBufferHandle(FRGBufferID RGBufferID) const
     {
-        return RGBufferID.IsValid() && RGBufferID.ID < m_Buffers.size();
+        return RGBufferID.IsValid() && RGBufferID.ID < uint32_t(m_Buffers.size());
     }
+
 
     void FRenderGraph::ImportTexture(FRGResourceName Name, Ref<FTexture2D> Texture)
     {
-        m_Textures.emplace_back(CreateRef<FRGTexture>(m_Textures.size(), Texture, Name));
-        m_TextureNameIDMap[Name] = FRGTextureID(m_Textures.size() - 1);
+        m_Textures.emplace_back(CreateRef<FRGTexture>(uint32_t(m_Textures.size()), Texture, Name));
+        m_TextureNameIDMap[Name] = FRGTextureID(uint32_t(m_Textures.size() - 1));
     }
 
     void FRenderGraph::ImportBuffer(FRGResourceName Name, Ref<FBuffer> Buffer)
     {
-        m_Buffers.emplace_back(CreateRef<FRGBuffer>(m_Buffers.size(), Buffer, Name));
-        m_BufferNameIDMap[Name] = FRGBufferID(m_Buffers.size() - 1);
+        m_Buffers.emplace_back(CreateRef<FRGBuffer>(uint32_t(m_Buffers.size()), Buffer, Name));
+        m_BufferNameIDMap[Name] = FRGBufferID(uint32_t(m_Buffers.size() - 1));
     }
 
     Ref<FRGTexture> FRenderGraph::GetRGTexture(FRGTextureID RGTextureID) const
@@ -248,17 +302,16 @@ namespace Zero
             RGTexture->Desc.InitialState = EResourceState::RenderTarget;
         }
         
-        std::vector<std::pair<FTextureSubresourceDesc, ERGDescriptorType>>& ViewDescs = m_TextureViewDescMap[Handle];
-        for (size_t i = 0; i < ViewDescs.size(); ++i)
+        std::vector <FTextureSubresourceDesc>& ViewDescs = m_RTVTexDescMap[Handle]; // m_TextureViewDescMap[Handle];
+        for (uint32_t i = 0; i < ViewDescs.size(); ++i)
         { 
-            auto const& [_Desc, _Type] = ViewDescs[i];
-            if (Desc == _Desc && _Type == ERGDescriptorType::RenderTarget)
+            if (ViewDescs[i] == Desc)
             { 
                 return FRGRenderTargetID(i, Handle);
             }
         }
-        size_t ViewID = ViewDescs.size();
-        ViewDescs.emplace_back(Desc, ERGDescriptorType::RenderTarget);
+        ViewDescs.emplace_back(Desc);
+        uint32_t ViewID = uint32_t(ViewDescs.size() - 1);
         return FRGRenderTargetID(ViewID, Handle);
     }
 
@@ -273,17 +326,16 @@ namespace Zero
             RGTexture->Desc.InitialState = EResourceState::DepthRead;
         }
         
-        std::vector<std::pair<FTextureSubresourceDesc, ERGDescriptorType>>& ViewDescs = m_TextureViewDescMap[Handle];
-        for (size_t i = 0; i < ViewDescs.size(); ++i)
+        std::vector<FTextureSubresourceDesc>& ViewDescs = m_DSVTexDescMap[Handle]; //m_TextureViewDescMap[Handle];
+        for (uint32_t i = 0; i < ViewDescs.size(); ++i)
         { 
-            auto const& [_Desc, _Type] = ViewDescs[i];
-            if (Desc == _Desc && _Type == ERGDescriptorType::DepthStencil)
+            if (ViewDescs[i] == Desc)
             { 
                 return FRGDepthStencilID(i, Handle);
             }
         }
-        size_t ViewID = ViewDescs.size();
-        ViewDescs.emplace_back(Desc, ERGDescriptorType::DepthStencil);
+        ViewDescs.emplace_back(Desc);
+        uint32_t ViewID = uint32_t(ViewDescs.size() - 1);
         return FRGDepthStencilID(ViewID, Handle);
     }
 
@@ -298,17 +350,16 @@ namespace Zero
             RGTexture->Desc.InitialState = EResourceState::PixelShaderResource | EResourceState::NonPixelShaderResource;
         }
 
-        std::vector<std::pair<FTextureSubresourceDesc, ERGDescriptorType>>& ViewDescs = m_TextureViewDescMap[Handle];
-        for (size_t i = 0; i < ViewDescs.size(); ++i)
+        std::vector<FTextureSubresourceDesc>& ViewDescs = m_SRVTexDescMap[Handle];
+        for (uint32_t i = 0; i < ViewDescs.size(); ++i)
         { 
-            auto const& [_Desc, _Type] = ViewDescs[i];
-            if (Desc == _Desc && _Type == ERGDescriptorType::ReadOnly)
+            if (ViewDescs[i] == Desc) 
             { 
                 return FRGTextureReadOnlyID(i, Handle);
             }
         }
-        size_t ViewID = ViewDescs.size();
-        ViewDescs.emplace_back(Desc, ERGDescriptorType::ReadOnly);
+        ViewDescs.emplace_back(Desc);
+        uint32_t ViewID = uint32_t(ViewDescs.size() - 1);
         return FRGTextureReadOnlyID(ViewID, Handle);
     }
 
@@ -322,18 +373,17 @@ namespace Zero
         { 
             RGTexture->Desc.InitialState = EResourceState::UnorderedAccess;
         }
-        std::vector<std::pair<FTextureSubresourceDesc, ERGDescriptorType>>& ViewDescs = m_TextureViewDescMap[Handle];
-        for (size_t i = 0; i < ViewDescs.size(); ++i)
+        std::vector<FTextureSubresourceDesc>& ViewDescs = m_UAVTexDescMap[Handle]; // m_TextureViewDescMap[Handle];
+        for (uint32_t i = 0; i < ViewDescs.size(); ++i)
         { 
-            auto const& [_Desc, _Type] = ViewDescs[i];
-            if (Desc == _Desc && _Type == ERGDescriptorType::ReadWrite)
+            if (ViewDescs[i] == Desc) 
             { 
                 return FRGTextureReadWriteID(i, Handle);
             }
         }
 
-        size_t ViewID = ViewDescs.size();
-        ViewDescs.emplace_back(Desc, ERGDescriptorType::ReadWrite);
+        ViewDescs.emplace_back(Desc);
+        uint32_t ViewID = uint32_t(ViewDescs.size() - 1);
         return FRGTextureReadWriteID(ViewID, Handle);
     }
 
@@ -344,17 +394,17 @@ namespace Zero
         Ref<FRGBuffer> RGBuffer = GetRGBuffer(Handle);
         RGBuffer->Desc.ResourceBindFlag |= EResourceBindFlag::ShaderResource;
 
-        std::vector<std::pair<FBufferSubresourceDesc, ERGDescriptorType>>& ViewDescs = m_BufferViewDescMap[Handle];
-        for (size_t i = 0; i < ViewDescs.size(); ++i)
+        std::vector<FBufferSubresourceDesc>& ViewDescs = m_SRVBufferDescMap[Handle];  // m_BufferViewDescMap[Handle];
+        for (uint32_t i = 0; i < ViewDescs.size(); ++i)
         { 
             auto const& [_Desc, _Type] = ViewDescs[i];
-            if (Desc == _Desc && _Type == ERGDescriptorType::ReadOnly)
+            if (ViewDescs[i] == Desc)
             { 
                 return FRGBufferReadOnlyID(i, Handle);
             }
         }
-        size_t ViewID = ViewDescs.size();
-        ViewDescs.emplace_back(Desc, ERGDescriptorType::ReadOnly);
+        ViewDescs.emplace_back(Desc);
+        uint32_t ViewID = uint32_t(ViewDescs.size() - 1);
         return FRGBufferReadOnlyID(ViewID, Handle);
     }
 
@@ -364,60 +414,17 @@ namespace Zero
         CORE_ASSERT(IsValidBufferHandle(Handle), "Resource has not been declared!");
         Ref<FRGBuffer> RGBuffer = GetRGBuffer(Handle);
         RGBuffer->Desc.ResourceBindFlag |= EResourceBindFlag::UnorderedAccess;
-        std::vector<std::pair<FBufferSubresourceDesc, ERGDescriptorType>>& ViewDescs = m_BufferViewDescMap[Handle];
-        for (size_t i = 0; i < ViewDescs.size(); ++i)
+        std::vector<FBufferSubresourceDesc>& ViewDescs = m_UAVBufferDescMap[Handle]; //m_BufferViewDescMap[Handle];
+        for (uint32_t i = 0; i < ViewDescs.size(); ++i)
         { 
-            auto const& [_Desc, _Type] = ViewDescs[i];
-            if (Desc == _Desc && _Type == ERGDescriptorType::ReadWrite)
+            if (ViewDescs[i] == Desc)
             { 
                 return FRGBufferReadWriteID(i, Handle);
             }
         }
 
-        size_t ViewID = ViewDescs.size();
-        ViewDescs.emplace_back(Desc, ERGDescriptorType::ReadWrite);
+        ViewDescs.emplace_back(Desc);
+        uint32_t ViewID = uint32_t(ViewDescs.size() - 1);
         return FRGBufferReadWriteID(ViewID, Handle);
-    }
-
-    FResourceCpuHandle FRenderGraph::GetRenderTarget(FRGRenderTargetID ID) const
-    {
-        FRGTextureID TexturID = ID.GetResourceID();
-        auto const& Views = m_TextureViewMap[TexturID];
-        return Views[ID.GetViewID()].first;
-    }
-
-    FResourceCpuHandle FRenderGraph::GetDepthStencil(FRGRenderTargetID ID) const
-    {
-        FRGTextureID TexturID = ID.GetResourceID();
-        auto const& Views = m_TextureViewMap[TexturID];
-        return Views[ID.GetViewID()].first;
-    }
-
-    FResourceCpuHandle FRenderGraph::GetReadOnlyTexture(FRGTextureReadOnlyID ID) const
-    {
-        FRGTextureID TexturID = ID.GetResourceID();
-        auto const& Views = m_TextureViewMap[TexturID];
-        return Views[ID.GetViewID()].first;
-    }
-
-    FResourceCpuHandle FRenderGraph::GetReadWriteTexture(FRGTextureReadWriteID ID) const
-    {
-        FRGTextureID TexturID = ID.GetResourceID();
-        auto const& Views = m_TextureViewMap[TexturID];
-        return Views[ID.GetViewID()].first;
-    }
-
-    FResourceCpuHandle FRenderGraph::GetReadOnlyBuffer(FRGBufferReadOnlyID ID) const
-    {
-        FRGBufferID TexturID = ID.GetResourceID();
-        auto const& Views = m_BufferViewMap[TexturID];
-        return Views[ID.GetViewID()].first;
-    }
-
-    FResourceCpuHandle FRenderGraph::GetReadWriteBuffer(FRGBufferReadWriteID ID) const
-    {
-        FRGBufferID TexturID = ID.GetResourceID();
-        auto const& Views = m_BufferViewMap[TexturID];
-        return Views[ID.GetViewID()].first;
     }
 }

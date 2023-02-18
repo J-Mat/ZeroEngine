@@ -98,6 +98,7 @@ namespace Zero
 			};
 			return DimentionResourceType[Dimension];
 		}
+		/*
 		static DXGI_FORMAT GetTextureFormatByDesc(ETextureFormat Format)
 		{
 			switch (Format)
@@ -121,6 +122,7 @@ namespace Zero
 			}
 			return DXGI_FORMAT_UNKNOWN;
 		}
+		*/
 
 
 		static constexpr DXGI_FORMAT ConvertResourceFormat(EResourceFormat _format)
@@ -325,6 +327,8 @@ namespace Zero
 			case EResourceFormat::BC7_UNORM_SRGB:
 				return DXGI_FORMAT_BC7_UNORM_SRGB;
 
+			case EResourceFormat::D24_UNORM_S8_UINT:
+				return DXGI_FORMAT_D24_UNORM_S8_UINT;
 			}
 			return DXGI_FORMAT_UNKNOWN;
 		}
