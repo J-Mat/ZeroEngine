@@ -1,7 +1,6 @@
 # ZeroEngine
 
-- [LearningDX12](https://github.com/J-Mat/ZeroEngine/tree/main/LearningDX12 "LearningDX12")  Dragon book source code, managed by cmake.
-- [ZeroEngine](https://github.com/J-Mat/ZeroEngine/tree/main/ZeroEngine "ZeroEngine")  Renderer based dx12
+Renderer based on DX12
 
 ## Credits
 
