@@ -1,0 +1,9 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\Shader",
+    "\\Shader\\Compute"
+  ],
+  "SelectedNode": "\\Shader\\Compute\\GenerateMips_CS.hlsl",
+  "PreviewInSolutionExplorer": false
+}

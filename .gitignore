@@ -1,3 +1,7 @@
+/Engine/Source/Utils/ZConfig.h
+/Engine/Source/CodeReflectionLinkFile.h
+./Intermediate
+
 # Prerequisites
 *.d
 
@@ -30,4 +34,3 @@
 *.exe
 *.out
 *.app
-/LearningDX12/.vscode
