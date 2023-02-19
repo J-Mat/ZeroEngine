@@ -21,6 +21,7 @@ namespace Zero
 	class FDX12RenderTarget2D;
 	class FShaderResourceView;
 	class FUnorderedAccessResourceView;
+	class FDescriptorCache;
 	class FDX12CommandList : public FCommandList, public std::enable_shared_from_this<FDX12CommandList>
 	{
 	public:
@@ -71,17 +72,12 @@ namespace Zero
 		// Just close the command list. This is useful for pending command lists.
 		void Close();
 
-
+		void OnComandListDeployed(); 
 		/**
 		* Release tracked objects. Useful if the swap chain needs to be resized.
 		*/
 		void ReleaseTrackedObjects();
 
-		/**
-		* Set the currently bound descriptor heap.
-		* Should only be called by the DynamicDescriptorHeap class.
-		*/
-		void SetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE HeapType, ID3D12DescriptorHeap* Heap);
 
 		// Binds the current descriptor heaps to the command list.
 		void BindDescriptorHeaps();
@@ -181,7 +177,14 @@ namespace Zero
 		void TrackResource(Microsoft::WRL::ComPtr<ID3D12Object> Object);
 		void TrackResource(const Ref<FDX12Resource>& res);
 
+		/**
+		* Set the currently bound descriptor heap.
+		* Should only be called by the DynamicDescriptorHeap class.
+		*/
+		void SetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE HeapType, ID3D12DescriptorHeap* Heap);
+
 	private:
+		Scope<FDescriptorCache> m_DescriptorCache;
 		Scope<FGenerateMipsPSO> m_GenerateMipsPSO = nullptr;
 		std::vector<ComPtr<ID3D12Object>> m_TrackedObjects;
 

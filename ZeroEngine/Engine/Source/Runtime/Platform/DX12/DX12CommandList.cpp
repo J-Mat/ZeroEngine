@@ -6,6 +6,7 @@
 #include "./PSO/GenerateMipsPSO.h"
 #include "./ResourceView/ShaderResourceView.h"
 #include "./ResourceView/UnorderedAccessResourceView.h"
+#include "./MemoryManage/DescriptorCache.h"
 #include "Utils.h"
 
 namespace Zero
@@ -29,6 +30,13 @@ namespace Zero
 			
 			m_DynamicDescriptorHeap[i] = CreateScope<FDynamicDescriptorHeap>(D3D12_DESCRIPTOR_HEAP_TYPE(i));
 		}
+		m_DescriptorCache = CreateScope<FDescriptorCache>();
+	}
+
+	void FDX12CommandList::OnComandListDeployed()
+	{
+		SetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, m_DescriptorCache->GetCacheCbvSrvUavDescriptorHeap().Get());
+		SetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, m_DescriptorCache->GetCacheRtvDescriptorHeap().Get());
 	}
 
 	void FDX12CommandList::FlushResourceBarriers()
@@ -771,6 +779,7 @@ namespace Zero
 		m_RootSignature = nullptr;
 		m_PipelineState = nullptr;
 		m_ComputeCommandList = nullptr;
+		m_DescriptorCache->Reset();
 	}
 
 
