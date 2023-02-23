@@ -1,5 +1,5 @@
 #include "DescriptorCache.h"
-#include "../DX12Device.h"
+#include "../../DX12Device.h"
 
 namespace Zero
 {
@@ -33,7 +33,7 @@ namespace Zero
 		D3D12_DESCRIPTOR_HEAP_DESC RtvHeapDesc{
 			.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
 			.NumDescriptors = s_MaxCbvSrvUavDescripotrCount,
-			.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE
+			.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE
 		};
 		ThrowIfFailed(FDX12Device::Get()->GetDevice()->CreateDescriptorHeap(&RtvHeapDesc, IID_PPV_ARGS(&m_CacheRtvDescriptorHeap)));
 		m_CacheRtvDescriptorHeap->SetName(L"CacheRtvDescriptorHeap");
@@ -41,17 +41,16 @@ namespace Zero
 		m_RtvDescriptorSize = FDX12Device::Get()->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	}
 
-	CD3DX12_GPU_DESCRIPTOR_HANDLE FDescriptorCache::AppendCbvSrvUavDescriptors(const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& SrcDescriptors)
+	CD3DX12_GPU_DESCRIPTOR_HANDLE FDescriptorCache::AppendCbvSrvUavDescriptors(D3D12_CPU_DESCRIPTOR_HANDLE* DstDescriptor, uint32_t NumDescriptors)
 	{
-		uint32_t SlotNum = (uint32_t)SrcDescriptors.size();
-		CORE_ASSERT(m_CbvSrvUavDescriptorOffset + SlotNum < s_MaxCbvSrvUavDescripotrCount, "Too Many Descritors!");
+		CORE_ASSERT(m_CbvSrvUavDescriptorOffset + NumDescriptors < s_MaxCbvSrvUavDescripotrCount, "Too Many Descritors!");
 		
 		auto CpuDescHandle = CD3DX12_CPU_DESCRIPTOR_HANDLE(m_CacheCbvSrvUavDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), m_CbvSrvUavDescriptorOffset, m_CbvSrvUavDescriptorSize);
-		FDX12Device::Get()->GetDevice()->CopyDescriptors(1, &CpuDescHandle, &SlotNum, SlotNum, SrcDescriptors.data(), nullptr, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		FDX12Device::Get()->GetDevice()->CopyDescriptors(1, &CpuDescHandle, &NumDescriptors, NumDescriptors, DstDescriptor, nullptr, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 		
 		auto GpuDescHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(m_CacheCbvSrvUavDescriptorHeap->GetGPUDescriptorHandleForHeapStart(), m_CbvSrvUavDescriptorOffset, m_CbvSrvUavDescriptorSize);
 
-		m_CbvSrvUavDescriptorOffset += SlotNum;
+		m_CbvSrvUavDescriptorOffset += NumDescriptors;
 		
 		return GpuDescHandle;
 	}

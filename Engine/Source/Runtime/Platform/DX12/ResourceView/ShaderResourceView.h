@@ -1,8 +1,8 @@
 #pragma once
 #include "Core.h"
 #include "../Common/DX12Header.h"
-#include "../Resource.h"
-#include "../MemoryManage/DescriptorAllocation.h"
+#include "../MemoryManage/Resource/Resource.h"
+#include "../MemoryManage/Descriptor/DescriptorAllocation.h"
 
 namespace Zero
 {

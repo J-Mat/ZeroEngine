@@ -1,5 +1,5 @@
 #include "FrameResource.h"
-#include "../DX12Device.h"
+#include "../../DX12Device.h"
 #include "UploadBuffer.h"
 #include "Utils.h"
 
@@ -8,12 +8,12 @@ namespace Zero
 	FFrameResourceBuffer::FFrameResourceBuffer(uint32_t Size)
 		: m_SizeByte(ZMath::CalcConstantBufferByteSize(Size))
 	{
-		FFrameResourcesManager::GetInstance().RegistFrameResource(this);
+		FFrameResourcesManager::Get().RegistFrameResource(this);
 	}
 
 	D3D12_GPU_VIRTUAL_ADDRESS FFrameResourceBuffer::GetCurrentGPUAddress()
 	{
-		uint32_t Index = FFrameResourcesManager::GetInstance().GetCurrentIndex();
+		uint32_t Index = FFrameResourcesManager::Get().GetCurrentIndex();
 		memcpy(m_GPUBuffers[Index].CPU
 			, m_CPUBuffer
 			, m_SizeByte);
@@ -22,7 +22,7 @@ namespace Zero
 
 	void FFrameResourceBuffer::UploadCurrentBuffer()
 	{
-		uint32_t Index = FFrameResourcesManager::GetInstance().GetCurrentIndex();
+		uint32_t Index = FFrameResourcesManager::Get().GetCurrentIndex();
 		memcpy(m_GPUBuffers[Index].CPU
 			, m_CPUBuffer
 			, m_SizeByte);

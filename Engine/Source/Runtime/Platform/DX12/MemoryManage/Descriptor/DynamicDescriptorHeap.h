@@ -13,8 +13,8 @@
  */
 
 #include "Core.h"
-#include "../Common/DX12Header.h"
-#include "../DX12RootSignature.h"
+#include "Platform/DX12/Common/DX12Header.h"
+#include "../../DX12RootSignature.h"
 
 namespace Zero
 {
@@ -63,7 +63,6 @@ namespace Zero
 		*/
 		void ParseRootSignature(const Ref<FDX12RootSignature>& RootSignature);
 
-		void CommitStagedDescriptorsForDraw(FCommandListHandle CommandListHandle);
 		void CommitStagedDescriptorsForDispatch(FCommandListHandle CommandListHandle);
 
 		void Reset();
@@ -74,24 +73,7 @@ namespace Zero
 		// Create a new descriptor hea p of no descriptor heap is available.
 		ComPtr<ID3D12DescriptorHeap> CreateDescriptorHeap();
 
-		// Compute the number of stale descriptors that need to be copied
-		// to GPU visible descriptor heap.
-		uint32_t ComputeStaleDescriptorCount() const;
 
-		/**
-		* Copy all of the staged descriptors to the GPU visible descriptor heap and
-		* bind the descriptor heap and the descriptor tables to the command list.
-		* The passed-in function object is used to set the GPU visible descriptors
-		* on the command list. Two possible functions are:
-		*   * Before a draw    : ID3D12GraphicsCommandList::SetGraphicsRootDescriptorTable
-		*   * Before a dispatch: ID3D12GraphicsCommandList::SetComputeRootDescriptorTable
-		*
-		* Since the DynamicDescriptorHeap can't know which function will be used, it must
-		* be passed as an argument to the function.
-		*/
-		void CommitDescriptorTables(
-			FCommandListHandle CommandListHandle,
-			std::function<void(ID3D12GraphicsCommandList*, UINT, D3D12_GPU_DESCRIPTOR_HANDLE)> SetFunc);
 		void CommitInlineDescriptors(
 			FDX12CommandList& CommandList, const D3D12_GPU_VIRTUAL_ADDRESS* bufferLocations, uint32_t& BitMask,
 			std::function<void(ID3D12GraphicsCommandList*, UINT, D3D12_GPU_VIRTUAL_ADDRESS)> SetFunc);
@@ -167,7 +149,6 @@ namespace Zero
 		// Each bit set in the bit mask represents a descriptor table
 		// in the root signature that has changed since the last time the
 		// descriptors were copied.
-		uint32_t	m_StaleDescriptorTableBitMask;
 		uint32_t	m_StaleCBVBitMask;
 		uint32_t	m_StaleSRVBitMask;
 		uint32_t	m_StaleUAVBitMask;
@@ -177,10 +158,6 @@ namespace Zero
 
 		FDescriptorHeapPool m_DescriptorHeapPool;
 		FDescriptorHeapPool m_AvailableDescriptorHeaps;
-		
-		ComPtr<ID3D12DescriptorHeap>	m_CurrentDescriptorHeap;
-		CD3DX12_GPU_DESCRIPTOR_HANDLE	m_CurrentGPUDescriptorHandle;
-		CD3DX12_CPU_DESCRIPTOR_HANDLE	m_CurrentCPUDescriptorHandle;
 
 		uint32_t m_NumFreeHandles;
 	};

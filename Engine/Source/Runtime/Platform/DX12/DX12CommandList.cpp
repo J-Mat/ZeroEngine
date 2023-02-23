@@ -6,7 +6,6 @@
 #include "./PSO/GenerateMipsPSO.h"
 #include "./ResourceView/ShaderResourceView.h"
 #include "./ResourceView/UnorderedAccessResourceView.h"
-#include "./MemoryManage/DescriptorCache.h"
 #include "Utils.h"
 
 namespace Zero
@@ -33,15 +32,15 @@ namespace Zero
 		m_DescriptorCache = CreateScope<FDescriptorCache>();
 	}
 
-	void FDX12CommandList::OnComandListDeployed()
-	{
-		SetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, m_DescriptorCache->GetCacheCbvSrvUavDescriptorHeap().Get());
-		SetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, m_DescriptorCache->GetCacheRtvDescriptorHeap().Get());
-	}
-
 	void FDX12CommandList::FlushResourceBarriers()
 	{
 		m_ResourceStateTracker->FlushResourceBarriers(shared_from_this());
+	}
+
+	void FDX12CommandList::OnDeployed()
+	{
+		SetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, m_DescriptorCache->GetCacheCbvSrvUavDescriptorHeap().Get());
+		//SetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, m_DescriptorCache->GetCacheRtvDescriptorHeap().Get());
 	}
 
 	Ref<FDX12Resource> FDX12CommandList::CreateTextureResource(const std::string& TextureName, Ref<FImage> Image, bool bGenerateMip)
@@ -53,7 +52,6 @@ namespace Zero
 		if (bGenerateMip)
 		{
 			Mips = ZMath::min(ZMath::CalLog2Interger(Image->GetWidth()), ZMath::CalLog2Interger(Image->GetHeight()));
-			Mips = 2;
 		}
 		
 		D3D12_RESOURCE_DESC TextureDesc = {};
@@ -107,8 +105,7 @@ namespace Zero
 		TrackResource(UploadResource);
 		TrackResource(TextureD3DResource);
 		
-		Ref<FDX12Resource> TextureResource = CreateRef<FDX12Resource>(TextureD3DResource);
-		TextureResource->SetName(Utils::StringToLPCWSTR(TextureName));
+		Ref<FDX12Resource> TextureResource = CreateRef<FDX12Resource>(TextureName, TextureD3DResource);
 
 		TransitionBarrier(TextureD3DResource.Get(), D3D12_RESOURCE_STATE_COMMON);
 
@@ -117,6 +114,77 @@ namespace Zero
 			GenerateMips(TextureResource);
 		}
 		return TextureResource;
+	}
+
+	void FDX12CommandList::AllocateTextureResource(const std::string& TextureName, Ref<FImage> Image, FResourceLocation& ResourceLocation, bool bGenerateMip)
+	{
+		ID3D12Device* D3DDevice = FDX12Device::Get()->GetDevice();
+		//Create default resource
+		D3D12_RESOURCE_STATES ResourceState = D3D12_RESOURCE_STATE_COMMON;
+
+		uint32_t Mips = 1;
+		if (bGenerateMip)
+		{
+			Mips = ZMath::min(ZMath::CalLog2Interger(Image->GetWidth()), ZMath::CalLog2Interger(Image->GetHeight()));
+		}
+
+		D3D12_RESOURCE_DESC TextureDesc;
+		ZeroMemory(&TextureDesc, sizeof(D3D12_RESOURCE_DESC));
+		TextureDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+		TextureDesc.Alignment = 0;
+		TextureDesc.Width = Image->GetWidth();
+		TextureDesc.Height = Image->GetHeight();
+		TextureDesc.DepthOrArraySize = 1;
+		TextureDesc.MipLevels = Mips;
+		TextureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		TextureDesc.SampleDesc.Count = 1;
+		TextureDesc.SampleDesc.Quality = 0;
+		TextureDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+		TextureDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_SIMULTANEOUS_ACCESS;
+
+		auto* TextureResourceAllocator = FDX12Device::Get()->GetTextureResourceAllocator();
+		TextureResourceAllocator->AllocTextureResource(TextureName, ResourceState, TextureDesc, ResourceLocation);
+		
+
+		D3D12_PLACED_SUBRESOURCE_FOOTPRINT Footprint;
+		UINT64  TotalBytes = 0;
+		FDX12Device::Get()->GetDevice()->GetCopyableFootprints(&TextureDesc, 0, 1, 0, &Footprint, nullptr, nullptr, &TotalBytes);
+
+		auto* UploadResourceAllocator = FDX12Device::Get()->GetUploadBufferAllocator();
+		FResourceLocation UploadResourceLocation;
+		void* MappedData = UploadResourceAllocator->AllocUploadResource(TotalBytes, UPLOAD_RESOURCE_ALIGNMENT, UploadResourceLocation);
+		ID3D12Resource* UploadBuffer = UploadResourceLocation.m_UnderlyingResource->GetD3DResource().Get();
+
+		D3D12_PLACED_SUBRESOURCE_FOOTPRINT Layout;
+		uint64_t RequiredSize = 0;
+		uint32_t NumRow;
+		uint64_t RowSizesInBytes;
+		D3DDevice->GetCopyableFootprints(&TextureDesc, 0, 1, 0, &Layout, &NumRow, &RowSizesInBytes, &RequiredSize);
+
+
+		D3D12_SUBRESOURCE_DATA InitData = {};
+		InitData.pData = Image->GetData();
+		InitData.RowPitch = Image->GetWidth() * Image->GetChannel();
+		InitData.SlicePitch = TotalBytes;
+
+		D3D12_MEMCPY_DEST DestData = { (BYTE*)MappedData + Layout.Offset, Layout.Footprint.RowPitch, SIZE_T(Layout.Footprint.RowPitch) * SIZE_T(NumRow) };
+		MemcpySubresource(&DestData, &InitData, static_cast<SIZE_T>(RowSizesInBytes), NumRow, Layout.Footprint.Depth);
+
+		TransitionBarrier(ResourceLocation.m_UnderlyingResource, D3D12_RESOURCE_STATE_COPY_DEST);
+
+		Layout.Offset += UploadResourceLocation.m_OffsetFromBaseOfResource;
+
+		CD3DX12_TEXTURE_COPY_LOCATION Src;
+		Src.pResource = UploadBuffer;
+		Src.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+		Src.PlacedFootprint = Layout;
+
+		CD3DX12_TEXTURE_COPY_LOCATION Dst;
+		Dst.pResource = ResourceLocation.m_UnderlyingResource->GetD3DResource().Get();
+		Dst.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+		Dst.SubresourceIndex = 0;
+
+		CopyTextureRegion(&Dst, 0, 0, 0, &Src, nullptr);
 	}
 
 
@@ -663,6 +731,11 @@ namespace Zero
 
 	}
 
+	CD3DX12_GPU_DESCRIPTOR_HANDLE FDX12CommandList::AppendCbvSrvUavDescriptors(D3D12_CPU_DESCRIPTOR_HANDLE* DstDescriptor, uint32_t NumDescriptors)
+	{
+		return m_DescriptorCache->AppendCbvSrvUavDescriptors(DstDescriptor, NumDescriptors);
+	}
+
 	void FDX12CommandList::TrackResource(Microsoft::WRL::ComPtr<ID3D12Object> Object)
 	{
 		m_TrackedObjects.push_back(Object);
@@ -690,6 +763,16 @@ namespace Zero
 	{
 		FlushResourceBarriers();
 		m_D3DCommandList->Close();
+	}
+
+	void FDX12CommandList::CopyBufferRegion(ComPtr<ID3D12Resource> DstResource, UINT64 DstOffset, ComPtr<ID3D12Resource> SrcResource, UINT64 SrcOffset, UINT64 Size)
+	{
+		m_D3DCommandList->CopyBufferRegion(DstResource.Get(), DstOffset, SrcResource.Get(), SrcOffset, Size);
+	}
+
+	void FDX12CommandList::CopyTextureRegion(const D3D12_TEXTURE_COPY_LOCATION* Dst, UINT DstX, UINT DstY, UINT DstZ, const D3D12_TEXTURE_COPY_LOCATION* Src, const D3D12_BOX* SrcBox)
+	{
+		m_D3DCommandList->CopyTextureRegion(Dst, DstX, DstY, DstZ, Src, SrcBox);
 	}
 
 	ComPtr<ID3D12Resource> FDX12CommandList::CreateDefaultBuffer(const void* BufferData, size_t BufferSize, D3D12_RESOURCE_FLAGS Flags)
@@ -727,6 +810,26 @@ namespace Zero
 		TrackResource(D3DResource);
 
 		return D3DResource;
+	}
+
+	void FDX12CommandList::CreateAndInitDefaultBuffer(const void* BufferData, uint32_t Size, uint32_t Alignment, FResourceLocation& ResourceLocation)
+	{
+		D3D12_RESOURCE_DESC ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(Size, D3D12_RESOURCE_FLAG_NONE);
+		auto* DefaultBufferAllocator = FDX12Device::Get()->GetDefaultBufferAllocator();
+		DefaultBufferAllocator->AllocDefaultResource(ResourceDesc, Alignment, ResourceLocation);
+
+		//Create upload resource 
+		FResourceLocation UploadResourceLocation;
+		auto UploadBufferAllocator = FDX12Device::Get()->GetUploadBufferAllocator();
+		void* MappedData = UploadBufferAllocator->AllocUploadResource(Size, UPLOAD_RESOURCE_ALIGNMENT, UploadResourceLocation);
+
+		memcpy(MappedData, BufferData, Size);
+		
+		Ref<FDX12Resource>	DefaultBuffer = ResourceLocation.m_UnderlyingResource;
+		Ref<FDX12Resource>	UploadBuffer = UploadResourceLocation.m_UnderlyingResource;
+		m_ResourceStateTracker->TransitionResource(DefaultBuffer->GetD3DResource().Get(), D3D12_RESOURCE_STATE_COPY_DEST);
+		CopyBufferRegion(DefaultBuffer->GetD3DResource(), ResourceLocation.m_OffsetFromBaseOfResource,
+			UploadBuffer->GetD3DResource(), UploadResourceLocation.m_OffsetFromBaseOfResource, Size);
 	}
 
 	void FDX12CommandList::SetCompute32BitConstants(uint32_t RootParameterIndex, uint32_t NumConstants, const void* Constants)

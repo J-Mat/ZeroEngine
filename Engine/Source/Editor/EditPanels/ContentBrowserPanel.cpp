@@ -3,6 +3,7 @@
 #include "Editor.h"
 #include "Data/Asset/AssetManager.h"
 #include "Data/Asset/AssetObject/MaterialAsset.h"
+#include "Render/Moudule/Texture/TextureManager.h"
 
 namespace Zero
 {
@@ -127,8 +128,8 @@ namespace Zero
 		if (FileName.ends_with(".png") || FileName.ends_with(".jpg") || FileName.ends_with(".tga"))
 		{
 			m_DragType = ASSET_PANEL_IMAGE;
-			auto Texture = FRenderer::GraphicFactroy->GetOrCreateTexture2D(m_AssetPath.string());
-			return Texture;
+			auto TextureHandle = FTextureManager::Get().LoadTexture(m_AssetPath.string());
+			return FTextureManager::Get().GetTextureByHandle(TextureHandle);
 		}
 		return m_FileIcon;
 	}
@@ -285,9 +286,9 @@ namespace Zero
 			TempAssetPath = m_SelectedFolder / (Stream.str() + ".mtl");
 		}
 		std::filesystem::path AssetPath = ZConfig::GetAssetReletivePath(TempAssetPath);
-		auto* MaterialAsset = FAssetManager::GetInstance().NewAsset<UMaterialAsset>(AssetPath.string());
-		FAssetManager::GetInstance().Serialize(MaterialAsset);
-		auto* Asset = FAssetManager::GetInstance().Remove(AssetPath.string());
+		auto* MaterialAsset = FAssetManager::Get().NewAsset<UMaterialAsset>(AssetPath.string());
+		FAssetManager::Get().Serialize(MaterialAsset);
+		auto* Asset = FAssetManager::Get().Remove(AssetPath.string());
 		delete Asset;
 	}
 

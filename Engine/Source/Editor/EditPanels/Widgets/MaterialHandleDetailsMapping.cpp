@@ -11,7 +11,7 @@ namespace Zero
 		{
 			if (*MaterialHandle != "")
 			{
-				m_MaterialAsset = FAssetManager::GetInstance().LoadAsset<UMaterialAsset>(*MaterialHandle);
+				m_MaterialAsset = FAssetManager::Get().LoadAsset<UMaterialAsset>(*MaterialHandle);
 			}
 		}
 	}
@@ -46,7 +46,7 @@ namespace Zero
         {
             while (VariableProperty != nullptr)
             {
-                Ref<FVariableDetailsMapping> VariableDetailsMapping = FDetailMappingManager::GetInstance().FindPropertyMapping(VariableProperty->GetPropertyType());
+                Ref<FVariableDetailsMapping> VariableDetailsMapping = FDetailMappingManager::Get().FindPropertyMapping(VariableProperty->GetPropertyType());
                 if (VariableDetailsMapping != nullptr && !VariableProperty->GetClassCollection().HasField("Invisible"))
                 {
 					if (VariableDetailsMapping->UpdateDetailsWidget(VariableProperty))
@@ -63,7 +63,7 @@ namespace Zero
 		{
 			if (m_MaterialAsset)
 			{
-				FAssetManager::GetInstance().Serialize(m_MaterialAsset);
+				FAssetManager::Get().Serialize(m_MaterialAsset);
 			}
 		}
     }

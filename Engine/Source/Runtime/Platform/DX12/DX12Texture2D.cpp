@@ -162,17 +162,17 @@ namespace Zero
 		m_TextureDesc.Width = ImageData->GetWidth();
 		m_TextureDesc.Height = ImageData->GetHeight();
 		CORE_ASSERT(ImageData->GetData() != nullptr, "Image has no data!");
-		auto Resource = FDX12Device::Get()->GetInitWorldCommandList()->CreateTextureResource(TextureName, ImageData, m_bNeedMipMap);
-		SetResource(Resource->GetD3DResource());
+		//auto Resource = FDX12Device::Get()->GetInitWorldCommandList()->CreateTextureResource(TextureName, ImageData, m_bNeedMipMap);
+		FDX12Device::Get()->GetInitWorldCommandList()->AllocateTextureResource(TextureName, ImageData, m_ResourceLocation, true);
+		SetResource(m_ResourceLocation.m_UnderlyingResource->GetD3DResource());
 		CreateViews();
 	}
 
     FDX12Texture2D::FDX12Texture2D(const std::string& TextureName, ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, const D3D12_CLEAR_VALUE* FTextureClearValue)
-		: FDX12Resource(Resource, FTextureClearValue)
+		: FDX12Resource(TextureName, Resource, FTextureClearValue)
 	{
 		m_TextureDesc.Width = Width;
 		m_TextureDesc.Height = Height;
-		Resource->SetName(Utils::StringToLPCWSTR(TextureName));
 		CreateViews();
 	}
 

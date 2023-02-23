@@ -30,7 +30,7 @@ namespace  Zero
 
 	void FLightManager::Tick()
 	{
-		auto& Buffer = FConstantsBufferManager::GetInstance().GetGlobalConstantBuffer();
+		auto& Buffer = FConstantsBufferManager::Get().GetGlobalConstantBuffer();
 		Buffer->SetInt("DirectLightNum", int(m_DirectLights.size()));
 		for (int32_t i = 0; i < m_DirectLights.size(); ++i)
 		{

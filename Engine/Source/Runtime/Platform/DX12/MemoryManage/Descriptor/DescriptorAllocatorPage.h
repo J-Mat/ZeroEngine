@@ -1,6 +1,6 @@
 #pragma once
 #include "Core.h"
-#include "../Common/DX12Header.h"
+#include "Platform/DX12/Common/DX12Header.h"
 
 
 namespace Zero

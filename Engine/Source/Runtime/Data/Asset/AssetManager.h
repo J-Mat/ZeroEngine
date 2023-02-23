@@ -44,11 +44,6 @@ namespace Zero
 			return nullptr;
 		};
 
-		Ref<FTexture2D> FetchTexture(const std::string& ID)
-		{
-			return RHI_Factory->GetOrCreateTexture2D(ID);
-		}
-
 		template<class T>
 		T* Remove(const std::string& ID)
 		{

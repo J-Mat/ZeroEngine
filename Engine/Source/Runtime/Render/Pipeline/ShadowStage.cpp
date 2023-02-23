@@ -26,7 +26,7 @@ namespace Zero
 			
 		std::vector<FMeshData> MeshDatas;
 		FMeshData MeshData;
-		FMeshGenerator::GetInstance().CreateRect(MeshData);
+		FMeshGenerator::Get().CreateRect(MeshData);
 		MeshDatas.push_back(MeshData);
 
 		m_ShadowMapDebugItem = RenderItemPool->Request();
@@ -42,8 +42,8 @@ namespace Zero
 
 	void FShadowStage::RegisterShadowMap()
 	{
-		m_ShadowMapRenderTargets.resize(FLightManager::GetInstance().GetMaxDirectLightsNum());
-		for (uint32_t Index = 0; Index < FLightManager::GetInstance().GetMaxDirectLightsNum(); ++Index)
+		m_ShadowMapRenderTargets.resize(FLightManager::Get().GetMaxDirectLightsNum());
+		for (uint32_t Index = 0; Index < FLightManager::Get().GetMaxDirectLightsNum(); ++Index)
 		{
 			FRenderTarget2DDesc Desc
 			{
@@ -63,11 +63,10 @@ namespace Zero
 
 	void FShadowStage::RenderShadowMapDebug()
 	{
-		//static auto DefaultTexture = FRenderer::GraphicFactroy->GetOrCreateTexture2D("Texture\\yayi.png");
 		m_ShadowMapDebugRenderTarget->Bind(CommandListHandle);
 
 		m_ShadowMapDebugItem->PreRender(CommandListHandle);
-		if (FLightManager::GetInstance().GetDirectLights().size() > 0)
+		if (FLightManager::Get().GetDirectLights().size() > 0)
 		{
 			m_ShadowMapDebugItem->m_Material->SetTexture2D("gShadowMap", m_ShadowMapRenderTargets[0]->GetDepthTexture());
 		}
@@ -77,7 +76,7 @@ namespace Zero
 
 	void FShadowStage::RenderShadowMap()
 	{
-		const auto& DirectLights = FLightManager::GetInstance().GetDirectLights();
+		const auto& DirectLights = FLightManager::Get().GetDirectLights();
 		for (int32_t Index = 0; Index < DirectLights.size(); ++Index)
 		{
 			UDirectLightActor* DirectLight = DirectLights[Index];

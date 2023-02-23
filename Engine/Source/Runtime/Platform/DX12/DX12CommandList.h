@@ -3,11 +3,12 @@
 #include "Core.h"
 #include "Common/DX12Header.h"
 #include "Render/RHI/CommandList.h"
-#include "MemoryManage/UploadBuffer.h"
-#include "MemoryManage/ResourceStateTracker.h"
-#include "Render/Moudule/Image/Image.h"
+#include "MemoryManage/Resource/UploadBuffer.h"
+#include "MemoryManage/Resource/ResourceStateTracker.h"
+#include "Render/Moudule/Texture/Image.h"
 #include "DX12Device.h"
-#include "MemoryManage/DynamicDescriptorHeap.h"
+#include "MemoryManage/Descriptor/DynamicDescriptorHeap.h"
+#include "MemoryManage/Descriptor/DescriptorCache.h"
 #include "./PSO/GenerateMipsPSO.h"
 
 
@@ -21,7 +22,6 @@ namespace Zero
 	class FDX12RenderTarget2D;
 	class FShaderResourceView;
 	class FUnorderedAccessResourceView;
-	class FDescriptorCache;
 	class FDX12CommandList : public FCommandList, public std::enable_shared_from_this<FDX12CommandList>
 	{
 	public:
@@ -29,11 +29,16 @@ namespace Zero
 		virtual ~FDX12CommandList() = default;
 
 		void FlushResourceBarriers();
+		void OnDeployed();
 		ComPtr<ID3D12GraphicsCommandList> GetD3D12CommandList() { return m_D3DCommandList; }
 
+		void CopyBufferRegion(ComPtr<ID3D12Resource> DstResource, UINT64 DstOffset, ComPtr<ID3D12Resource> SrcResource, UINT64 SrcOffset, UINT64 Size);
+		void CopyTextureRegion(const D3D12_TEXTURE_COPY_LOCATION* Dst, UINT DstX, UINT DstY, UINT DstZ, const D3D12_TEXTURE_COPY_LOCATION* Src, const D3D12_BOX* SrcBox);
 		ComPtr<ID3D12Resource> CreateDefaultBuffer(const void* BufferData, size_t BufferSize, D3D12_RESOURCE_FLAGS Flags = D3D12_RESOURCE_FLAG_NONE);
+		void CreateAndInitDefaultBuffer(const void* BufferData, uint32_t Size, uint32_t Alignment, FResourceLocation& ResourceLocation);
 	
 		Ref<FDX12Resource> CreateTextureResource(const std::string& TextureName, Ref<FImage> Image, bool bGenerateMip = false);
+		void AllocateTextureResource(const std::string& TextureName, Ref<FImage> Image, FResourceLocation& ResourceLocation, bool bGenerateMip = false);
 		void GenerateMips(Ref<FDX12Resource> TextureResource);
 		void GenerateMips_UAV(Ref<FDX12Texture2D> Texture, bool bIsSRGB);
 		ComPtr<ID3D12Resource> CreateTextureCubemapResource(Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT], uint64_t Width, uint32_t Height, uint32_t Chanels);
@@ -72,7 +77,6 @@ namespace Zero
 		// Just close the command list. This is useful for pending command lists.
 		void Close();
 
-		void OnComandListDeployed(); 
 		/**
 		* Release tracked objects. Useful if the swap chain needs to be resized.
 		*/
@@ -172,6 +176,8 @@ namespace Zero
 			D3D12_RESOURCE_STATES StateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
 			UINT FirstSubresource = 0,
 			UINT NumSubresources = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES);
+
+		CD3DX12_GPU_DESCRIPTOR_HANDLE AppendCbvSrvUavDescriptors(D3D12_CPU_DESCRIPTOR_HANDLE* DstDescriptor, uint32_t NumDescriptors);
 
 	private:
 		void TrackResource(Microsoft::WRL::ComPtr<ID3D12Object> Object);

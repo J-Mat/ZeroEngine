@@ -1,6 +1,6 @@
 #pragma once
 #include "Core.h"
-#include "../Common/DX12Header.h"
+#include "Platform/DX12/Common/DX12Header.h"
 
 
 namespace Zero
@@ -15,7 +15,7 @@ namespace Zero
 
 		ComPtr<ID3D12DescriptorHeap> GetCacheRtvDescriptorHeap() { return m_CacheRtvDescriptorHeap; }
 
-		CD3DX12_GPU_DESCRIPTOR_HANDLE AppendCbvSrvUavDescriptors(const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& SrcDescriptors);
+		CD3DX12_GPU_DESCRIPTOR_HANDLE AppendCbvSrvUavDescriptors(D3D12_CPU_DESCRIPTOR_HANDLE* DstDescriptor, uint32_t NumDescriptors);
 
 		void AppendRtvDescriptors(const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& RtvDescriptors, CD3DX12_GPU_DESCRIPTOR_HANDLE& OutGpuHandle, CD3DX12_CPU_DESCRIPTOR_HANDLE& OutCpuHandle);
 
@@ -24,7 +24,6 @@ namespace Zero
 		void CreateCacheCbvSrvUavDescriptorHeap();
 
 		void CreateCacheRtvDescriptorHeap();
-
 
 
 	private:

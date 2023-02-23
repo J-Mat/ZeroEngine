@@ -35,7 +35,8 @@ namespace Zero
 
 	void USceneSettings::GenrerateTextureCubemapHanle()
 	{
-		std::vector<std::string> Tokens = { m_SkyBoxRright, m_SkyBoxLeft, m_SkyBoxTop, m_SkyBoxBottom, m_SkyBoxFront, m_SkyBoxBack };
+		return;
+		std::vector<std::string> Tokens = { m_SkyBoxRright.TextureName, m_SkyBoxLeft.TextureName, m_SkyBoxTop.TextureName, m_SkyBoxBottom.TextureName, m_SkyBoxFront.TextureName, m_SkyBoxBack.TextureName };
 		std::string TempHandle = Utils::StringUtils::Join(Tokens, "|");
 		if (m_TextureCubemapHandle != TempHandle)
 		{

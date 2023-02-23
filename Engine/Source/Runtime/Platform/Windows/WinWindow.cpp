@@ -4,7 +4,7 @@
 #include "Core/Events/ApplicationEvent.h"
 #include "Utils.h"
 #include "Platform/DX12/DX12RenderPipeline.h"
-#include "Platform/DX12/MemoryManage/FrameResource.h"
+#include "Platform/DX12/MemoryManage/Resource/FrameResource.h"
 #include "Render/RendererAPI.h"
 #include "imgui/imgui.h"
 #include "imgui/backends/imgui_impl_win32.h"
@@ -39,7 +39,7 @@ namespace Zero
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		FDX12RenderPipeline::GetInstance().DrawFrame();
+		FDX12RenderPipeline::Get().DrawFrame();
 	}
 
 	void FWinWindow::SetVSync(bool bEnabled)
@@ -123,7 +123,7 @@ namespace Zero
 		
 		m_Device = static_cast<FDX12Device*>(FRenderer::GraphicFactroy->CreateDevice().get())->AsShared();
 		FDX12Device::Get()->CreateSwapChain(m_WindowData.hMainWnd);
-		FFrameResourcesManager::GetInstance().Init();
+		FFrameResourcesManager::Get().Init();
 		
 		ShowWindow(m_WindowData.hMainWnd , SW_SHOW);
 		

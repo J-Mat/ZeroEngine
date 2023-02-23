@@ -1,10 +1,10 @@
 #pragma once
 #include "Core.h"
 #include "Common/DX12Header.h"
-#include "Resource.h"
 #include "Render/RHI/Texture.h"
-#include "Render/Moudule/Image/Image.h"
-#include "./MemoryManage/DescriptorAllocation.h"
+#include "Render/Moudule/Texture/Image.h"
+#include "./MemoryManage/Resource/Resource.h"
+#include "./MemoryManage/Descriptor/DescriptorAllocation.h"
 
 namespace Zero
 {

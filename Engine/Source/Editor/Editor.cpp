@@ -31,7 +31,7 @@ namespace Zero
 	std::map<std::string, Ref<FBasePanel>> FEditor::AllPanels;
 	void FEditor::RegisterDataUIMapings()
 	{
-		auto& DetailMappingManager = FDetailMappingManager::GetInstance();
+		auto& DetailMappingManager = FDetailMappingManager::Get();
 		DetailMappingManager.RegisterVariableMapping("ZMath::vec3", FVector3DDetailsMapping::MakeDetailMapping());
 		DetailMappingManager.RegisterVariableMapping("std::string", FStringDetailsMapping::MakeDetailMapping());
 		DetailMappingManager.RegisterVariableMapping("ZMath::FRotation", FRotation3DetailsMapping::MakeDetailMapping());
@@ -79,6 +79,6 @@ namespace Zero
 	void FEditor::Reset()
 	{
 		SelectedActor = nullptr;
-		FLightManager::GetInstance().ClearLights();
+		FLightManager::Get().ClearLights();
 	}
 }

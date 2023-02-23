@@ -9,6 +9,7 @@
 #include "Colors.h"
 #include "Data/Settings/SettingsManager.h"
 #include "Data/Settings/SceneSettings.h"
+#include "Render/Moudule/Texture/TextureManager.h"
 
 namespace Zero
 {
@@ -34,25 +35,32 @@ namespace Zero
 		RegisterRenderStage();
 
 		{
-			Ref<FImage> Image = CreateRef<FImage>(ZConfig::GetAssestsFullPath("Texture\\DefaultTexture.png").string());
-			FRenderer::GraphicFactroy->CreateTexture2D(Image, "default", false);
-		}
+			bool m_bUseSkyBox = false;
 
+			FTextureManager::Get().LoadTexture("Texture/skybox/right.jpg");//DEFAULT_TEXTURE_HANDLE;
 
-		{
-			Ref<FImage> Image = CreateRef<FImage>(ZConfig::GetAssestsFullPath("Texture\\pbr\\IBL_BRDF_LUT.png").string());
-			FRenderer::GraphicFactroy->CreateTexture2D(Image, IBL_BRDF_LUT, false);
+			FTextureManager::Get().LoadTexture("Texture/skybox/left.jpg");
+
+			FTextureManager::Get().LoadTexture("Texture/skybox/top.jpg");//DEFAULT_TEXTURE_HANDLE;
+
+			FTextureManager::Get().LoadTexture("Texture/skybox/bottom.jpg");//DEFAULT_TEXTURE_HANDLE;
+
+			FTextureManager::Get().LoadTexture("Texture/skybox/front.jpg");//DEFAULT_TEXTURE_HANDLE;
+
+			FTextureManager::Get().LoadTexture("Texture / skybox / back.jpg");//DEFAULT_TEXTURE_HANDLE;
+			FTextureManager::Get().LoadDefaultTexture();
+			FTextureManager::Get().LoadTexture("Texture\\pbr\\IBL_BRDF_LUT.png");
 		}
 	}
 
 	void FEditorLayer::RegisterPso()
 	{
-		FPSORegister::GetInstance().RegisterComputeShader();
-		FPSORegister::GetInstance().RegisterDefaultPSO();
-		FPSORegister::GetInstance().RegisterSkyboxPSO();
-		FPSORegister::GetInstance().RegisterIBLPSO();
-		FPSORegister::GetInstance().RegisterShadowPSO();
-		FPSORegister::GetInstance().RegisterTestPSO();
+		FPSORegister::Get().RegisterComputeShader();
+		FPSORegister::Get().RegisterDefaultPSO();
+		FPSORegister::Get().RegisterSkyboxPSO();
+		FPSORegister::Get().RegisterIBLPSO();
+		FPSORegister::Get().RegisterShadowPSO();
+		FPSORegister::Get().RegisterTestPSO();
 	}
 
 	void FEditorLayer::RegisterRenderStage()
@@ -78,7 +86,7 @@ namespace Zero
 
 	void FEditorLayer::RegisterSettings()
 	{
-		FSettingManager::GetInstance().RegisterSetting(USceneSettings::StaticGetObjectName());
+		FSettingManager::Get().RegisterSetting(USceneSettings::StaticGetObjectName());
 	}
 
 	

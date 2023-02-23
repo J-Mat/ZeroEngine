@@ -23,7 +23,7 @@ namespace Zero
 	{
 		std::vector<FMeshData>& MeshDatas = m_MeshVertexComponent->GetMeshDatas();
 		FMeshData MeshData;
-		FMeshGenerator::GetInstance().CreateCube(MeshData, 1.0f, 1.0f, 1.0f, 0);
+		FMeshGenerator::Get().CreateCube(MeshData, 1.0f, 1.0f, 1.0f, 0);
 		MeshDatas.push_back(MeshData);
 		m_MeshVertexComponent->CreateMesh();
 	}

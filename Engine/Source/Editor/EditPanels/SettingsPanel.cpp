@@ -8,8 +8,8 @@ namespace Zero
 {
 	void FSettingsPanel::OnGuiRender()
 	{
-		static Ref<FClassDetailsMapping> Mapping = FDetailMappingManager::GetInstance().FindClassMapping("USettings");
-		static std::map<std::string, USettings*>& AllSettings = FSettingManager::GetInstance().GetAllSettings();
+		static Ref<FClassDetailsMapping> Mapping = FDetailMappingManager::Get().FindClassMapping("USettings");
+		static std::map<std::string, USettings*>& AllSettings = FSettingManager::Get().GetAllSettings();
 		for (auto Iter : AllSettings)
 		{
 			if (ImGui::Begin(Iter.first.c_str()))

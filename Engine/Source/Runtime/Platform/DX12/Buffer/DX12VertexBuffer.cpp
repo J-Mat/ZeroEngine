@@ -5,10 +5,13 @@
 namespace Zero
 {
 	FDX12VertexBuffer::FDX12VertexBuffer(void* Data, const FBufferDesc& Desc, FVertexBufferLayout& _Layout)
-		:FVertexBuffer(Data, Desc, _Layout),
-		FDX12Resource()
+		:FVertexBuffer(Data, Desc, _Layout)
 	{
-		SetResource(FDX12Device::Get()->GetInitWorldCommandList()->CreateDefaultBuffer(m_Data, m_Desc.Size));
+		FDX12Device::Get()->GetInitWorldCommandList()->CreateAndInitDefaultBuffer(
+			m_Data,
+			m_Desc.Size,
+			DEFAULT_RESOURCE_ALIGNMENT,
+			m_ResourceLocation);
 		CreateVertexBufferView();
 	}
 
@@ -19,7 +22,7 @@ namespace Zero
 
 	void FDX12VertexBuffer::CreateVertexBufferView()
 	{
-		m_VertexBufferView.BufferLocation = m_D3DResource->GetGPUVirtualAddress();
+		m_VertexBufferView.BufferLocation = m_ResourceLocation.m_GPUVirtualAddress;
 		m_VertexBufferView.SizeInBytes = static_cast<UINT>(m_Desc.Size);
 		m_VertexBufferView.StrideInBytes = static_cast<UINT>(m_Layout.GetStride());
 	}

@@ -1,5 +1,6 @@
 #include "TextureHandleDetailsMapping.h"
 #include "Editor.h"
+#include "Render/Moudule/Texture/TextureManager.h"
 
 namespace Zero
 {
@@ -8,14 +9,15 @@ namespace Zero
 		static ImVec2 ButtonSize(64, 64);
 		ImGuiStyle& Style = ImGui::GetStyle();
 		FTextureHandle* TextureHandlePtr = Property->GetData<FTextureHandle>();
-		if (*TextureHandlePtr == "")
+		if (TextureHandlePtr->IsNull())
 		{
-			*TextureHandlePtr = "default";
+			*TextureHandlePtr = FTextureManager::Get().GetDefaultTextureHandle();
 		}
-		Ref<FTexture2D> Texture = TLibrary<FTexture2D>::Fetch(*TextureHandlePtr);
+		Ref<FTexture2D> Texture = FTextureManager::Get().GetTextureByHandle(*TextureHandlePtr);
 		if (Texture == nullptr)
 		{
-			Texture = FRenderer::GraphicFactroy->GetOrCreateTexture2D(*TextureHandlePtr, false);
+			auto Handle = FTextureManager::Get().LoadTexture(TextureHandlePtr->TextureName, false);
+			Texture = FTextureManager::Get().GetTextureByHandle(Handle);
 		}		
 		ImTextureID TextureID = (ImTextureID)Texture->GetGuiShaderReseource();
 		ImGui::Image(TextureID, ButtonSize, { 0,0 }, { 1,1 });
@@ -25,7 +27,8 @@ namespace Zero
 			if (const ImGuiPayload* Payload = ImGui::AcceptDragDropPayload(ASSET_PANEL_IMAGE))
 			{
 				std::string Path = (const char*)Payload->Data;
-				*TextureHandlePtr = Path;
+				auto Handle = FTextureManager::Get().LoadTexture(Path);
+				*TextureHandlePtr = Handle;
 				m_bEdited = true;
 			}
 			ImGui::EndDragDropTarget();

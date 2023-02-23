@@ -31,7 +31,7 @@ namespace Zero
 	{
 		if (m_bUseMainCamera)
 		{
-			FConstantsBufferManager::GetInstance().PushCameraConstantsBufferToPool(m_CameraBuffer);
+			FConstantsBufferManager::Get().PushCameraConstantsBufferToPool(m_CameraBuffer);
 		}
 	}
 
@@ -56,14 +56,14 @@ namespace Zero
 			}
 			else if (m_CameraBuffer == nullptr)
 			{
-				m_CameraBuffer = FConstantsBufferManager::GetInstance().GetCameraConstantBuffer();
+				m_CameraBuffer = FConstantsBufferManager::Get().GetCameraConstantBuffer();
 			}
 			m_ShaderBinder->BindConstantsBuffer(CommandListHanle, BinderDesc.m_CameraIndex, m_CameraBuffer.get());
 		}
 		
 		if (BinderDesc.m_GloabalConstantIndex != Utils::InvalidIndex)
 		{
-			m_ShaderBinder->BindConstantsBuffer(CommandListHanle, BinderDesc.m_GloabalConstantIndex, FConstantsBufferManager::GetInstance().GetGlobalConstantBuffer().get());
+			m_ShaderBinder->BindConstantsBuffer(CommandListHanle, BinderDesc.m_GloabalConstantIndex, FConstantsBufferManager::Get().GetGlobalConstantBuffer().get());
 		}
 		//m_Shader->Use();
 	}
@@ -82,7 +82,7 @@ namespace Zero
 		{
 			m_CameraBuffer->UploadDataIfDirty();
 		}
-		FConstantsBufferManager::GetInstance().GetGlobalConstantBuffer()->UploadDataIfDirty();
+		FConstantsBufferManager::Get().GetGlobalConstantBuffer()->UploadDataIfDirty();
 	}
 
 	void FMaterial::SetShader(Ref<FShader> Shader)
@@ -97,7 +97,7 @@ namespace Zero
 				m_MaterialDesc = m_Shader->GetBinder()->GetShaderConstantsDesc(MaterialIndex);
 				if (m_MaterialDesc != nullptr)
 				{
-					m_MaterialBuffer = FConstantsBufferManager::GetInstance().GetMaterialConstBufferByDesc(m_MaterialDesc);
+					m_MaterialBuffer = FConstantsBufferManager::Get().GetMaterialConstBufferByDesc(m_MaterialDesc);
 				}
 			}
 			m_ResourcesDesc = m_Shader->GetBinder()->GetShaderResourcesDesc();

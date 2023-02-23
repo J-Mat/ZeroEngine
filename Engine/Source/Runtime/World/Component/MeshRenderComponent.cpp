@@ -8,18 +8,19 @@
 #include "Data/Asset/AssetObject/MaterialAsset.h"
 #include "Render/RHI/PipelineStateObject.h"
 #include "Render/Moudule/ConstantsBufferManager.h"
+#include "Render/Moudule/Texture/TextureManager.h"
 
 namespace Zero
 {
 	UMeshRenderComponent::UMeshRenderComponent()
 		: UComponent()
 	{
-		m_PerObjConstantsBuffer = FConstantsBufferManager::GetInstance().GetPerObjectConstantsBuffer();
+		m_PerObjConstantsBuffer = FConstantsBufferManager::Get().GetPerObjectConstantsBuffer();
 	}
 
 	UMeshRenderComponent::~UMeshRenderComponent()
 	{
-		FConstantsBufferManager::GetInstance().PushPerObjectConstantsBufferToPool(m_PerObjConstantsBuffer);
+		FConstantsBufferManager::Get().PushPerObjectConstantsBufferToPool(m_PerObjConstantsBuffer);
 	}
 
 	void UMeshRenderComponent::PostInit()
@@ -174,12 +175,12 @@ namespace Zero
 			{
 				for (auto Iter : m_Textures)
 				{
-					if (Iter.second == "")
+					if (Iter.second.IsNull())
 					{
-						Iter.second = "default";
+						Iter.second = FTextureManager::Get().GetDefaultTextureHandle();
 					}
 					const std::string& TextureName = Iter.first;
-					Ref<FTexture2D> Texture = FAssetManager::GetInstance().FetchTexture(Iter.second);
+					Ref<FTexture2D> Texture = FTextureManager::Get().GetTextureByHandle(Iter.second);
 					if (Texture != nullptr)
 					{
 						OpaqueLayer->second->Materials[i]->SetTexture2D(TextureName, Texture);

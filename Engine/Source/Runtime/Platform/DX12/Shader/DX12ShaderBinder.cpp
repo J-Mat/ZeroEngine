@@ -1,7 +1,7 @@
 #include "DX12ShaderBinder.h"
 #include "Platform/DX12/DX12Device.h"
 #include "Platform/DX12/DX12RootSignature.h"
-#include "Platform/DX12/MemoryManage/DynamicDescriptorHeap.h"
+#include "Platform/DX12/MemoryManage/Descriptor/DynamicDescriptorHeap.h"
 #include "../DX12CommandList.h"
 #include "../DX12TextureCubemap.h"
 
@@ -282,14 +282,6 @@ namespace Zero
 
 	void FDX12ShaderResourcesBuffer::UploadDataIfDirty(FCommandListHandle CommandListHandle)
 	{
-		if (m_bIsDirty)
-		{
-			m_SrvDynamicDescriptorHeap->CommitStagedDescriptorsForDraw(CommandListHandle);
-			m_bIsDirty = false;
-		}
-		else
-		{
-			m_SrvDynamicDescriptorHeap->SetAsShaderResourceHeap(CommandListHandle);
-		}
+		m_SrvDynamicDescriptorHeap->SetAsShaderResourceHeap(CommandListHandle);
 	}
 }

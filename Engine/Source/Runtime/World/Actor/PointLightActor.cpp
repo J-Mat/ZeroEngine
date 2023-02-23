@@ -15,7 +15,7 @@ namespace Zero
 	void UPointLightActor::PostInit()
 	{
 		Supper::PostInit();
-		FLightManager::GetInstance().AddPointLight(this);
+		FLightManager::Get().AddPointLight(this);
 	}
 	
 
@@ -23,7 +23,7 @@ namespace Zero
 	{
 		auto& MeshDatas =  m_MeshVertexComponent->GetMeshDatas();
 		FMeshData MeshData;
-		FMeshGenerator::GetInstance().CreateSphere(MeshData, 0.5f , 1);
+		FMeshGenerator::Get().CreateSphere(MeshData, 0.5f , 1);
 		MeshDatas.push_back(MeshData);
 		m_MeshVertexComponent->CreateMesh();
 	}

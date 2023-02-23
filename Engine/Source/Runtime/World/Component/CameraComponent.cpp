@@ -17,7 +17,7 @@ namespace Zero
 	void UCameraComponent::PostInit()
 	{
 		m_TransformCompent =  static_cast<UTransformComponent*>(m_Parent);
-		m_CameraBuffer = FConstantsBufferManager::GetInstance().GetCameraConstantBuffer();
+		m_CameraBuffer = FConstantsBufferManager::Get().GetCameraConstantBuffer();
 	}
 
 	void UCameraComponent::UpdateCameraSettings()

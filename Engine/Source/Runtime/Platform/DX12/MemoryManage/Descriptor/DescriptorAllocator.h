@@ -2,8 +2,7 @@
 
 #include "Core.h"
 #include "DescriptorAllocation.h"
-#include "../Common/DX12Header.h"
-#include "../DX12Device.h"
+#include "Platform/DX12/Common/DX12Header.h"
 
 namespace Zero
 {

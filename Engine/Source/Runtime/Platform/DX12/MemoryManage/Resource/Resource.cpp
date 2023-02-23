@@ -1,6 +1,6 @@
 #include "Resource.h"
-#include "DX12Device.h"
-#include "MemoryManage/ResourceStateTracker.h"
+#include "../../DX12Device.h"
+#include "ResourceStateTracker.h"
 #include "Utils.h"
 
 namespace Zero
@@ -25,10 +25,12 @@ namespace Zero
 
 		FResourceStateTracker::AddGlobalResourceState(m_D3DResource.Get(), D3D12_RESOURCE_STATE_COMMON);
 	
+		SetGpuVirtualAddress();
+
 		CheckFeatureSupport();
 	}
 
-	FDX12Resource::FDX12Resource( ComPtr<ID3D12Resource> Resource, const D3D12_CLEAR_VALUE* FTextureClearValue )
+	FDX12Resource::FDX12Resource(const std::string& ResourceName,  ComPtr<ID3D12Resource> Resource, const D3D12_CLEAR_VALUE* FTextureClearValue )
 	: m_D3DResource(Resource)
 	{
 		if (FTextureClearValue)
@@ -37,6 +39,10 @@ namespace Zero
 		}
 		FResourceStateTracker::AddGlobalResourceState(m_D3DResource.Get(), D3D12_RESOURCE_STATE_COMMON);
 		CheckFeatureSupport();
+
+		m_D3DResource->SetName(Utils::StringToLPCWSTR(ResourceName));
+
+		SetGpuVirtualAddress();
 	}
 
 	void FDX12Resource::SetName(const std::wstring& Name)
@@ -52,7 +58,22 @@ namespace Zero
 	{
 		m_D3DResource = Resource;
 		FResourceStateTracker::AddGlobalResourceState(m_D3DResource.Get(), D3D12_RESOURCE_STATE_COMMON);
+
+		SetGpuVirtualAddress();
 		CheckFeatureSupport();
+	}
+
+	void FDX12Resource::SetGpuVirtualAddress()
+	{
+		if (m_D3DResource->GetDesc().Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
+		{
+			m_GPUVirtualAddress = m_D3DResource->GetGPUVirtualAddress();
+		}
+	}
+
+	void FDX12Resource::Map()
+	{
+		ThrowIfFailed(m_D3DResource->Map(0, nullptr, &m_MappedBaseAddress));
 	}
 
 	FDX12Resource::~FDX12Resource()
@@ -67,5 +88,16 @@ namespace Zero
     	m_FormatSupport.Format = Desc.Format;
     	ThrowIfFailed( FDX12Device::Get()->GetDevice()->CheckFeatureSupport( D3D12_FEATURE_FORMAT_SUPPORT, &m_FormatSupport,
                                                      sizeof( D3D12_FEATURE_DATA_FORMAT_SUPPORT ) ) );
+	}
+
+
+	FResourceLocation::FResourceLocation()
+	{
+	}
+	FResourceLocation::~FResourceLocation()
+	{
+	}
+	void FResourceLocation::ReleaseResource()
+	{
 	}
 }

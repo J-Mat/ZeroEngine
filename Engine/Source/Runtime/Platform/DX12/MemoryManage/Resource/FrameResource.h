@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core.h"
-#include "../Common/DX12Header.h"
+#include "../../Common/DX12Header.h"
 #include "Core/Base/PublicSingleton.h"
 #include "UploadBuffer.h"
 #include "FrameResource.h"
@@ -116,19 +116,19 @@ namespace Zero
 	template<typename T>
 	FDX12FrameResource<T>::FDX12FrameResource()
 	{
-		FFrameResourcesManager::GetInstance().RegistFrameResource(this);
+		FFrameResourcesManager::Get().RegistFrameResource(this);
 	}
 
 	template<typename T>
 	inline Ref<T> FDX12FrameResource<T>::GetCurrentBuffer()
 	{
-		return m_CpuBuffers[FFrameResourcesManager::GetInstance().GetCurrentIndex()];
+		return m_CpuBuffers[FFrameResourcesManager::Get().GetCurrentIndex()];
 	}
 
 	template<typename T>
 	inline void FDX12FrameResource<T>::UploadCurrentBuffer()
 	{
-		uint32_t CurrentResIndex = m_CpuBuffers[FFrameResourcesManager::GetInstance().GetCurrentIndex()];
+		uint32_t CurrentResIndex = m_CpuBuffers[FFrameResourcesManager::Get().GetCurrentIndex()];
 		memcpy(
 			m_GPUBuffers[CurrentResIndex]->CPU,
 			m_CPUBuffers[CurrentResIndex].get()
@@ -139,6 +139,6 @@ namespace Zero
 	template<typename T>
 	inline D3D12_GPU_VIRTUAL_ADDRESS FDX12FrameResource<T>::GetCurrentGPUAddress()
 	{
-		return m_GpuBuffers[FFrameResourcesManager::GetInstance().GetCurrentIndex()].GPU;
+		return m_GpuBuffers[FFrameResourcesManager::Get().GetCurrentIndex()].GPU;
 	}
 }

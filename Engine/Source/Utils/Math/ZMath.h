@@ -106,6 +106,12 @@ namespace ZMath
         return (T)((value + alignment - 1) / alignment);
     }
 
+    template <typename T>
+	inline T AlignArbitrary(T Val, T Alignment)
+	{
+		return ((Val + Alignment - 1) / Alignment) * Alignment;
+	}
+
     inline uint32_t NextHighestPow2(uint32_t v)
     {
         v--;

@@ -2,7 +2,7 @@
 
 #include "Core.h"
 #include "../Common/DX12Header.h"
-#include "../MemoryManage/DescriptorAllocation.h"
+#include "../MemoryManage/Descriptor/DescriptorAllocation.h"
 
 
 namespace Zero

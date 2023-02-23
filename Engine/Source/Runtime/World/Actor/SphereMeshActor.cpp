@@ -35,7 +35,7 @@ namespace Zero
 
 
 		auto& MeshDatas = m_MeshVertexComponent->GetMeshDatas();
-		FMeshGenerator::GetInstance().CreateCustomModel(MeshDatas, ZConfig::GetAssestsFullPath("Obj\\sphere.fbx").string(), FVertexBufferLayout::s_DefaultVertexLayout);
+		FMeshGenerator::Get().CreateCustomModel(MeshDatas, ZConfig::GetAssestsFullPath("Obj\\sphere.fbx").string(), FVertexBufferLayout::s_DefaultVertexLayout);
 
 		m_MeshVertexComponent->CreateMesh();
 	}

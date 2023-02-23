@@ -5,11 +5,11 @@
 #include "Render/RHI/Buffer/IndexBuffer.h"
 #include "../DX12Device.h"
 #include "Render/RHI/Buffer/Buffer.h"
+#include "Platform/DX12/MemoryManage/Resource/Resource.h"
 
 namespace Zero
 {
-	class FDX12Resource;
-	class FDX12IndexBuffer :public FIndexBuffer, public FDX12Resource
+	class FDX12IndexBuffer :public FIndexBuffer
 	{
 	public:
 		FDX12IndexBuffer(void* Indices, const FBufferDesc& Desc);
@@ -18,6 +18,7 @@ namespace Zero
 	private:
 		void CreateIndexBufferView();
 	private:
+		FResourceLocation m_ResourceLocation;
 
 		D3D12_INDEX_BUFFER_VIEW m_IndexBufferView;
 	};

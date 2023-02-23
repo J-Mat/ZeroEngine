@@ -2,6 +2,7 @@
 
 #include <ZeroEngine.h>
 #include "EditPanels/BasePanel.h"
+#include "Render/Moudule/Texture/TextureManager.h"
 
 #define ASSET_PANEL_OBJ "Assests_Obj"
 #define ASSET_PANEL_IMAGE "Assests_Image"
@@ -20,8 +21,8 @@ namespace Zero
 		static void RegisterDataUIMapings();
 		static Ref<FTexture2D> CreateIcon(const std::string&& FileName)
 		{
-			auto Icon = FRenderer::GraphicFactroy->GetOrCreateTexture2D(FileName, false);
-			return Icon;
+			FTextureHandle Handle = FTextureManager::Get().LoadTexture(FileName, false);
+			return FTextureManager::Get().GetTextureByHandle(Handle);
 		}
 		static void Reset();
 		static UActor* SelectedActor;

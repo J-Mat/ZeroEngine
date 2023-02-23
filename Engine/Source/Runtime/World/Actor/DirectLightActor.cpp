@@ -15,13 +15,13 @@ namespace Zero
 	void UDirectLightActor::PostInit()
 	{
 		Supper::PostInit();
-		FLightManager::GetInstance().AddDirectLight(this);
+		FLightManager::Get().AddDirectLight(this);
 	}
 
 	void UDirectLightActor::BuildMesh()
 	{
 		auto& MeshDatas =  m_MeshVertexComponent->GetMeshDatas();
-		FMeshGenerator::GetInstance().CreateCustomModel(MeshDatas, ZConfig::GetAssestsFullPath("Obj/DirectLight.obj").string(), FVertexBufferLayout::s_DefaultVertexLayout);
+		FMeshGenerator::Get().CreateCustomModel(MeshDatas, ZConfig::GetAssestsFullPath("Obj/DirectLight.obj").string(), FVertexBufferLayout::s_DefaultVertexLayout);
 		
 		m_MeshVertexComponent->CreateMesh();
 	}

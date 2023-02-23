@@ -9,10 +9,12 @@
 #include <string>
 #include <stdio.h>
 #include <fstream>
+#include "Math/ZMath.h"
 using namespace std;
 
 int main()
 {
+	/*
 	unsigned int v;  // 32-bit value to find the log2 of 
 	while (cin >> v)
 	{
@@ -28,6 +30,25 @@ int main()
 
 		cout << r << endl;
 	}
-	
+	*/
+	unsigned long mask = 0x1000;
+	unsigned long index;
+	unsigned char isNonzero;
+
+	cout << "Enter a positive integer as the mask: " << flush;
+	while (cin >> mask)
+	{
+		isNonzero = _BitScanReverse(&index, mask + mask - 1);
+		if (isNonzero)
+		{
+			cout << "--Mask: " << mask << " Index: " << index << endl;
+			isNonzero = _BitScanReverse(&index, mask);
+			cout << "--Mask: " << mask << " Indes: " << index << endl;
+		}
+		else
+		{
+			cout << "No set bits found.  Mask is zero." << endl;
+		}
+	}
 	return 0;
 }

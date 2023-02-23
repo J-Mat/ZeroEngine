@@ -13,7 +13,7 @@ namespace Zero
 	{
 		std::vector<FMeshData> MeshDatas;
 		FMeshData MeshData;
-		FMeshGenerator::GetInstance().CreateCube(MeshData, 1.0f, 1.0f, 1.0f, 0);
+		FMeshGenerator::Get().CreateCube(MeshData, 1.0f, 1.0f, 1.0f, 0);
 		//FMeshGenerator::GetInstance().CreateRect(MeshData);
 		MeshDatas.push_back(MeshData);
 
@@ -25,7 +25,7 @@ namespace Zero
 		m_IrradianceMapRenderItem->m_Material = CreateRef<FMaterial>(false);
 		m_IrradianceMapRenderItem->m_PipelineStateObject = TLibrary<FPipelineStateObject>::Fetch("Shader\\IBL\\IBLIrradiance.hlsl");
 		m_IrradianceMapRenderItem->m_Material->SetShader(m_IrradianceMapRenderItem->m_PipelineStateObject->GetPSODescriptor().Shader);
-		m_IrradianceMapRenderItem->m_PerObjectBuffer = FConstantsBufferManager::GetInstance().GetPerObjectConstantsBuffer();
+		m_IrradianceMapRenderItem->m_PerObjectBuffer = FConstantsBufferManager::Get().GetPerObjectConstantsBuffer();
 		m_IrradianceMapRenderItem->SetModelMatrix(ZMath::mat4(1.0f));
 
 		FRenderTargetCubeDesc IrradianceMapRTCubeDesc =
@@ -40,7 +40,7 @@ namespace Zero
 	{
 		std::vector<FMeshData> MeshDatas;
 		FMeshData MeshData;
-		FMeshGenerator::GetInstance().CreateCube(MeshData, 1.0f, 1.0f, 1.0f, 0);
+		FMeshGenerator::Get().CreateCube(MeshData, 1.0f, 1.0f, 1.0f, 0);
 		//FMeshGenerator::GetInstance().CreateRect(MeshData);
 		MeshDatas.push_back(MeshData);
 		Ref<FMesh> Mesh = FRenderer::GraphicFactroy->CreateMesh(
@@ -54,7 +54,7 @@ namespace Zero
 			m_PrefilterMapRenderItem[Mip]->m_Material = CreateRef<FMaterial>(false);
 			m_PrefilterMapRenderItem[Mip]->m_PipelineStateObject = TLibrary<FPipelineStateObject>::Fetch("Shader\\IBL\\IBLPrefilter.hlsl");
 			m_PrefilterMapRenderItem[Mip]->m_Material->SetShader(m_PrefilterMapRenderItem[Mip]->m_PipelineStateObject->GetPSODescriptor().Shader);
-			m_PrefilterMapRenderItem[Mip]->m_PerObjectBuffer = FConstantsBufferManager::GetInstance().GetPerObjectConstantsBuffer();
+			m_PrefilterMapRenderItem[Mip]->m_PerObjectBuffer = FConstantsBufferManager::Get().GetPerObjectConstantsBuffer();
 			m_PrefilterMapRenderItem[Mip]->SetModelMatrix(ZMath::mat4(1.0f));
 		}
 		uint32_t PrefilterMapSize = 128;

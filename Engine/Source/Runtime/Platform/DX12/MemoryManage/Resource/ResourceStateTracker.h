@@ -21,7 +21,7 @@
  *  @see https://msdn.microsoft.com/en-us/library/dn899226(v=vs.85).aspx#implicit_state_transitions
  */
 #include "Core.h"
-#include "../Common/DX12Header.h"
+#include "../../Common/DX12Header.h"
 
 namespace Zero
 {

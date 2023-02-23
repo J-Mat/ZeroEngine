@@ -1,7 +1,7 @@
 #pragma once
 #include "Core.h"
 #include "Render/RHI/ShaderBinder.h"
-#include "Platform/DX12/MemoryManage/FrameResource.h"
+#include "Platform/DX12/MemoryManage/Resource/FrameResource.h"
 #include "Render/RHI/RootSignature.h"
 #include "Platform/DX12/DX12RootSignature.h"
 

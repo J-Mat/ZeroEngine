@@ -20,7 +20,7 @@ namespace Zero
 
 	void UWorld::Tick()
 	{
-		FLightManager::GetInstance().Tick();
+		FLightManager::Get().Tick();
 		for (auto Iter : m_RenderItemPool)
 		{
 			Iter.second->Reset();

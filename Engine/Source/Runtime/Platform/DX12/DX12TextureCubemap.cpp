@@ -37,7 +37,7 @@ namespace Zero
 	}
 
 	FDX12TextureCubemap::FDX12TextureCubemap(ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, bool bRenderDepth, const D3D12_CLEAR_VALUE* FTextureClearValue)
-		: FDX12Resource(Resource, FTextureClearValue)
+		: FDX12Resource("TextureCubeMap", Resource, FTextureClearValue)
 		, m_bRenderDepth(bRenderDepth)
 	{
 		m_TextureDesc.Width = Width;

@@ -5,8 +5,9 @@
 #include "Common/DX12Header.h"
 #include <wrl.h>
 #include "Adapter.h"
-#include "MemoryManage/DescriptorAllocation.h"
+#include "MemoryManage/Descriptor/DescriptorAllocation.h"
 #include "DX12SwapChain.h"
+#include "MemoryManage/Resource/ResourceAllocator.h"
 
 
 namespace Zero
@@ -89,6 +90,13 @@ namespace Zero
 		uint32_t RegisterActiveComandlist(Ref<FDX12CommandList> CommandList);
 		void UnRegisterActiveComandlist(uint32_t ID);
 		Ref<FDX12CommandList> GetActiveCommandList(uint32_t Slot);
+		
+
+		FUploadBufferAllocator* GetUploadBufferAllocator() { return m_UploadBufferAllocator.get(); }
+
+		FDefaultBufferAllocator* GetDefaultBufferAllocator() { return m_DefaultBufferAllocator.get(); }
+
+		FTextureResourceAllocator* GetTextureResourceAllocator() { return m_TextureResourceAllocator.get(); }
 
 	private:
 		static FDX12Device* m_Instance;
@@ -111,6 +119,13 @@ namespace Zero
 
 		std::vector<Scope<FDX12CommandQueue>> m_CommandQueue;
 		std::vector<std::vector<Ref<FDX12CommandList>>> m_CommandLists;
+
+
+		std::unique_ptr<FUploadBufferAllocator> m_UploadBufferAllocator = nullptr;
+
+		std::unique_ptr<FDefaultBufferAllocator> m_DefaultBufferAllocator = nullptr;
+
+		std::unique_ptr<FTextureResourceAllocator> m_TextureResourceAllocator = nullptr;
 
 		Ref<FDescriptorAllocator> m_DescriptorAllocators[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
 		

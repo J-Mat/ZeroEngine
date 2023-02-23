@@ -83,7 +83,7 @@ namespace Zero
 	void FForwardStage::OnDraw()
 	{
 		m_CommandListHandle = FRenderer::GetDevice()->GetSingleThreadCommadList();
-		static auto* Settings = FSettingManager::GetInstance().FecthSettings<USceneSettings>(USceneSettings::StaticGetObjectName());
+		static auto* Settings = FSettingManager::Get().FecthSettings<USceneSettings>(USceneSettings::StaticGetObjectName());
 		
 		if (Settings->m_bUseSkyBox)
 		{ 

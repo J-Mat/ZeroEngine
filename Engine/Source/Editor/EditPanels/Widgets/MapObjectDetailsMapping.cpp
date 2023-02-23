@@ -45,7 +45,7 @@ namespace Zero
 				KeyProperty->GetClassCollection().AddField("UnEditabe");
 			}
 			UProperty* ValueProperty = dynamic_cast<UProperty*>(KeyProperty->Next);
-			Ref<FVariableDetailsMapping> VariableDetailsMapping = FDetailMappingManager::GetInstance().FindPropertyMapping(KeyProperty->GetPropertyType());
+			Ref<FVariableDetailsMapping> VariableDetailsMapping = FDetailMappingManager::Get().FindPropertyMapping(KeyProperty->GetPropertyType());
 			if (VariableDetailsMapping != nullptr)
 			{
 				if (VariableDetailsMapping->UpdateDetailsWidget(KeyProperty))
@@ -55,7 +55,7 @@ namespace Zero
 			}
 			ImGui::Text("---");
 			ImGui::SameLine();
-			VariableDetailsMapping = FDetailMappingManager::GetInstance().FindPropertyMapping(ValueProperty->GetPropertyType());
+			VariableDetailsMapping = FDetailMappingManager::Get().FindPropertyMapping(ValueProperty->GetPropertyType());
 			if (VariableDetailsMapping != nullptr)
 			{
 				if (VariableDetailsMapping->UpdateDetailsWidget(ValueProperty, false))

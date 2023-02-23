@@ -74,7 +74,7 @@ namespace Zero
 		virtual Ref<FShader> CreateShader(const FShaderBinderDesc& BinderDesc, const FShaderDesc& ShaderDesc) = 0;
 		virtual Ref<FShader> CreateShader(const FShaderDesc& ShaderDesc) = 0;
 		virtual Ref<FComputeShader> CreateComputeShader(const FComputeShaderDesc& ComputeShaderDesc) = 0;
-		virtual Ref<FTexture2D> GetOrCreateTexture2D(const std::string& FileName, bool bNeedMipMap = false) = 0;
+		virtual Ref<FTexture2D> GetOrCreateTexture2D(const std::string& Filename, bool bNeedMipMap = false) = 0;
 		virtual Ref<FTexture2D> CreateTexture2D(Ref<FImage> Image, std::string ImageName, bool bNeedMipMap = false) = 0;
 		virtual Ref<FTexture2D> CreateTexture2D(const std::string& TextureName, const FTextureDesc& Desc) = 0;
 		virtual Ref<FBuffer> CreateBuffer(const std::string& BufferName, const FBufferDesc& Desc) = 0;
@@ -184,33 +184,25 @@ namespace Zero
 			return Texture;
 		}
 
-		virtual Ref<FTexture2D> GetOrCreateTexture2D(const std::string& FileName, bool bNeedMipMap = false)
+		virtual Ref<FTexture2D> GetOrCreateTexture2D(const std::string& Filename, bool bNeedMipMap = false)
 		{
-			std::filesystem::path TextureFileName = FileName;
-			Ref<FTexture2D> Texture = TLibrary<FTexture2D>::Fetch(FileName);
-			if (Texture == nullptr)
+			std::filesystem::path TextureFileName = Filename;
+			Ref<FTexture2D> Texture{};
+			std::filesystem::path TexturePath = ZConfig::GetAssestsFullPath(Filename);
+			if (std::filesystem::exists(TexturePath))
 			{
-				std::filesystem::path TexturePath = ZConfig::GetAssestsFullPath(FileName);
-				if (std::filesystem::exists(TexturePath))
-				{
-					Ref<FImage> Image = CreateRef<FImage>(TexturePath.string());
-					Texture = CreateRef<FDX12Texture2D>(FileName, Image, bNeedMipMap);
-					std::cout << FileName << std::endl;
-					TLibrary<FTexture2D>::Push(FileName, Texture);
+				Ref<FImage> Image = CreateRef<FImage>(TexturePath.string());
+				Texture = CreateRef<FDX12Texture2D>(Filename, Image, bNeedMipMap);
 #if	EDITOR_MODE
-					Texture->RegistGuiShaderResource();
+				Texture->RegistGuiShaderResource();
 #endif
-				}
-				else
-				{
-					return nullptr;
-				}
 			}
 			return Texture;
 		}
 
 		virtual Ref<FTextureCubemap> GetOrCreateTextureCubemap(FTextureHandle Handles[CUBEMAP_TEXTURE_CNT], std::string TextureCubemapName) 
 		{
+			return nullptr;
 			/*
 			auto CreateTextureCubemap = [&]() -> Ref<FTextureCubemap>
 			{
@@ -231,7 +223,7 @@ namespace Zero
 				Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT];
 				for (int i = 0; i < CUBEMAP_TEXTURE_CNT; ++i)
 				{
-					Ref<FTexture2D> Texture2D = GetOrCreateTexture2D(Handles[i]);
+					Ref<FTexture2D> Texture2D = GetOrCreateTexture2D(Handles[i].TextureName);
 					ImageData[i] = Texture2D->GetImage();
 				}
 				TextureCubemap = CreateRef<FDX12TextureCubemap>(TextureCubemapName, ImageData);
@@ -243,7 +235,7 @@ namespace Zero
 				Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT]	;
 				for (int i = 0; i < CUBEMAP_TEXTURE_CNT; ++i)
 				{
-					Ref<FTexture2D> Texture2D = GetOrCreateTexture2D(Handles[i]);
+					Ref<FTexture2D> Texture2D = GetOrCreateTexture2D(Handles[i].TextureName);
 					ImageData[i] = Texture2D->GetImage();
 				}
 				TextureCubemap = CreateRef<FDX12TextureCubemap>(TextureCubemapName, ImageData);

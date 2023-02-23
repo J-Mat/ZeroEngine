@@ -27,7 +27,7 @@ namespace Zero
 	{
 		std::vector<FMeshData>& MeshDatas = m_MeshVertexComponent->GetMeshDatas();
 		FMeshData MeshData;
-		FMeshGenerator::GetInstance().CreateGrid(MeshData, m_Width, m_Height, m_Rows, m_Cols);
+		FMeshGenerator::Get().CreateGrid(MeshData, m_Width, m_Height, m_Rows, m_Cols);
 		MeshDatas.push_back(MeshData);
 
 		m_MeshVertexComponent->CreateMesh();

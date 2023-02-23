@@ -11,7 +11,7 @@ namespace Zero
 	}
 	void FDetailPanel::OnGuiRender()
 	{
-		static Ref<FClassDetailsMapping> Mapping = FDetailMappingManager::GetInstance().FindClassMapping("UActor");
+		static Ref<FClassDetailsMapping> Mapping = FDetailMappingManager::Get().FindClassMapping("UActor");
 		ImGui::Begin("DetailPanel");
 		if (FEditor::SelectedActor != nullptr)
 		{

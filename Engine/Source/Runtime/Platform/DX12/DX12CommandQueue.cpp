@@ -64,7 +64,7 @@ namespace Zero
 		{
 			CommandList = CreateNewCommandList();
 		}
-		
+		CommandList->OnDeployed();
 		return CommandList;
 	}
 

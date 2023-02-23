@@ -1,7 +1,7 @@
 #include "DX12CommandQueue.h"
 #include "DX12Device.h"
 #include "Platform/DX12/DX12SwapChain.h"
-#include "MemoryManage/DescriptorAllocator.h"
+#include "MemoryManage/Descriptor/DescriptorAllocator.h"
 #include "DX12CommandList.h"
 
 namespace Zero
@@ -24,6 +24,10 @@ namespace Zero
 		CreateDescriptors();
 		CheckFeatures();
 		CreateGuiDescHeap();
+
+		m_DefaultBufferAllocator = CreateScope<FDefaultBufferAllocator>();
+		m_UploadBufferAllocator = CreateScope<FUploadBufferAllocator>();
+		m_TextureResourceAllocator = CreateScope<FTextureResourceAllocator>();
 	}
 	
 	FDescriptorAllocation FDX12Device::AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE Type, uint32_t NumDescriptors)

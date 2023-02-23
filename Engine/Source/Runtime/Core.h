@@ -29,6 +29,8 @@
 #define CUBEMAP_TEXTURE_CNT 6
 #define DEFAULT_TEXTURE_HANDLE "default"
 
+#define INVALID_ID -1
+
 namespace Zero
 {
 // Set the name of an std::thread.
@@ -80,8 +82,28 @@ namespace Zero
 	{
 		return std::make_shared<T>(std::forward<Args>(args)...);
 	}
+
+	struct FTextureHadleType
+	{
+		std::string TextureName = "";
+		uint32_t ID = INVALID_ID;
+		FTextureHadleType() = default;
+		FTextureHadleType(std::string _TextureName)
+			: TextureName(_TextureName)
+		{}
+		FTextureHadleType(std::string _TextureName, uint32_t _ID)
+			: TextureName(_TextureName)
+			, ID(_ID)
+		{}
+		bool IsNull()
+		{
+			return ID == -1 || TextureName == "";
+		}
+		auto operator<=>(FTextureHadleType const&) const = default;
+	};
+	using FTextureHandle = FTextureHadleType;
+
 	using FJsonObj = nlohmann::json;
-	using FTextureHandle = std::string;
 	using FMaterialHandle = std::string;
 	using FAssetHandle = Utils::Guid;
 	using FShaderFileHandle = std::string;
@@ -122,4 +144,27 @@ namespace Zero
 			{"FFloatSlider", sizeof(FFloatSlider)}
 		};
 	}
+
+	template <typename T>
+	class FIndexGetter {
+	public:
+		static uint32_t Get() {
+			static uint32_t ID = m_CurIdx++;
+			return ID;
+		}
+
+	private:
+		inline static uint32_t m_CurIdx = 0;
+	};
+}
+
+namespace std
+{
+	template <> struct hash<Zero::FTextureHandle>
+	{
+		size_t operator()(Zero::FTextureHandle const& h) const
+		{
+			return hash<decltype(h.ID)>()(h.ID);
+		}
+	};
 }
