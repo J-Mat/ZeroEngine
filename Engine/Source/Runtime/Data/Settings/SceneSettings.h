@@ -20,22 +20,22 @@ namespace Zero
 		bool m_bUseSkyBox = false;
 
 		UPROPERTY()
-			FTextureHandle m_SkyBoxRright; //= FTextureManager::Get().LoadTexture("Texture/skybox/right.jpg");//DEFAULT_TEXTURE_HANDLE;
+		FTextureHandle m_SkyBoxRright; //= FTextureManager::Get().LoadTexture("Texture/skybox/right.jpg");//DEFAULT_TEXTURE_HANDLE;
 
 		UPROPERTY()
-			FTextureHandle m_SkyBoxLeft; //= FTextureManager::Get().LoadTexture("Texture/skybox/left.jpg");
+		FTextureHandle m_SkyBoxLeft; //= FTextureManager::Get().LoadTexture("Texture/skybox/left.jpg");
 
 		UPROPERTY()
-			FTextureHandle m_SkyBoxTop; //= FTextureManager::Get().LoadTexture("Texture/skybox/top.jpg");//DEFAULT_TEXTURE_HANDLE;
+		FTextureHandle m_SkyBoxTop; //= FTextureManager::Get().LoadTexture("Texture/skybox/top.jpg");//DEFAULT_TEXTURE_HANDLE;
 
 		UPROPERTY()
-			FTextureHandle m_SkyBoxBottom; //= FTextureManager::Get().LoadTexture("Texture/skybox/bottom.jpg");//DEFAULT_TEXTURE_HANDLE;
+		FTextureHandle m_SkyBoxBottom; //= FTextureManager::Get().LoadTexture("Texture/skybox/bottom.jpg");//DEFAULT_TEXTURE_HANDLE;
 
 		UPROPERTY()
-			FTextureHandle m_SkyBoxFront; //= FTextureManager::Get().LoadTexture("Texture/skybox/front.jpg");//DEFAULT_TEXTURE_HANDLE;
+		FTextureHandle m_SkyBoxFront; //= FTextureManager::Get().LoadTexture("Texture/skybox/front.jpg");//DEFAULT_TEXTURE_HANDLE;
 
 		UPROPERTY()
-			FTextureHandle m_SkyBoxBack; //= FTextureManager::Get().LoadTexture("Texture / skybox / back.jpg");//DEFAULT_TEXTURE_HANDLE;
+		FTextureHandle m_SkyBoxBack; //= FTextureManager::Get().LoadTexture("Texture / skybox / back.jpg");//DEFAULT_TEXTURE_HANDLE;
 	private: 
 		void GenrerateTextureCubemapHanle();
 		USkyActor* GetSkyActor();

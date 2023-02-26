@@ -81,7 +81,6 @@ namespace Zero
 		virtual Ref<FTextureCubemap> GetOrCreateTextureCubemap(FTextureHandle Handles[CUBEMAP_TEXTURE_CNT], std::string TextureCubemapName) = 0;
 		virtual Ref<FRenderTarget2D> CreateRenderTarget2D(const FRenderTarget2DDesc& Desc) = 0;
 		virtual Ref<FRenderTargetCube> CreateRenderTargetCube(const FRenderTargetCubeDesc& Desc) = 0;
-		virtual Ref<FTexture2D> CreateDepthStencilTexture(uint32_t Width, uint32_t Height, const std::string& Name) = 0;
 		virtual Ref<FPipelineStateObject> CreatePSO(const std::string& PSOHandle, const FPSODescriptor& PSODescriptor) = 0;
 	};
 	
@@ -252,24 +251,6 @@ namespace Zero
 		virtual Ref<FRenderTargetCube> CreateRenderTargetCube(const FRenderTargetCubeDesc& Desc)
 		{
 			return CreateRef<FDX12RenderTargetCube>(Desc);
-		}
-
-		virtual Ref<FTexture2D> CreateDepthStencilTexture(uint32_t Width, uint32_t Height, const std::string& Name)
-		{
-			auto DepthStencilDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D24_UNORM_S8_UINT, Width, Height);
-			// Must be set on textures that will be used as a Depth-Stencil buffer.
-			DepthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-
-			// Specify optimized clear values for the Depth buffer.
-			D3D12_CLEAR_VALUE OptClear = {};
-			OptClear.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-			OptClear.DepthStencil = { 1.0F, 0 };
-			FDX12TextureSettings Settings
-			{
-				.Desc = DepthStencilDesc
-			};
-			Ref<FDX12Texture2D> DepthStencilTexture = CreateRef<FDX12Texture2D>(Name, Settings, &OptClear);
-			return DepthStencilTexture;
 		}
 
 		virtual Ref<FPipelineStateObject> CreatePSO(const std::string& PSOHandle, const FPSODescriptor& PSODescriptor)

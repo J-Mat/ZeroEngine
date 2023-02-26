@@ -222,6 +222,7 @@ namespace Zero
 			case EResourceFormat::R32_TYPELESS:
 				return DXGI_FORMAT_R32_TYPELESS;
 
+
 			case EResourceFormat::D32_FLOAT:
 				return DXGI_FORMAT_D32_FLOAT;
 
@@ -329,6 +330,9 @@ namespace Zero
 
 			case EResourceFormat::D24_UNORM_S8_UINT:
 				return DXGI_FORMAT_D24_UNORM_S8_UINT;
+
+			case EResourceFormat::R24G8_TYPELESS:
+				return DXGI_FORMAT_R24G8_TYPELESS;
 			}
 			return DXGI_FORMAT_UNKNOWN;
 		}
@@ -372,6 +376,28 @@ namespace Zero
 			if (HasAnyFlag(State, EResourceState::CopySource)) ApiState |= D3D12_RESOURCE_STATE_COPY_SOURCE;
 			if (HasAnyFlag(State, EResourceState::RaytracingAccelerationStructure)) ApiState |= D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE;
 			return ApiState;
+		}
+
+		static D3D12_RESOURCE_DESC ConvertResourceDesc(const FTextureDesc& TextureDesc)
+		{
+			D3D12_RESOURCE_DESC ResourceDesc = 
+			{
+				.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D,
+				.Alignment = 0,
+				.Width = TextureDesc.Width,
+				.Height = TextureDesc.Height,
+				.DepthOrArraySize = (UINT16)TextureDesc.ArraySize,
+				.MipLevels = TextureDesc.MipLevels,
+				.Format = FDX12Utils::ConvertResourceFormat(TextureDesc.Format),
+				.SampleDesc =
+				{
+					.Count = TextureDesc.SampleCount,
+					.Quality = 0
+				},
+				.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN,
+				.Flags = FDX12Utils::BindFlagsByResourceFlags(TextureDesc.ResourceBindFlags),
+			};
+			return ResourceDesc;
 		}
 	};
 }

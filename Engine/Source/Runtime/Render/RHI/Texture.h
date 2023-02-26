@@ -113,7 +113,7 @@ namespace Zero
 		uint32_t SampleCount = 1;
 		EResourceUsage HeapType = EResourceUsage::Default;
 		EResourceBindFlag ResourceBindFlags = EResourceBindFlag::None;
-		EResourceState InitialState = EResourceState::PixelShaderResource | EResourceState::NonPixelShaderResource;
+		EResourceState InitialState = EResourceState::Common;
 		FTextureClearValue ClearValue{};
 		EResourceFormat Format = EResourceFormat::UNKNOWN;
 		
@@ -171,6 +171,7 @@ namespace Zero
 		virtual void MakeRTVs(const std::vector<FTextureSubresourceDesc>& Descs) {};
 		virtual void MakeDSVs(const std::vector<FTextureSubresourceDesc>& Descs) {};
 		virtual void MakeUAVs(const std::vector<FTextureSubresourceDesc>& Descs) {};
+		virtual void GenerateMip() = 0;
 	protected:	
         Ref<FImage> m_ImageData = nullptr;
 		bool m_bNeedMipMap = false;

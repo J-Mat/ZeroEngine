@@ -15,6 +15,7 @@ namespace Zero
 	//class FDX12SwapChain;
 	class FDX12CommandQueue;
 	class FDescriptorAllocator;
+	class FDX12Texture2D;
 	class FDX12Device : public IDevice, public std::enable_shared_from_this<FDX12Device>
 	{
 	public:
@@ -79,19 +80,24 @@ namespace Zero
 		virtual  FCommandListHandle GetSingleThreadCommadList() override { return m_SingleThreadCommandListHandle; } 
 
 		void SetInitWorldCommandList(FCommandListHandle Handle) {  m_InitWorldCommandListHandle = Handle; }
+		void SetMipCommandList(FCommandListHandle Handle) {  m_MipCommandListHandle = Handle; }
 		FCommandListHandle GetInitWorldCommadListHandle() { return m_InitWorldCommandListHandle; };
-		Ref<FDX12CommandList> GetInitWorldCommandList() { return GetCommanList(m_InitWorldCommandListHandle); }
+		Ref<FDX12CommandList> GetInitWorldCommandList() { return GetCommanList(m_InitWorldCommandListHandle, ERenderPassType::Graphics); }
+		Ref<FDX12CommandList> GetMipCommandList() { return GetCommanList(m_MipCommandListHandle, ERenderPassType::Compute); }
 		virtual void PreInitWorld() override;
 		virtual void FlushInitCommandList() override;
 		
 
-		virtual void BeginFrame();
+		virtual void BeginFrame() override;
+		virtual void EndFrame() override;
 		
+		Ref<FDX12Texture2D> CreateDepthTexture(const std::string& TextureName, uint32_t Width, uint32_t Height);
+
+
 		uint32_t RegisterActiveComandlist(Ref<FDX12CommandList> CommandList);
 		void UnRegisterActiveComandlist(uint32_t ID);
 		Ref<FDX12CommandList> GetActiveCommandList(uint32_t Slot);
-		
-
+	
 		FUploadBufferAllocator* GetUploadBufferAllocator() { return m_UploadBufferAllocator.get(); }
 
 		FDefaultBufferAllocator* GetDefaultBufferAllocator() { return m_DefaultBufferAllocator.get(); }
@@ -111,6 +117,7 @@ namespace Zero
 	private:
 		FCommandListHandle m_SingleThreadCommandListHandle = -1;
 		FCommandListHandle m_InitWorldCommandListHandle = -1;
+		FCommandListHandle m_MipCommandListHandle = -1;
 		UINT m_RtvDescriptorSize;
 		UINT m_DsvDescriptorSize;
 		UINT m_Cbv_Srv_UavDescriptorSize;

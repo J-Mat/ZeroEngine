@@ -170,14 +170,26 @@ namespace Zero
 
 	void FPSORegister::RegisterComputeShader()
 	{
-		struct FComputeShaderDesc GenerteMipShader
 		{
-			.ShaderName = GENERATE_MIP_SHADER,
-			.BlockSize_X = 8,
-			.BlockSize_Y = 8,
-			.BlockSize_Z = 1
-		};
-		FRenderer::GraphicFactroy->CreateComputeShader(GenerteMipShader);
+			struct FComputeShaderDesc GenerteMipShader
+			{
+				.ShaderName = GENERATE_MIP_SHADER,
+					.BlockSize_X = 8,
+					.BlockSize_Y = 8,
+					.BlockSize_Z = 1
+			};
+			FRenderer::GraphicFactroy->CreateComputeShader(GenerteMipShader);
+		}
+		{
+			struct FComputeShaderDesc GenerteMipShader
+			{
+				.ShaderName = GENERATE_MIP_SHADER_TEST,
+					.BlockSize_X = 8,
+					.BlockSize_Y = 8,
+					.BlockSize_Z = 1
+			};
+			FRenderer::GraphicFactroy->CreateComputeShader(GenerteMipShader);
+		}
 	}
 
 	void FPSORegister::RegisterTestPSO()

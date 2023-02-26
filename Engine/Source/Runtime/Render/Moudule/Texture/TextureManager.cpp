@@ -13,6 +13,10 @@ namespace Zero
 
 	void FMipsGenerator::Generate()
 	{
+		for (auto Texture2D : m_Resources)
+		{
+			Texture2D->GenerateMip();
+		}
 		m_Resources.clear();
 	}
 
@@ -47,6 +51,7 @@ namespace Zero
 
     void FTextureManager::Tick()
     {
+		m_MipsGenrators.Generate();
     }
 
 	void FTextureManager::LoadDefaultTexture()

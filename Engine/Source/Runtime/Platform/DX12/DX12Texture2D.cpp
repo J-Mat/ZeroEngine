@@ -98,72 +98,97 @@ namespace Zero
 			}
 		}
 	}
-	FDX12Texture2D::FDX12Texture2D(const std::string& TextureName, const FTextureDesc Desc)
+
+	FDX12Texture2D::FDX12Texture2D(const std::string& TextureName, const FTextureDesc& Desc, const FTextureClearValue* ClearValuePtr)
 		: FTexture2D(Desc)
 	{
-		D3D12_RESOURCE_DESC ResourceDesc
+		if (HasAnyFlag(m_TextureDesc.ResourceBindFlags, EResourceBindFlag::None) ||
+			HasAnyFlag(m_TextureDesc.ResourceBindFlags, EResourceBindFlag::ShaderResource))
 		{
-			.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D,
-			.Alignment = 0,
-			.Width = m_TextureDesc.Width,
-			.Height = m_TextureDesc.Height,
-			.DepthOrArraySize = (UINT16)m_TextureDesc.ArraySize,
-			.MipLevels = m_TextureDesc.MipLevels,
-			.Format = FDX12Utils::ConvertResourceFormat(m_TextureDesc.Format),
-			.SampleDesc =
+			D3D12_RESOURCE_STATES ResourceState = FDX12Utils::ConvertToD3DResourceState(m_TextureDesc.InitialState);
+
+			D3D12_RESOURCE_DESC ResourceDesc = FDX12Utils::ConvertResourceDesc(m_TextureDesc);
+
+			D3D12_CLEAR_VALUE D3DClearValue
 			{
-				.Count = m_TextureDesc.SampleCount,
-				.Quality = 0
-			},
-			.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN,
-			.Flags = FDX12Utils::BindFlagsByResourceFlags(m_TextureDesc.ResourceBindFlags),
-		};
-		D3D12_CLEAR_VALUE ClearValue = GetClearValue();
-		
-		D3D12_RESOURCE_STATES D3DResourceState = FDX12Utils::ConvertToD3DResourceState(m_TextureDesc.InitialState);
-		D3D12_HEAP_TYPE D3DHeapType = D3D12_HEAP_TYPE_DEFAULT;
-		AttachHeapTypeAndResourceState(D3DHeapType, D3DResourceState, ResourceDesc);
+				.Format = ResourceDesc.Format
+			};
+			if (ClearValuePtr != nullptr)
+			{ 
+				D3DClearValue.Color[0] = ClearValuePtr->Color.Color[0];
+				D3DClearValue.Color[1] = ClearValuePtr->Color.Color[1];
+				D3DClearValue.Color[2] = ClearValuePtr->Color.Color[2];
+				D3DClearValue.Color[3] = ClearValuePtr->Color.Color[3];
+			}
 
-		ID3D12Device* D3DDevice = FDX12Device::Get()->GetDevice();
-		m_D3DResource.Reset();
-		ThrowIfFailed(
-			D3DDevice->CreateCommittedResource(
-				&CD3DX12_HEAP_PROPERTIES(D3DHeapType), 
-				D3D12_HEAP_FLAG_NONE,
-				&ResourceDesc, 
-				D3DResourceState, 
-				&ClearValue, 
-				IID_PPV_ARGS(&m_D3DResource)
-			)
-		);
-		m_D3DResource->SetName(Utils::StringToLPCWSTR(TextureName));
-		SetResource(m_D3DResource);
+
+			auto* TextureResourceAllocator = FDX12Device::Get()->GetTextureResourceAllocator();
+			TextureResourceAllocator->AllocTextureResource(TextureName, ResourceState, ResourceDesc, m_ResourceLocation);
+			SetResource(m_ResourceLocation.m_UnderlyingResource->GetD3DResource());
+			SetName(Utils::StringToLPCWSTR(TextureName));
+			CreateViews();
+		}
+		else
+		{
+			D3D12_RESOURCE_STATES D3DResourceState = FDX12Utils::ConvertToD3DResourceState(m_TextureDesc.InitialState);
+			D3D12_HEAP_TYPE D3DHeapType = D3D12_HEAP_TYPE_DEFAULT;
+			D3D12_RESOURCE_DESC ResourceDesc = FDX12Utils::ConvertResourceDesc(m_TextureDesc);
+			AttachHeapTypeAndResourceState(D3DHeapType, D3DResourceState, ResourceDesc);
+
+			D3D12_CLEAR_VALUE D3DClearValue
+			{
+				.Format = ResourceDesc.Format
+			};
+			if (ClearValuePtr != nullptr)
+			{ 
+				if (HasAnyFlag(m_TextureDesc.ResourceBindFlags, EResourceBindFlag::DepthStencil))
+				{
+					D3DClearValue.DepthStencil = { ClearValuePtr->DepthStencil.Depth, ClearValuePtr->DepthStencil.Stencil };
+				}
+				else
+				{
+					D3DClearValue.Color[0] = ClearValuePtr->Color.Color[0];
+					D3DClearValue.Color[1] = ClearValuePtr->Color.Color[1];
+					D3DClearValue.Color[2] = ClearValuePtr->Color.Color[2];
+					D3DClearValue.Color[3] = ClearValuePtr->Color.Color[3];
+				}
+			}
+
+			ID3D12Device* D3DDevice = FDX12Device::Get()->GetDevice();
+			m_D3DResource.Reset();
+			ThrowIfFailed(
+				D3DDevice->CreateCommittedResource(
+					&CD3DX12_HEAP_PROPERTIES(D3DHeapType),
+					D3D12_HEAP_FLAG_NONE,
+					&ResourceDesc,
+					D3DResourceState,
+					ClearValuePtr ? &D3DClearValue : nullptr,
+					IID_PPV_ARGS(&m_D3DResource)
+				)
+			);
+			m_D3DResource->SetName(Utils::StringToLPCWSTR(TextureName));
+			SetResource(m_D3DResource);
+		}
 	}
-
-	FDX12Texture2D::FDX12Texture2D(const std::string& TextureName, const FDX12TextureSettings& TextureSettings, const D3D12_CLEAR_VALUE* FTextureClearValue)
-		: FTexture2D()
-		, FDX12Resource(TextureName, TextureSettings.Desc, FTextureClearValue)
-	{
-		m_TextureDesc.Width = (uint32_t)TextureSettings.Desc.Width;
-		m_TextureDesc.Height = (uint32_t)TextureSettings.Desc.Height;
-		m_SRVFormat = TextureSettings.SRVFormat;
-		m_RTVFormat = TextureSettings.RTVFormat;
-		m_DSVFormat = TextureSettings.DSVFormat;
-		m_UAVFormat = TextureSettings.UAVFormat;
-		CreateViews();
-	}
-
 
 	FDX12Texture2D::FDX12Texture2D(const std::string& TextureName, Ref<FImage> ImageData, bool bNeedMipMap)
 		 : FTexture2D(bNeedMipMap)
 		,  FDX12Resource()
 	{
 		m_ImageData = ImageData;
-		m_TextureDesc.Width = ImageData->GetWidth();
+		m_TextureDesc.Width = (uint64_t)ImageData->GetWidth();
 		m_TextureDesc.Height = ImageData->GetHeight();
+		m_TextureDesc.MipLevels = bNeedMipMap ? ZMath::min(ZMath::CalLog2Interger((uint32_t)m_TextureDesc.Width), ZMath::CalLog2Interger(m_TextureDesc.Height)) + 1 : 1;
+		m_TextureDesc.Depth = 1;
+		m_TextureDesc.Format = EResourceFormat::R8G8B8A8_UNORM;
+		m_TextureDesc.SampleCount = 1;
+		m_TextureDesc.ResourceBindFlags = EResourceBindFlag::UnorderedAccess;
+		m_TextureDesc.InitialState = EResourceState::Common;
+
 		CORE_ASSERT(ImageData->GetData() != nullptr, "Image has no data!");
 		//auto Resource = FDX12Device::Get()->GetInitWorldCommandList()->CreateTextureResource(TextureName, ImageData, m_bNeedMipMap);
-		FDX12Device::Get()->GetInitWorldCommandList()->AllocateTextureResource(TextureName, ImageData, m_ResourceLocation, true);
+
+		FDX12Device::Get()->GetInitWorldCommandList()->AllocateTextureResource(TextureName, m_TextureDesc, m_ResourceLocation, ImageData, bNeedMipMap);
 		SetResource(m_ResourceLocation.m_UnderlyingResource->GetD3DResource());
 		CreateViews();
 	}
@@ -181,23 +206,24 @@ namespace Zero
 	{
 		if (m_D3DResource)
 		{
+			m_ResourceLocation.ReleaseResource();
+
 			CD3DX12_RESOURCE_DESC ResDesc(m_D3DResource->GetDesc());
-			
-			m_TextureDesc.Width = ResDesc.Width = std::max(Width, 1u);
-			m_TextureDesc.Height = ResDesc.Height = std::max(Height, 1u);
-			ResDesc.DepthOrArraySize = DepthOrArraySize;
-			ResDesc.MipLevels = ResDesc.SampleDesc.Count > 1 ? 1 : 0;
-			
-			m_D3DResource.Reset();
-			ThrowIfFailed(
-				FDX12Device::Get()->GetDevice()->CreateCommittedResource(
-					&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &ResDesc,
-					D3D12_RESOURCE_STATE_COMMON, m_D3DClearValue.get(), IID_PPV_ARGS(&m_D3DResource)
-				)
-			);
+			m_TextureDesc.InitialState = EResourceState::Common;
+			m_TextureDesc.Width = std::max(Width, 1u);
+			m_TextureDesc.Height = std::max(Height, 1u);
+			m_TextureDesc.MipLevels = ResDesc.SampleDesc.Count > 1 ? 1 : 0;
+				
+			D3D12_RESOURCE_STATES ResourceState = FDX12Utils::ConvertToD3DResourceState(m_TextureDesc.InitialState);
+
+			D3D12_RESOURCE_DESC ResourceDesc = FDX12Utils::ConvertResourceDesc(m_TextureDesc);
+
+			auto* TextureResourceAllocator = FDX12Device::Get()->GetTextureResourceAllocator();
+			TextureResourceAllocator->AllocTextureResource(Utils::WString2String(m_ResourceName), ResourceState, ResourceDesc, m_ResourceLocation);
+			SetResource(m_ResourceLocation.m_UnderlyingResource->GetD3DResource());
 
 			// Retain the name of the resource if one was already specified.
-			m_D3DResource->SetName(m_ResourceName.c_str());
+			SetName(m_ResourceName);
 
 			FResourceStateTracker::AddGlobalResourceState(m_D3DResource.Get(), D3D12_RESOURCE_STATE_COMMON);
 			
@@ -335,7 +361,7 @@ namespace Zero
 				SrvDesc.Format = m_SRVFormat == DXGI_FORMAT_UNKNOWN ? m_D3DResource->GetDesc().Format : m_SRVFormat;
 				SrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 				SrvDesc.Texture2D.MostDetailedMip = 0;
-				SrvDesc.Texture2D.MipLevels = 1;
+				SrvDesc.Texture2D.MipLevels = Desc.MipLevels;
 				SrvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 				SrvDesc.Texture2D.PlaneSlice = 0;
 				D3DDevice->CreateShaderResourceView(m_D3DResource.Get(), &SrvDesc,
@@ -547,6 +573,10 @@ namespace Zero
 		}
 	}
 
+	void FDX12Texture2D::GenerateMip()
+	{
+		//FDX12Device::Get()->GetMipCommandList()->GenerateMipSimple(this->shared_from_this());
+	}
 
 	D3D12_CPU_DESCRIPTOR_HANDLE FDX12Texture2D::GetRTV(uint32_t ViewID) const
 	{

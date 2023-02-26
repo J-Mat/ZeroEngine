@@ -12,6 +12,7 @@ namespace Zero
 		virtual void Init() = 0;
 		virtual void Resize(uint32_t Width, uint32_t Height) = 0;
 		virtual void BeginFrame() = 0;
+		virtual void EndFrame() = 0;
 		virtual void PreInitWorld() = 0;
 		virtual void FlushInitCommandList() = 0;
 		virtual FCommandListHandle GenerateCommanList(ERenderPassType RenderPassType = ERenderPassType::Graphics) = 0;

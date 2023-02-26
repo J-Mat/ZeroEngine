@@ -202,6 +202,7 @@ namespace Zero
 		
 		
 		// Resize the Depth texture.
+		/*
 		auto DepthStencilDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D24_UNORM_S8_UINT, m_Width, m_Height);
 		// Must be set on textures that will be used as a Depth-Stencil buffer.
 		DepthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
@@ -215,6 +216,8 @@ namespace Zero
 		{
 			.Desc = DepthStencilDesc,
 		};
-		m_DepthStencilTexture = CreateRef<FDX12Texture2D>(DepthStencilTexture, Settings, &OptClear);
+		*/
+		std::string DepthName = "SwapChainDepth";
+		m_DepthStencilTexture = FDX12Device::Get()->CreateDepthTexture(DepthName, m_Width, m_Height);
 	}
 }

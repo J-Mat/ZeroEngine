@@ -31,7 +31,7 @@ namespace Zero
 		{
 			Items[i] = RenderItemPool->Request();
 		}
-		m_IBLMoudule = CreateRef<FImageBasedLighting>(RenderItemPool->Request(), Items);
+		//m_IBLMoudule = CreateRef<FImageBasedLighting>(RenderItemPool->Request(), Items);
 	}
 
 	void FForwardStage::OnDetach()
@@ -73,7 +73,7 @@ namespace Zero
 
 			if (ShadowMapRenderTarget != nullptr)
 			{
-				RenderItem->m_Material->SetTexture2D("_gShadowMap", ShadowMapRenderTarget->GetDepthTexture());
+				//RenderItem->m_Material->SetTexture2D("_gShadowMap", ShadowMapRenderTarget->GetDepthTexture());
 			}
 
 			RenderItem->Render(m_CommandListHandle);

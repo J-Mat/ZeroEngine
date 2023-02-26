@@ -38,8 +38,9 @@ namespace Zero
 		void CreateAndInitDefaultBuffer(const void* BufferData, uint32_t Size, uint32_t Alignment, FResourceLocation& ResourceLocation);
 	
 		Ref<FDX12Resource> CreateTextureResource(const std::string& TextureName, Ref<FImage> Image, bool bGenerateMip = false);
-		void AllocateTextureResource(const std::string& TextureName, Ref<FImage> Image, FResourceLocation& ResourceLocation, bool bGenerateMip = false);
-		void GenerateMips(Ref<FDX12Resource> TextureResource);
+		void AllocateTextureResource(const std::string& TextureName, const FTextureDesc& TextureDesc, FResourceLocation& ResourceLocation, Ref<FImage> Image = nullptr, bool bGenerateMip = false);
+		void GenerateMip(Ref<FDX12Resource> TextureResource);
+		void GenerateMipSimple(Ref<FDX12Resource> TextureResource);
 		void GenerateMips_UAV(Ref<FDX12Texture2D> Texture, bool bIsSRGB);
 		ComPtr<ID3D12Resource> CreateTextureCubemapResource(Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT], uint64_t Width, uint32_t Height, uint32_t Chanels);
 		ComPtr<ID3D12Resource> CreateRenderTargetResource(uint32_t Width, uint32_t Height);
@@ -155,7 +156,7 @@ namespace Zero
 		void SetCompute32BitConstants(uint32_t RootParameterIndex, const T& Constants)
 		{
 			CORE_ASSERT(sizeof(T) % sizeof(uint32_t) == 0, "Size of type must be a multiple of 4 bytes");
-			SetCompute32BitConstants(RootParameterIndex, sizeof(T) % sizeof(uint32_t), &Constants);
+			SetCompute32BitConstants(RootParameterIndex, sizeof(T) / sizeof(uint32_t), &Constants);
 		}
 		
 		/**

@@ -14,7 +14,6 @@ using namespace std;
 
 int main()
 {
-	/*
 	unsigned int v;  // 32-bit value to find the log2 of 
 	while (cin >> v)
 	{
@@ -30,7 +29,7 @@ int main()
 
 		cout << r << endl;
 	}
-	*/
+	/*
 	unsigned long mask = 0x1000;
 	unsigned long index;
 	unsigned char isNonzero;
@@ -50,5 +49,6 @@ int main()
 			cout << "No set bits found.  Mask is zero." << endl;
 		}
 	}
+	*/
 	return 0;
 }

@@ -3,6 +3,7 @@
 #include "Platform/DX12/DX12SwapChain.h"
 #include "MemoryManage/Descriptor/DescriptorAllocator.h"
 #include "DX12CommandList.h"
+#include "DX12Texture2D.h"
 
 namespace Zero
 {
@@ -28,6 +29,8 @@ namespace Zero
 		m_DefaultBufferAllocator = CreateScope<FDefaultBufferAllocator>();
 		m_UploadBufferAllocator = CreateScope<FUploadBufferAllocator>();
 		m_TextureResourceAllocator = CreateScope<FTextureResourceAllocator>();
+
+		PreInitWorld();
 	}
 	
 	FDescriptorAllocation FDX12Device::AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE Type, uint32_t NumDescriptors)
@@ -311,7 +314,29 @@ namespace Zero
 		m_CommandLists[ERenderPassType::Compute].clear();
 		m_CommandLists[ERenderPassType::Copy].clear();
 	}
+
+	void FDX12Device::EndFrame()
+	{
+		m_DefaultBufferAllocator->CleanUpAllocations();
+		m_UploadBufferAllocator->CleanUpAllocations();
+		m_TextureResourceAllocator->CleanUpAllocations();
+	}
 	
+	Ref<FDX12Texture2D> FDX12Device::CreateDepthTexture(const std::string& TextureName, uint32_t Width, uint32_t Height)
+	{
+		D3D12_CLEAR_VALUE OptClear = {};
+		OptClear.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		OptClear.DepthStencil = { 1.0F, 0 };
+		FTextureClearValue ClearValue(1.0f, 0);
+		FTextureDesc Desc = {
+			.Width = Width,
+			.Height = Height,
+			.ResourceBindFlags = EResourceBindFlag::DepthStencil,
+			.Format = EResourceFormat::D24_UNORM_S8_UINT //EResourceFormat::R32G8X24_TYPELESS,
+		};
+		return CreateRef<FDX12Texture2D>(TextureName, Desc, &ClearValue);
+	}
+
 	uint32_t FDX12Device::RegisterActiveComandlist(Ref<FDX12CommandList> CommandList)
 	{
 		m_ActiveCommandListMap.insert({ m_CommandListID , CommandList });

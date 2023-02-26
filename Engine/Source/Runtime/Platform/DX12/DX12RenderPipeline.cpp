@@ -27,6 +27,9 @@ namespace Zero
 
 		FCommandListHandle InitWorldCommandListHandle = FDX12Device::Get()->GenerateCommanList(ERenderPassType::Graphics);
 		FDX12Device::Get()->SetInitWorldCommandList(InitWorldCommandListHandle);
+		
+		FCommandListHandle MipComandListHandle = FDX12Device::Get()->GenerateCommanList(ERenderPassType::Compute);
+		FDX12Device::Get()->SetMipCommandList(MipComandListHandle);
 
 		auto SwapChain = FDX12Device::Get()->GetSwapChain();
 
@@ -37,7 +40,10 @@ namespace Zero
 
 		auto InitComandList = FDX12Device::Get()->GetCommanList(InitWorldCommandListHandle);
 		FDX12Device::Get()->GetCommandQueue(ERenderPassType::Graphics).ExecuteCommandList(InitComandList);
+		auto MipComandList = FDX12Device::Get()->GetMipCommandList();
+		FDX12Device::Get()->GetCommandQueue(ERenderPassType::Compute).ExecuteCommandList(MipComandList);
 		SwapChain->Present();
+
+		FDX12Device::Get()->EndFrame();
 	}
-	
 }

@@ -16,7 +16,7 @@ namespace Zero
 		Ref<FTexture2D> Texture = FTextureManager::Get().GetTextureByHandle(*TextureHandlePtr);
 		if (Texture == nullptr)
 		{
-			auto Handle = FTextureManager::Get().LoadTexture(TextureHandlePtr->TextureName, false);
+			auto Handle = FTextureManager::Get().LoadTexture(TextureHandlePtr->TextureName);
 			Texture = FTextureManager::Get().GetTextureByHandle(Handle);
 		}		
 		ImTextureID TextureID = (ImTextureID)Texture->GetGuiShaderReseource();

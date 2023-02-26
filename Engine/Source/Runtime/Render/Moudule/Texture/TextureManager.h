@@ -38,7 +38,7 @@ namespace Zero
 	public:
 		void Tick();
 		void LoadDefaultTexture();
-		FTextureHandle LoadTexture(std::string const& FileName, bool bNeedMip = false);
+		FTextureHandle LoadTexture(std::string const& FileName, bool bNeedMip = true);
 		Ref<FTexture2D> GetTextureByHandle(FTextureHandle Handle);
 		FTextureHandle GetDefaultTextureHandle() { return m_DefaultHandle; };
 	private:

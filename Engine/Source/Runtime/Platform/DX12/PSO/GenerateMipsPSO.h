@@ -30,6 +30,11 @@ namespace Zero
 		};
 	}
 
+	struct FGenerateMipsCBTest
+	{
+		ZMath::vec2 TexelSize;     // 1.0 / OutMip1.Dimensions
+	};
+
 	class FDX12RootSignature;
 	class FGenerateMipsPSO
 	{

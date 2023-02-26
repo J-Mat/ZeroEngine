@@ -25,6 +25,7 @@ namespace Zero
 	
 	
 	#define GENERATE_MIP_SHADER "Shader\\Compute\\GenerateMips_CS.hlsl"
+	#define GENERATE_MIP_SHADER_TEST "Shader\\Compute\\Test_CS.hlsl"
 
 	enum class ERHI
 	{

@@ -12,16 +12,15 @@ namespace Zero
 	{
 	}
 
-	FDX12RenderTarget2D::FDX12RenderTarget2D(FRenderTarget2DDesc Desc)
+	FDX12RenderTarget2D::FDX12RenderTarget2D(FRenderTarget2DDesc RTDesc)
 		:FRenderTarget2D()
 	{
-		m_Width = Desc.Width;
-		m_Height = Desc.Height;
-		for (int32_t Index = 0; Index < Desc.ColorFormat.size(); ++Index)
-
+		m_Width = RTDesc.Width;
+		m_Height = RTDesc.Height;
+		for (int32_t Index = 0; Index < RTDesc.ColorFormat.size(); ++Index)
 		{
-			const EResourceFormat& TextureFormat = Desc.ColorFormat[Index];
-			DXGI_FORMAT DxgiFormat = FDX12Utils::ConvertResourceFormat(TextureFormat);
+			/*
+			const EResourceFormat& TextureFormat = RTDesc.ColorFormat[Index];
 			Ref<FTexture2D> Texture;
 			D3D12_RESOURCE_DESC RtvResourceDesc;
 			RtvResourceDesc.Alignment = 0;
@@ -35,37 +34,35 @@ namespace Zero
 			RtvResourceDesc.Format = DxgiFormat;
 			RtvResourceDesc.SampleDesc.Count = 1;
 			RtvResourceDesc.SampleDesc.Quality = 0;
+			*/
+
+			const EResourceFormat& TextureFormat = RTDesc.ColorFormat[Index];
+			DXGI_FORMAT DxgiFormat = FDX12Utils::ConvertResourceFormat(TextureFormat);
 			CD3DX12_CLEAR_VALUE OptClear;
 			OptClear.Format = DxgiFormat;
 			memcpy(OptClear.Color, DirectX::Colors::Transparent, 4 * sizeof(float));
-			std::string TextureName = std::format("{0}_Color_{1}", Desc.RenderTargetName, Index);
+			std::string TextureName = std::format("{0}_Color_{1}", RTDesc.RenderTargetName, Index);
 
-			FDX12TextureSettings Settings{
-				.Desc = RtvResourceDesc,
+			FTextureDesc Desc = {
+				.Width = m_Width,
+				.Height = m_Height,
+				.ResourceBindFlags = (EResourceBindFlag::RenderTarget | EResourceBindFlag::ShaderResource),
+				.InitialState = EResourceState::RenderTarget,
+				.Format = RTDesc.ColorFormat[Index],
 			};
-			Texture = CreateRef<FDX12Texture2D>(TextureName, Settings, &OptClear);
+			Ref<FTexture2D> Texture;
+			Texture = CreateRef<FDX12Texture2D>(TextureName, Desc, &OptClear);
 			AttachColorTexture(Index, Texture);
 #ifdef EDITOR_MODE
 				Texture->RegistGuiShaderResource();
 #endif
 		}
 
-		if (Desc.bNeedDepth)
+		if (RTDesc.bNeedDepth)
 		{
-			DXGI_FORMAT DepthDxgiFormat = FDX12Utils::ConvertResourceFormat(Desc.DepthFormat);
-			CORE_ASSERT(DepthDxgiFormat == DXGI_FORMAT_D24_UNORM_S8_UINT, "Must be Depth format");
-			auto DepthStencilDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D24_UNORM_S8_UINT, m_Width, m_Height);
-			DepthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-
-			D3D12_CLEAR_VALUE OptClear = {};
-			OptClear.Format = DepthDxgiFormat;
-			OptClear.DepthStencil = { 1.0F, 0 };
-			std::string TextureName = std::format("{0}_Depth", Desc.RenderTargetName);
-			FDX12TextureSettings Settings{
-				.Desc = DepthStencilDesc,
-				.SRVFormat = DXGI_FORMAT_R24_UNORM_X8_TYPELESS
-			};
-			Ref<FDX12Texture2D> DepthTexture = CreateRef<FDX12Texture2D>(TextureName, Settings, &OptClear);
+			//.SRVFormat = DXGI_FORMAT_R24_UNORM_X8_TYPELESS
+			std::string TextureName = std::format("{0}_Depth", RTDesc.RenderTargetName);
+			Ref<FDX12Texture2D> DepthTexture = FDX12Device::Get()->CreateDepthTexture(TextureName, m_Width, m_Height);
 			AttachDepthTexture(DepthTexture);
 		}
 		SetViewportRect();

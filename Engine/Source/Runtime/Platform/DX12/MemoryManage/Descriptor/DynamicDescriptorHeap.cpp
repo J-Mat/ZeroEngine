@@ -153,6 +153,24 @@ namespace Zero
 
 	void FDynamicDescriptorHeap::SetComputeAsShaderResourceHeap(FCommandListHandle CommandListHandle)
 	{
+		uint32_t TableBitMask = m_DescriptorTableBitMask;
+		DWORD RootIndex;
+		
+		auto CommandList = FDX12Device::Get()->GetCommanList(CommandListHandle, ERenderPassType::Compute);
+
+		// Scan from LSB to MSB for a bit set in staleDescriptorsBitMask
+		while (_BitScanForward(&RootIndex, TableBitMask))
+		{
+			UINT NumSrcDescriptors = m_DescriptorTableCache[RootIndex].NumDescriptors;
+			FDescriptorTableCache& DescriptorTableCache = m_DescriptorTableCache[RootIndex];
+			if (DescriptorTableCache.BaseDescriptor->ptr)
+			{
+				D3D12_CPU_DESCRIPTOR_HANDLE* DstDescriptor = (DescriptorTableCache.BaseDescriptor);
+				CD3DX12_GPU_DESCRIPTOR_HANDLE GpuHandle = CommandList->AppendCbvSrvUavDescriptors(DstDescriptor, NumSrcDescriptors);
+				CommandList->GetD3D12CommandList()->SetComputeRootDescriptorTable(RootIndex, GpuHandle);
+			}
+			TableBitMask ^= (1 << RootIndex);
+		}
 	}
 
 

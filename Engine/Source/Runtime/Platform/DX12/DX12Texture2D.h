@@ -11,15 +11,6 @@ namespace Zero
     class FDX12Device;
     class FDescriptorAllocation;
     
-    struct FDX12TextureSettings
-    {
-        D3D12_RESOURCE_DESC Desc;
-		DXGI_FORMAT SRVFormat = DXGI_FORMAT_UNKNOWN;
-		DXGI_FORMAT RTVFormat = DXGI_FORMAT_UNKNOWN;
-		DXGI_FORMAT DSVFormat = DXGI_FORMAT_UNKNOWN;
-		DXGI_FORMAT UAVFormat = DXGI_FORMAT_UNKNOWN;
-    };
-
 	class FDX12Texture2D :public FTexture2D, public FDX12Resource, public std::enable_shared_from_this<FDX12Texture2D>
 	{
         friend class FDX12RenderTarget2D;
@@ -27,8 +18,7 @@ namespace Zero
         D3D12_CLEAR_VALUE GetClearValue();
         void AttachHeapTypeAndResourceState(D3D12_HEAP_TYPE& D3DHeapType, D3D12_RESOURCE_STATES& D3DResourceState, D3D12_RESOURCE_DESC& ResourceDesc);
 	public:
-		FDX12Texture2D(const std::string& TextureName, const FTextureDesc Desc);
-		FDX12Texture2D(const std::string& TextureName, const FDX12TextureSettings& TextureSettings, const D3D12_CLEAR_VALUE* FTextureClearValue = nullptr);
+        FDX12Texture2D(const std::string& TextureName, const FTextureDesc& Desc, const FTextureClearValue* ClearValuePtr = nullptr);
         FDX12Texture2D(const std::string& TextureName, Ref<FImage> ImageData, bool bNeedMipMap = true);
         FDX12Texture2D(const std::string& TextureName, ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, const D3D12_CLEAR_VALUE* FTextureClearValue = nullptr);
 
@@ -56,6 +46,7 @@ namespace Zero
         virtual void MakeRTVs(const std::vector<FTextureSubresourceDesc>& Descs) override; 
         virtual void MakeDSVs(const std::vector<FTextureSubresourceDesc>& Descs) override; 
         virtual void MakeUAVs(const std::vector<FTextureSubresourceDesc>& Descs) override; 
+        virtual void GenerateMip() override;
 
         /**
         * Get the RTV for the texture.

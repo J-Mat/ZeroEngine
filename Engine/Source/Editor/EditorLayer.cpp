@@ -36,20 +36,16 @@ namespace Zero
 
 		{
 			bool m_bUseSkyBox = false;
+			auto* SceneSettings = FSettingManager::Get().FecthSettings<USceneSettings>(USceneSettings::StaticGetObjectName());
+			SceneSettings->m_SkyBoxRright = FTextureManager::Get().LoadTexture("Texture/skybox/right.jpg", true);//DEFAULT_TEXTURE_HANDLE;
+			SceneSettings->m_SkyBoxLeft = FTextureManager::Get().LoadTexture("Texture/skybox/left.jpg", true);
+			SceneSettings->m_SkyBoxTop = FTextureManager::Get().LoadTexture("Texture/skybox/top.jpg", true);//DEFAULT_TEXTURE_HANDLE;
+			SceneSettings->m_SkyBoxBottom = FTextureManager::Get().LoadTexture("Texture/skybox/bottom.jpg", true);//DEFAULT_TEXTURE_HANDLE;
+			SceneSettings->m_SkyBoxFront = FTextureManager::Get().LoadTexture("Texture/skybox/front.jpg", true);//DEFAULT_TEXTURE_HANDLE;
+			SceneSettings->m_SkyBoxBack = FTextureManager::Get().LoadTexture("Texture/skybox/back.jpg", true);//DEFAULT_TEXTURE_HANDLE;
 
-			FTextureManager::Get().LoadTexture("Texture/skybox/right.jpg");//DEFAULT_TEXTURE_HANDLE;
-
-			FTextureManager::Get().LoadTexture("Texture/skybox/left.jpg");
-
-			FTextureManager::Get().LoadTexture("Texture/skybox/top.jpg");//DEFAULT_TEXTURE_HANDLE;
-
-			FTextureManager::Get().LoadTexture("Texture/skybox/bottom.jpg");//DEFAULT_TEXTURE_HANDLE;
-
-			FTextureManager::Get().LoadTexture("Texture/skybox/front.jpg");//DEFAULT_TEXTURE_HANDLE;
-
-			FTextureManager::Get().LoadTexture("Texture / skybox / back.jpg");//DEFAULT_TEXTURE_HANDLE;
 			FTextureManager::Get().LoadDefaultTexture();
-			FTextureManager::Get().LoadTexture("Texture\\pbr\\IBL_BRDF_LUT.png");
+			FTextureManager::Get().LoadTexture("Texture\\pbr\\IBL_BRDF_LUT.png", false);
 		}
 	}
 
@@ -65,8 +61,8 @@ namespace Zero
 
 	void FEditorLayer::RegisterRenderStage()
 	{
-		Ref<FRenderStage> ShadowStage = FShadowStage::Create();
-		m_ScriptablePipeline->PushLayer(ShadowStage);
+		//Ref<FRenderStage> ShadowStage = FShadowStage::Create();
+		//m_ScriptablePipeline->PushLayer(ShadowStage);
 
 		Ref<FRenderStage> ForwardRendering = FForwardStage::Create();
 		m_ScriptablePipeline->PushLayer(ForwardRendering);
@@ -114,6 +110,7 @@ namespace Zero
 
 	void FEditorLayer::OnDraw()
 	{
+		FTextureManager::Get().Tick();
 		m_ScriptablePipeline->Run();
 	}
 

@@ -109,93 +109,66 @@ namespace Zero
 
 		TransitionBarrier(TextureD3DResource.Get(), D3D12_RESOURCE_STATE_COMMON);
 
-		if (bGenerateMip && Mips > 1)
-		{
-			GenerateMips(TextureResource);
-		}
 		return TextureResource;
 	}
 
-	void FDX12CommandList::AllocateTextureResource(const std::string& TextureName, Ref<FImage> Image, FResourceLocation& ResourceLocation, bool bGenerateMip)
+	void FDX12CommandList::AllocateTextureResource(const std::string& TextureName, const FTextureDesc& TextureDesc, FResourceLocation& ResourceLocation, Ref<FImage> Image /*= nullptr*/, bool bGenerateMip /*= false*/)
 	{
-		ID3D12Device* D3DDevice = FDX12Device::Get()->GetDevice();
-		//Create default resource
-		D3D12_RESOURCE_STATES ResourceState = D3D12_RESOURCE_STATE_COMMON;
+		D3D12_RESOURCE_STATES ResourceState = FDX12Utils::ConvertToD3DResourceState(TextureDesc.InitialState);
 
-		uint32_t Mips = 1;
-		if (bGenerateMip)
-		{
-			Mips = ZMath::min(ZMath::CalLog2Interger(Image->GetWidth()), ZMath::CalLog2Interger(Image->GetHeight()));
-		}
-
-		D3D12_RESOURCE_DESC TextureDesc;
-		ZeroMemory(&TextureDesc, sizeof(D3D12_RESOURCE_DESC));
-		TextureDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-		TextureDesc.Alignment = 0;
-		TextureDesc.Width = Image->GetWidth();
-		TextureDesc.Height = Image->GetHeight();
-		TextureDesc.DepthOrArraySize = 1;
-		TextureDesc.MipLevels = Mips;
-		TextureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		TextureDesc.SampleDesc.Count = 1;
-		TextureDesc.SampleDesc.Quality = 0;
-		TextureDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-		TextureDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_SIMULTANEOUS_ACCESS;
+		D3D12_RESOURCE_DESC ResourceDesc = FDX12Utils::ConvertResourceDesc(TextureDesc);
 
 		auto* TextureResourceAllocator = FDX12Device::Get()->GetTextureResourceAllocator();
-		TextureResourceAllocator->AllocTextureResource(TextureName, ResourceState, TextureDesc, ResourceLocation);
-		
+		TextureResourceAllocator->AllocTextureResource(TextureName, ResourceState, ResourceDesc, ResourceLocation);
 
-		D3D12_PLACED_SUBRESOURCE_FOOTPRINT Footprint;
-		UINT64  TotalBytes = 0;
-		FDX12Device::Get()->GetDevice()->GetCopyableFootprints(&TextureDesc, 0, 1, 0, &Footprint, nullptr, nullptr, &TotalBytes);
+		if (Image != nullptr)
+		{
+			D3D12_PLACED_SUBRESOURCE_FOOTPRINT Footprint;
+			UINT64  TotalBytes = 0;
+			FDX12Device::Get()->GetDevice()->GetCopyableFootprints(&ResourceDesc, 0, 1, 0, &Footprint, nullptr, nullptr, &TotalBytes);
 
-		auto* UploadResourceAllocator = FDX12Device::Get()->GetUploadBufferAllocator();
-		FResourceLocation UploadResourceLocation;
-		void* MappedData = UploadResourceAllocator->AllocUploadResource(TotalBytes, UPLOAD_RESOURCE_ALIGNMENT, UploadResourceLocation);
-		ID3D12Resource* UploadBuffer = UploadResourceLocation.m_UnderlyingResource->GetD3DResource().Get();
+			auto* UploadResourceAllocator = FDX12Device::Get()->GetUploadBufferAllocator();
+			FResourceLocation UploadResourceLocation;
+			void* MappedData = UploadResourceAllocator->AllocUploadResource(TotalBytes, UPLOAD_RESOURCE_ALIGNMENT, UploadResourceLocation);
+			ID3D12Resource* UploadBuffer = UploadResourceLocation.m_UnderlyingResource->GetD3DResource().Get();
 
-		D3D12_PLACED_SUBRESOURCE_FOOTPRINT Layout;
-		uint64_t RequiredSize = 0;
-		uint32_t NumRow;
-		uint64_t RowSizesInBytes;
-		D3DDevice->GetCopyableFootprints(&TextureDesc, 0, 1, 0, &Layout, &NumRow, &RowSizesInBytes, &RequiredSize);
+			D3D12_PLACED_SUBRESOURCE_FOOTPRINT Layout;
+			uint64_t RequiredSize = 0;
+			uint32_t NumRow;
+			uint64_t RowSizesInBytes;
+			ID3D12Device* D3DDevice = FDX12Device::Get()->GetDevice();
+			D3DDevice->GetCopyableFootprints(&ResourceDesc, 0, 1, 0, &Layout, &NumRow, &RowSizesInBytes, &RequiredSize);
 
 
-		D3D12_SUBRESOURCE_DATA InitData = {};
-		InitData.pData = Image->GetData();
-		InitData.RowPitch = Image->GetWidth() * Image->GetChannel();
-		InitData.SlicePitch = TotalBytes;
+			D3D12_SUBRESOURCE_DATA InitData = {};
+			InitData.pData = Image->GetData();
+			InitData.RowPitch = Image->GetWidth() * Image->GetChannel();
+			InitData.SlicePitch = TotalBytes;
 
-		D3D12_MEMCPY_DEST DestData = { (BYTE*)MappedData + Layout.Offset, Layout.Footprint.RowPitch, SIZE_T(Layout.Footprint.RowPitch) * SIZE_T(NumRow) };
-		MemcpySubresource(&DestData, &InitData, static_cast<SIZE_T>(RowSizesInBytes), NumRow, Layout.Footprint.Depth);
+			D3D12_MEMCPY_DEST DestData = { (BYTE*)MappedData + Layout.Offset, Layout.Footprint.RowPitch, SIZE_T(Layout.Footprint.RowPitch) * SIZE_T(NumRow) };
+			MemcpySubresource(&DestData, &InitData, static_cast<SIZE_T>(RowSizesInBytes), NumRow, Layout.Footprint.Depth);
 
-		TransitionBarrier(ResourceLocation.m_UnderlyingResource, D3D12_RESOURCE_STATE_COPY_DEST);
+			TransitionBarrier(ResourceLocation.m_UnderlyingResource, D3D12_RESOURCE_STATE_COPY_DEST);
 
-		Layout.Offset += UploadResourceLocation.m_OffsetFromBaseOfResource;
+			Layout.Offset += UploadResourceLocation.m_OffsetFromBaseOfResource;
 
-		CD3DX12_TEXTURE_COPY_LOCATION Src;
-		Src.pResource = UploadBuffer;
-		Src.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
-		Src.PlacedFootprint = Layout;
+			CD3DX12_TEXTURE_COPY_LOCATION Src;
+			Src.pResource = UploadBuffer;
+			Src.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+			Src.PlacedFootprint = Layout;
 
-		CD3DX12_TEXTURE_COPY_LOCATION Dst;
-		Dst.pResource = ResourceLocation.m_UnderlyingResource->GetD3DResource().Get();
-		Dst.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
-		Dst.SubresourceIndex = 0;
+			CD3DX12_TEXTURE_COPY_LOCATION Dst;
+			Dst.pResource = ResourceLocation.m_UnderlyingResource->GetD3DResource().Get();
+			Dst.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+			Dst.SubresourceIndex = 0;
 
-		CopyTextureRegion(&Dst, 0, 0, 0, &Src, nullptr);
+			CopyTextureRegion(&Dst, 0, 0, 0, &Src, nullptr);
+		}
 	}
 
-
-	void FDX12CommandList::GenerateMips(Ref<FDX12Resource> TextureResource)
+	void FDX12CommandList::GenerateMip(Ref<FDX12Resource> TextureResource)
 	{
-		if (m_CommandListType != D3D12_COMMAND_LIST_TYPE_COMPUTE)
-		{
-			m_ComputeCommandList = FDX12Device::Get()->GetCommandQueue(ERenderPassType::Compute).GetCommandList();
-			m_ComputeCommandList->GenerateMips(TextureResource);
-			return;
-		}
+		CORE_ASSERT(m_CommandListType == D3D12_COMMAND_LIST_TYPE_COMPUTE, "ComandList must be compute");
 
 		ID3D12Device* D3DDevice = FDX12Device::Get()->GetDevice();
 		
@@ -296,6 +269,72 @@ namespace Zero
 		}
 	}
 
+	void FDX12CommandList::GenerateMipSimple(Ref<FDX12Resource> TextureResource)
+	{
+		CORE_ASSERT(m_CommandListType == D3D12_COMMAND_LIST_TYPE_COMPUTE, "ComandList must be compute");
+
+		ID3D12Device* D3DDevice = FDX12Device::Get()->GetDevice();
+
+		if (m_GenerateMipsPSO == nullptr)
+		{
+			m_GenerateMipsPSO = CreateScope<FGenerateMipsPSO>();
+		}
+		SetPipelineState(m_GenerateMipsPSO->GetPipelineState());
+		SetComputeRootSignature(m_GenerateMipsPSO->GetRootSignature());
+
+		D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc
+		{
+			.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D,
+			.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
+		};
+
+		//auto Srv = CreateRef<FShaderResourceView>(TextureResource, &SrvDesc);
+
+		D3D12_UNORDERED_ACCESS_VIEW_DESC UavDesc
+		{
+			.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D,
+		};
+
+		//auto Uav = CreateRef<FUnorderedAccessResourceView>(TextureResource, &UavDesc);
+
+		D3D12_RESOURCE_DESC TexDesc = TextureResource->GetD3DResource()->GetDesc();
+		UINT const MipmapLevels = TexDesc.MipLevels;
+
+		for (UINT TopMip = 0; TopMip < MipmapLevels - 1; TopMip++)
+		{
+			UINT dst_width = (std::max)((UINT)TexDesc.Width >> (TopMip + 1), 1u);
+			UINT dst_height = (std::max)(TexDesc.Height >> (TopMip + 1), 1u);
+
+			FDescriptorAllocation Descriptor = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 2);
+			D3D12_CPU_DESCRIPTOR_HANDLE Handle1 = Descriptor.GetDescriptorHandle(0);
+			SrvDesc.Format = TexDesc.Format;
+			SrvDesc.Texture2D.MipLevels = 1;
+			SrvDesc.Texture2D.MostDetailedMip = TopMip;
+			D3DDevice->CreateShaderResourceView(TextureResource->GetD3DResource().Get(), &SrvDesc, Descriptor.GetDescriptorHandle());
+			CD3DX12_GPU_DESCRIPTOR_HANDLE GpuHandle1 = AppendCbvSrvUavDescriptors(&Handle1, 1);
+			m_D3DCommandList->SetComputeRootDescriptorTable(1, GpuHandle1);
+
+			D3D12_CPU_DESCRIPTOR_HANDLE Handle2 = Descriptor.GetDescriptorHandle(1);
+			UavDesc.Format = TexDesc.Format;
+			UavDesc.Texture2D.MipSlice = TopMip + 1;
+			D3DDevice->CreateUnorderedAccessView(TextureResource->GetD3DResource().Get(), nullptr, &UavDesc, Handle2);
+			CD3DX12_GPU_DESCRIPTOR_HANDLE GpuHandle2 = AppendCbvSrvUavDescriptors(&Handle2, 1);
+			m_D3DCommandList->SetComputeRootDescriptorTable(2, GpuHandle2);
+
+			FGenerateMipsCBTest GenerateMipsCBTest
+			{
+				.TexelSize = {1.0f / dst_width, 1.0f / dst_height}
+			};
+
+			SetCompute32BitConstants(0, GenerateMipsCBTest);
+
+			m_D3DCommandList->Dispatch((std::max)(dst_width / 8u, 1u), (std::max)(dst_height / 8u, 1u), 1);
+
+			UAVBarrier(TextureResource, true);
+		}
+		TransitionBarrier(TextureResource, D3D12_RESOURCE_STATE_COMMON);
+	}
+
 	void FDX12CommandList::GenerateMips_UAV(Ref<FDX12Texture2D> Texture, bool bIsSRGB)
 	{
 		if (m_GenerateMipsPSO == nullptr)
@@ -306,7 +345,7 @@ namespace Zero
 		SetComputeRootSignature(m_GenerateMipsPSO->GetRootSignature());
 
 		FGenerateMipsCB GenerateMipsCB;
-		GenerateMipsCB.bIsSRGB = bIsSRGB;
+		GenerateMipsCB.bIsSRGB = true;//bIsSRGB;
 
 
 		auto Resource = Texture->GetD3DResource();
@@ -361,6 +400,7 @@ namespace Zero
 			GenerateMipsCB.SrcMipLevel = SrcMip;
 			GenerateMipsCB.NumMipLevels = MipCount;
 			GenerateMipsCB.TexelSize = { 1.0f / DstWidth, 1.0f / DstHeight };
+			GenerateMipsCB.bIsSRGB = true;
 
 			SetCompute32BitConstants(EGenerateMips::GM_GenerateMipsCB, GenerateMipsCB);
 			
