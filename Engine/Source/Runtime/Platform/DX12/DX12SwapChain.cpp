@@ -162,7 +162,7 @@ namespace Zero
 		}
 		*/
 	
-		CommandList->TransitionBarrier(BufferBuffer->GetD3DResource(), D3D12_RESOURCE_STATE_PRESENT);
+		CommandList->TransitionBarrier(BufferBuffer->GetResource()->GetD3DResource(), D3D12_RESOURCE_STATE_PRESENT);
 		m_CommandQueue.ExecuteCommandList(CommandList);
 
 

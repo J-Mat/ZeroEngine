@@ -1,7 +1,7 @@
 #pragma once
 #include "Core.h"
 #include "TransformComponent.h"
-#include "Render/RHI/ShaderBinder.h"
+#include "Render/RHI/Shader/ShaderBinder.h"
 #include "CameraComponent.reflection.h"
 
 namespace Zero

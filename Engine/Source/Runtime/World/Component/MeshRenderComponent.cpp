@@ -1,5 +1,5 @@
 #include "MeshRenderComponent.h"
-#include "Render/RHI/ShaderData.h"
+#include "Render/RHI/Shader/ShaderData.h"
 #include "World/World.h"
 #include "Render/Moudule/Material.h"
 #include "Data/Asset/AssetManager.h"
@@ -9,6 +9,7 @@
 #include "Render/RHI/PipelineStateObject.h"
 #include "Render/Moudule/ConstantsBufferManager.h"
 #include "Render/Moudule/Texture/TextureManager.h"
+#include "Render/Moudule/PSOCache.h"
 
 namespace Zero
 {
@@ -73,11 +74,11 @@ namespace Zero
 		
 	}
 
-	void UMeshRenderComponent::AttachRenderLayer(int32_t RenderLayer, const std::string& PsoType)
+	void UMeshRenderComponent::AttachRenderLayer(int32_t RenderLayer, const EPipelineState& PsoType)
 	{
 		m_RenderLayer |= RenderLayer;
 		Ref<FRenderLayerInfo> RenderLayerInfo = CreateRef<FRenderLayerInfo>();
-		RenderLayerInfo->PipelineStateObject = TLibrary<FPipelineStateObject>::Fetch(PsoType);
+		RenderLayerInfo->PipelineStateObject = FPSOCache::Get().Fetch(PsoType);
 		m_LayerInfo.insert({ RenderLayer, RenderLayerInfo });
 	}
 
@@ -132,41 +133,6 @@ namespace Zero
 		}
 		if (m_MaterialHandle != "")
 		{
-			/*
-			UMaterialAsset* MaterialAsset = FAssetManager::GetInstance().Fetch<UMaterialAsset>(m_MaterialHandle);
-			Ref<FShader> Shader = TLibrary<FShader>::Fetch(MaterialAsset->m_ShaderFile);
-			if (Shader != nullptr && GetPipelineStateObject()->GetPSODescriptor().Shader != Shader)
-			{
-				m_PipelineStateObject = TLibrary<FPipelineStateObject>::Fetch(MaterialAsset->m_ShaderFile);
-			}
-			while (RenderLayer > 0)
-			{
-				uint32_t CurLayer = (RenderLayer & (-RenderLayer));
-				RenderLayer ^= CurLayer;
-				auto CurLayerMaterials = GetPassMaterials(CurLayer);
-
-				for (size_t i = 0; i < m_SubmeshNum; i++)
-				{
-					if (Shader != nullptr)
-					{
-						CurLayerMaterials[i]->SetShader(Shader);
-					}
-					for (auto Iter : MaterialAsset->m_Textures)
-					{
-						const std::string& TextureName = Iter.first;
-						Ref<FTexture2D> Texture = FAssetManager::GetInstance().FetchTexture(Iter.second);
-						if (Texture != nullptr)
-						{
-							CurLayerMaterials[i]->SetTexture2D(TextureName, Texture);
-						}
-					}
-					for (auto Iter : MaterialAsset->m_Floats)
-					{
-						CurLayerMaterials[i]->SetFloat(Iter.first, Iter.second.Value);
-					}
-				}
-			}
-			*/
 		}
 		{
 			auto& OpaqueLayer = m_LayerInfo.find(RENDERLAYER_OPAQUE);

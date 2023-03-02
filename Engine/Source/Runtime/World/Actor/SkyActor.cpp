@@ -15,7 +15,7 @@ namespace Zero
 		: UMeshActor()
 	{
 		m_bVisibleInEditor = false;
-		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_SKYBOX, PSO_SKYBOX);
+		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_SKYBOX, EPipelineState::Skybox);
 		m_MeshRenderComponent->SetEnableMaterial(false);
 	}
 

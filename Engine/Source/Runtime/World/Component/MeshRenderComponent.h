@@ -39,7 +39,7 @@ namespace Zero
 		void SetEnableMaterial(bool bEnable);
 		std::vector<Ref<FMaterial>>& GetPassMaterials(uint32_t LayerLayer);
 		void SetSubmeshNum(uint32_t Num);
-		void AttachRenderLayer(int32_t RenderLayer, const std::string& PsoType);
+		void AttachRenderLayer(int32_t RenderLayer, const EPipelineState& PsoType);
 		void SetParameter(const std::string& ParameterName, EShaderDataType ShaderDataType, void* ValuePtr, uint32_t RenderLayer = RENDERLAYER_OPAQUE);
 
 		Ref<FPipelineStateObject> GetPipelineStateObject(uint32_t RenderLayer);

@@ -15,4 +15,8 @@ namespace Zero
 			CreatePsoObj();
 		}
 	}
+
+	void FPipelineStateObject::OnShaderRecompiled(Ref<FShader> Shader)
+	{
+	}
 }

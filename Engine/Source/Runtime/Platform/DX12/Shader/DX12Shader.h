@@ -1,16 +1,17 @@
 #pragma once
 #include "Core.h"
 #include "../Common/DX12Header.h"
-#include "Render/RHI/ShaderBinder.h"
-#include "Render/RHI/Shader.h"
+#include "Render/RHI/Shader/ShaderBinder.h"
+#include "Render/RHI/Shader/Shader.h"
 #include "d3d12shader.h"
+#include "DX12ShaderCompiler.h"
 
 namespace Zero
 {
 	class FDX12Device;
 	class FDX12PipelineStateObject;
 	class FDX12CommandList;
-	class FDX12Shader : public FShader
+	class FDX12Shader : public FShader, public std::enable_shared_from_this<FDX12Shader>
 	{
 		friend class FDX12PipelineStateObject;
 	public:
@@ -21,14 +22,28 @@ namespace Zero
 		virtual void Use(FCommandListHandle CommandList) override;
 
 		
-		void GetShaderParameters(ComPtr<ID3DBlob> PassBlob, EShaderType ShaderType);
+		void GetShaderParameters(EShaderStage ShaderStage);
+		void GetShaderParameters(ComPtr<ID3DBlob> PassBlob, EShaderStage ShaderStage);
+		void ParseShader(ID3D12ShaderReflection* ShaderReflectionPtr, EShaderStage ShaderStage);
+		virtual void Compile() override;
+
+
+		D3D12_SHADER_BYTECODE GetD3DShaderBytecode(EShaderStage Stage) const
+		{
+			D3D12_SHADER_BYTECODE Bytecode{};
+			Bytecode.pShaderBytecode = GetPointer(Stage);
+			Bytecode.BytecodeLength = GetLength(Stage);
+			return Bytecode;
+		}
+
 	private:
 		void ParseCBVariable(ID3D12ShaderReflectionVariable* ReflectionVariable, std::vector<FCBVariableItem>& VariableList);
 		void GenerateInputLayout();
 
 	private:
 		std::vector<D3D12_INPUT_ELEMENT_DESC> m_InputLayoutDesc;
-		std::unordered_map<EShaderType, ComPtr<ID3DBlob>> m_ShaderPass;
-		ComPtr<ID3DBlob> CompileShader(const std::wstring& Filename, const D3D_SHADER_MACRO* Defines, const std::string& Entrypoint, const std::string& Target);
+		std::unordered_map<EShaderStage, ComPtr<ID3DBlob>> m_ShaderPass;
+		
+		static FDX12ShaderCompiler s_ShaderCompiler;
 	};
 }

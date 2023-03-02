@@ -5,6 +5,7 @@
 #include "Render/RHI/Buffer/VertexBuffer.h"
 #include "World/World.h"
 #include "World/LightManager.h"
+#include "Render/Moudule/PSOCache.h"
 
 namespace Zero
 {
@@ -30,13 +31,13 @@ namespace Zero
 		MeshDatas.push_back(MeshData);
 
 		m_ShadowMapDebugItem = RenderItemPool->Request();
-		m_ShadowMapDebugItem->m_Mesh = FRenderer::GraphicFactroy->CreateMesh(
+		m_ShadowMapDebugItem->m_Mesh = FRenderer::GetDevice()->CreateMesh(
 			MeshDatas,
 			FVertexBufferLayout::s_DefaultVertexLayout
 		);
 		m_ShadowMapDebugItem->m_SubMesh = *m_ShadowMapDebugItem->m_Mesh->begin();
 		m_ShadowMapDebugItem->m_Material = CreateRef<FMaterial>(false);
-		m_ShadowMapDebugItem->m_PipelineStateObject = TLibrary<FPipelineStateObject>::Fetch("Shader\\Shadow\\ShadowDebug.hlsl");
+		m_ShadowMapDebugItem->m_PipelineStateObject = FPSOCache::Get().Fetch(EPipelineState::ShadowDebug);
 		m_ShadowMapDebugItem->m_Material->SetShader(m_ShadowMapDebugItem->m_PipelineStateObject->GetPSODescriptor().Shader);
 	}
 

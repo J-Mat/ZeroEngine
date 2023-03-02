@@ -1,5 +1,5 @@
 #include "DX12Mesh.h"
-#include "Render/RHI/Shader.h"
+#include "Render/RHI/Shader/Shader.h"
 #include "Render/Moudule/MeshGenerator.h"
 #include "Render/RHI/Buffer/VertexBuffer.h"
 #include "Render/RHI/Buffer/IndexBuffer.h"
@@ -24,6 +24,7 @@ namespace Zero
 		SubMesh.IndexNumber = IndexCount;
 		m_SubMeshes.push_back(SubMesh);
 	}
+
 	FDX12Mesh::FDX12Mesh(std::vector<FMeshData> MeshDatas, FVertexBufferLayout& Layout)
 	: FMesh()
 	{

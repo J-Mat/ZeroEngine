@@ -7,7 +7,7 @@
 namespace Zero
 {
 	class UTransformComponent;
-	DEFINITION_MULTICAST_SINGLE_DELEGATE(FOnTransformChanged, void, UTransformComponent*)
+	DEFINITION_MULTICAST_DELEGATE(FOnTransformChanged, void, UTransformComponent*)
 	UCLASS()
 	class UTransformComponent : public UComponent
 	{	

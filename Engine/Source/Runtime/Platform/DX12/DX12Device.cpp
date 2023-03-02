@@ -4,6 +4,13 @@
 #include "MemoryManage/Descriptor/DescriptorAllocator.h"
 #include "DX12CommandList.h"
 #include "DX12Texture2D.h"
+#include "DX12TextureCubemap.h"
+#include "DX12Mesh.h"
+#include "./Shader/DX12Shader.h"
+#include "./PSO/DX12PipelineStateObject.h"
+#include "Core/Framework/Library.h"
+#include "Render/Moudule/MeshGenerator.h"
+#include "ZConfig.h"
 
 namespace Zero
 {
@@ -77,6 +84,111 @@ namespace Zero
 		m_SwapChain = CreateRef<FDX12SwapChain>(hWnd);
 		m_SwapChain->SetVSync(false);
 	}
+
+	Ref<FPipelineStateObject> FDX12Device::CreatePSO(const FPSODescriptor& PSODescriptor)
+	{
+		auto PSO = CreateRef<FDX12PipelineStateObject>(PSODescriptor);
+		return PSO;
+	}
+
+	Ref<FTexture2D> FDX12Device::CreateTexture2D(const std::string& TextureName, const FTextureDesc& Desc)
+	{
+		Ref<FTexture2D> Texture = CreateRef<FDX12Texture2D>(TextureName, Desc);
+		return Texture;
+	}
+
+	Ref<FTexture2D> FDX12Device::GetOrCreateTexture2D(const std::string& Filename, bool bNeedMipMap)
+	{
+		std::filesystem::path TextureFileName = Filename;
+		Ref<FTexture2D> Texture{};
+		std::filesystem::path TexturePath = ZConfig::GetAssestsFullPath(Filename);
+		if (std::filesystem::exists(TexturePath))
+		{
+			Ref<FImage> Image = CreateRef<FImage>(TexturePath.string());
+			Texture = CreateRef<FDX12Texture2D>(Filename, Image, bNeedMipMap);
+#if	EDITOR_MODE
+			Texture->RegistGuiShaderResource();
+#endif
+		}
+		return Texture;
+	
+	}	
+	Ref<FShader> FDX12Device::CreateShader(const FShaderBinderDesc& BinderDesc, const FShaderDesc& ShaderDesc)
+	{
+		Ref<FShader> Shader = TLibrary<FShader>::Fetch(ShaderDesc.FileName);
+		if (Shader == nullptr)
+		{
+			Shader = CreateRef<FDX12Shader>(BinderDesc, ShaderDesc);
+			TLibrary<FShader>::Push(ShaderDesc.FileName, Shader);
+		}
+		return Shader;
+	}
+
+	Ref<FShader> FDX12Device::CreateShader(const FShaderDesc& ShaderDesc)
+	{
+		Ref<FShader> Shader = TLibrary<FShader>::Fetch(ShaderDesc.FileName);
+		if (Shader == nullptr)
+		{
+			Shader = CreateRef<FDX12Shader>(ShaderDesc);
+			TLibrary<FShader>::Push(ShaderDesc.FileName, Shader);
+		}
+		return Shader;
+	}
+
+	Ref<FMesh> FDX12Device::CreateMesh(const std::vector<FMeshData>& MeshDatas, FVertexBufferLayout& Layout)
+	{
+		return CreateRef<FDX12Mesh>(MeshDatas, Layout);
+	}
+
+	Ref<FMesh> FDX12Device::CreateMesh(float* Vertices, uint32_t VertexCount, uint32_t* Indices, uint32_t IndexCount, FVertexBufferLayout& Layout)
+	{
+		return CreateRef<FDX12Mesh>(Vertices, VertexCount, Indices, IndexCount, Layout);
+	}
+
+	Ref<FTextureCubemap> FDX12Device::GetOrCreateTextureCubemap(FTextureHandle Handles[CUBEMAP_TEXTURE_CNT], std::string TextureCubemapName)
+	{
+		return nullptr;
+		/*
+		auto CreateTextureCubemap = [&]() -> Ref<FTextureCubemap>
+		{
+			Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT];
+			for (int i = 0; i < CUBEMAP_TEXTURE_CNT; ++i)
+			{
+				std::filesystem::path TexturePath = ZConfig::GetAssestsFullPath(Handles[i]);
+				ImageData[i] = CreateRef<FImage>(TexturePath.string());
+			}
+			return CreateRef<FDX12TextureCubemap>(ImageData);
+		};
+		*/
+
+		std::filesystem::path TextureFileName = TextureCubemapName;
+		Ref<FTextureCubemap> TextureCubemap = TLibrary<FTextureCubemap>::Fetch(TextureCubemapName);
+		if (TextureCubemap == nullptr)
+		{
+			Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT];
+			for (int i = 0; i < CUBEMAP_TEXTURE_CNT; ++i)
+			{
+				Ref<FTexture2D> Texture2D = GetOrCreateTexture2D(Handles[i].TextureName);
+				ImageData[i] = Texture2D->GetImage();
+			}
+			TextureCubemap = CreateRef<FDX12TextureCubemap>(TextureCubemapName, ImageData);
+		}
+		else
+		{
+			TLibrary<FTextureCubemap>::Remove(TextureCubemapName);
+			TextureCubemap.reset();
+			Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT]	;
+			for (int i = 0; i < CUBEMAP_TEXTURE_CNT; ++i)
+			{
+				Ref<FTexture2D> Texture2D = GetOrCreateTexture2D(Handles[i].TextureName);
+				ImageData[i] = Texture2D->GetImage();
+			}
+			TextureCubemap = CreateRef<FDX12TextureCubemap>(TextureCubemapName, ImageData);
+		}
+		TLibrary<FTextureCubemap>::Push(TextureCubemapName, TextureCubemap);
+		return TextureCubemap;
+	}
+
 
 	void FDX12Device::EnableDebugLayer()
 	{
@@ -331,8 +443,9 @@ namespace Zero
 		FTextureDesc Desc = {
 			.Width = Width,
 			.Height = Height,
-			.ResourceBindFlags = EResourceBindFlag::DepthStencil,
-			.Format = EResourceFormat::D24_UNORM_S8_UINT //EResourceFormat::R32G8X24_TYPELESS,
+			.ResourceBindFlags = EResourceBindFlag::DepthStencil | EResourceBindFlag::ShaderResource,
+			.InitialState = EResourceState::Common,
+			.Format = EResourceFormat::D24_UNORM_S8_UINT,
 		};
 		return CreateRef<FDX12Texture2D>(TextureName, Desc, &ClearValue);
 	}

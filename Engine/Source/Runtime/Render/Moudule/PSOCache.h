@@ -3,10 +3,11 @@
 #include "Core.h"
 #include "Render/RHI/GraphicDevice.h"
 #include "Core/Base/PublicSingleton.h"
+#include "Render/RenderConfig.h"
 
 namespace Zero
 {
-	class FPSORegister : public IPublicSingleton<FPSORegister>
+	class FPSOCache : public IPublicSingleton<FPSOCache>
 	{
 	public:
 		void RegisterDefaultPSO();
@@ -14,6 +15,9 @@ namespace Zero
 		void RegisterIBLPSO();
 		void RegisterShadowPSO();
 		void RegisterComputeShader();
-		void RegisterTestPSO();
+	public:
+		Ref<FPipelineStateObject> Fetch(EPipelineState PsoState);
+	private:
+		std::map<EPipelineState, Ref<FPipelineStateObject>> m_PsoCache{};
 	};
 }

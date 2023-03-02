@@ -24,12 +24,20 @@ target_link_libraries(${ProjectName}
 	PUBLIC headers
 )
 
+
+
+#find_library(dxcompiler
+#  NAMES dxcompiler
+#  HINTS ${ThirdPartyDir}/dxc/lib/x64/
+#  DOC "dxcompiler library")
+
 if (WIN32)
     target_link_libraries(${ProjectName}
 		PUBLIC d3d12.lib
 		PUBLIC dxgi.lib
 		PUBLIC dxguid.lib
 		PUBLIC d3dcompiler.lib
+		PUBLIC ${ThirdPartyDir}/dxc/lib/x64/dxcompiler.lib
 	)
 endif()
 

@@ -16,6 +16,8 @@ namespace Zero
 	class FDX12CommandQueue;
 	class FDescriptorAllocator;
 	class FDX12Texture2D;
+	class FPipelineStateObject;
+	struct FPSODescriptor;
 	class FDX12Device : public IDevice, public std::enable_shared_from_this<FDX12Device>
 	{
 	public:
@@ -104,6 +106,15 @@ namespace Zero
 
 		FTextureResourceAllocator* GetTextureResourceAllocator() { return m_TextureResourceAllocator.get(); }
 
+	public:
+		virtual Ref<FPipelineStateObject> CreatePSO(const FPSODescriptor& PSODescriptor) override;
+		virtual Ref<FTexture2D> CreateTexture2D(const std::string& TextureName, const FTextureDesc& Desc);
+		virtual Ref<FTexture2D> GetOrCreateTexture2D(const std::string& Filename, bool bNeedMipMap = false) override;
+		virtual Ref<FTextureCubemap> GetOrCreateTextureCubemap(FTextureHandle Handles[CUBEMAP_TEXTURE_CNT], std::string TextureCubemapName) override;
+		virtual Ref<FShader> CreateShader(const FShaderBinderDesc& BinderDesc, const FShaderDesc& ShaderDesc);
+		virtual Ref<FShader> CreateShader(const FShaderDesc& ShaderDesc);
+		virtual Ref<FMesh> CreateMesh(const std::vector<FMeshData>& MeshDatas, FVertexBufferLayout& Layout);
+		virtual Ref<FMesh> CreateMesh(float* Vertices, uint32_t VertexCount, uint32_t* Indices, uint32_t IndexCount, FVertexBufferLayout& Layout);
 	private:
 		static FDX12Device* m_Instance;
 		void EnableDebugLayer();

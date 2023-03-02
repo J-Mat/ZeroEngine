@@ -2,14 +2,15 @@
 #include "../Component/MeshVertexComponent.h"
 #include "Render/Moudule/MeshGenerator.h"
 #include "../Component/MeshRenderComponent.h"
+#include "ZConfig.h"
 
 namespace Zero
 {
 	USphereMeshActor::USphereMeshActor()
 		: UMeshActor()
 	{
-		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_OPAQUE, PSO_FORWARDLIT);
-		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_SHADOW, PSO_SHADOWMAP);
+		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_OPAQUE, EPipelineState::ForwadLit);
+		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_SHADOW, EPipelineState::ShadowMap);
 	}
 
 	USphereMeshActor::USphereMeshActor(float Radius, uint32_t NumSubdivisions)
@@ -17,8 +18,8 @@ namespace Zero
 		, m_Radius(Radius)
 		, m_NumSubdivisions(NumSubdivisions)
 	{
-		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_OPAQUE, PSO_FORWARDLIT);
-		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_SHADOW, PSO_SHADOWMAP);
+		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_OPAQUE, EPipelineState::ForwadLit);
+		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_SHADOW, EPipelineState::ShadowMap);
 	}
 	
 

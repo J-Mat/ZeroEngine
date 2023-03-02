@@ -1,9 +1,10 @@
 #include "ImageBasedLighting.h"
-#include "Render/RendererAPI.h"
 #include "Render/RHI/RenderItem.h"
 #include "Render/Moudule/Material.h"
 #include "Render/RHI/PipelineStateObject.h"
+#include "Render/RendererAPI.h"
 #include "Render/Moudule/ConstantsBufferManager.h"
+#include "Render/Moudule/PSOCache.h"
 #include "MeshGenerator.h"
 
 
@@ -17,13 +18,13 @@ namespace Zero
 		//FMeshGenerator::GetInstance().CreateRect(MeshData);
 		MeshDatas.push_back(MeshData);
 
-		m_IrradianceMapRenderItem->m_Mesh = FRenderer::GraphicFactroy->CreateMesh(
+		m_IrradianceMapRenderItem->m_Mesh = FRenderer::GetDevice()->CreateMesh(
 			MeshDatas,
 			FVertexBufferLayout::s_DefaultVertexLayout
 		);
 		m_IrradianceMapRenderItem->m_SubMesh = *m_IrradianceMapRenderItem->m_Mesh->begin();
 		m_IrradianceMapRenderItem->m_Material = CreateRef<FMaterial>(false);
-		m_IrradianceMapRenderItem->m_PipelineStateObject = TLibrary<FPipelineStateObject>::Fetch("Shader\\IBL\\IBLIrradiance.hlsl");
+		m_IrradianceMapRenderItem->m_PipelineStateObject = FPSOCache::Get().Fetch(EPipelineState::IBLIrradiance);
 		m_IrradianceMapRenderItem->m_Material->SetShader(m_IrradianceMapRenderItem->m_PipelineStateObject->GetPSODescriptor().Shader);
 		m_IrradianceMapRenderItem->m_PerObjectBuffer = FConstantsBufferManager::Get().GetPerObjectConstantsBuffer();
 		m_IrradianceMapRenderItem->SetModelMatrix(ZMath::mat4(1.0f));
@@ -43,7 +44,7 @@ namespace Zero
 		FMeshGenerator::Get().CreateCube(MeshData, 1.0f, 1.0f, 1.0f, 0);
 		//FMeshGenerator::GetInstance().CreateRect(MeshData);
 		MeshDatas.push_back(MeshData);
-		Ref<FMesh> Mesh = FRenderer::GraphicFactroy->CreateMesh(
+		Ref<FMesh> Mesh = FRenderer::GetDevice()->CreateMesh(
 			MeshDatas,
 			FVertexBufferLayout::s_DefaultVertexLayout);
 
@@ -52,7 +53,7 @@ namespace Zero
 			m_PrefilterMapRenderItem[Mip]->m_Mesh = Mesh;
 			m_PrefilterMapRenderItem[Mip]->m_SubMesh = *m_PrefilterMapRenderItem[Mip]->m_Mesh->begin();
 			m_PrefilterMapRenderItem[Mip]->m_Material = CreateRef<FMaterial>(false);
-			m_PrefilterMapRenderItem[Mip]->m_PipelineStateObject = TLibrary<FPipelineStateObject>::Fetch("Shader\\IBL\\IBLPrefilter.hlsl");
+			m_PrefilterMapRenderItem[Mip]->m_PipelineStateObject = FPSOCache::Get().Fetch(EPipelineState::IBLPrefilter);
 			m_PrefilterMapRenderItem[Mip]->m_Material->SetShader(m_PrefilterMapRenderItem[Mip]->m_PipelineStateObject->GetPSODescriptor().Shader);
 			m_PrefilterMapRenderItem[Mip]->m_PerObjectBuffer = FConstantsBufferManager::Get().GetPerObjectConstantsBuffer();
 			m_PrefilterMapRenderItem[Mip]->SetModelMatrix(ZMath::mat4(1.0f));

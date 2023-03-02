@@ -2,25 +2,19 @@
 #include "Core.h"
 #include "ShaderData.h"
 #include "ShaderBinder.h"
-#include "./Buffer/VertexBuffer.h"
-#include "Texture.h"
+#include "../Buffer/VertexBuffer.h"
+#include "../Texture.h"
 
 namespace Zero
 {
 	struct FPipelineStateDesc;
 
-	class FShaderDefines
-	{	
-	public:
-		void SetDefine(const std::string& Name, const std::string& Definition);
-		bool operator == (const FShaderDefines& Other) const;
-	private:
-		std::unordered_map<std::string, std::string> DefinesMap;
-	};
+	class FShaderSamplerParameter : public FShaderParameter
+	{};
 
 	struct FShaderDesc
 	{
-		std::string ShaderName;
+		std::string FileName;
 		bool bUseAlphaBlending = false;
 		FVertexBufferLayout VertexBufferLayout = FVertexBufferLayout::s_DefaultVertexLayout;
 		int32_t NumRenderTarget = 1;
@@ -30,18 +24,18 @@ namespace Zero
 		
 		bool bNeedDetph = true;
 		EResourceFormat DepthFormat = EResourceFormat::D24_UNORM_S8_UINT;
-		
 
-		FShaderDefines ShaderDefines;
+		EShaderModel Model = SM_6_6;
+		FShaderMacro ShaderMacro;
 		bool bCreateVS = true;
 		std::string VSEntryPoint = "VS";
 		bool bCreatePS = true;
 		std::string PSEntryPoint = "PS";
+		EShaderCompilerFlagBit Flags = ShaderCompilerFlag_Debug;
 	};
+
 		
-	struct FShaderSamplerParameter : FShaderParameter
-	{
-	};
+	using FShaderBlob = std::vector<uint8_t>;
 
 	class FShader
 	{
@@ -59,7 +53,27 @@ namespace Zero
 		
 		void GenerateShaderDesc();
 
+		void SetBytecode(EShaderStage ShaderStage, void const* Data, size_t Size)
+		{
+			m_ByteCode[uint32_t(ShaderStage)].resize(Size);
+			memcpy(m_ByteCode[uint32_t(ShaderStage)].data(), Data, Size);
+		}
+
+		void* GetPointer(EShaderStage ShaderStage) const
+		{
+			return !m_ByteCode[uint32_t(ShaderStage)].empty() ? (void*)m_ByteCode[uint32_t(ShaderStage)].data() : nullptr;
+		}
+
+		size_t GetLength(EShaderStage ShaderStage) const
+		{
+			return m_ByteCode[uint32_t(ShaderStage)].size();
+		}
+
+		std::set<std::string>& GetAllIncludeFiles() { return m_IncludeFiles; }
+
 		const FShaderDesc& GetDesc() { return m_ShaderDesc; }
+
+		virtual void Compile() = 0;
 
 	protected:
 		Ref<IShaderBinder> m_ShaderBinder;
@@ -70,12 +84,15 @@ namespace Zero
 		std::map<std::pair<uint32_t, uint32_t>, FShaderSRVParameter> m_SRVParams;
 		std::vector<FShaderUAVParameter> m_UAVParams;
 		std::vector<FShaderSamplerParameter> m_SamplerParams;
+
+		std::set<std::string> m_IncludeFiles;
+		FShaderBlob m_ByteCode[uint32_t(EShaderStage::ShaderCount)];
 	};
 
 	struct FComputeShaderDesc
 	{
 		std::string ShaderName;
-		FShaderDefines ShaderDefines;
+		FShaderMacro ShaderDefines;
 		std::string CSEntryPoint = "CS";
 		uint32_t BlockSize_X = 8;
 		uint32_t BlockSize_Y = 8;

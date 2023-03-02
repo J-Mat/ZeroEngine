@@ -8,7 +8,7 @@ namespace Zero
 		:UMeshActor()
 	{
 		m_LightComponnet = CreateComponent<UPointLightComponnet>(this);
-		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_LIGHT, PSO_POINT_LIGHT);
+		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_LIGHT, EPipelineState::PointLight);
 		GetComponent<UMeshRenderComponent>()->SetEnableMaterial(false);
 	}
 

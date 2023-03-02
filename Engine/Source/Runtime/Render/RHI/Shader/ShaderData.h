@@ -1,9 +1,50 @@
 #pragma once
 #include "Core.h"
+#include "EnumUtil.h"
 
 
 namespace Zero
 {
+	enum class EShaderStage
+	{
+		VS,
+		PS,
+		HS,
+		DS,
+		GS,
+		CS,
+		LIB,
+		MS,
+		AS,
+		ShaderCount
+	};
+	enum EShaderModel
+	{
+		SM_6_0,
+		SM_6_1,
+		SM_6_2,
+		SM_6_3,
+		SM_6_4,
+		SM_6_5,
+		SM_6_6
+	};
+	class FShaderMacro
+	{	
+	public:
+		void SetDefine(const std::string& Name, const std::string& Definition);
+		bool operator == (const FShaderMacro& Other) const;
+	private:
+		std::unordered_map<std::string, std::string> DefinesMap;
+	};
+
+	enum EShaderCompilerFlagBit
+	{
+		ShaderCompilerFlag_None = 0,
+		ShaderCompilerFlag_Debug = 1 << 0,
+		ShaderCompilerFlag_DisableOptimization = 1 << 1
+	};
+	DEFINE_ENUM_BIT_OPERATORS(EShaderCompilerFlagBit);
+
 	enum class EShaderDataType
 	{
 		None,
@@ -27,13 +68,6 @@ namespace Zero
 		Texture2D,
 		Cubemap,
 		RenderTarget,
-	};
-
-	enum class EShaderType
-	{
-		ST_VERTEX,
-		ST_PIXEL,
-		ST_COMPUTE
 	};
 
 	enum class EShaderSampler
@@ -70,7 +104,7 @@ namespace Zero
 		}
 	}
 
-	static uint32_t GetShaderTypeComponentCount(EShaderDataType Type)
+	static uint32_t GetShaderStageComponentCount(EShaderDataType Type)
 	{
 		switch (Type)
 		{
@@ -96,7 +130,7 @@ namespace Zero
 	struct FShaderParameter
 	{
 		std::string ResourceName;
-		EShaderType ShaderType;
+		EShaderStage ShaderStage;
 		UINT BindPoint;
 		UINT RegisterSpace;
 	};

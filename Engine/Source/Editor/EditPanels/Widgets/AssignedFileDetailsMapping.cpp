@@ -1,5 +1,6 @@
 #include "AssignedFileDetailsMapping.h"
 #include "Editor.h" 
+#include "ZConfig.h"
 #include "Dialog/DialogUtils.h"	
 
 namespace Zero

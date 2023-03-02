@@ -1,6 +1,6 @@
 #pragma once
 #include "Core.h"
-#include "Render/RHI/ShaderBinder.h"
+#include "Render/RHI/Shader/ShaderBinder.h"
 #include "Platform/DX12/MemoryManage/Resource/FrameResource.h"
 #include "Render/RHI/RootSignature.h"
 #include "Platform/DX12/DX12RootSignature.h"

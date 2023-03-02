@@ -348,7 +348,7 @@ namespace Zero
 		GenerateMipsCB.bIsSRGB = true;//bIsSRGB;
 
 
-		auto Resource = Texture->GetD3DResource();
+		auto Resource = Texture->GetResource()->GetD3DResource();
 		auto ResourceDesc = Resource->GetDesc();
 
 		// Create an SRV that uses the format of the original texture.
@@ -362,7 +362,7 @@ namespace Zero
 			}
 		};
 
-		auto Srv = CreateRef<FShaderResourceView>(Texture, &SrvDesc);
+		auto Srv = CreateRef<FShaderResourceView>(Texture->GetResource(), &SrvDesc);
 		
 		for (uint32_t SrcMip = 0; SrcMip < ResourceDesc.MipLevels - 1u;)
 		{
@@ -416,7 +416,7 @@ namespace Zero
 						.MipSlice = SrcMip + Mip + 1
 					}
 				};
-				auto Uav = CreateRef<FUnorderedAccessResourceView>(Texture, nullptr, &UavDesc);
+				auto Uav = CreateRef<FUnorderedAccessResourceView>(Texture->GetResource(), nullptr, &UavDesc);
 				SetUnorderedAccessView(EGenerateMips::GM_OutMip, Mip, Uav, D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
 					SrcMip + Mip + 1, 1);
 			}
@@ -428,7 +428,7 @@ namespace Zero
 			}
 			Dispatch(ZMath::DivideByMultiple(DstWidth, 8), ZMath::DivideByMultiple(DstHeight, 8), 1);
 		
-			UAVBarrier(Texture, true);
+			UAVBarrier(Texture->GetResource(), true);
 			
 			SrcMip += MipCount;
 		} 
@@ -569,19 +569,21 @@ namespace Zero
 
 	void FDX12CommandList::ClearTexture(FDX12Texture2D* TexturePtr, const ZMath::vec4 Color)
 	{
-		TransitionBarrier(TexturePtr->GetD3DResource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, true);
+		auto Resource = TexturePtr->GetResource();
+		TransitionBarrier(Resource, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, true);
 		float ClearColor[4] = { Color.r, Color.g, Color.b, Color.a };
 		m_D3DCommandList->ClearRenderTargetView(TexturePtr->GetRTV(), ClearColor, 0, nullptr);
 
-		TrackResource(TexturePtr->GetD3DResource());
+		TrackResource(Resource);
 	}
 
 	void FDX12CommandList::ClearDepthStencilTexture(FDX12Texture2D* TexturePtr, D3D12_CLEAR_FLAGS ClearFlags, float Depth, uint8_t Stencil)
 	{
-		TransitionBarrier(TexturePtr->GetD3DResource(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, true);
+		auto Resource = TexturePtr->GetResource();
+		TransitionBarrier(Resource, D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, true);
 		m_D3DCommandList->ClearDepthStencilView(TexturePtr->GetDSV(), ClearFlags, Depth, Stencil, 0, nullptr);
 
-		TrackResource(TexturePtr->GetD3DResource());
+		TrackResource(Resource);
 	}
 
 	void FDX12CommandList::CopyResource(const Ref<FDX12Resource>& DstRes, const Ref<FDX12Resource>& SrcRes)
@@ -834,6 +836,7 @@ namespace Zero
 			&CD3DX12_RESOURCE_DESC::Buffer(BufferSize), D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
 			IID_PPV_ARGS(UploadResource.GetAddressOf()))
 		);
+
 
 		D3D12_SUBRESOURCE_DATA SubresourceData = {};
 		SubresourceData.pData = BufferData;

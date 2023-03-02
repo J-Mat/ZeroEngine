@@ -37,21 +37,17 @@ namespace Zero
 			*/
 
 			const EResourceFormat& TextureFormat = RTDesc.ColorFormat[Index];
-			DXGI_FORMAT DxgiFormat = FDX12Utils::ConvertResourceFormat(TextureFormat);
-			CD3DX12_CLEAR_VALUE OptClear;
-			OptClear.Format = DxgiFormat;
-			memcpy(OptClear.Color, DirectX::Colors::Transparent, 4 * sizeof(float));
 			std::string TextureName = std::format("{0}_Color_{1}", RTDesc.RenderTargetName, Index);
-
+			FTextureClearValue ClearValue{};
 			FTextureDesc Desc = {
 				.Width = m_Width,
 				.Height = m_Height,
 				.ResourceBindFlags = (EResourceBindFlag::RenderTarget | EResourceBindFlag::ShaderResource),
-				.InitialState = EResourceState::RenderTarget,
+				.InitialState = EResourceState::Common,
 				.Format = RTDesc.ColorFormat[Index],
 			};
 			Ref<FTexture2D> Texture;
-			Texture = CreateRef<FDX12Texture2D>(TextureName, Desc, &OptClear);
+			Texture = CreateRef<FDX12Texture2D>(TextureName, Desc, &ClearValue);
 			AttachColorTexture(Index, Texture);
 #ifdef EDITOR_MODE
 				Texture->RegistGuiShaderResource();
@@ -96,7 +92,6 @@ namespace Zero
 			{
 				m_ColoTexture[i].Texture->Resize(Width, Height, Depth);
 				m_ColoTexture[i].Texture->RegistGuiShaderResource();
-
 			}
 		}
 
@@ -141,7 +136,8 @@ namespace Zero
 			auto* Texture = static_cast<FDX12Texture2D*>(m_ColoTexture[i].Texture.get());
 			if (Texture)
 			{
-				CommandList->TransitionBarrier(Texture->GetD3DResource(), D3D12_RESOURCE_STATE_RENDER_TARGET);
+				auto Resource = Texture->GetResource();
+				CommandList->TransitionBarrier(Resource->GetD3DResource(), D3D12_RESOURCE_STATE_RENDER_TARGET);
 				Handles.push_back(Texture->GetRTV(m_ColoTexture[i].ViewID));
 			}
 		}
@@ -183,7 +179,8 @@ namespace Zero
 			auto* Texture = static_cast<FDX12Texture2D*>(m_ColoTexture[i].Texture.get());
 			if (Texture)
 			{
-				CommandList->TransitionBarrier(Texture->GetD3DResource(), D3D12_RESOURCE_STATE_COMMON);
+				auto Resource = Texture->GetResource();
+				CommandList->TransitionBarrier(Resource->GetD3DResource(), D3D12_RESOURCE_STATE_COMMON);
 			}
 		}
 		UnBindDepth(CommandListHandle);
@@ -195,7 +192,8 @@ namespace Zero
 		if (DepthStencilTexture != nullptr)
 		{
 			auto  CommandList = FDX12Device::Get()->GetCommanList(CommandListHandle);
-			CommandList->TransitionBarrier(DepthStencilTexture->GetD3DResource(), D3D12_RESOURCE_STATE_GENERIC_READ);
+			auto Resource = DepthStencilTexture->GetResource();
+			CommandList->TransitionBarrier(Resource->GetD3DResource(), D3D12_RESOURCE_STATE_COMMON);
 		}
 	}
 
@@ -225,7 +223,8 @@ namespace Zero
 			auto* Texture = static_cast<FDX12Texture2D*>(m_ColoTexture[i].Texture.get());
 			if (Texture)
 			{
-				RtvFormats.RTFormats[RtvFormats.NumRenderTargets++] = Texture->GetD3D12ResourceDesc().Format;
+				auto Resource = Texture->GetResource();
+				RtvFormats.RTFormats[RtvFormats.NumRenderTargets++] = Resource->GetD3D12ResourceDesc().Format;
 			}
 		}
 
@@ -238,7 +237,8 @@ namespace Zero
 		auto DepthStencilTexture = static_cast<FDX12Texture2D*>(m_DepthTexture.get());
 		if (DepthStencilTexture)
 		{
-			DsvFormat = DepthStencilTexture->GetD3D12ResourceDesc().Format;
+			auto Resource = DepthStencilTexture->GetResource();
+			DsvFormat = Resource->GetD3D12ResourceDesc().Format;
 		}
 		return DsvFormat;
 	}
@@ -250,7 +250,8 @@ namespace Zero
 			auto* Texture = static_cast<FDX12Texture2D*>(m_ColoTexture[i].Texture.get());
 			if (Texture)
 			{
-				SampleDesc = Texture->GetD3D12ResourceDesc().SampleDesc;
+				auto Resource = Texture->GetResource();
+				SampleDesc = Resource->GetD3D12ResourceDesc().SampleDesc;
 				break;
 			}
 		}

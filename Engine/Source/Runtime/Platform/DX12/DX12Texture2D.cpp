@@ -102,33 +102,7 @@ namespace Zero
 	FDX12Texture2D::FDX12Texture2D(const std::string& TextureName, const FTextureDesc& Desc, const FTextureClearValue* ClearValuePtr)
 		: FTexture2D(Desc)
 	{
-		if (HasAnyFlag(m_TextureDesc.ResourceBindFlags, EResourceBindFlag::None) ||
-			HasAnyFlag(m_TextureDesc.ResourceBindFlags, EResourceBindFlag::ShaderResource))
-		{
-			D3D12_RESOURCE_STATES ResourceState = FDX12Utils::ConvertToD3DResourceState(m_TextureDesc.InitialState);
-
-			D3D12_RESOURCE_DESC ResourceDesc = FDX12Utils::ConvertResourceDesc(m_TextureDesc);
-
-			D3D12_CLEAR_VALUE D3DClearValue
-			{
-				.Format = ResourceDesc.Format
-			};
-			if (ClearValuePtr != nullptr)
-			{ 
-				D3DClearValue.Color[0] = ClearValuePtr->Color.Color[0];
-				D3DClearValue.Color[1] = ClearValuePtr->Color.Color[1];
-				D3DClearValue.Color[2] = ClearValuePtr->Color.Color[2];
-				D3DClearValue.Color[3] = ClearValuePtr->Color.Color[3];
-			}
-
-
-			auto* TextureResourceAllocator = FDX12Device::Get()->GetTextureResourceAllocator();
-			TextureResourceAllocator->AllocTextureResource(TextureName, ResourceState, ResourceDesc, m_ResourceLocation);
-			SetResource(m_ResourceLocation.m_UnderlyingResource->GetD3DResource());
-			SetName(Utils::StringToLPCWSTR(TextureName));
-			CreateViews();
-		}
-		else
+		if (HasAnyFlag(m_TextureDesc.ResourceBindFlags, EResourceBindFlag::RenderTarget | EResourceBindFlag::DepthStencil))
 		{
 			D3D12_RESOURCE_STATES D3DResourceState = FDX12Utils::ConvertToD3DResourceState(m_TextureDesc.InitialState);
 			D3D12_HEAP_TYPE D3DHeapType = D3D12_HEAP_TYPE_DEFAULT;
@@ -155,7 +129,7 @@ namespace Zero
 			}
 
 			ID3D12Device* D3DDevice = FDX12Device::Get()->GetDevice();
-			m_D3DResource.Reset();
+			ComPtr<ID3D12Resource> D3DResource;
 			ThrowIfFailed(
 				D3DDevice->CreateCommittedResource(
 					&CD3DX12_HEAP_PROPERTIES(D3DHeapType),
@@ -163,17 +137,39 @@ namespace Zero
 					&ResourceDesc,
 					D3DResourceState,
 					ClearValuePtr ? &D3DClearValue : nullptr,
-					IID_PPV_ARGS(&m_D3DResource)
+					IID_PPV_ARGS(D3DResource.GetAddressOf())
 				)
 			);
-			m_D3DResource->SetName(Utils::StringToLPCWSTR(TextureName));
-			SetResource(m_D3DResource);
+			m_ResourceLocation.m_UnderlyingResource = CreateRef<FDX12Resource>(TextureName, D3DResource);
+			m_ResourceLocation.SetType(FResourceLocation::EResourceLocationType::StandAlone);
 		}
+		else
+		{
+			D3D12_RESOURCE_STATES ResourceState = FDX12Utils::ConvertToD3DResourceState(m_TextureDesc.InitialState);
+
+			D3D12_RESOURCE_DESC ResourceDesc = FDX12Utils::ConvertResourceDesc(m_TextureDesc);
+
+			D3D12_CLEAR_VALUE D3DClearValue
+			{
+				.Format = ResourceDesc.Format
+			};
+			if (ClearValuePtr != nullptr)
+			{ 
+				D3DClearValue.Color[0] = ClearValuePtr->Color.Color[0];
+				D3DClearValue.Color[1] = ClearValuePtr->Color.Color[1];
+				D3DClearValue.Color[2] = ClearValuePtr->Color.Color[2];
+				D3DClearValue.Color[3] = ClearValuePtr->Color.Color[3];
+			}
+
+
+			auto* TextureResourceAllocator = FDX12Device::Get()->GetTextureResourceAllocator();
+			TextureResourceAllocator->AllocTextureResource(TextureName, ResourceState, ResourceDesc, m_ResourceLocation);
+		}
+		CreateViews();
 	}
 
 	FDX12Texture2D::FDX12Texture2D(const std::string& TextureName, Ref<FImage> ImageData, bool bNeedMipMap)
 		 : FTexture2D(bNeedMipMap)
-		,  FDX12Resource()
 	{
 		m_ImageData = ImageData;
 		m_TextureDesc.Width = (uint64_t)ImageData->GetWidth();
@@ -189,13 +185,15 @@ namespace Zero
 		//auto Resource = FDX12Device::Get()->GetInitWorldCommandList()->CreateTextureResource(TextureName, ImageData, m_bNeedMipMap);
 
 		FDX12Device::Get()->GetInitWorldCommandList()->AllocateTextureResource(TextureName, m_TextureDesc, m_ResourceLocation, ImageData, bNeedMipMap);
-		SetResource(m_ResourceLocation.m_UnderlyingResource->GetD3DResource());
 		CreateViews();
 	}
 
-    FDX12Texture2D::FDX12Texture2D(const std::string& TextureName, ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, const D3D12_CLEAR_VALUE* FTextureClearValue)
-		: FDX12Resource(TextureName, Resource, FTextureClearValue)
+	FDX12Texture2D::FDX12Texture2D(const std::string& TextureName, ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, const D3D12_CLEAR_VALUE* FTextureClearValue)
+		: FTexture2D()
 	{
+		m_ResourceLocation.ReleaseResource();
+		m_ResourceLocation.m_UnderlyingResource = CreateRef<FDX12Resource>(TextureName, Resource, FTextureClearValue);
+		m_ResourceLocation.SetType(FResourceLocation::EResourceLocationType::StandAlone);
 		m_TextureDesc.Width = Width;
 		m_TextureDesc.Height = Height;
 		CreateViews();
@@ -204,28 +202,51 @@ namespace Zero
 
 	void FDX12Texture2D::Resize(uint32_t Width, uint32_t Height, uint32_t DepthOrArraySize = 1)
 	{
-		if (m_D3DResource)
+		Ref<FDX12Resource> Resource = m_ResourceLocation.GetResource();
+		if (m_ResourceLocation.GetResource()->GetD3DResource())
 		{
-			m_ResourceLocation.ReleaseResource();
+			
+			if (m_ResourceLocation.m_ResourceLocationType == FResourceLocation::EResourceLocationType::SubAllocation)
+			{
+				m_ResourceLocation.ReleaseResource();
+				CD3DX12_RESOURCE_DESC ResDesc(m_ResourceLocation.GetResource()->GetD3DResource()->GetDesc());
+				m_TextureDesc.InitialState = EResourceState::Common;
+				m_TextureDesc.Width = std::max(Width, 1u);
+				m_TextureDesc.Height = std::max(Height, 1u);
+				m_TextureDesc.MipLevels = ResDesc.SampleDesc.Count > 1 ? 1 : 0;
 
-			CD3DX12_RESOURCE_DESC ResDesc(m_D3DResource->GetDesc());
-			m_TextureDesc.InitialState = EResourceState::Common;
-			m_TextureDesc.Width = std::max(Width, 1u);
-			m_TextureDesc.Height = std::max(Height, 1u);
-			m_TextureDesc.MipLevels = ResDesc.SampleDesc.Count > 1 ? 1 : 0;
-				
-			D3D12_RESOURCE_STATES ResourceState = FDX12Utils::ConvertToD3DResourceState(m_TextureDesc.InitialState);
+				D3D12_RESOURCE_STATES ResourceState = FDX12Utils::ConvertToD3DResourceState(m_TextureDesc.InitialState);
 
-			D3D12_RESOURCE_DESC ResourceDesc = FDX12Utils::ConvertResourceDesc(m_TextureDesc);
+				D3D12_RESOURCE_DESC ResourceDesc = FDX12Utils::ConvertResourceDesc(m_TextureDesc);
 
-			auto* TextureResourceAllocator = FDX12Device::Get()->GetTextureResourceAllocator();
-			TextureResourceAllocator->AllocTextureResource(Utils::WString2String(m_ResourceName), ResourceState, ResourceDesc, m_ResourceLocation);
-			SetResource(m_ResourceLocation.m_UnderlyingResource->GetD3DResource());
+				auto* TextureResourceAllocator = FDX12Device::Get()->GetTextureResourceAllocator();
+				TextureResourceAllocator->AllocTextureResource(Utils::WString2String(Resource->GetName()), ResourceState, ResourceDesc, m_ResourceLocation);
 
-			// Retain the name of the resource if one was already specified.
-			SetName(m_ResourceName);
+				FResourceStateTracker::AddGlobalResourceState(m_ResourceLocation.GetResource()->GetD3DResource().Get(), D3D12_RESOURCE_STATE_COMMON);
+			}
+			else if (m_ResourceLocation.m_ResourceLocationType == FResourceLocation::EResourceLocationType::StandAlone)
+			{
+				auto Resource = m_ResourceLocation.GetResource();
+				ComPtr<ID3D12Resource> D3DResource = Resource->GetD3DResource();
+				CD3DX12_RESOURCE_DESC ResDesc(D3DResource->GetDesc());
 
-			FResourceStateTracker::AddGlobalResourceState(m_D3DResource.Get(), D3D12_RESOURCE_STATE_COMMON);
+				m_TextureDesc.Width = ResDesc.Width = std::max(Width, 1u);
+				m_TextureDesc.Height = ResDesc.Height = std::max(Height, 1u);
+				ResDesc.DepthOrArraySize = DepthOrArraySize;
+				ResDesc.MipLevels = ResDesc.SampleDesc.Count > 1 ? 1 : 0;
+
+				ThrowIfFailed(
+					FDX12Device::Get()->GetDevice()->CreateCommittedResource(
+						&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &ResDesc,
+						D3D12_RESOURCE_STATE_COMMON, Resource->GetClearValuePtr(), IID_PPV_ARGS(&Resource->GetD3DResource())
+					)
+				);
+				// Retain the name of the resource if one was already specified.
+				auto ResourceName = Resource->GetName();
+				Resource->SetName(ResourceName);
+
+				FResourceStateTracker::AddGlobalResourceState(m_ResourceLocation.GetResource()->GetD3DResource().Get(), D3D12_RESOURCE_STATE_COMMON);
+			}
 			
 			CreateViews();
 		}
@@ -238,7 +259,7 @@ namespace Zero
 			m_GuiAllocation = FDX12Device::Get()->AllocateGuiDescritor();
 		}
 		FDX12Device::Get()->GetDevice()->CreateShaderResourceView(
-			m_D3DResource.Get(), 
+			m_ResourceLocation.GetResource()->GetD3DResource().Get(), 
 			nullptr,
 			m_GuiAllocation.CpuHandle
 		);
@@ -305,24 +326,24 @@ namespace Zero
 
 	void FDX12Texture2D::CreateViews()
 	{
-		if (m_D3DResource)
+		if (m_ResourceLocation.GetResource()->GetD3DResource())
 		{
 			auto D3DDevice = FDX12Device::Get()->GetDevice();
 			
-			CD3DX12_RESOURCE_DESC Desc(m_D3DResource->GetDesc());
+			CD3DX12_RESOURCE_DESC Desc(m_ResourceLocation.GetResource()->GetD3DResource()->GetDesc());
 
 			// Create RTV	
-			if ((Desc.Flags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET) != 0 && CheckRTVSupport())
+			if ((Desc.Flags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET) != 0 && m_ResourceLocation.GetResource()->CheckRTVSupport())
 			{
 				if (m_RenderTargetView.IsNull())
 				{
 					m_RenderTargetView = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 				}
-				D3DDevice->CreateRenderTargetView(m_D3DResource.Get(), nullptr, m_RenderTargetView.GetDescriptorHandle());
+				D3DDevice->CreateRenderTargetView(m_ResourceLocation.GetResource()->GetD3DResource().Get(), nullptr, m_RenderTargetView.GetDescriptorHandle());
 			}
 
 			// Create DSV	
-			if ((Desc.Flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL) != 0 && CheckDSVSupport())
+			if ((Desc.Flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL) != 0 && m_ResourceLocation.GetResource()->CheckDSVSupport())
 			{
 				if (m_DepthStencilView.IsNull())
 				{
@@ -333,11 +354,12 @@ namespace Zero
 				dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 				dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 				dsvDesc.Texture2D.MipSlice = 0;
-				D3DDevice->CreateDepthStencilView(m_D3DResource.Get(), &dsvDesc,
+				D3DDevice->CreateDepthStencilView(m_ResourceLocation.GetResource()->GetD3DResource().Get(), &dsvDesc,
 					m_DepthStencilView.GetDescriptorHandle());
 			}
 			// Create SRV
-			if (((Desc.Flags & D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE) == 0 && CheckSRVSupport()) || m_SRVFormat != DXGI_FORMAT_UNKNOWN)
+			m_SRVFormat = GetSRVFormat(Desc.Format);
+			if (((Desc.Flags & D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE) == 0 && m_ResourceLocation.GetResource()->CheckSRVSupport()) || m_SRVFormat != DXGI_FORMAT_UNKNOWN)
 			{
 				if (m_ShaderResourceView.IsNull())
 				{
@@ -358,17 +380,17 @@ namespace Zero
 				{
 					SrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 				}
-				SrvDesc.Format = m_SRVFormat == DXGI_FORMAT_UNKNOWN ? m_D3DResource->GetDesc().Format : m_SRVFormat;
+				SrvDesc.Format = m_SRVFormat == DXGI_FORMAT_UNKNOWN ? m_ResourceLocation.GetResource()->GetD3DResource()->GetDesc().Format : m_SRVFormat;
 				SrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 				SrvDesc.Texture2D.MostDetailedMip = 0;
 				SrvDesc.Texture2D.MipLevels = Desc.MipLevels;
 				SrvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 				SrvDesc.Texture2D.PlaneSlice = 0;
-				D3DDevice->CreateShaderResourceView(m_D3DResource.Get(), &SrvDesc,
+				D3DDevice->CreateShaderResourceView(m_ResourceLocation.GetResource()->GetD3DResource().Get(), &SrvDesc,
 					m_ShaderResourceView.GetDescriptorHandle());
 			}
 			// Create UAV for each mip (only supported for 1D and 2D textures).
-			if ((Desc.Flags & D3D12_RESOURCE_STATE_UNORDERED_ACCESS) != 0 && CheckUAVSupport() &&
+			if ((Desc.Flags & D3D12_RESOURCE_STATE_UNORDERED_ACCESS) != 0 && m_ResourceLocation.GetResource()->CheckUAVSupport() &&
 				Desc.DepthOrArraySize == 1)
 			{
 				if (m_UnorderedAccessView.IsNull())
@@ -378,7 +400,7 @@ namespace Zero
 				for (int i = 0; i < Desc.MipLevels; ++i)
 				{
 					auto uavDesc = GetUAVDesc(Desc, i);
-					D3DDevice->CreateUnorderedAccessView(m_D3DResource.Get(), nullptr, &uavDesc,
+					D3DDevice->CreateUnorderedAccessView(m_ResourceLocation.GetResource()->GetD3DResource().Get(), nullptr, &uavDesc,
 						m_UnorderedAccessView.GetDescriptorHandle(i));
 				}
 			}
@@ -387,7 +409,7 @@ namespace Zero
 
 	void FDX12Texture2D::MakeSRVs(const std::vector<FTextureSubresourceDesc>& Descs)
 	{
-		bool bCheckSRVSupport =  CheckSRVSupport();
+		bool bCheckSRVSupport = m_ResourceLocation.GetResource()->CheckSRVSupport();
 		CORE_ASSERT(bCheckSRVSupport, "Check SRVSupport");
 		m_ShaderResourceView = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, uint32_t(Descs.size()));
 		for (uint32_t i = 0; i < Descs.size();++i)
@@ -403,7 +425,7 @@ namespace Zero
 					.ResourceMinLODClamp = 0.0f,
 				},
 			};
-			FDX12Device::Get()->GetDevice()->CreateShaderResourceView(m_D3DResource.Get(), &SrvDesc,
+			FDX12Device::Get()->GetDevice()->CreateShaderResourceView(m_ResourceLocation.GetResource()->GetD3DResource().Get(), &SrvDesc,
 				m_ShaderResourceView.GetDescriptorHandle(i));
 
 		}
@@ -411,7 +433,7 @@ namespace Zero
 
 	void FDX12Texture2D::MakeRTVs(const std::vector<FTextureSubresourceDesc>& Descs)
 	{
-		bool bCheckRTVSupport =  CheckRTVSupport();
+		bool bCheckRTVSupport = m_ResourceLocation.GetResource()->CheckRTVSupport();
 		CORE_ASSERT(bCheckRTVSupport, "Check RTVSupport");
 		m_RenderTargetView = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 		for (uint32_t i = 0; i < Descs.size();++i)
@@ -464,14 +486,14 @@ namespace Zero
 					RTVDesc.Texture2D.MipSlice = SubresourceDesc.FirstMip;
 				}
 			}
-			FDX12Device::Get()->GetDevice()->CreateRenderTargetView(m_D3DResource.Get(), &RTVDesc,
+			FDX12Device::Get()->GetDevice()->CreateRenderTargetView(m_ResourceLocation.GetResource()->GetD3DResource().Get(), &RTVDesc,
 				m_RenderTargetView.GetDescriptorHandle(i));
 		}
 	}
 
 	void FDX12Texture2D::MakeDSVs(const std::vector<FTextureSubresourceDesc>& Descs)
 	{
-		bool bCheckDSVSupport = CheckDSVSupport();
+		bool bCheckDSVSupport = m_ResourceLocation.GetResource()->CheckDSVSupport();
 		CORE_ASSERT(bCheckDSVSupport, "Check DSVSupport");
 		m_DepthStencilView = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 		for (uint32_t i = 0; i < Descs.size(); ++i)
@@ -524,14 +546,14 @@ namespace Zero
 					DSVDesc.Texture2D.MipSlice = SubresourceDesc.FirstMip;
 				}
 			}
-			FDX12Device::Get()->GetDevice()->CreateDepthStencilView(m_D3DResource.Get(), &DSVDesc,
+			FDX12Device::Get()->GetDevice()->CreateDepthStencilView(m_ResourceLocation.GetResource()->GetD3DResource().Get(), &DSVDesc,
 				m_DepthStencilView.GetDescriptorHandle(i));
 		}
 	}
 
 	void FDX12Texture2D::MakeUAVs(const std::vector<FTextureSubresourceDesc>& Descs)
 	{
-		bool bCheckUAVSupport = CheckUAVSupport();
+		bool bCheckUAVSupport = m_ResourceLocation.GetResource()->CheckUAVSupport();
 		CORE_ASSERT(bCheckUAVSupport, "Check UAVSupport");
 		m_UnorderedAccessView = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 		for (uint32_t i = 0; i < Descs.size(); ++i)
@@ -568,14 +590,14 @@ namespace Zero
 				UAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
 				UAVDesc.Texture2D.MipSlice = SubresourceDesc.FirstMip;
 			}
-			FDX12Device::Get()->GetDevice()->CreateUnorderedAccessView(m_D3DResource.Get(), nullptr, &UAVDesc,
+			FDX12Device::Get()->GetDevice()->CreateUnorderedAccessView(m_ResourceLocation.GetResource()->GetD3DResource().Get(), nullptr, &UAVDesc,
 				m_UnorderedAccessView.GetDescriptorHandle(i));
 		}
 	}
 
 	void FDX12Texture2D::GenerateMip()
 	{
-		//FDX12Device::Get()->GetMipCommandList()->GenerateMipSimple(this->shared_from_this());
+		FDX12Device::Get()->GetMipCommandList()->GenerateMipSimple(GetResource());
 	}
 
 	D3D12_CPU_DESCRIPTOR_HANDLE FDX12Texture2D::GetRTV(uint32_t ViewID) const
@@ -671,5 +693,16 @@ namespace Zero
 		}
 
 		return SrgbFormat;
+	}
+	DXGI_FORMAT FDX12Texture2D::GetSRVFormat(DXGI_FORMAT Format)
+	{
+		switch (Format)
+		{
+		case DXGI_FORMAT_D24_UNORM_S8_UINT:
+			return DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+		default:
+			return DXGI_FORMAT_UNKNOWN;
+		}
+		return DXGI_FORMAT_UNKNOWN;
 	}
 }

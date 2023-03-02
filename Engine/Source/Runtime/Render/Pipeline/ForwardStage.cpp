@@ -62,8 +62,8 @@ namespace Zero
 		{
 			RenderItem->PreRender(m_CommandListHandle);
 			const auto& PSODesc = RenderItem->m_PipelineStateObject->GetPSODescriptor();
-			const std::string& ShaderName = PSODesc.Shader->GetDesc().ShaderName;
-			if (m_bGenerateIrradianceMap && !RenderItem->m_Material->IsSetIBL() && ShaderName == PSO_FORWARDLIT)
+			const std::string& ShaderName = PSODesc.Shader->GetDesc().FileName;
+			if (m_bGenerateIrradianceMap && !RenderItem->m_Material->IsSetIBL())
 			{
 				RenderItem->m_Material->SetTextureCubemap("IBLIrradianceMap", m_IBLMoudule->GetIrradianceRTCube()->GetColorCubemap());
 				RenderItem->m_Material->SetTextureCubemapArray("IBLPrefilterMaps", m_IBLMoudule->GetPrefilterEnvMapTextureCubes());

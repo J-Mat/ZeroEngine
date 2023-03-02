@@ -13,14 +13,6 @@ namespace Zero
 	#define RENDER_STAGE_SHADOWMAP "ShadowMap"
 	#define RENDER_STAGE_SHADOWMAP_DEBUG "ShadowMapDebug"
 
-	#define PSO_FORWARDLIT "Shader\\ForwardLit.hlsl"
-	#define PSO_DIRECT_LIGHT "DirectLight"
-	#define PSO_POINT_LIGHT "PointLight"
-	#define PSO_SKYBOX "SkyBox"
-	#define PSO_FRESNEL "Fresnel"
-	#define PSO_SHADOWMAP "ShadowMap"
-	#define PSO_NDF "NDF"
-	#define PSO_GGX "GGX"
 	#define IBL_BRDF_LUT "IBL_BRDF_LUT"
 	
 	
@@ -83,5 +75,18 @@ namespace Zero
 		ZMath::mat4 ProjectionView = ZMath::identity<ZMath::mat4>();
 		float Near;
 		float Far;
+	};
+
+	enum class EPipelineState : uint8_t
+	{
+		Skybox,
+		ShadowMap,
+		ShadowDebug,
+		ForwadLit,
+		DirectLight,
+		PointLight,
+		GenerateMips,
+		IBLIrradiance,
+		IBLPrefilter,
 	};
 }

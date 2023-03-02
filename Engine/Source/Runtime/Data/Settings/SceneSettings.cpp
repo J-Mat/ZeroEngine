@@ -42,7 +42,7 @@ namespace Zero
 		{
 			m_TextureCubemapHandle = TempHandle;
 			FTextureHandle Handles[CUBEMAP_TEXTURE_CNT] = { m_SkyBoxRright, m_SkyBoxLeft, m_SkyBoxTop, m_SkyBoxBottom, m_SkyBoxFront, m_SkyBoxBack };
-			Ref<FTextureCubemap> TextureCubemap = FRenderer::GraphicFactroy->GetOrCreateTextureCubemap(Handles, "default");
+			Ref<FTextureCubemap> TextureCubemap = FRenderer::GetDevice()->GetOrCreateTextureCubemap(Handles, "default");
 			GetSkyActor()->SetTextureCubemap("gSkyboxMap", TextureCubemap);
 		}
 	}

@@ -1,6 +1,6 @@
 #pragma once
 #include "Core.h"
-#include "Shader.h"
+#include "./Shader/Shader.h"
 #include "Render/RenderConfig.h"
 
 namespace Zero
@@ -40,6 +40,7 @@ namespace Zero
 		virtual void CreatePsoObj() = 0;
 		const FPSODescriptor& GetPSODescriptor() const {return m_PSODescriptor;}
 		void SetShader(Ref<FShader> Shader);
+		void OnShaderRecompiled(Ref<FShader> Shader);
 	protected:
 		FPSODescriptor m_PSODescriptor;
 	};

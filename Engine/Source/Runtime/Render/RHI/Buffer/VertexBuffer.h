@@ -1,7 +1,7 @@
 #pragma once
 #include "Core.h"
 #include "Buffer.h"
-#include "../ShaderData.h"
+#include "../Shader/ShaderData.h"
 #include "../GraphicDevice.h"
 
 

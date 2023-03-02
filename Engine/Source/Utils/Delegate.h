@@ -201,7 +201,7 @@ namespace Zero
 		{
 			for (auto& Tmp : *this)
 			{
-				Tmp.ReleaseDelegate();
+				Tmp.second.ReleaseDelegate();
 			}
 		}
 	};
@@ -209,7 +209,7 @@ namespace Zero
 #define SIMPLE_SINGLE_DELEGATE(Name,Return,...) FSingleDelegate<Return,__VA_ARGS__> Name
 #define MULTICAST_SINGLE_DELEGATE(Name,Return,...) FMulticastDelegate<Return,__VA_ARGS__> Name
 #define DEFINITION_SIMPLE_SINGLE_DELEGATE(DefinitionName,Return,...) class DefinitionName :public FSingleDelegate<Return, __VA_ARGS__> {};
-#define DEFINITION_MULTICAST_SINGLE_DELEGATE(DefinitionName,Return,...) class DefinitionName :public FMulticastDelegate<Return, __VA_ARGS__> {};
+#define DEFINITION_MULTICAST_DELEGATE(DefinitionName,Return,...) class DefinitionName :public FMulticastDelegate<Return, __VA_ARGS__> {};
 }
 
 

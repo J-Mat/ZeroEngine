@@ -1,4 +1,5 @@
 #include "DX12Shader.h"
+#include "DX12ShaderCompiler.h"
 #include "Utils.h"
 #include "Platform/DX12/DX12Device.h"
 #include "DX12ShaderBinder.h"
@@ -9,6 +10,9 @@
 
 namespace Zero
 {
+
+	FDX12ShaderCompiler FDX12Shader::s_ShaderCompiler = {};
+
 	DXGI_FORMAT ShaderDataTypeToDXGIFormat(EShaderDataType Type)
 	{
 		switch (Type)
@@ -34,18 +38,18 @@ namespace Zero
 	FDX12Shader::FDX12Shader(const FShaderBinderDesc& BinderDesc, const FShaderDesc& Desc)
 	: FShader(BinderDesc, Desc)
 	{
-		std::string FileName = ZConfig::GetAssestsFullPath(m_ShaderDesc.ShaderName).string();
+		std::string FileName = ZConfig::GetAssestsFullPath(m_ShaderDesc.FileName).string();
 
 		if (m_ShaderDesc.bCreateVS)
 		{
-			auto VSBlob  = CompileShader(Utils::String2WString(FileName), nullptr, m_ShaderDesc.VSEntryPoint, "vs_5_1");
-			m_ShaderPass[EShaderType::ST_VERTEX] = VSBlob;
+			auto VSBlob  = s_ShaderCompiler.CompileShader(Utils::String2WString(FileName), nullptr, m_ShaderDesc.VSEntryPoint, "vs_5_1");
+			m_ShaderPass[EShaderStage::VS] = VSBlob;
 		}
 
 		if (m_ShaderDesc.bCreatePS)
 		{
-			auto PSBlob  = CompileShader(Utils::String2WString(FileName), nullptr, m_ShaderDesc.PSEntryPoint, "ps_5_1");
-			m_ShaderPass[EShaderType::ST_PIXEL] = PSBlob;
+			auto PSBlob  = s_ShaderCompiler.CompileShader(Utils::String2WString(FileName), nullptr, m_ShaderDesc.PSEntryPoint, "ps_5_1");
+			m_ShaderPass[EShaderStage::PS] = PSBlob;
 		}
 
 		GenerateInputLayout();
@@ -55,53 +59,100 @@ namespace Zero
 	FDX12Shader::FDX12Shader(const FShaderDesc& Desc)
 		:FShader(Desc)
 	{
-		std::string FileName = ZConfig::GetAssestsFullPath(m_ShaderDesc.ShaderName).string();
+		Compile();
+	}
+
+	void FDX12Shader::Compile()
+	{
+		std::string FileName = ZConfig::GetAssestsFullPath(m_ShaderDesc.FileName).string();
+		m_CBVParams.clear();
+		m_SRVParams.clear();
+		m_UAVParams.clear();
+		m_SamplerParams.clear();
 		if (m_ShaderDesc.bCreateVS)
 		{
-			auto VSBlob  = CompileShader(Utils::String2WString(FileName), nullptr, m_ShaderDesc.VSEntryPoint, "vs_5_1");
-			m_ShaderPass[EShaderType::ST_VERTEX] = VSBlob;
-			std::cout << "ShaderType : VS" << std::endl;
-			GetShaderParameters(VSBlob, EShaderType::ST_VERTEX);
+			auto VSBlob  = s_ShaderCompiler.CompileShader(Utils::String2WString(FileName), nullptr, m_ShaderDesc.VSEntryPoint, "vs_5_1");
+			m_ShaderPass[EShaderStage::VS] = VSBlob;
+			std::cout << "ShaderStage : VS" << std::endl;
+			GetShaderParameters(VSBlob, EShaderStage::VS);
 		}
 
 		if (m_ShaderDesc.bCreatePS)
 		{
-			auto PSBlob  = CompileShader(Utils::String2WString(FileName), nullptr, m_ShaderDesc.PSEntryPoint, "ps_5_1");
-			m_ShaderPass[EShaderType::ST_PIXEL] = PSBlob;
-			std::cout << "ShaderType : PS" << std::endl;
-			GetShaderParameters(PSBlob, EShaderType::ST_PIXEL);
+			auto PSBlob  = s_ShaderCompiler.CompileShader(Utils::String2WString(FileName), nullptr, m_ShaderDesc.PSEntryPoint, "ps_5_1");
+			m_ShaderPass[EShaderStage::PS] = PSBlob;
+			std::cout << "ShaderStage : PS" << std::endl;
+			GetShaderParameters(PSBlob, EShaderStage::PS);
+		}
+		
+		// Test
+		{
+			m_CBVParams.clear();
+			m_SRVParams.clear();
+			m_UAVParams.clear();
+			m_SamplerParams.clear();
+			FShaderCompileOutput VSOutput
+			{
+				.Shader = shared_from_this()
+			};
+			s_ShaderCompiler.CompileShader(EShaderStage::VS, m_ShaderDesc, VSOutput);
+			GetShaderParameters(EShaderStage::VS);
+
+			FShaderCompileOutput PSOutput
+			{
+				.Shader = shared_from_this()
+			};
+			s_ShaderCompiler.CompileShader(EShaderStage::PS, m_ShaderDesc, PSOutput);
+			GetShaderParameters(EShaderStage::PS);
 		}
 
 		GenerateShaderDesc();
 		m_ShaderBinderDesc.MapCBBufferIndex();
 		GenerateInputLayout();
 		CreateBinder();
-	}
 
+	}
 
 	void FDX12Shader::CreateBinder()
 	{
+		m_ShaderBinder.reset();
 		m_ShaderBinder = CreateRef<FDX12ShaderBinder>(m_ShaderBinderDesc);
 	}
+
 
 	void FDX12Shader::Use(FCommandListHandle CommandListHandle)
 	{
 		m_ShaderBinder->Bind(CommandListHandle);
 	}
 
-	void FDX12Shader::GetShaderParameters(ComPtr<ID3DBlob> PassBlob, EShaderType ShaderType)
+	void FDX12Shader::GetShaderParameters(EShaderStage ShaderStage)
 	{
-		ID3D12ShaderReflection* Reflection = nullptr;
-		D3DReflect(PassBlob->GetBufferPointer(), PassBlob->GetBufferSize(), IID_ID3D12ShaderReflection, (void**)&Reflection);
+		ID3D12ShaderReflection* ReflectionPtr = s_ShaderCompiler.GetShaderReflectionPtr(ShaderStage, shared_from_this());
+		
+		ParseShader(ReflectionPtr, ShaderStage);
+	}
+
+	void FDX12Shader::GetShaderParameters(ComPtr<ID3DBlob> PassBlob, EShaderStage ShaderStage)
+	{
+		ID3D12ShaderReflection* ReflectionPtr = nullptr;
+		D3DReflect(PassBlob->GetBufferPointer(), PassBlob->GetBufferSize(), IID_ID3D12ShaderReflection, (void**)&ReflectionPtr);
 		
 		D3D12_SHADER_DESC D3DShaderDesc;
-		Reflection->GetDesc(&D3DShaderDesc);
+		ReflectionPtr->GetDesc(&D3DShaderDesc);
 
+		ParseShader(ReflectionPtr, ShaderStage);
 
+		ReflectionPtr->Release();
+	}
+
+	void FDX12Shader::ParseShader(ID3D12ShaderReflection* ShaderReflectionPtr, EShaderStage ShaderStage)
+	{
+		D3D12_SHADER_DESC D3DShaderDesc;
+		ShaderReflectionPtr->GetDesc(&D3DShaderDesc);
 		for (UINT i = 0; i < D3DShaderDesc.BoundResources; i++)
 		{
 			D3D12_SHADER_INPUT_BIND_DESC  ResourceDesc;
-			Reflection->GetResourceBindingDesc(i, &ResourceDesc);
+			ShaderReflectionPtr->GetResourceBindingDesc(i, &ResourceDesc);
 
 			LPCSTR ResoureceVarName = ResourceDesc.Name;
 			D3D_SHADER_INPUT_TYPE ResourceType = ResourceDesc.Type;
@@ -119,11 +170,11 @@ namespace Zero
 				}
 				FShaderCBVParameter Param;
 				Param.ResourceName = ResoureceVarName;
-				Param.ShaderType = ShaderType;
+				Param.ShaderStage = ShaderStage;
 				Param.BindPoint = BindPoint;
 				Param.RegisterSpace = RegisterSpace;
 
-				ID3D12ShaderReflectionConstantBuffer* Buffer = Reflection->GetConstantBufferByName(ResoureceVarName);
+				ID3D12ShaderReflectionConstantBuffer* Buffer = ShaderReflectionPtr->GetConstantBufferByName(ResoureceVarName);
 				D3D12_SHADER_BUFFER_DESC BufferDesc;
 				Buffer->GetDesc(&BufferDesc);
 				for (UINT BufferIndex = 0; BufferIndex < BufferDesc.Variables; ++BufferIndex)
@@ -141,7 +192,7 @@ namespace Zero
 				}
 				FShaderSRVParameter Param;
 				Param.ResourceName = ResoureceVarName;
-				Param.ShaderType = ShaderType;
+				Param.ShaderStage = ShaderStage;
 				Param.BindPoint = BindPoint;
 				Param.BindCount = BindCount;
 				Param.RegisterSpace = RegisterSpace;
@@ -155,10 +206,10 @@ namespace Zero
 					continue;
 				}
 				D3D12_SHADER_INPUT_BIND_DESC Desc;
-				Reflection->GetResourceBindingDesc(i, &Desc);
+				ShaderReflectionPtr->GetResourceBindingDesc(i, &Desc);
 				FShaderSRVParameter Param;
 				Param.ResourceName = ResoureceVarName;
-				Param.ShaderType = ShaderType;
+				Param.ShaderStage = ShaderStage;
 				Param.BindPoint = BindPoint;
 				Param.BindCount = BindCount;
 				Param.RegisterSpace = RegisterSpace;
@@ -168,11 +219,11 @@ namespace Zero
 			}
 			else if (ResourceType == D3D_SHADER_INPUT_TYPE::D3D_SIT_UAV_RWSTRUCTURED)
 			{
-				CORE_ASSERT(ShaderType == EShaderType::ST_COMPUTE, "ShaderType must be Compute Shader");
+				CORE_ASSERT(ShaderStage == EShaderStage::CS, "ShaderStage must be Compute Shader");
 
 				FShaderUAVParameter Param;
 				Param.ResourceName = ResoureceVarName;
-				Param.ShaderType = ShaderType;
+				Param.ShaderStage = ShaderStage;
 				Param.BindPoint = BindPoint;
 				Param.BindCount = BindCount;
 				Param.RegisterSpace = RegisterSpace;
@@ -181,11 +232,11 @@ namespace Zero
 			}
 			else if (ResourceType == D3D_SHADER_INPUT_TYPE::D3D_SIT_UAV_RWTYPED)
 			{
-				CORE_ASSERT(ShaderType == EShaderType::ST_COMPUTE, "ShaderType must be Compute Shader");
+				CORE_ASSERT(ShaderStage == EShaderStage::CS, "ShaderStage must be Compute Shader");
 
 				FShaderUAVParameter Param;
 				Param.ResourceName = ResoureceVarName;
-				Param.ShaderType = ShaderType;
+				Param.ShaderStage = ShaderStage;
 				Param.BindPoint = BindPoint;
 				Param.BindCount = BindCount;
 				Param.RegisterSpace = RegisterSpace;
@@ -194,18 +245,19 @@ namespace Zero
 			}
 			else if (ResourceType == D3D_SHADER_INPUT_TYPE::D3D_SIT_SAMPLER)
 			{
-				CORE_ASSERT(ShaderType == EShaderType::ST_PIXEL, "ShaderType must be Pixel Shader");
+				CORE_ASSERT(ShaderStage == EShaderStage::PS, "ShaderStage must be Pixel Shader");
 
 				FShaderSamplerParameter Param;
 				Param.ResourceName = ResoureceVarName;
-				Param.ShaderType = ShaderType;
+				Param.ShaderStage = ShaderStage;
 				Param.BindPoint = BindPoint;
 				Param.RegisterSpace = RegisterSpace;
 				m_SamplerParams.push_back(Param);
 			}
 		}
-		Reflection->Release();
 	}
+
+
 
 	void FDX12Shader::ParseCBVariable(ID3D12ShaderReflectionVariable* ReflectionVariable, std::vector<FCBVariableItem>& VariableList)
 	{
@@ -289,37 +341,5 @@ namespace Zero
 				0}
 			);
 		}
-	}
-	ComPtr<ID3DBlob> FDX12Shader::CompileShader(const std::wstring& Filename, const D3D_SHADER_MACRO* Defines, const std::string& Entrypoint, const std::string& Target)
-	{
-		UINT CompileFlags = 0;
-#if defined(DEBUG) || defined(_DEBUG)  
-		CompileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
-#endif
-		HRESULT hr = S_OK;
-
-		ComPtr<ID3DBlob> ByteCode = nullptr;
-		ComPtr<ID3DBlob> Errors;
-
-		hr = D3DCompileFromFile(
-			Filename.c_str(),
-			Defines,
-			D3D_COMPILE_STANDARD_FILE_INCLUDE,
-			Entrypoint.c_str(),
-			Target.c_str(),
-			CompileFlags,
-			0,
-			&ByteCode,
-			&Errors
-		);
-
-		if (Errors != nullptr)
-		{
-			OutputDebugStringA((char*)Errors->GetBufferPointer());
-		}
-
-		ThrowIfFailed(hr);
-
-		return ByteCode;
 	}
 }

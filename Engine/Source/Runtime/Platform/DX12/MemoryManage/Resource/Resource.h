@@ -31,6 +31,8 @@ namespace Zero
 		void ReleaseResource();
 
 		void SetType(EResourceLocationType Type) { m_ResourceLocationType = Type; }
+
+		Ref<FDX12Resource> GetResource() { return m_UnderlyingResource; }
 	public:
 		EResourceLocationType m_ResourceLocationType = EResourceLocationType::Undefined;
 
@@ -57,7 +59,7 @@ namespace Zero
 
 	class FDX12Device;
 
-	class FDX12Resource 
+	class FDX12Resource : public std::enable_shared_from_this<FDX12Resource>
 	{
 		friend class FBuddyAllocator;
 	public:
@@ -81,6 +83,8 @@ namespace Zero
 		virtual bool CheckFormatSupport(D3D12_FORMAT_SUPPORT2 InFormatSupport) const { return (m_FormatSupport.Support2 & InFormatSupport) != 0; }
 
 		ComPtr<ID3D12Resource> GetD3DResource() const { return m_D3DResource; }
+
+		D3D12_CLEAR_VALUE* GetClearValuePtr() { return m_D3DClearValue.get(); }
 
 		D3D12_RESOURCE_DESC GetD3D12ResourceDesc() const
 		{
@@ -129,7 +133,6 @@ namespace Zero
 		// For upload buffer
 		void* m_MappedBaseAddress = nullptr;
 
-		FResourceLocation m_ResourceLocation;
 	};
 
 	template<typename T>

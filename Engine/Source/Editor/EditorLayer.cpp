@@ -10,6 +10,7 @@
 #include "Data/Settings/SettingsManager.h"
 #include "Data/Settings/SceneSettings.h"
 #include "Render/Moudule/Texture/TextureManager.h"
+#include "Render/Moudule/PSOCache.h"
 
 namespace Zero
 {
@@ -51,18 +52,17 @@ namespace Zero
 
 	void FEditorLayer::RegisterPso()
 	{
-		FPSORegister::Get().RegisterComputeShader();
-		FPSORegister::Get().RegisterDefaultPSO();
-		FPSORegister::Get().RegisterSkyboxPSO();
-		FPSORegister::Get().RegisterIBLPSO();
-		FPSORegister::Get().RegisterShadowPSO();
-		FPSORegister::Get().RegisterTestPSO();
+		FPSOCache::Get().RegisterComputeShader();
+		FPSOCache::Get().RegisterDefaultPSO();
+		FPSOCache::Get().RegisterSkyboxPSO();
+		FPSOCache::Get().RegisterIBLPSO();
+		FPSOCache::Get().RegisterShadowPSO();
 	}
 
 	void FEditorLayer::RegisterRenderStage()
 	{
-		//Ref<FRenderStage> ShadowStage = FShadowStage::Create();
-		//m_ScriptablePipeline->PushLayer(ShadowStage);
+		Ref<FRenderStage> ShadowStage = FShadowStage::Create();
+		m_ScriptablePipeline->PushLayer(ShadowStage);
 
 		Ref<FRenderStage> ForwardRendering = FForwardStage::Create();
 		m_ScriptablePipeline->PushLayer(ForwardRendering);

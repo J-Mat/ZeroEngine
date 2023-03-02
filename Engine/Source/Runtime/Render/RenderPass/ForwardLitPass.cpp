@@ -59,7 +59,7 @@ namespace Zero
 				{
 					RenderItem->PreRender(CommandListHandle);
 					const auto& PSODesc = RenderItem->m_PipelineStateObject->GetPSODescriptor();
-					const std::string& ShaderName = PSODesc.Shader->GetDesc().ShaderName;
+					const std::string& ShaderName = PSODesc.Shader->GetDesc().FileName;
 					RenderItem->Render(CommandListHandle);
 				}
 			},

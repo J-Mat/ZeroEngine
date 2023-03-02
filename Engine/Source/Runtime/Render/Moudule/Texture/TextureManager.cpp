@@ -99,7 +99,7 @@ namespace Zero
 
 	FTextureHandle FTextureManager::LoadRegularTexture(std::string const& FileName, bool bNeedMip)
 	{
-		Ref<FTexture2D> Texture =  FRenderer::GraphicFactroy->GetOrCreateTexture2D(FileName, bNeedMip);
+		Ref<FTexture2D> Texture =  FRenderer::GetDevice()->GetOrCreateTexture2D(FileName, bNeedMip);
 		FTextureHandle Handle{ FileName, FIndexGetter<FTextureHandle>::Get() };
 		m_TextureMap.insert({ Handle ,Texture });
 		m_LoadedTexNameHandleMap.insert({Handle.TextureName, Handle});

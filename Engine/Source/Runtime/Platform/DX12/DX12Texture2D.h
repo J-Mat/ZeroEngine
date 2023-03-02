@@ -11,7 +11,7 @@ namespace Zero
     class FDX12Device;
     class FDescriptorAllocation;
     
-	class FDX12Texture2D :public FTexture2D, public FDX12Resource, public std::enable_shared_from_this<FDX12Texture2D>
+	class FDX12Texture2D :public FTexture2D, public std::enable_shared_from_this<FDX12Texture2D>
 	{
         friend class FDX12RenderTarget2D;
     private: 
@@ -26,10 +26,11 @@ namespace Zero
         static DXGI_FORMAT GetUAVCompatableFormat(DXGI_FORMAT Format);
         static bool IsSRGBFormat(DXGI_FORMAT Format);
         static DXGI_FORMAT GetSRGBFormat(DXGI_FORMAT Format);
+        static DXGI_FORMAT GetSRVFormat(DXGI_FORMAT Format);
 
         virtual ZMath::uvec2 GetSize() 
         {
-            const auto& Desc = GetD3D12ResourceDesc();
+            const auto& Desc = m_ResourceLocation.m_UnderlyingResource->GetD3D12ResourceDesc();
             return ZMath::uvec2(Desc.Width, Desc.Height);
         };
 
@@ -68,6 +69,8 @@ namespace Zero
         * Note: Only only supported for 1D and 2D textures.
         */
         D3D12_CPU_DESCRIPTOR_HANDLE GetUnorderedAccessView(uint32_t mip) const;
+        
+        Ref<FDX12Resource> GetResource() { return m_ResourceLocation.GetResource(); }
 
 	private:
 		FDescriptorAllocation m_RenderTargetView;
@@ -83,6 +86,8 @@ namespace Zero
 		std::vector<FDescriptorAllocation> m_UAVs;
 		std::vector<FDescriptorAllocation> m_RTVs;
 		std::vector<FDescriptorAllocation> m_DSVs;
+
+		FResourceLocation m_ResourceLocation;
 
     private:
         DXGI_FORMAT m_SRVFormat = DXGI_FORMAT_UNKNOWN;

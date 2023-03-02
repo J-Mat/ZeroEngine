@@ -94,10 +94,25 @@ namespace Zero
 	FResourceLocation::FResourceLocation()
 	{
 	}
+
 	FResourceLocation::~FResourceLocation()
 	{
+		ReleaseResource();
 	}
+
 	void FResourceLocation::ReleaseResource()
 	{
+		switch (m_ResourceLocationType)
+		{
+		case EResourceLocationType::StandAlone:
+			m_UnderlyingResource.reset();
+			break;
+		case EResourceLocationType::SubAllocation:
+			if (m_Allocator != nullptr)
+			{
+				m_Allocator->Deallocate(*this);
+			}
+			break;
+		}
 	}
 }

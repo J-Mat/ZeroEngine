@@ -1,7 +1,7 @@
 #pragma once
 #include "Core.h"
 #include "../Common/DX12Header.h"
-#include "Render/RHI/Shader.h"
+#include "Render/RHI/Shader/Shader.h"
 #include "d3d12shader.h"
 
 namespace Zero

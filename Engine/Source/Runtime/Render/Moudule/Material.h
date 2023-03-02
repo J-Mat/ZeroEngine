@@ -1,7 +1,7 @@
 #pragma once
 #include "Core.h"
 #include "Delegate.h"
-#include "Render/RHI/ShaderData.h"
+#include "Render/RHI/Shader/ShaderData.h"
 #include "Render/RenderConfig.h"
 
 namespace Zero

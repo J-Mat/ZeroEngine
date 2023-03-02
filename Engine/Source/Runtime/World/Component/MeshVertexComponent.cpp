@@ -15,7 +15,7 @@ namespace Zero
 
 	void UMeshVertexComponent::CreateMesh()
 	{
-		m_Mesh = FRenderer::GraphicFactroy->CreateMesh(
+		m_Mesh = FRenderer::GetDevice()->CreateMesh(
 			m_MeshDatas,
 			FVertexBufferLayout::s_DefaultVertexLayout
 		);

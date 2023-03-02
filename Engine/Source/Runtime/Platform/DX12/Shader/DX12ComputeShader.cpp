@@ -49,9 +49,8 @@ namespace Zero
 		if (Errors != nullptr)
 		{
 			OutputDebugStringA((char*)Errors->GetBufferPointer());
+			return nullptr;
 		}
-
-		ThrowIfFailed(hr);
 
 		return ByteCode;
 	}

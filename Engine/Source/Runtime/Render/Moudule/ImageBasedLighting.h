@@ -2,7 +2,7 @@
 #include "Core.h"
 #include "Render/RHI/GraphicDevice.h"
 #include "Core/Base/PublicSingleton.h"
-#include "Render/RHI/Shader.h"
+#include "Render/RHI/Shader/Shader.h"
 #include "Render/RHI/RenderTarget.h"
 
 namespace Zero

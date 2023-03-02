@@ -28,7 +28,7 @@ namespace Zero
 		};
 
 		std::cout << "------------------------------------------\n";
-		std::cout << m_ShaderDesc.ShaderName << "\n";
+		std::cout << m_ShaderDesc.FileName << "\n";
 		for (auto Iter : m_CBVParams)
 		{
 			std::cout << std::format("Buffer : {0}, {1}, {2}\n", Iter.second.ResourceName, Iter.second.BindPoint, Iter.second.RegisterSpace);
@@ -65,12 +65,13 @@ namespace Zero
 		
 	}
 
-	void FShaderDefines::SetDefine(const std::string& Name, const std::string& Definition)
+	void FShaderMacro::SetDefine(const std::string& Name, const std::string& Definition)
 	{
 		DefinesMap.insert_or_assign(Name, Definition);
 	}
 
-	bool FShaderDefines::operator==(const FShaderDefines& Other) const
+
+	bool FShaderMacro::operator==(const FShaderMacro& Other) const
 	{
 		if (DefinesMap.size() != Other.DefinesMap.size())
 		{

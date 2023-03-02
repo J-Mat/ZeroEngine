@@ -35,7 +35,7 @@ namespace Zero
 			}
 		}
 		std::string TextureName = std::format("PoolTexture_{0}", m_TexturePool.size());
-		auto Texture = FRenderer::GraphicFactroy->CreateTexture2D(TextureName, Desc);
+		auto Texture = FRenderer::GetDevice()->CreateTexture2D(TextureName, Desc);
 		std::pair<FPooledTexture, bool> Pair = { FPooledTexture(Texture, false), false };
 		m_TexturePool.emplace_back(Pair);
 		return Texture;

@@ -1,5 +1,6 @@
 #include "DirectLightActor.h"
 #include "World/LightManager.h"
+#include "ZConfig.h"
 
 
 namespace Zero
@@ -8,7 +9,7 @@ namespace Zero
 		:UMeshActor()
 	{
 		m_LightComponnet = CreateComponent<UDirectLightComponnet>(this);
-		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_LIGHT, PSO_DIRECT_LIGHT);
+		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_LIGHT, EPipelineState::DirectLight);
 		m_MeshRenderComponent->SetEnableMaterial(false);
 	}
 

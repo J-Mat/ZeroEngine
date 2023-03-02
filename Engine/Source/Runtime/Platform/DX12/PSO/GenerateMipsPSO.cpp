@@ -7,7 +7,7 @@
 #include "Platform/DX12/DX12RootSignature.h"
 #include "Platform/DX12/DX12Device.h"
 #include "../Shader/DX12ComputeShader.h"
-#include "Runtime/Render/RHI/Shader.h"
+#include "Runtime/Render/RHI/Shader/Shader.h"
 
 
 namespace Zero

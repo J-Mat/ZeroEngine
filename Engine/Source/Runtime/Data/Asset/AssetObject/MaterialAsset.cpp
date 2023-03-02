@@ -1,7 +1,7 @@
 #include "MaterialAsset.h"
 #include "World/Object/PropertyObject.h"
 #include "World/Object/MapPropretyObject.h"
-#include "Render/RHI/Shader.h"
+#include "Render/RHI/Shader/Shader.h"
 #include "Core/Framework/Library.h"
 
 

@@ -3,7 +3,7 @@
 #include "Component.h"
 #include "Render/RHI/Mesh.h"
 #include "Core/Base/PublicSingleton.h"
-#include "Render/RHI/ShaderBinder.h"
+#include "Render/RHI/Shader/ShaderBinder.h"
 #include "Render/Moudule/MeshGenerator.h"
 #include "MeshVertexComponent.reflection.h"
 
