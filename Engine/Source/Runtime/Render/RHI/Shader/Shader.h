@@ -25,12 +25,11 @@ namespace Zero
 		bool bNeedDetph = true;
 		EResourceFormat DepthFormat = EResourceFormat::D24_UNORM_S8_UINT;
 
-		EShaderModel Model = SM_6_6;
+		EShaderModel Model = SM_6_0;
 		FShaderMacro ShaderMacro;
 		bool bCreateVS = true;
-		std::string VSEntryPoint = "VS";
+		std::string EntryPoint[int32_t(EShaderStage::ShaderCount)] = { "VS", "PS", "CS"};
 		bool bCreatePS = true;
-		std::string PSEntryPoint = "PS";
 		EShaderCompilerFlagBit Flags = ShaderCompilerFlag_Debug;
 	};
 
@@ -86,7 +85,7 @@ namespace Zero
 		std::vector<FShaderSamplerParameter> m_SamplerParams;
 
 		std::set<std::string> m_IncludeFiles;
-		FShaderBlob m_ByteCode[uint32_t(EShaderStage::ShaderCount)];
+		FShaderBlob m_ByteCode[uint32_t(EShaderStage::ShaderCount)] = {};
 	};
 
 	struct FComputeShaderDesc

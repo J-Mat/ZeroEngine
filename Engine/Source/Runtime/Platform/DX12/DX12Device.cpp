@@ -10,7 +10,9 @@
 #include "./PSO/DX12PipelineStateObject.h"
 #include "Core/Framework/Library.h"
 #include "Render/Moudule/MeshGenerator.h"
+#include "./Shader/DX12ShaderCompiler.h"
 #include "ZConfig.h"
+
 
 namespace Zero
 {
@@ -38,6 +40,8 @@ namespace Zero
 		m_TextureResourceAllocator = CreateScope<FTextureResourceAllocator>();
 
 		PreInitWorld();
+
+		FDX12ShaderCompiler::Get().Init();
 	}
 	
 	FDescriptorAllocation FDX12Device::AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE Type, uint32_t NumDescriptors)

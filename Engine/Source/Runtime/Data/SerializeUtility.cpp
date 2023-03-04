@@ -1,5 +1,6 @@
 #include "SerializeUtility.h"
 #include "World/Object/ObjectGlobal.h"
+#include "Render/Moudule/Texture/TextureManager.h"
 
 
 namespace Zero
@@ -15,7 +16,6 @@ namespace Zero
 			Out << YAML::Key << "Value" << YAML::Value << *Property->GetData<int>();
 		else if (Type == "string" ||
 			Type == "std::string" ||
-			Type == "FTextureHandle" ||
 			Type == "FMaterialHandle" ||
 			Type == "std::filesystem::path" ||
 			Type == "FShaderFileHandle")
@@ -45,6 +45,8 @@ namespace Zero
 			Out << YAML::Key << "Value" << YAML::Value << *Property->GetData<FAssetHandle>();
 		else if (Type == "FFloatSlider")
 			Out << YAML::Key << "Value" << YAML::Value << *Property->GetData<FFloatSlider>();
+		else if (Type == "FTextureHandle")
+			Out << YAML::Key << "Value" << YAML::Value << Property->GetData<FTextureHandle>()->TextureName;
 		else if (Type == "std::vector")
 			ExportVectorValue(Out, Property);
 		else if (Type == "std::map")
@@ -123,7 +125,6 @@ namespace Zero
 			*((int*)PropertyData) = PropertyNode["Value"].as<int>();
 		else if (Type == "string" ||
 			Type == "std::string" ||
-			Type == "FTextureHandle" ||
 			Type == "FMaterialHandle" ||
 			Type == "std::filesystem::path" ||
 			Type == "FShaderFileHandle")
@@ -153,6 +154,11 @@ namespace Zero
 			*((double*)PropertyData) = PropertyNode["Value"].as<double>();
 		else if (Type == "FAssetHandle")
 			*((FAssetHandle*)PropertyData) = FAssetHandle(PropertyNode["Value"].as<std::string>());
+		else if (Type == "FTextureHandle")
+		{
+			FTextureHandle Handle = FTextureManager::Get().LoadTexture(PropertyNode["Value"].as<std::string>());
+			*((FTextureHandle*)PropertyData) = Handle;
+		}
 		else if (Type == "std::vector")
 			ImportVectorValue(PropertyNode, Property);
 		else if (Type == "std::map")

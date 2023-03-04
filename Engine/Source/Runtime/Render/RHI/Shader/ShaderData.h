@@ -9,10 +9,10 @@ namespace Zero
 	{
 		VS,
 		PS,
+		CS,
 		HS,
 		DS,
 		GS,
-		CS,
 		LIB,
 		MS,
 		AS,
@@ -20,6 +20,7 @@ namespace Zero
 	};
 	enum EShaderModel
 	{
+		SM_5_1,
 		SM_6_0,
 		SM_6_1,
 		SM_6_2,

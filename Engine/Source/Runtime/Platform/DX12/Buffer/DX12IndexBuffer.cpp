@@ -9,7 +9,7 @@ namespace Zero
 	FDX12IndexBuffer::FDX12IndexBuffer(void* Indices, const FBufferDesc& Desc)
 		: FIndexBuffer(Indices, Desc)
 	{
-		//ComPtr<ID3D12Resource> Resource = FDX12Device::Get()->GetInitWorldCommandList()->CreateDefaultBuffer(m_Data, m_Desc.Size);
+		//m_D3DResource = FDX12Device::Get()->GetInitWorldCommandList()->CreateDefaultBuffer(m_Data, m_Desc.Size);
 		FDX12Device::Get()->GetInitWorldCommandList()->CreateAndInitDefaultBuffer(
 			m_Data,
 			m_Desc.Size,

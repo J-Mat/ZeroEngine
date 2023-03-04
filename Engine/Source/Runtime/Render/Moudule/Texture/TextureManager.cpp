@@ -61,6 +61,10 @@ namespace Zero
 
 	FTextureHandle FTextureManager::LoadTexture(std::string const& FileName, bool bNeedMip)
     {
+		if (FileName == "")
+		{
+			return FTextureHandle();
+		}
 		if (auto Iter = m_LoadedTexNameHandleMap.find(FileName); Iter != m_LoadedTexNameHandleMap.end())
 		{
 			return Iter->second;
@@ -76,8 +80,8 @@ namespace Zero
 		case ETextureFormat::eTIFF:
 		case ETextureFormat::eGIF:
 		case ETextureFormat::eICO:
-			return LoadRegularTexture(FileName, bNeedMip);
 		case ETextureFormat::eTGA:
+			return LoadRegularTexture(FileName, bNeedMip);
 		case ETextureFormat::eHDR:
 		case ETextureFormat::ePIC:
 			return LoadTexture_HDR_TGA_PIC(FileName);

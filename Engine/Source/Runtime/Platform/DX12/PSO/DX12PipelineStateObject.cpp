@@ -27,12 +27,9 @@ namespace Zero
 
 		PsoDesc.InputLayout = { D3DShader->m_InputLayoutDesc.data(), (UINT)D3DShader->m_InputLayoutDesc.size() };
 		FDX12RootSignature* D3DRootSignature = static_cast<FDX12RootSignature*>(DX12ShaderBinder->GetRootSignature());
-		std::unordered_map<EShaderStage, ComPtr<ID3DBlob>>& ShaderPass = D3DShader->m_ShaderPass;
 		PsoDesc.pRootSignature = D3DRootSignature->GetD3D12RootSignature().Get();
-		ComPtr<ID3DBlob> VSBlob = D3DShader->m_ShaderPass[EShaderStage::VS];
-		PsoDesc.VS = { reinterpret_cast<BYTE*>(VSBlob->GetBufferPointer()), VSBlob->GetBufferSize() };
-		ComPtr<ID3DBlob> PSBlob = D3DShader->m_ShaderPass[EShaderStage::PS];
-		PsoDesc.PS = { reinterpret_cast<BYTE*>(PSBlob->GetBufferPointer()), PSBlob->GetBufferSize() };
+		PsoDesc.VS = D3DShader->GetD3DShaderBytecode(EShaderStage::VS);  
+		PsoDesc.PS = D3DShader->GetD3DShaderBytecode(EShaderStage::PS); 
 		PsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 		PsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 		PsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);

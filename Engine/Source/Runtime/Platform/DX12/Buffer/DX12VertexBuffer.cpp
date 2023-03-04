@@ -12,6 +12,12 @@ namespace Zero
 			m_Desc.Size,
 			DEFAULT_RESOURCE_ALIGNMENT,
 			m_ResourceLocation);
+		/*
+		m_D3DResource = FDX12Device::Get()->GetInitWorldCommandList()->CreateDefaultBuffer(
+			m_Data,
+			m_Desc.Size
+			);
+		*/
 		CreateVertexBufferView();
 	}
 

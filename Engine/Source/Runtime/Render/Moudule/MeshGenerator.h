@@ -77,6 +77,7 @@ namespace Zero
 		void CreateSphere(FMeshData& MeshData, float Radius, uint32_t NumSubdivisions);
 		void CreateGrid(FMeshData& MeshData, float width, float Depth, uint32_t m, uint32_t n);
 		void CreateRect(FMeshData& MeshData);
+		void CreateTri(FMeshData& MeshData);
 		void CreateCustomModel(std::vector<FMeshData>& MeshDatas, const std::string& Path, FVertexBufferLayout& Layout);
 	private: 
 

@@ -140,7 +140,7 @@ namespace Zero
 					IID_PPV_ARGS(D3DResource.GetAddressOf())
 				)
 			);
-			m_ResourceLocation.m_UnderlyingResource = CreateRef<FDX12Resource>(TextureName, D3DResource);
+			m_ResourceLocation.m_UnderlyingResource = CreateRef<FDX12Resource>(TextureName, D3DResource, &D3DClearValue);
 			m_ResourceLocation.SetType(FResourceLocation::EResourceLocationType::StandAlone);
 		}
 		else
@@ -227,6 +227,7 @@ namespace Zero
 			else if (m_ResourceLocation.m_ResourceLocationType == FResourceLocation::EResourceLocationType::StandAlone)
 			{
 				auto Resource = m_ResourceLocation.GetResource();
+				auto ResourceName = Resource->GetName();
 				ComPtr<ID3D12Resource> D3DResource = Resource->GetD3DResource();
 				CD3DX12_RESOURCE_DESC ResDesc(D3DResource->GetDesc());
 
@@ -235,15 +236,26 @@ namespace Zero
 				ResDesc.DepthOrArraySize = DepthOrArraySize;
 				ResDesc.MipLevels = ResDesc.SampleDesc.Count > 1 ? 1 : 0;
 
+				CD3DX12_CLEAR_VALUE ClearValue = {};
+				CD3DX12_CLEAR_VALUE* ClearValuePtr = nullptr;
+				if (HasAnyFlag(m_TextureDesc.ResourceBindFlags, EResourceBindFlag::DepthStencil))
+				{
+					FLOAT Depth = 1.0f;
+					UINT8 Stencil = 0;
+					ClearValue = CD3DX12_CLEAR_VALUE(DXGI_FORMAT_D24_UNORM_S8_UINT, Depth, Stencil);
+					ClearValuePtr = &ClearValue;
+				}
+
+				ComPtr<ID3D12Resource> NewResource;
 				ThrowIfFailed(
 					FDX12Device::Get()->GetDevice()->CreateCommittedResource(
 						&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &ResDesc,
-						D3D12_RESOURCE_STATE_COMMON, Resource->GetClearValuePtr(), IID_PPV_ARGS(&Resource->GetD3DResource())
+						D3D12_RESOURCE_STATE_COMMON, ClearValuePtr, IID_PPV_ARGS(&NewResource)
 					)
 				);
+				m_ResourceLocation.m_UnderlyingResource.reset();
+				m_ResourceLocation.m_UnderlyingResource = CreateRef<FDX12Resource>(Utils::WString2String(ResourceName), NewResource);
 				// Retain the name of the resource if one was already specified.
-				auto ResourceName = Resource->GetName();
-				Resource->SetName(ResourceName);
 
 				FResourceStateTracker::AddGlobalResourceState(m_ResourceLocation.GetResource()->GetD3DResource().Get(), D3D12_RESOURCE_STATE_COMMON);
 			}

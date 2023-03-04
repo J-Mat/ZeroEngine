@@ -25,12 +25,6 @@ target_link_libraries(${ProjectName}
 )
 
 
-
-#find_library(dxcompiler
-#  NAMES dxcompiler
-#  HINTS ${ThirdPartyDir}/dxc/lib/x64/
-#  DOC "dxcompiler library")
-
 if (WIN32)
     target_link_libraries(${ProjectName}
 		PUBLIC d3d12.lib
@@ -42,6 +36,22 @@ if (WIN32)
 endif()
 
 add_dependencies(Runtime ZHT)
+
+add_custom_command(TARGET ${ProjectName} 
+	POST_BUILD       
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different 
+	"${ThirdPartyDir}/dxc/bin/x64/dxcompiler.dll"
+    "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Debug"
+) #拷贝到哪个目录
+
+add_custom_command(TARGET ${ProjectName} 
+	POST_BUILD       
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different 
+	"${ThirdPartyDir}/dxc/bin/x64/dxil.dll"
+    "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Debug"
+) #拷贝到哪个目录
+
+message ( STATUS "CMAKE_RUNTIME_OUTPUT_DIRECTORY : ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}" )
 
 add_custom_command(
 	TARGET ${ProjectName} 

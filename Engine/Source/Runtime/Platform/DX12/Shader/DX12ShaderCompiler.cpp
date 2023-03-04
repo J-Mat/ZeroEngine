@@ -1,5 +1,5 @@
 #include "DX12ShaderCompiler.h"
-#include <d3dcompiler.h> 
+//#include <d3dcompiler.h> 
 #include <wrl.h>
 #include "ZConfig.h"
 #include "FileUtil.h"
@@ -141,6 +141,9 @@ namespace Zero
 		}
 		switch (model)
 		{
+		case SM_5_1:
+			target += L"5_1";
+			break;
 		case SM_6_0:
 			target += L"6_0";
 			break;
@@ -168,9 +171,9 @@ namespace Zero
 		return target;
 	}
 
-	FDX12ShaderCompiler::FDX12ShaderCompiler()
+	void FDX12ShaderCompiler::Init()
 	{
-		ThrowIfFailed(DxcCreateInstance(CLSID_DxcLibrary, IID_PPV_ARGS(DxcLibrary.GetAddressOf())));
+		ThrowIfFailed(   DxcCreateInstance(CLSID_DxcLibrary, IID_PPV_ARGS(DxcLibrary.GetAddressOf())));
 		ThrowIfFailed(DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(DxcCompiler.GetAddressOf())));
 		ThrowIfFailed(DxcLibrary->CreateIncludeHandler(DxcIncludeHandler.GetAddressOf()));
 		ThrowIfFailed(DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(DxcUtils.GetAddressOf())));
@@ -188,7 +191,7 @@ namespace Zero
 		std::wstring Path = Utils::String2WString(FileUtil::GetParentPath(FullPath));
 		
 		std::wstring Target = GetTarget(ShaderStage, Desc.Model);
-		std::wstring EntryPoint = Utils::String2WString(Desc.VSEntryPoint);
+		std::wstring EntryPoint = Utils::String2WString(Desc.EntryPoint[uint32_t(ShaderStage)]);
 
 		std::vector<wchar_t const*> CompileArgs{};
 		CompileArgs.push_back(Name.c_str());
@@ -230,46 +233,50 @@ namespace Zero
 		SourceBuffer.Ptr = SourceBlob->GetBufferPointer();
 		SourceBuffer.Size = SourceBlob->GetBufferSize();
 		SourceBuffer.Encoding = 0;
-		ComPtr<IDxcResult> Result;
 		HRESULT hr;
+		ComPtr<IDxcResult> DxcResult = nullptr;
 		hr = DxcCompiler->Compile(
 			&SourceBuffer,
 			CompileArgs.data(), (uint32_t)CompileArgs.size(),
 			&CustomIncludeHandler,
-			IID_PPV_ARGS(Result.GetAddressOf()));
+			IID_PPV_ARGS(DxcResult.GetAddressOf()));
 
 		ComPtr<IDxcBlobUtf8> Errors;
-		if (SUCCEEDED(Result->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(Errors.GetAddressOf()), nullptr)))
+		if (SUCCEEDED(DxcResult->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(Errors.GetAddressOf()), nullptr)))
 		{
 			if (Errors && Errors->GetStringLength() > 0)
 			{
-				CORE_LOG_ERROR("%s", Errors->GetStringPointer());
-				return false;
+				if (SUCCEEDED(hr))
+				{
+					CORE_LOG_WARN((char*)Errors->GetBufferPointer());
+				}
+				else
+				{
+					CORE_LOG_ERROR((char*)Errors->GetBufferPointer());
+					return false;
+				}
 			}
 		}
 
 		ComPtr<IDxcBlob> _Blob;
-		ThrowIfFailed(Result->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(_Blob.GetAddressOf()), nullptr));
+		ThrowIfFailed(DxcResult->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(_Blob.GetAddressOf()), nullptr));
 		Output.Shader->SetBytecode(ShaderStage,_Blob->GetBufferPointer(), _Blob->GetBufferSize());
 		Output.IncludeFiles = std::move(CustomIncludeHandler.IncludeFiles);
 		Output.IncludeFiles.push_back(Desc.FileName);
-		return false;
-	}
 
-	ID3D12ShaderReflection* FDX12ShaderCompiler::GetShaderReflectionPtr(EShaderStage ShaderStage, Ref<FShader> Shader)
-	{
-		ComPtr<IDxcContainerReflection> Reflection;
-		HRESULT hr = DxcCreateInstance(CLSID_DxcContainerReflection, IID_PPV_ARGS(Reflection.GetAddressOf()));
-		ReflectionBlob my_blob{ Shader->GetPointer(ShaderStage), Shader->GetLength(ShaderStage) };
-		ThrowIfFailed(hr);
-		hr = Reflection->Load(&my_blob);
-		ThrowIfFailed(hr);
-		uint32_t part_index;
-		ThrowIfFailed(Reflection->FindFirstPartKind(MAKEFOURCC('D', 'X', 'I', 'L'), &part_index));
+		ComPtr<IDxcBlob> ReflectionBlob{};
+		ThrowIfFailed(DxcResult->GetOutput(DXC_OUT_REFLECTION, IID_PPV_ARGS(&ReflectionBlob), nullptr));
 
-		ComPtr<ID3D12ShaderReflection> ShaderReflection;
-		ThrowIfFailed(Reflection->GetPartReflection(part_index, IID_PPV_ARGS(ShaderReflection.GetAddressOf())));
-		return ShaderReflection.Get();
+		const DxcBuffer ReflectionBuffer
+		{
+			.Ptr = ReflectionBlob->GetBufferPointer(),
+			.Size = ReflectionBlob->GetBufferSize(),
+			.Encoding = 0,
+		};
+
+		DxcUtils->CreateReflection(&ReflectionBuffer, IID_PPV_ARGS(&Output.ShaderReflection));
+
+		return true;
 	}
 
 	ComPtr<ID3DBlob> FDX12ShaderCompiler::CompileShader(const std::wstring& Filename, const D3D_SHADER_MACRO* Defines, const std::string& Entrypoint, const std::string& Target)
@@ -298,11 +305,16 @@ namespace Zero
 		if (Errors != nullptr)
 		{
 			OutputDebugStringA((char*)Errors->GetBufferPointer());
-			CORE_LOG_ERROR((char*)Errors->GetBufferPointer());
-			return nullptr;
+			if (FAILED(hr))
+			{
+				CORE_LOG_ERROR((char*)Errors->GetBufferPointer());
+				return nullptr;
+			}
+			else
+			{
+				CORE_LOG_WARN((char*)Errors->GetBufferPointer());
+			}
 		}
-
-		ThrowIfFailed(hr);
 
 		return ByteCode;
 	}

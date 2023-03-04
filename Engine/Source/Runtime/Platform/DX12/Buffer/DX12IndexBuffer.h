@@ -16,6 +16,7 @@ namespace Zero
 		const D3D12_INDEX_BUFFER_VIEW& GetIndexBufferView() { return m_IndexBufferView; }
 
 	private:
+		ComPtr<ID3D12Resource> m_D3DResource;
 		void CreateIndexBufferView();
 	private:
 		FResourceLocation m_ResourceLocation;

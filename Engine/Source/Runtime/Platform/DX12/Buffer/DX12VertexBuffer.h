@@ -14,6 +14,7 @@ namespace Zero
 
 		const D3D12_VERTEX_BUFFER_VIEW& GetVertexBufferView();
 	private:
+		ComPtr<ID3D12Resource> m_D3DResource;
 		FResourceLocation m_ResourceLocation;
 
 		void CreateVertexBufferView();

@@ -4,7 +4,6 @@
 #include "Render/RHI/Shader/ShaderBinder.h"
 #include "Render/RHI/Shader/Shader.h"
 #include "d3d12shader.h"
-#include "DX12ShaderCompiler.h"
 
 namespace Zero
 {
@@ -22,7 +21,6 @@ namespace Zero
 		virtual void Use(FCommandListHandle CommandList) override;
 
 		
-		void GetShaderParameters(EShaderStage ShaderStage);
 		void GetShaderParameters(ComPtr<ID3DBlob> PassBlob, EShaderStage ShaderStage);
 		void ParseShader(ID3D12ShaderReflection* ShaderReflectionPtr, EShaderStage ShaderStage);
 		virtual void Compile() override;
@@ -42,8 +40,6 @@ namespace Zero
 
 	private:
 		std::vector<D3D12_INPUT_ELEMENT_DESC> m_InputLayoutDesc;
-		std::unordered_map<EShaderStage, ComPtr<ID3DBlob>> m_ShaderPass;
-		
-		static FDX12ShaderCompiler s_ShaderCompiler;
+		//std::unordered_map<EShaderStage, ComPtr<ID3DBlob>> m_ShaderPass;
 	};
 }

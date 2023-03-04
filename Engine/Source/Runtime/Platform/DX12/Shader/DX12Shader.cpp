@@ -6,13 +6,11 @@
 #include "../DX12RootSignature.h"
 #include "../PSO/DX12PipelineStateObject.h"
 #include "../DX12CommandList.h"
+#include "DX12ShaderCompiler.h"
 #include "ZConfig.h"
 
 namespace Zero
 {
-
-	FDX12ShaderCompiler FDX12Shader::s_ShaderCompiler = {};
-
 	DXGI_FORMAT ShaderDataTypeToDXGIFormat(EShaderDataType Type)
 	{
 		switch (Type)
@@ -38,22 +36,25 @@ namespace Zero
 	FDX12Shader::FDX12Shader(const FShaderBinderDesc& BinderDesc, const FShaderDesc& Desc)
 	: FShader(BinderDesc, Desc)
 	{
+		CORE_ASSERT(false, "false");
+		/*
 		std::string FileName = ZConfig::GetAssestsFullPath(m_ShaderDesc.FileName).string();
 
 		if (m_ShaderDesc.bCreateVS)
 		{
-			auto VSBlob  = s_ShaderCompiler.CompileShader(Utils::String2WString(FileName), nullptr, m_ShaderDesc.VSEntryPoint, "vs_5_1");
+			auto VSBlob  = FDX12ShaderCompiler::Get().CompileShader(Utils::String2WString(FileName), nullptr, m_ShaderDesc.EntryPoint[uint32_t(EShaderStage::VS)], "vs_5_1");
 			m_ShaderPass[EShaderStage::VS] = VSBlob;
 		}
 
 		if (m_ShaderDesc.bCreatePS)
 		{
-			auto PSBlob  = s_ShaderCompiler.CompileShader(Utils::String2WString(FileName), nullptr, m_ShaderDesc.PSEntryPoint, "ps_5_1");
+			auto PSBlob  = FDX12ShaderCompiler::Get().CompileShader(Utils::String2WString(FileName), nullptr, m_ShaderDesc.EntryPoint[uint32_t(EShaderStage::PS)], "ps_5_1");
 			m_ShaderPass[EShaderStage::PS] = PSBlob;
 		}
 
 		GenerateInputLayout();
 		CreateBinder();
+		*/
 	}
 
 	FDX12Shader::FDX12Shader(const FShaderDesc& Desc)
@@ -69,9 +70,11 @@ namespace Zero
 		m_SRVParams.clear();
 		m_UAVParams.clear();
 		m_SamplerParams.clear();
+
+		/*
 		if (m_ShaderDesc.bCreateVS)
 		{
-			auto VSBlob  = s_ShaderCompiler.CompileShader(Utils::String2WString(FileName), nullptr, m_ShaderDesc.VSEntryPoint, "vs_5_1");
+			auto VSBlob  = FDX12ShaderCompiler::Get().CompileShader(Utils::String2WString(FileName), nullptr, m_ShaderDesc.EntryPoint[uint32_t(EShaderStage::VS)], "vs_5_1");
 			m_ShaderPass[EShaderStage::VS] = VSBlob;
 			std::cout << "ShaderStage : VS" << std::endl;
 			GetShaderParameters(VSBlob, EShaderStage::VS);
@@ -79,11 +82,12 @@ namespace Zero
 
 		if (m_ShaderDesc.bCreatePS)
 		{
-			auto PSBlob  = s_ShaderCompiler.CompileShader(Utils::String2WString(FileName), nullptr, m_ShaderDesc.PSEntryPoint, "ps_5_1");
+			auto PSBlob  = FDX12ShaderCompiler::Get().CompileShader(Utils::String2WString(FileName), nullptr, m_ShaderDesc.EntryPoint[uint32_t(EShaderStage::PS)], "ps_5_1");
 			m_ShaderPass[EShaderStage::PS] = PSBlob;
 			std::cout << "ShaderStage : PS" << std::endl;
 			GetShaderParameters(PSBlob, EShaderStage::PS);
 		}
+		*/
 		
 		// Test
 		{
@@ -93,17 +97,17 @@ namespace Zero
 			m_SamplerParams.clear();
 			FShaderCompileOutput VSOutput
 			{
-				.Shader = shared_from_this()
+				.Shader = this
 			};
-			s_ShaderCompiler.CompileShader(EShaderStage::VS, m_ShaderDesc, VSOutput);
-			GetShaderParameters(EShaderStage::VS);
+			FDX12ShaderCompiler::Get().CompileShader(EShaderStage::VS, m_ShaderDesc, VSOutput);
+			ParseShader(VSOutput.ShaderReflection.Get(), EShaderStage::VS);
 
 			FShaderCompileOutput PSOutput
 			{
-				.Shader = shared_from_this()
+				.Shader = this
 			};
-			s_ShaderCompiler.CompileShader(EShaderStage::PS, m_ShaderDesc, PSOutput);
-			GetShaderParameters(EShaderStage::PS);
+			FDX12ShaderCompiler::Get().CompileShader(EShaderStage::PS, m_ShaderDesc, PSOutput);
+			ParseShader(PSOutput.ShaderReflection.Get(), EShaderStage::PS);
 		}
 
 		GenerateShaderDesc();
@@ -125,15 +129,13 @@ namespace Zero
 		m_ShaderBinder->Bind(CommandListHandle);
 	}
 
-	void FDX12Shader::GetShaderParameters(EShaderStage ShaderStage)
-	{
-		ID3D12ShaderReflection* ReflectionPtr = s_ShaderCompiler.GetShaderReflectionPtr(ShaderStage, shared_from_this());
-		
-		ParseShader(ReflectionPtr, ShaderStage);
-	}
 
 	void FDX12Shader::GetShaderParameters(ComPtr<ID3DBlob> PassBlob, EShaderStage ShaderStage)
 	{
+		if (PassBlob == nullptr)
+		{
+			return;
+		}
 		ID3D12ShaderReflection* ReflectionPtr = nullptr;
 		D3DReflect(PassBlob->GetBufferPointer(), PassBlob->GetBufferSize(), IID_ID3D12ShaderReflection, (void**)&ReflectionPtr);
 		

@@ -115,6 +115,24 @@ namespace Zero
 		AttachToMeshData(MeshData, Vertex, Indexs);
 	}
 
+	void FMeshGenerator::CreateTri(FMeshData& MeshData)
+	{
+		std::vector<FVertex> Vertex(3);
+		
+		float D2 = 0.0f;
+		// Fill in the front face vertex data.
+		Vertex[0] = FVertex(0.0f, 0.0f, D2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f); 
+		Vertex[1] = FVertex(1.0f, 1.0f, D2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+		Vertex[2] = FVertex(1.0f, 0.0f, D2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f); 
+
+		std::vector<uint32_t> Indexs(3);
+
+		// Fill in the front face index data
+		Indexs[0] = 0; Indexs[1] = 1; Indexs[2] = 2;
+
+		AttachToMeshData(MeshData, Vertex, Indexs);
+	}
+
 	void FMeshGenerator::CreateSphere(FMeshData& MeshData, float Radius, uint32_t NumSubdivisions)
 	{
 		// Put a cap on the number of subdivisions.

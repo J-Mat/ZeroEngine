@@ -9,15 +9,12 @@ namespace Zero
 		static ImVec2 ButtonSize(64, 64);
 		ImGuiStyle& Style = ImGui::GetStyle();
 		FTextureHandle* TextureHandlePtr = Property->GetData<FTextureHandle>();
-		if (TextureHandlePtr->IsNull())
-		{
-			*TextureHandlePtr = FTextureManager::Get().GetDefaultTextureHandle();
-		}
+		*TextureHandlePtr = FTextureManager::Get().LoadTexture(TextureHandlePtr->TextureName);
 		Ref<FTexture2D> Texture = FTextureManager::Get().GetTextureByHandle(*TextureHandlePtr);
 		if (Texture == nullptr)
 		{
-			auto Handle = FTextureManager::Get().LoadTexture(TextureHandlePtr->TextureName);
-			Texture = FTextureManager::Get().GetTextureByHandle(Handle);
+			*TextureHandlePtr = FTextureManager::Get().GetDefaultTextureHandle();
+			Texture = FTextureManager::Get().GetTextureByHandle(*TextureHandlePtr);
 		}		
 		ImTextureID TextureID = (ImTextureID)Texture->GetGuiShaderReseource();
 		ImGui::Image(TextureID, ButtonSize, { 0,0 }, { 1,1 });
