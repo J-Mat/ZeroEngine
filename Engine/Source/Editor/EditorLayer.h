@@ -39,6 +39,7 @@ namespace Zero
 
 	private:
 		bool MouseButtonPressed(FMouseButtonReleasedEvent& Event);
+		bool KeyEventPressed(FKeyPressedEvent& Event);
 		
 	private: 
 		Ref<FRenderPipeline> m_ScriptablePipeline;

@@ -15,6 +15,7 @@ namespace Zero
 		void RegisterIBLPSO();
 		void RegisterShadowPSO();
 		void RegisterComputeShader();
+		void OnCreatePso(Ref<FShader> Shader);
 	public:
 		Ref<FPipelineStateObject> Fetch(EPipelineState PsoState);
 	private:

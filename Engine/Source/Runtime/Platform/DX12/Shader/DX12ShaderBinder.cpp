@@ -199,6 +199,7 @@ namespace Zero
 			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
 		);
 		*/
+		m_RootSignature.reset();
 		m_RootSignature = CreateRef<FDX12RootSignature>(RootSignatureDesc.Desc_1_1);
 		
 		//m_RootSignature = CreateRef<FDX12RootSignature>(RoogSig);

@@ -1,9 +1,16 @@
 #include "ShaderCache.h"
 #include "Render/RendererAPI.h"
+#include "ZConfig.h"
 
 namespace Zero
 {
-    Ref<FShader> FShaderCache::CreateShader(EShaderID ShaderID, const FShaderDesc& ShaderDesc)
+	FShaderCache::FShaderCache()
+	{
+        m_FileWatcher.AddPathToWatch(ZConfig::ShaderDir.string());
+        m_FileWatcher.GetFileModifiedEvent().AddFunction<FShaderCache>(this, &FShaderCache::OnShaderFileChanged);
+	}
+
+	Ref<FShader> FShaderCache::CreateShader(EShaderID ShaderID, const FShaderDesc& ShaderDesc)
     {
         auto Shader =  FRenderer::GetDevice()->CreateShader(ShaderDesc);
         m_AllShaders.insert({ShaderID, Shader});
@@ -16,8 +23,16 @@ namespace Zero
         {
             if (Shader->GetAllIncludeFiles().contains(Filename))
             {
-                Shader->Compile();
+                auto Desc = Shader->GetDesc();
+                CreateShader(ShaderID, Desc);
             }
+           
         }
     }
+
+	void FShaderCache::CheckIfShadersHaveChanged()
+	{
+        m_FileWatcher.CheckWatchedFiles();
+	}
+
 }

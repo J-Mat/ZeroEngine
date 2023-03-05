@@ -11,6 +11,7 @@
 #include "Data/Settings/SceneSettings.h"
 #include "Render/Moudule/Texture/TextureManager.h"
 #include "Render/Moudule/PSOCache.h"
+#include "Render/Moudule/ShaderCache.h"
 
 namespace Zero
 {
@@ -203,7 +204,7 @@ namespace Zero
 	void FEditorLayer::OnEvent(FEvent& Event)
 	{
 		FEventDispatcher Dispatcher(Event);
-		//Dispatcher.Dispatch<FMouseButtonReleasedEvent>(BIND_EVENT_FN(FEditorLayer::MouseButtonPressed));
+		Dispatcher.Dispatch<FKeyPressedEvent>(BIND_EVENT_FN(FEditorLayer::KeyEventPressed));
 	}
 
 	void FEditorLayer::SaveScene()
@@ -230,4 +231,13 @@ namespace Zero
 		return true;
 	}
 	
+	bool FEditorLayer::KeyEventPressed(FKeyPressedEvent& Event)
+	{
+		if (Zero_KEY_F5 == Event.GetKeyCode())
+		{
+			FShaderCache::Get().CheckIfShadersHaveChanged();
+		}
+		return true;
+	}
+
 }

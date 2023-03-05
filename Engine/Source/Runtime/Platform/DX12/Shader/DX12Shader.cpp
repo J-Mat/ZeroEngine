@@ -91,23 +91,28 @@ namespace Zero
 		
 		// Test
 		{
-			m_CBVParams.clear();
-			m_SRVParams.clear();
-			m_UAVParams.clear();
-			m_SamplerParams.clear();
-			FShaderCompileOutput VSOutput
+				m_CBVParams.clear();
+				m_SRVParams.clear();
+				m_UAVParams.clear();
+				m_SamplerParams.clear();
 			{
-				.Shader = this
-			};
-			FDX12ShaderCompiler::Get().CompileShader(EShaderStage::VS, m_ShaderDesc, VSOutput);
-			ParseShader(VSOutput.ShaderReflection.Get(), EShaderStage::VS);
+				FShaderCompileOutput VSOutput
+				{
+					.Shader = this
+				};
+				FDX12ShaderCompiler::Get().CompileShader(EShaderStage::VS, m_ShaderDesc, VSOutput, m_IncludeFiles);
+				ParseShader(VSOutput.ShaderReflection.Get(), EShaderStage::VS);
+			}
 
-			FShaderCompileOutput PSOutput
 			{
-				.Shader = this
-			};
-			FDX12ShaderCompiler::Get().CompileShader(EShaderStage::PS, m_ShaderDesc, PSOutput);
-			ParseShader(PSOutput.ShaderReflection.Get(), EShaderStage::PS);
+				FShaderCompileOutput PSOutput
+				{
+					.Shader = this
+				};
+				FDX12ShaderCompiler::Get().CompileShader(EShaderStage::PS, m_ShaderDesc, PSOutput, m_IncludeFiles);
+				ParseShader(PSOutput.ShaderReflection.Get(), EShaderStage::PS);
+			}
+			m_IncludeFiles.insert(ZConfig::GetAssestsFullPath(m_ShaderDesc.FileName).string());
 		}
 
 		GenerateShaderDesc();

@@ -9,7 +9,6 @@ namespace Zero
 	struct FShaderCompileOutput
 	{
 		FDX12Shader* Shader = nullptr;
-		std::vector<std::string> IncludeFiles{};
 		ComPtr<ID3D12ShaderReflection> ShaderReflection = nullptr;
 	};
 
@@ -19,6 +18,6 @@ namespace Zero
 		FDX12ShaderCompiler() = default;
 		void Init();
 		ComPtr<ID3DBlob> CompileShader(const std::wstring& Filename, const D3D_SHADER_MACRO* Defines, const std::string& Entrypoint, const std::string& Target);
-		bool CompileShader(EShaderStage ShaderStage, FShaderDesc const& Desc, FShaderCompileOutput& Output);
+		bool CompileShader(EShaderStage ShaderStage, FShaderDesc const& Desc, FShaderCompileOutput& Output, std::set<std::string>& IncludeFiles);
 	};
 }

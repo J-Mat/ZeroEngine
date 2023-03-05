@@ -58,6 +58,7 @@ namespace Zero
 			}
 		}
 
+		FileModifiedEvent& GetFileModifiedEvent() { return m_FileModifiedEvent; }
 	private:
 		std::vector<std::string> m_PathstoWatch;
 		std::map<std::string, std::filesystem::file_time_type> m_FilesMap;

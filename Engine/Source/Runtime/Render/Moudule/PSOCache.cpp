@@ -160,4 +160,16 @@ namespace Zero
 			FRenderer::GraphicFactroy->CreateComputeShader(GenerteMipShader);
 		}
 	}
+
+
+	void FPSOCache::OnCreatePso(Ref<FShader> Shader)
+	{
+		for (auto [_, Pso] : m_PsoCache)
+		{
+			if (Pso->GetPSODescriptor().Shader->GetDesc().FileName == Shader->GetDesc().FileName)
+			{
+			}
+		}
+	}
+
 }

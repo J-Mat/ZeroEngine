@@ -28,11 +28,13 @@ namespace Zero
 	class FShaderCache : public IPublicSingleton<FShaderCache>
 	{
 	public:
+		FShaderCache();
 		Ref<FShader> CreateShader(EShaderID ShaderID, const FShaderDesc& ShaderDesc);
 
 		FShaderRecompiledEvent& GetShaderRecompiledEvent() { m_ShaderRecompiledEvent; };
 
 		void OnShaderFileChanged(const std::string& Filename);
+		void CheckIfShadersHaveChanged();
 	private:
 		FFileWatcher m_FileWatcher;
 		std::map<EShaderID, Ref<FShader>> m_AllShaders;

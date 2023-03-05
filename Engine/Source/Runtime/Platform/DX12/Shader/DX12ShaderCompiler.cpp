@@ -52,7 +52,7 @@ namespace Zero
 			HRESULT hr = DxcUtils->LoadFile(winclude_file.c_str(), nullptr, encoding.GetAddressOf());
 			if (SUCCEEDED(hr))
 			{
-				IncludeFiles.push_back(IncludeFile);
+				IncludeFiles.insert(IncludeFile);
 				*ppIncludeSource = encoding.Detach();
 				return S_OK;
 			}
@@ -67,7 +67,7 @@ namespace Zero
 		ULONG STDMETHODCALLTYPE AddRef(void) override { return 1; }
 		ULONG STDMETHODCALLTYPE Release(void) override { return 1; }
 
-		std::vector<std::string> IncludeFiles;
+		std::set<std::string> IncludeFiles;
 	};
 
 	class ReflectionBlob : public IDxcBlob
@@ -179,7 +179,7 @@ namespace Zero
 		ThrowIfFailed(DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(DxcUtils.GetAddressOf())));
 	}
 
-	bool FDX12ShaderCompiler::CompileShader(EShaderStage ShaderStage, FShaderDesc const& Desc, FShaderCompileOutput& Output)
+	bool FDX12ShaderCompiler::CompileShader(EShaderStage ShaderStage, FShaderDesc const& Desc, FShaderCompileOutput& Output, std::set<std::string>& IncludeFiles)
 	{
 		uint32_t CodePage = CP_UTF8;
 		ComPtr<IDxcBlobEncoding> SourceBlob;
@@ -261,8 +261,7 @@ namespace Zero
 		ComPtr<IDxcBlob> _Blob;
 		ThrowIfFailed(DxcResult->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(_Blob.GetAddressOf()), nullptr));
 		Output.Shader->SetBytecode(ShaderStage,_Blob->GetBufferPointer(), _Blob->GetBufferSize());
-		Output.IncludeFiles = std::move(CustomIncludeHandler.IncludeFiles);
-		Output.IncludeFiles.push_back(Desc.FileName);
+		IncludeFiles.merge(CustomIncludeHandler.IncludeFiles);
 
 		ComPtr<IDxcBlob> ReflectionBlob{};
 		ThrowIfFailed(DxcResult->GetOutput(DXC_OUT_REFLECTION, IID_PPV_ARGS(&ReflectionBlob), nullptr));

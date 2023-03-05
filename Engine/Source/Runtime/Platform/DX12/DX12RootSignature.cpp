@@ -44,6 +44,7 @@ namespace Zero
 
 	FDX12RootSignature::~FDX12RootSignature()
 	{
+		Destroy_1();
 	}
 
 	uint32_t FDX12RootSignature::GetNumDescriptors(uint32_t RootIndex)
@@ -99,6 +100,7 @@ namespace Zero
 		m_DescriptorTableBitMask = 0;
 		m_SamplerTableBitMask = 0;
 
+		m_RootSignature.Reset();
 		memset(m_NumDescriptorsPerTable, 0, sizeof(m_NumDescriptorsPerTable));
 
 	}
