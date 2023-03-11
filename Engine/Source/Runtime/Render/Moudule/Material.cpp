@@ -111,13 +111,6 @@ namespace Zero
 		}
 	}
 
-	void FMaterial::SetShader(const std::string& ShaderFile)
-	{
-		Ref<FShader> Shader = TLibrary<FShader>::Fetch(ShaderFile);
-		CORE_ASSERT(Shader != nullptr, "Shader Not Found!")
-		SetShader(Shader);
-	}
-
 	void FMaterial::SetFloat(const std::string& Name, const float& Value)
 	{
 		m_MaterialBuffer->SetFloat(Name, Value);

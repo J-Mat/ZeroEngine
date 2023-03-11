@@ -89,10 +89,9 @@ namespace Zero
 		m_SwapChain->SetVSync(false);
 	}
 
-	Ref<FPipelineStateObject> FDX12Device::CreatePSO(const FPSODescriptor& PSODescriptor)
+	Scope<FPipelineStateObject> FDX12Device::CreatePSO(const FPSODescriptor& PSODescriptor)
 	{
-		auto PSO = CreateRef<FDX12PipelineStateObject>(PSODescriptor);
-		return PSO;
+		return CreateScope<FDX12PipelineStateObject>(PSODescriptor);
 	}
 
 	Ref<FTexture2D> FDX12Device::CreateTexture2D(const std::string& TextureName, const FTextureDesc& Desc)
@@ -130,13 +129,7 @@ namespace Zero
 
 	Ref<FShader> FDX12Device::CreateShader(const FShaderDesc& ShaderDesc)
 	{
-		Ref<FShader> Shader = TLibrary<FShader>::Fetch(ShaderDesc.FileName);
-		if (Shader == nullptr)
-		{
-			Shader = CreateRef<FDX12Shader>(ShaderDesc);
-			TLibrary<FShader>::Push(ShaderDesc.FileName, Shader);
-		}
-		return Shader;
+		return CreateRef<FDX12Shader>(ShaderDesc);
 	}
 
 	Ref<FMesh> FDX12Device::CreateMesh(const std::vector<FMeshData>& MeshDatas, FVertexBufferLayout& Layout)

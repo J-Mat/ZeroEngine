@@ -10,11 +10,9 @@
 
 namespace Zero
 {
-	Ref<FPipelineStateObject> FPSOCache::Fetch(EPipelineState PsoState)
+	FPSOCache::FPSOCache()
 	{
-		auto Iter = m_PsoCache.find(PsoState);
-		CORE_ASSERT(Iter != m_PsoCache.end(), "Can not find PSO State");
-		return Iter->second;
+		m_PsoCache.resize(EPsoID::PSOCount);
 	}
 
 	void FPSOCache::RegisterDefaultPSO()
@@ -23,34 +21,37 @@ namespace Zero
 			FShaderDesc ShaderDesc 
 			{
 				.FileName = "Shader\\ForwardLit.hlsl",
+				.ShaderID = EShaderID::ForwardLit,
 			};
 
 			FPSODescriptor ForwadLitDesc{
 				.PSOType =	EPSOType::PT_Normal
 			};
 
-			ForwadLitDesc.Shader = FShaderCache::Get().CreateShader(EShaderID::ForwardLit, ShaderDesc);
-		 	m_PsoCache[EPipelineState::ForwadLit] = FRenderer::GetDevice()->CreatePSO(ForwadLitDesc);
+			ForwadLitDesc.Shader = FShaderCache::Get().CreateShader(ShaderDesc);
+		 	m_PsoCache[EPsoID::ForwadLit] = FRenderer::GetDevice()->CreatePSO(ForwadLitDesc);
 		}
 
 		{
 			FShaderDesc ShaderDesc 
 			{
 				.FileName = "Shader\\DirectLight.hlsl",
+				.ShaderID = EShaderID::DirectLight
 			};
 			FPSODescriptor DirectLightDesc;
-			DirectLightDesc.Shader = FShaderCache::Get().CreateShader(EShaderID::DirectLight, ShaderDesc);
-		 	m_PsoCache[EPipelineState::DirectLight] = FRenderer::GetDevice()->CreatePSO(DirectLightDesc);
+			DirectLightDesc.Shader = FShaderCache::Get().CreateShader(ShaderDesc);
+		 	m_PsoCache[EPsoID::DirectLight] = FRenderer::GetDevice()->CreatePSO(DirectLightDesc);
 		}
 
 		{
 			FShaderDesc ShaderDesc 
 			{
 				.FileName = "Shader\\PointLight.hlsl",
+				.ShaderID = EShaderID::PointLight
 			};
 			FPSODescriptor PointLightDesc;
-			PointLightDesc.Shader = FShaderCache::Get().CreateShader(EShaderID::PointLight, ShaderDesc);
-		 	m_PsoCache[EPipelineState::PointLight] = FRenderer::GetDevice()->CreatePSO(PointLightDesc);
+			PointLightDesc.Shader = FShaderCache::Get().CreateShader(ShaderDesc);
+		 	m_PsoCache[EPsoID::PointLight] = FRenderer::GetDevice()->CreatePSO(PointLightDesc);
 		}
 	}
 
@@ -59,14 +60,15 @@ namespace Zero
 		FShaderDesc ShaderDesc 
 		{
 			.FileName = "Shader\\Skybox.hlsl",
+			.ShaderID = EShaderID::SkyBox
 		};
 		FPSODescriptor SkyboxPSODesc
 		{
-			.Shader = FShaderCache::Get().CreateShader(EShaderID::SkyBox, ShaderDesc),
+			.Shader = FShaderCache::Get().CreateShader(ShaderDesc),
 			.DepthFunc = EComparisonFunc::LESS_EQUAL,
 			.CullMode = ECullMode::CULL_MODE_FRONT
 		};
-		 m_PsoCache[EPipelineState::Skybox] = FRenderer::GetDevice()->CreatePSO(SkyboxPSODesc);
+		 m_PsoCache[EPsoID::Skybox] = FRenderer::GetDevice()->CreatePSO(SkyboxPSODesc);
 	}
 
 	void FPSOCache::RegisterIBLPSO()
@@ -75,6 +77,7 @@ namespace Zero
 			FShaderDesc IBLIrradianceShaderDesc
 			{
 				.FileName = "Shader\\IBL\\IBLIrradiance.hlsl",
+				.ShaderID = EShaderID::IBLIrradiance,
 				.NumRenderTarget = 1,
 				.Formats = {
 					EResourceFormat::B8G8R8A8_UNORM
@@ -82,17 +85,18 @@ namespace Zero
 			};
 			FPSODescriptor IrradianceMapPSODesc
 			{
-				.Shader = FShaderCache::Get().CreateShader(EShaderID::IBLIrradiance, IBLIrradianceShaderDesc),
+				.Shader = FShaderCache::Get().CreateShader(IBLIrradianceShaderDesc),
 				.bDepthEnable = false,
 				.CullMode = ECullMode::CULL_MODE_FRONT,
 			};
-			m_PsoCache[EPipelineState::IBLIrradiance] = FRenderer::GetDevice()->CreatePSO(IrradianceMapPSODesc);
+			m_PsoCache[EPsoID::IBLIrradiance] = FRenderer::GetDevice()->CreatePSO(IrradianceMapPSODesc);
 		}
 
 		{
 			FShaderDesc PrefilterMapShaderDesc
 			{
 				.FileName = "Shader\\IBL\\IBLPrefilter.hlsl",
+				.ShaderID = EShaderID::IBLPrefilter,
 				.NumRenderTarget = 1,
 				.Formats = {
 					EResourceFormat::B8G8R8A8_UNORM
@@ -100,11 +104,11 @@ namespace Zero
 			};
 			FPSODescriptor PrefilterMapPSODesc
 			{
-				.Shader = FShaderCache::Get().CreateShader(EShaderID::IBLPrefilter, PrefilterMapShaderDesc),
+				.Shader = FShaderCache::Get().CreateShader(PrefilterMapShaderDesc),
 				.bDepthEnable = false,
 				.CullMode = ECullMode::CULL_MODE_FRONT,
 			};
-			m_PsoCache[EPipelineState::IBLPrefilter] = FRenderer::GetDevice()->CreatePSO(PrefilterMapPSODesc);
+			m_PsoCache[EPsoID::IBLPrefilter] = FRenderer::GetDevice()->CreatePSO(PrefilterMapPSODesc);
 		}
 	}
 
@@ -114,25 +118,27 @@ namespace Zero
 			FShaderDesc ShaderDesc
 			{
 				.FileName = "Shader\\Shadow\\DirectLightShadowMap.hlsl",
+				.ShaderID = EShaderID::DirectLightShadowMap,
 			};
 			FPSODescriptor ShadowDesc{
 				.PSOType = EPSOType::PT_Depth,
-				.Shader = FShaderCache::Get().CreateShader(EShaderID::DirectLightShadowMap, ShaderDesc),
+				.Shader = FShaderCache::Get().CreateShader(ShaderDesc),
 			};
-			m_PsoCache[EPipelineState::ShadowMap] = FRenderer::GetDevice()->CreatePSO(ShadowDesc);
+			m_PsoCache[EPsoID::ShadowMap] = FRenderer::GetDevice()->CreatePSO(ShadowDesc);
 		}
 
 		{
 			FShaderDesc ShaderDesc
 			{
 				.FileName = "Shader\\Shadow\\ShadowDebug.hlsl",
+				.ShaderID = EShaderID::ShadowDebug,
 			};
 			FPSODescriptor ShadowDesc
 			{
-				.Shader = FShaderCache::Get().CreateShader(EShaderID::ShadowDebug, ShaderDesc),
+				.Shader = FShaderCache::Get().CreateShader(ShaderDesc),
 				.bDepthEnable = false,
 			};
-			m_PsoCache[EPipelineState::ShadowDebug] = FRenderer::GetDevice()->CreatePSO(ShadowDesc);
+			m_PsoCache[EPsoID::ShadowDebug] = FRenderer::GetDevice()->CreatePSO(ShadowDesc);
 		}
 	}
 
@@ -162,14 +168,29 @@ namespace Zero
 	}
 
 
-	void FPSOCache::OnCreatePso(Ref<FShader> Shader)
+	void FPSOCache::OnReCreatePso(Ref<FShader> Shader)
 	{
-		for (auto [_, Pso] : m_PsoCache)
+		for (uint32_t i = 0; i < m_PsoCache.size();++i)
 		{
-			if (Pso->GetPSODescriptor().Shader->GetDesc().FileName == Shader->GetDesc().FileName)
+			if (!m_PsoCache[i])
 			{
+				continue;
+			}
+			auto& PsoDesc = m_PsoCache[i]->GetPSODescriptor();
+			auto OldShader = PsoDesc.Shader;
+			if (OldShader->GetDesc().ShaderID == Shader->GetDesc().ShaderID)
+			{
+				auto NewPsoDesc = PsoDesc;
+				NewPsoDesc.Shader = Shader;
+				m_PsoCache[i] = FRenderer::GetDevice()->CreatePSO(NewPsoDesc);
+				m_PsoRecreateEvent.Broadcast(i);
 			}
 		}
+	}
+
+	FPipelineStateObject* Zero::FPSOCache::Fetch(uint32_t PsoID)
+	{
+		return m_PsoCache[PsoID].get();
 	}
 
 }

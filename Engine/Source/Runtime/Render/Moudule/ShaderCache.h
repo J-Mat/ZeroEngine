@@ -9,27 +9,13 @@
 
 namespace Zero
 {
-	enum EShaderID : uint8_t
-	{
-		SkyBox,
-		ForwardLit,
-		DirectLight,
-		PointLight,
-		IBLIrradiance,
-		IBLPrefilter,
-		Shadow,
-		ShadowMap,
-		ShadowDebug,
-		DirectLightShadowMap,
-	};
-
-	DEFINITION_MULTICAST_DELEGATE(FShaderRecompiledEvent, void, EShaderID)
+	DEFINITION_MULTICAST_DELEGATE(FShaderRecompiledEvent, void, uint32_t)
 
 	class FShaderCache : public IPublicSingleton<FShaderCache>
 	{
 	public:
 		FShaderCache();
-		Ref<FShader> CreateShader(EShaderID ShaderID, const FShaderDesc& ShaderDesc);
+		Ref<FShader> CreateShader(const FShaderDesc& ShaderDesc);
 
 		FShaderRecompiledEvent& GetShaderRecompiledEvent() { m_ShaderRecompiledEvent; };
 
@@ -37,7 +23,7 @@ namespace Zero
 		void CheckIfShadersHaveChanged();
 	private:
 		FFileWatcher m_FileWatcher;
-		std::map<EShaderID, Ref<FShader>> m_AllShaders;
+		std::vector<Ref<FShader>> m_AllShaders;
 		FShaderRecompiledEvent m_ShaderRecompiledEvent;
 	};
 }

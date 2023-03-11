@@ -40,9 +40,18 @@ namespace Zero
 			{
 				continue;
 			}
-
-			//FRenderGraphContext RenderGraphContexts();
+            //FRenderGraphContext RenderGraphContexts(FDependencyLevel::m_RenderGrpah, *Pass);
 		}
+    }
+
+    uint32_t FRenderGraph::FDependencyLevel::GetSize()
+    {
+        return 0;
+    }
+
+    uint32_t FRenderGraph::FDependencyLevel::GetNonCulledSize() const
+    {
+        return 0;
     }
 
     void FRenderGraph::Build()
@@ -199,6 +208,11 @@ namespace Zero
         
         size_t MaxLevel = *std::max_element(std::begin(Distance), std::end(Distance)) + 1;
         m_DependencyLevels.resize(MaxLevel, FDependencyLevel(*this)); 
+        for (size_t i = 0; i < m_Passes.size(); ++i)
+        {
+            size_t Level = Distance[i];
+            m_DependencyLevels[Level].AddPass(m_Passes[i]);
+        }
     }
 
     void FRenderGraph::CullPasses()

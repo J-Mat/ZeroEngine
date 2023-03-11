@@ -1,6 +1,7 @@
 #pragma once
 #include "Core.h"
 #include "Render/RHI/Mesh.h"
+#include "Render/RenderConfig.h"
 
 namespace Zero
 {
@@ -38,13 +39,17 @@ namespace Zero
 		~FRenderItem();
 		void SetModelMatrix(const ZMath::mat4& Transform);
 		Ref<FMaterial> m_Material = nullptr;
-		Ref<FPipelineStateObject> m_PipelineStateObject = nullptr;
+		uint32_t m_PsoID;
 		Ref<FMesh> m_Mesh = nullptr;
 		FSubMesh m_SubMesh;
 		Ref<IShaderConstantsBuffer> m_PerObjectBuffer = nullptr;
 		ZMath::mat4 m_Transform;
 		void PreRender(FCommandListHandle ComamndListHandle);
 		void Render(FCommandListHandle ComamndListHandle);
-	public:
+		void Reset();
+		
+		FPipelineStateObject*  GetPsoObj();
+	private:
+		FPipelineStateObject* m_PipelineStateObject = nullptr;
 	};
 }

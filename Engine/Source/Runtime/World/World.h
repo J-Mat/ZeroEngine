@@ -26,7 +26,7 @@ namespace Zero
 		void SetDevice(Ref<IDevice> Device) { m_Device = Device; }
 		Ref<FRenderItemPool> GetDIYRenderItemPool() { return m_DIYRenderItemPool; }
 		virtual void Tick();
-		Ref<FRenderItemPool> GetRenderItemPool(uint32_t RenderLayerType);
+		Ref<FRenderItemPool> GetRenderItemPool(ERenderLayer RenderLayerType);
 		static  UWorld* GetCurrentWorld() { return s_CurrentWorld; }
 		static void  SetCurrentWorld(UWorld* World) { s_CurrentWorld = World; }
 		void SetCamera(UCameraActor* Camera) { m_MainCamera = Camera; }
@@ -75,7 +75,7 @@ namespace Zero
 		}		
 		
 		UActor* PickActorByMouse(ZMath::FRay Ray);
-		void PickActorByLayer(float& MinValue, uint32_t RenderLayer, ZMath::FRay ViewRay,  UActor* &PickActor);
+		void PickActorByLayer(float& MinValue, ERenderLayer RenderLayer, ZMath::FRay ViewRay,  UActor* &PickActor);
 		ZMath::vec3 GetRayWorldPos(ZMath::FRay& Ray, float Distance = 2.0f);
 		
 		void SetSceneName(std::string SceneName) { m_SceneName = SceneName; }
@@ -85,7 +85,7 @@ namespace Zero
 		static UWorld* s_CurrentWorld;
 		UCameraActor* m_MainCamera = nullptr;
 		USkyActor* m_SkyActor = nullptr;
-		std::map<uint32_t, Ref<FRenderItemPool>> m_RenderItemPool;
+		std::map<ERenderLayer, Ref<FRenderItemPool>> m_RenderItemPool;
 		Ref<FRenderItemPool> m_DIYRenderItemPool;
 		Ref<IDevice> m_Device;
 		std::vector<UActor*> m_Actors;

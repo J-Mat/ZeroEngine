@@ -9,8 +9,8 @@ namespace Zero
 	USphereMeshActor::USphereMeshActor()
 		: UMeshActor()
 	{
-		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_OPAQUE, EPipelineState::ForwadLit);
-		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_SHADOW, EPipelineState::ShadowMap);
+		m_MeshRenderComponent->AttachRenderLayer(ERenderLayer::Opaque, EPsoID::ForwadLit);
+		m_MeshRenderComponent->AttachRenderLayer(ERenderLayer::Shadow, EPsoID::ShadowMap);
 	}
 
 	USphereMeshActor::USphereMeshActor(float Radius, uint32_t NumSubdivisions)
@@ -18,8 +18,8 @@ namespace Zero
 		, m_Radius(Radius)
 		, m_NumSubdivisions(NumSubdivisions)
 	{
-		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_OPAQUE, EPipelineState::ForwadLit);
-		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_SHADOW, EPipelineState::ShadowMap);
+		m_MeshRenderComponent->AttachRenderLayer(ERenderLayer::Opaque, EPsoID::ForwadLit);
+		m_MeshRenderComponent->AttachRenderLayer(ERenderLayer::Shadow, EPsoID::ShadowMap);
 	}
 	
 

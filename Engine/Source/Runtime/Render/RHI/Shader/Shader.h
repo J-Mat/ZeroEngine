@@ -1,5 +1,6 @@
 #pragma once
 #include "Core.h"
+#include "Render/RenderConfig.h"
 #include "ShaderData.h"
 #include "ShaderBinder.h"
 #include "../Buffer/VertexBuffer.h"
@@ -15,6 +16,7 @@ namespace Zero
 	struct FShaderDesc
 	{
 		std::string FileName;
+		uint32_t ShaderID;
 		bool bUseAlphaBlending = false;
 		FVertexBufferLayout VertexBufferLayout = FVertexBufferLayout::s_DefaultVertexLayout;
 		int32_t NumRenderTarget = 1;

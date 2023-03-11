@@ -7,6 +7,7 @@
 #include "Adapter.h"
 #include "MemoryManage/Descriptor/DescriptorAllocation.h"
 #include "DX12SwapChain.h"
+#include "Render/RHI/PipelineStateObject.h"
 #include "MemoryManage/Resource/ResourceAllocator.h"
 
 
@@ -16,7 +17,6 @@ namespace Zero
 	class FDX12CommandQueue;
 	class FDescriptorAllocator;
 	class FDX12Texture2D;
-	class FPipelineStateObject;
 	struct FPSODescriptor;
 	class FDX12Device : public IDevice, public std::enable_shared_from_this<FDX12Device>
 	{
@@ -107,7 +107,7 @@ namespace Zero
 		FTextureResourceAllocator* GetTextureResourceAllocator() { return m_TextureResourceAllocator.get(); }
 
 	public:
-		virtual Ref<FPipelineStateObject> CreatePSO(const FPSODescriptor& PSODescriptor) override;
+		virtual Scope<FPipelineStateObject> CreatePSO(const FPSODescriptor& PSODescriptor) override;
 		virtual Ref<FTexture2D> CreateTexture2D(const std::string& TextureName, const FTextureDesc& Desc);
 		virtual Ref<FTexture2D> GetOrCreateTexture2D(const std::string& Filename, bool bNeedMipMap = false) override;
 		virtual Ref<FTextureCubemap> GetOrCreateTextureCubemap(FTextureHandle Handles[CUBEMAP_TEXTURE_CNT], std::string TextureCubemapName) override;

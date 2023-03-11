@@ -2,8 +2,14 @@
 
 namespace Zero
 {
+	FPipelineStateObject::FPipelineStateObject()
+		: m_bValid(false)
+		, m_PSODescriptor(FPSODescriptor())
+	{
+	}
 	FPipelineStateObject::FPipelineStateObject(const FPSODescriptor& PSODescriptor)
-		: m_PSODescriptor(PSODescriptor)
+		: m_bValid(true)
+		, m_PSODescriptor(PSODescriptor)
 	{
 		
 	}

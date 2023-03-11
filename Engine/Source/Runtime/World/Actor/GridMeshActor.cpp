@@ -8,8 +8,8 @@ namespace Zero
 	UGridMeshActor::UGridMeshActor()
 		: UMeshActor()
 	{
-		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_OPAQUE, EPipelineState::ForwadLit);
-		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_SHADOW, EPipelineState::ShadowMap);
+		m_MeshRenderComponent->AttachRenderLayer(ERenderLayer::Opaque, EPsoID::ForwadLit);
+		m_MeshRenderComponent->AttachRenderLayer(ERenderLayer::Shadow, EPsoID::ShadowMap);
 	}
 
 	UGridMeshActor::UGridMeshActor(float Width, float Height, uint32_t Rows, uint32_t Cols)
@@ -19,8 +19,8 @@ namespace Zero
 		, m_Rows(Rows)
 		, m_Cols(Cols)
 	{
-		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_OPAQUE, EPipelineState::ForwadLit);
-		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_SHADOW, EPipelineState::ShadowMap);
+		m_MeshRenderComponent->AttachRenderLayer(ERenderLayer::Opaque, EPsoID::ForwadLit);
+		m_MeshRenderComponent->AttachRenderLayer(ERenderLayer::Shadow, EPsoID::ShadowMap);
 	}
 
 	void UGridMeshActor::BuildMesh()

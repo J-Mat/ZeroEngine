@@ -24,8 +24,8 @@ namespace Zero
 		);
 		m_IrradianceMapRenderItem->m_SubMesh = *m_IrradianceMapRenderItem->m_Mesh->begin();
 		m_IrradianceMapRenderItem->m_Material = CreateRef<FMaterial>(false);
-		m_IrradianceMapRenderItem->m_PipelineStateObject = FPSOCache::Get().Fetch(EPipelineState::IBLIrradiance);
-		m_IrradianceMapRenderItem->m_Material->SetShader(m_IrradianceMapRenderItem->m_PipelineStateObject->GetPSODescriptor().Shader);
+		m_IrradianceMapRenderItem->m_PsoID = EPsoID::IBLIrradiance;
+		m_IrradianceMapRenderItem->m_Material->SetShader(m_IrradianceMapRenderItem->GetPsoObj()->GetPSODescriptor().Shader);
 		m_IrradianceMapRenderItem->m_PerObjectBuffer = FConstantsBufferManager::Get().GetPerObjectConstantsBuffer();
 		m_IrradianceMapRenderItem->SetModelMatrix(ZMath::mat4(1.0f));
 
@@ -53,8 +53,8 @@ namespace Zero
 			m_PrefilterMapRenderItem[Mip]->m_Mesh = Mesh;
 			m_PrefilterMapRenderItem[Mip]->m_SubMesh = *m_PrefilterMapRenderItem[Mip]->m_Mesh->begin();
 			m_PrefilterMapRenderItem[Mip]->m_Material = CreateRef<FMaterial>(false);
-			m_PrefilterMapRenderItem[Mip]->m_PipelineStateObject = FPSOCache::Get().Fetch(EPipelineState::IBLPrefilter);
-			m_PrefilterMapRenderItem[Mip]->m_Material->SetShader(m_PrefilterMapRenderItem[Mip]->m_PipelineStateObject->GetPSODescriptor().Shader);
+			m_PrefilterMapRenderItem[Mip]->m_PsoID = EPsoID::IBLPrefilter;
+			m_PrefilterMapRenderItem[Mip]->m_Material->SetShader(m_PrefilterMapRenderItem[Mip]->GetPsoObj()->GetPSODescriptor().Shader);
 			m_PrefilterMapRenderItem[Mip]->m_PerObjectBuffer = FConstantsBufferManager::Get().GetPerObjectConstantsBuffer();
 			m_PrefilterMapRenderItem[Mip]->SetModelMatrix(ZMath::mat4(1.0f));
 		}

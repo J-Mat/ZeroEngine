@@ -265,17 +265,21 @@ namespace Zero
 
 		ComPtr<IDxcBlob> ReflectionBlob{};
 		ThrowIfFailed(DxcResult->GetOutput(DXC_OUT_REFLECTION, IID_PPV_ARGS(&ReflectionBlob), nullptr));
-
-		const DxcBuffer ReflectionBuffer
+		
+		if (ReflectionBlob)
 		{
-			.Ptr = ReflectionBlob->GetBufferPointer(),
-			.Size = ReflectionBlob->GetBufferSize(),
-			.Encoding = 0,
-		};
+			const DxcBuffer ReflectionBuffer
+			{
+				.Ptr = ReflectionBlob->GetBufferPointer(),
+				.Size = ReflectionBlob->GetBufferSize(),
+				.Encoding = 0,
+			};
 
-		DxcUtils->CreateReflection(&ReflectionBuffer, IID_PPV_ARGS(&Output.ShaderReflection));
+			DxcUtils->CreateReflection(&ReflectionBuffer, IID_PPV_ARGS(&Output.ShaderReflection));
 
-		return true;
+			return true;
+		}
+		return false;
 	}
 
 	ComPtr<ID3DBlob> FDX12ShaderCompiler::CompileShader(const std::wstring& Filename, const D3D_SHADER_MACRO* Defines, const std::string& Entrypoint, const std::string& Target)

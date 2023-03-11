@@ -34,6 +34,7 @@ namespace Zero
 	class FPipelineStateObject
 	{
 	public:
+		FPipelineStateObject();
 		FPipelineStateObject(const FPSODescriptor& PSODescriptor);
 		virtual ~FPipelineStateObject() = default;
 		virtual void Bind(FCommandListHandle CommandListHandle) = 0;
@@ -41,7 +42,9 @@ namespace Zero
 		const FPSODescriptor& GetPSODescriptor() const {return m_PSODescriptor;}
 		void SetShader(Ref<FShader> Shader);
 		void OnShaderRecompiled(Ref<FShader> Shader);
+		bool IsValid() { return m_bValid; }
 	protected:
+		bool m_bValid;
 		FPSODescriptor m_PSODescriptor;
 	};
 }

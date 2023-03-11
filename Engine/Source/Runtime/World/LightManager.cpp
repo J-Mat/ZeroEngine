@@ -35,7 +35,7 @@ namespace  Zero
 		for (int32_t i = 0; i < m_DirectLights.size(); ++i)
 		{
 			auto* LightActor = m_DirectLights[i];
-			LightActor->SetParameter("DirectLightIndex", EShaderDataType::Int, &i, RENDERLAYER_LIGHT);
+			LightActor->SetParameter("DirectLightIndex", EShaderDataType::Int, &i, ERenderLayer::Light);
 			UDirectLightComponnet*  DirectLightComponent =  LightActor->GetComponent<UDirectLightComponnet>();
 			UTransformComponent* TransformComponent = LightActor->GetComponent<UTransformComponent>();
 			uint32_t PropertyIndex = 0;
@@ -57,7 +57,7 @@ namespace  Zero
 		for (int32_t i = 0; i < m_PointLights.size(); ++i)
 		{
 			auto* LightActor = m_PointLights[i];
-			LightActor->SetParameter("PointLightIndex", EShaderDataType::Int, &i, RENDERLAYER_LIGHT);
+			LightActor->SetParameter("PointLightIndex", EShaderDataType::Int, &i, ERenderLayer::Light);
 			UPointLightComponnet*  DirectLightComponent =  LightActor->GetComponent<UPointLightComponnet>();
 			UTransformComponent* TransformComponent = LightActor->GetComponent<UTransformComponent>();
 			uint32_t PropertyIndex = 0;

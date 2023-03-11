@@ -2,11 +2,13 @@
 #include "./Shader/Shader.h"
 #include "./Shader/ShaderBinder.h"
 #include "Render/Moudule/Material.h"
+#include "Render/Moudule/PSOCache.h"
 #include "Render/RHI/PipelineStateObject.h"
 
 namespace Zero
 {
 	Ref<FRenderItemPool> FRenderItemPool::s_DIYRenderItemPool = CreateRef<FRenderItemPool>();
+
 
 	void FRenderItemPool::Reset()
 	{
@@ -31,6 +33,7 @@ namespace Zero
 		{
 			Item = CreateRef<FRenderItem>();
 		}
+		Item->Reset();
 		return Item;
 	}
 
@@ -51,6 +54,11 @@ namespace Zero
 	{
 	}
 
+	void FRenderItem::Reset()
+	{
+		m_PipelineStateObject = nullptr;
+	}
+
 	FRenderItem::~FRenderItem()
 	{
 	}
@@ -60,9 +68,20 @@ namespace Zero
 		m_PerObjectBuffer->SetMatrix4x4("Model", Transform);
 	}
 	
+	FPipelineStateObject* FRenderItem::GetPsoObj()
+	{
+		if (!m_PipelineStateObject)
+		{
+			m_PipelineStateObject = FPSOCache::Get().Fetch(m_PsoID);
+		}
+		return m_PipelineStateObject;
+	}
+
 	void FRenderItem::PreRender(FCommandListHandle ComamndListHandle)
 	{
-		m_PipelineStateObject->Bind(ComamndListHandle);
+		auto PsoObj = GetPsoObj();
+		PsoObj->Bind(ComamndListHandle);
+		m_Material->SetShader(PsoObj->GetPSODescriptor().Shader);
 		m_Material->Tick();
 		m_Material->SetPass(ComamndListHandle);
 	}
@@ -85,4 +104,6 @@ namespace Zero
 			m_Mesh->DrawSubMesh(m_SubMesh, ComamndListHandle);
 		}
 	}
+
+
 }

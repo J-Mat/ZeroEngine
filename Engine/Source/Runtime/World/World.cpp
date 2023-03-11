@@ -10,10 +10,10 @@ namespace Zero
 	{
 		SetCurrentWorld(this);
 		m_MainCamera = CreateActor<UCameraActor>();
-		m_RenderItemPool.insert({ RENDERLAYER_OPAQUE, CreateRef<FRenderItemPool>()});
-		m_RenderItemPool.insert({ RENDERLAYER_LIGHT, CreateRef<FRenderItemPool>()});
-		m_RenderItemPool.insert({ RENDERLAYER_SKYBOX, CreateRef<FRenderItemPool>()});
-		m_RenderItemPool.insert({ RENDERLAYER_SHADOW, CreateRef<FRenderItemPool>()});
+		m_RenderItemPool.insert({ ERenderLayer::Opaque, CreateRef<FRenderItemPool>()});
+		m_RenderItemPool.insert({ ERenderLayer::Light, CreateRef<FRenderItemPool>()});
+		m_RenderItemPool.insert({ ERenderLayer::Skybox, CreateRef<FRenderItemPool>()});
+		m_RenderItemPool.insert({ ERenderLayer::Shadow, CreateRef<FRenderItemPool>()});
 		
 		m_DIYRenderItemPool = CreateRef<FRenderItemPool>();
 	}
@@ -37,7 +37,7 @@ namespace Zero
 		}
 	}
 
-	Ref<FRenderItemPool> UWorld::GetRenderItemPool(uint32_t RenderLayerType)
+	Ref<FRenderItemPool> UWorld::GetRenderItemPool(ERenderLayer RenderLayerType)
 	{
 		auto Iter = m_RenderItemPool.find(RenderLayerType);
 		return Iter->second;
@@ -54,7 +54,7 @@ namespace Zero
 		m_Actors.push_back(m_MainCamera);
 	}
 
-	void UWorld::PickActorByLayer(float& MinValue, uint32_t RenderLayer, ZMath::FRay ViewRay, UActor*& PickActor)
+	void UWorld::PickActorByLayer(float& MinValue, ERenderLayer RenderLayer, ZMath::FRay ViewRay, UActor*& PickActor)
 	{
 		const auto& GuidList = m_RenderItemPool[RenderLayer]->GetRenderGuids();
 		for (const auto& Guid : GuidList)
@@ -84,9 +84,9 @@ namespace Zero
 		const auto& ViewMat = m_MainCamera->GetComponent<UCameraComponent>()->GetView();
 		const auto& InvView = ZMath::inverse(ViewMat);
 		ZMath::FRay ViewRay =  Ray.TransformRay(InvView);
-		const auto& GuidList_1 = m_RenderItemPool[RENDERLAYER_OPAQUE]->GetRenderGuids();
-		PickActorByLayer(MinT, RENDERLAYER_OPAQUE, ViewRay,  Result);
-		PickActorByLayer(MinT, RENDERLAYER_LIGHT, ViewRay,  Result);
+		const auto& GuidList_1 = m_RenderItemPool[ERenderLayer::Opaque]->GetRenderGuids();
+		PickActorByLayer(MinT, ERenderLayer::Opaque, ViewRay,  Result);
+		PickActorByLayer(MinT, ERenderLayer::Light, ViewRay,  Result);
 		return Result;
 	}
 	ZMath::vec3 UWorld::GetRayWorldPos(ZMath::FRay& Ray, float Distance)

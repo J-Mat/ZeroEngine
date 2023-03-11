@@ -6,7 +6,6 @@
 #include "Render/RHI/RenderTarget.h"
 #include "World/World.h"
 #include "World/LightManager.h"
-#include "Render/RenderConfig.h"
 #include "Data/Settings/SettingsManager.h"
 #include "Data/Settings/SceneSettings.h"
 #include "Render/Moudule/ImageBasedLighting.h"
@@ -38,7 +37,7 @@ namespace Zero
 	{
 	}
 
-	void FForwardStage::RawRenderLayer(uint32_t RenderLayerType)
+	void FForwardStage::RawRenderLayer(ERenderLayer RenderLayerType)
 	{
 		auto RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool(RenderLayerType);
 		for (Ref<FRenderItem> RenderItem : *RenderItemPool.get())
@@ -50,7 +49,7 @@ namespace Zero
 
 	void FForwardStage::ForwarLitRender()
 	{
-		static auto RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool(RENDERLAYER_OPAQUE);
+		static auto RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool(ERenderLayer::Opaque);
 		static auto LUTTexture2D = TLibrary<FTexture2D>::Fetch(IBL_BRDF_LUT);
 		static std::string ShadowMapID = std::format("{0}_{1}",  RENDER_STAGE_SHADOWMAP,  0);
 		static Ref<FRenderTarget2D> ShadowMapRenderTarget = TLibrary<FRenderTarget2D>::Fetch(ShadowMapID);
@@ -61,8 +60,6 @@ namespace Zero
 		for (Ref<FRenderItem> RenderItem : *RenderItemPool.get())
 		{
 			RenderItem->PreRender(m_CommandListHandle);
-			const auto& PSODesc = RenderItem->m_PipelineStateObject->GetPSODescriptor();
-			const std::string& ShaderName = PSODesc.Shader->GetDesc().FileName;
 			if (m_bGenerateIrradianceMap && !RenderItem->m_Material->IsSetIBL())
 			{
 				RenderItem->m_Material->SetTextureCubemap("IBLIrradianceMap", m_IBLMoudule->GetIrradianceRTCube()->GetColorCubemap());
@@ -98,9 +95,9 @@ namespace Zero
 		m_RenderTarget->Bind(m_CommandListHandle);
 		if (Settings->m_bUseSkyBox)
 		{
-			RawRenderLayer(RENDERLAYER_SKYBOX);
+			RawRenderLayer(ERenderLayer::Skybox);
 		}
-		RawRenderLayer(RENDERLAYER_LIGHT);
+		RawRenderLayer(ERenderLayer::Light);
 		ForwarLitRender();
 		m_RenderTarget->UnBind(m_CommandListHandle);
 	}

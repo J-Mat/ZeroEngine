@@ -8,8 +8,8 @@ namespace Zero
 	UCubeMeshActor::UCubeMeshActor()
 		: UMeshActor()
 	{
-		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_OPAQUE, EPipelineState::ForwadLit);
-		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_SHADOW, EPipelineState::ShadowMap);
+		m_MeshRenderComponent->AttachRenderLayer(ERenderLayer::Opaque, EPsoID::ForwadLit);
+		m_MeshRenderComponent->AttachRenderLayer(ERenderLayer::Shadow, EPsoID::ShadowMap);
 	}
 
 	void UCubeMeshActor::BuildMesh()

@@ -31,7 +31,7 @@ namespace Zero
 		virtual void Flush() = 0;
 		virtual Ref<FSwapChain>  GetSwapChain() { return nullptr; }
 		virtual void CreateSwapChain(HWND hWnd) = 0;
-		virtual Ref<FPipelineStateObject> CreatePSO(const FPSODescriptor& PSODescriptor) = 0;
+		virtual Scope<FPipelineStateObject> CreatePSO(const FPSODescriptor& PSODescriptor) = 0;
 		virtual Ref<FTexture2D> GetOrCreateTexture2D(const std::string& Filename, bool bNeedMipMap = false) = 0;
 		virtual Ref<FTexture2D> CreateTexture2D(const std::string& TextureName, const FTextureDesc& Desc) = 0;
 		virtual Ref<FTextureCubemap> GetOrCreateTextureCubemap(FTextureHandle Handles[CUBEMAP_TEXTURE_CNT], std::string TextureCubemapName) = 0;

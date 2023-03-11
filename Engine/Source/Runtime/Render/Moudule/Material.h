@@ -36,7 +36,6 @@ namespace Zero
 		void SetPass(FCommandListHandle CommandListHanle);
 		void OnDrawCall(FCommandListHandle CommandListHanle);
 		void SetShader(Ref<FShader> Shader);
-		void SetShader(const std::string& ShaderFile);
 		Ref<FShader> GetShader() { return m_Shader; }
 
 		void SetFloat(const std::string& Name, const float& Value);

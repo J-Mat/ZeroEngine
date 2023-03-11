@@ -3,11 +3,14 @@
 
 namespace Zero
 {
-	#define RENDERLAYER_OPAQUE  (1 << 0)
-	#define	RENDERLAYER_TRANSPARENT  (1 << 2)
-	#define RENDERLAYER_LIGHT  (1 << 3)
-	#define	RENDERLAYER_SKYBOX  (1 << 4)
-	#define	RENDERLAYER_SHADOW  (1 << 5)
+	enum class ERenderLayer
+	{
+		 Opaque,
+		 Transparent,
+		 Light,
+		 Skybox,
+		 Shadow,
+	};
 
 	#define RENDER_STAGE_FORWARD "ForwardLit"
 	#define RENDER_STAGE_SHADOWMAP "ShadowMap"
@@ -18,6 +21,8 @@ namespace Zero
 	
 	#define GENERATE_MIP_SHADER "Shader\\Compute\\GenerateMips_CS.hlsl"
 	#define GENERATE_MIP_SHADER_TEST "Shader\\Compute\\Test_CS.hlsl"
+
+
 
 	enum class ERHI
 	{
@@ -77,16 +82,39 @@ namespace Zero
 		float Far;
 	};
 
-	enum class EPipelineState : uint8_t
+	namespace EShaderID
 	{
-		Skybox,
-		ShadowMap,
-		ShadowDebug,
-		ForwadLit,
-		DirectLight,
-		PointLight,
-		GenerateMips,
-		IBLIrradiance,
-		IBLPrefilter,
-	};
+		enum
+		{
+			SkyBox,
+			ForwardLit,
+			DirectLight,
+			PointLight,
+			IBLIrradiance,
+			IBLPrefilter,
+			Shadow,
+			ShadowMap,
+			ShadowDebug,
+			DirectLightShadowMap,
+			ShaderCount,
+		};
+	}
+
+	namespace EPsoID
+	{
+		enum
+		{
+			InvalidPso,
+			Skybox,
+			ShadowMap,
+			ShadowDebug,
+			ForwadLit,
+			DirectLight,
+			PointLight,
+			GenerateMips,
+			IBLIrradiance,
+			IBLPrefilter,
+			PSOCount,
+		};
+	}
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Render/RendererAPI.h"
+#include "Render/RenderConfig.h"
 #include "Render/RHI/PipelineStateObject.h"
 #include "Component.h"
 #include "MeshRenderComponent.reflection.h"
@@ -18,11 +18,10 @@ namespace Zero
 		SM_Test,
 	};
 	
-	class FPipelineStateObject;
 	class FMaterial;
 	struct FRenderLayerInfo
 	{
-		Ref<FPipelineStateObject> PipelineStateObject = nullptr;
+		uint32_t PsoID = EPsoID::InvalidPso;
 		std::vector<Ref<FMaterial>> Materials;
 	};
 
@@ -37,22 +36,23 @@ namespace Zero
 
 		void virtual PostInit() override;
 		void SetEnableMaterial(bool bEnable);
-		std::vector<Ref<FMaterial>>& GetPassMaterials(uint32_t LayerLayer);
+		std::vector<Ref<FMaterial>>& GetPassMaterials(ERenderLayer LayerLayer);
 		void SetSubmeshNum(uint32_t Num);
-		void AttachRenderLayer(int32_t RenderLayer, const EPipelineState& PsoType);
-		void SetParameter(const std::string& ParameterName, EShaderDataType ShaderDataType, void* ValuePtr, uint32_t RenderLayer = RENDERLAYER_OPAQUE);
+		void AttachRenderLayer(ERenderLayer RenderLayer, uint32_t PsoID);
+		void SetParameter(const std::string& ParameterName, EShaderDataType ShaderDataType, void* ValuePtr, ERenderLayer RenderLayer = ERenderLayer::Opaque);
 
-		Ref<FPipelineStateObject> GetPipelineStateObject(uint32_t RenderLayer);
+		uint32_t GetPsoID(ERenderLayer RenderLayer);
+		void  OnRecreatePso(uint32_t PsoID);
 
 		void SetShadingMode(EShadingMode ShadingMode);
 
 		virtual void PostEdit(UProperty* Property) override;
-		void AttachParameters();
+		void AttachParametersToShader();
 		void UpdateSettings();
-		const std::unordered_map<uint32_t, Ref<FRenderLayerInfo>>& GetLayerInfo() { return m_LayerInfo; }
+		const std::unordered_map<ERenderLayer, Ref<FRenderLayerInfo>>& GetLayerInfo() { return m_LayerInfo; }
 	private:
 		Ref<IShaderConstantsBuffer> m_PerObjConstantsBuffer = nullptr;
-		std::unordered_map<uint32_t, Ref<FRenderLayerInfo>> m_LayerInfo;
+		std::unordered_map<ERenderLayer, Ref<FRenderLayerInfo>> m_LayerInfo;
 		uint32_t m_SubmeshNum = 0;
 		
 		UPROPERTY(Invisible)

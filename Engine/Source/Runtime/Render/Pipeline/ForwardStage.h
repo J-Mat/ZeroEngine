@@ -2,6 +2,7 @@
 
 #include "Core.h"
 #include "RenderStage.h"
+#include "Render/RenderConfig.h"
 
 
 namespace Zero
@@ -20,7 +21,7 @@ namespace Zero
 		virtual void OnDetach() override;
 		virtual void OnDraw() override;
 	private:
-		void RawRenderLayer(uint32_t RenderLayerType);
+		void RawRenderLayer(ERenderLayer RenderLayerType);
 		void ForwarLitRender();
 	private:
 		FCommandListHandle m_CommandListHandle;

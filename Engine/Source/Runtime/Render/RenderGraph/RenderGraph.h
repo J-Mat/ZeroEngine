@@ -23,8 +23,8 @@ namespace Zero
 			void Execute();
 			uint32_t GetSize();
 			uint32_t GetNonCulledSize() const;
-		private:
 			FRenderGraph& m_RenderGrpah;
+		private:
 			std::vector<Ref<FRGPassBase>> m_Passes;
 
 			std::set<FRGTextureID> m_TextureCreates;

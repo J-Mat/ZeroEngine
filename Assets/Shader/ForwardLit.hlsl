@@ -144,7 +144,7 @@ PixelOutput PS(VertexOut Pin)
 	PixelOutput Out;
 	float3 FinalColor = 0.0f;
 	float2 UV = float2(Pin.TexC.x, 1.0f - Pin.TexC.y);
-	float3 Albedo = pow(gDiffuseMap.SampleLevel(gSamAnisotropicWarp, UV, 3).rgb, 2.2f);
+	float3 Albedo = gDiffuseMap.SampleLevel(gSamLinearWarp, UV, MipLevel).rgb;
 	float3 EmissiveColor = pow(gEmissionMap.Sample(gSamAnisotropicWarp, UV).rgb, 2.2f);
 	float Metallic = gMetallicMap.Sample(gSamAnisotropicWarp, UV).r; 
 	float Roughness = gRoughnessMap.Sample(gSamAnisotropicWarp, UV).r;
@@ -154,7 +154,6 @@ PixelOutput PS(VertexOut Pin)
 
 	if (ShadingMode == 0)
 	{
-
 		float3 ViewDir = normalize(ViewPos - Pin.WorldPos.xyz);
 		float3 ReflectDir = reflect(-ViewDir, N);
 		float3 PrefilteredColor  = GetPrefilteredColor(Roughness, ReflectDir);
@@ -174,17 +173,18 @@ PixelOutput PS(VertexOut Pin)
 		
 		float3 Diffuse = NdotL * LightColor;
 
-		float Spec = 0.0f;
+		float3 Spec = 0.0f;
 		float3 ReflectDir = reflect(-V, N);
 		Spec = pow(max(dot(V, ReflectDir), 0.0f), 35.0f) * LightColor;
 
 		float ShadowFactor = CalcShadowFactor(Pin.ShadowPosH);
 		FinalColor =  Ambient + (Diffuse + Spec) * ShadowFactor * Albedo;
 		//FinalColor =  float3(ShadowFactor, ShadowFactor, ShadowFactor); //Ambient + (Diffuse + Spec) * ShadowFactor * Albedo;
+		//FinalColor = Albedo;
 	}
 
     // gamma correct
-    FinalColor = pow(FinalColor, 1.0f/2.2f); 
+    FinalColor = pow(FinalColor,    1.0f/2.2f); 
 
 	Out.BaseColor = float4(FinalColor, 1.0f);
 	return Out;

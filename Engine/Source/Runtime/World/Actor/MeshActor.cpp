@@ -24,7 +24,7 @@ namespace Zero
 
 		uint32_t SubMeshNum = m_MeshVertexComponent->m_Mesh->GetSubMeshNum();
 		m_MeshRenderComponent->SetSubmeshNum(SubMeshNum);
-		m_MeshRenderComponent->AttachParameters();
+		m_MeshRenderComponent->AttachParametersToShader();
 		m_MeshRenderComponent->UpdateSettings();
 	}
 
@@ -35,13 +35,13 @@ namespace Zero
 		const auto& LayerInfo = m_MeshRenderComponent->GetLayerInfo();
 		for (const auto Iter : LayerInfo)
 		{
-			uint32_t Layer = Iter.first;
+			ERenderLayer Layer = Iter.first;
 			auto RenderItemPool = m_World->GetRenderItemPool(Layer);
 			uint32_t MaterialIndex = 0;
 			for (FSubMesh& SubMesh : *m_MeshVertexComponent->m_Mesh.get())
 			{
 				Ref<FRenderItem> Item = RenderItemPool->Request();
-				Item->m_PipelineStateObject = Iter.second->PipelineStateObject;
+				Item->m_PsoID = Iter.second->PsoID;
 				Item->m_Mesh = m_MeshVertexComponent->m_Mesh;
 				Item->m_SubMesh = SubMesh;
 				Item->m_PerObjectBuffer = m_MeshRenderComponent->m_PerObjConstantsBuffer;
@@ -65,7 +65,7 @@ namespace Zero
 		return m_MeshVertexComponent->m_Mesh->GetAABB();
 	}
 
-	void UMeshActor::SetParameter(const std::string& ParameterName, EShaderDataType ShaderDataType, void* ValuePtr, uint32_t RenderLayer)
+	void UMeshActor::SetParameter(const std::string& ParameterName, EShaderDataType ShaderDataType, void* ValuePtr, ERenderLayer RenderLayer)
 	{
 		m_MeshRenderComponent->SetParameter(ParameterName, ShaderDataType, ValuePtr, RenderLayer);
 	}

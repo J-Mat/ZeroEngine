@@ -1,6 +1,6 @@
 # ZeroEngine
 
-Renderer based on DX12
+Renderer based on DX12 from zero.
 
 ## Credits
 
@@ -34,7 +34,7 @@ you can modify the objects' properties through DetailPanel  based code reflectio
 
 ![1666530959987](image/README/1666530959987.png)
 
-### Save scnen based dode reflection (using yaml) **2022-10-31**
+### Save scene based dode reflection (using yaml) **2022-10-31**
 
 ![1667201681377](image/README/1667201681377.png)
 
@@ -95,3 +95,15 @@ The framework, the code reflction, the UI design, all of these above are just fo
 I am gonna do research on several shadow algorithms. PCF, PCSS, CSM, VSM etc.
 
 ![1675004204264](image/README/1675004204264.png)
+
+### Framework code restructure 2023-3-11
+
+I stopped developping new features for a long while to restruct the framework.
+
+Actually I've added some cool features to my renderder. 
+
+- Resource managerment based Buddy System.  I managed the resources including textures, upload buffers, default buffers etc.
+- Generate Mips for textures through compute shader. It is such a best way to learn how to use CS!
+- Shader hot fix through dxc. Maybe there are  some bugs.
+
+Render Graph is on the way !

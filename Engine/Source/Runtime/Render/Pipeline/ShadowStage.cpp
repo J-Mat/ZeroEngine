@@ -37,8 +37,8 @@ namespace Zero
 		);
 		m_ShadowMapDebugItem->m_SubMesh = *m_ShadowMapDebugItem->m_Mesh->begin();
 		m_ShadowMapDebugItem->m_Material = CreateRef<FMaterial>(false);
-		m_ShadowMapDebugItem->m_PipelineStateObject = FPSOCache::Get().Fetch(EPipelineState::ShadowDebug);
-		m_ShadowMapDebugItem->m_Material->SetShader(m_ShadowMapDebugItem->m_PipelineStateObject->GetPSODescriptor().Shader);
+		m_ShadowMapDebugItem->m_PsoID = EPsoID::ShadowDebug;
+		m_ShadowMapDebugItem->m_Material->SetShader(m_ShadowMapDebugItem->GetPsoObj()->GetPSODescriptor().Shader);
 	}
 
 	void FShadowStage::RegisterShadowMap()
@@ -82,7 +82,7 @@ namespace Zero
 		{
 			UDirectLightActor* DirectLight = DirectLights[Index];
 			m_ShadowMapRenderTargets[Index]->Bind(CommandListHandle);
-			auto RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool(RENDERLAYER_SHADOW);
+			auto RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool(ERenderLayer::Shadow);
 			UDirectLightComponnet*  DirectLightComponent = DirectLight->GetComponent<UDirectLightComponnet>();
 			for (Ref<FRenderItem> RenderItem : *RenderItemPool.get())
 			{

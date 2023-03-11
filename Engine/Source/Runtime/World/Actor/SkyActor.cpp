@@ -15,7 +15,7 @@ namespace Zero
 		: UMeshActor()
 	{
 		m_bVisibleInEditor = false;
-		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_SKYBOX, EPipelineState::Skybox);
+		m_MeshRenderComponent->AttachRenderLayer(ERenderLayer::Skybox, EPsoID::Skybox);
 		m_MeshRenderComponent->SetEnableMaterial(false);
 	}
 
@@ -34,7 +34,7 @@ namespace Zero
 		uint32_t MaterialIndex = 0;
 		for (FSubMesh& SubMesh : *m_MeshVertexComponent->m_Mesh.get())
 		{
-			Ref<FMaterial> Material = m_MeshRenderComponent->GetPassMaterials(RENDERLAYER_SKYBOX)[MaterialIndex];
+			Ref<FMaterial> Material = m_MeshRenderComponent->GetPassMaterials(ERenderLayer::Skybox)[MaterialIndex];
 			Material->SetTextureCubemap(TextureName, TextureCubeMap);
 			MaterialIndex++;
 		}

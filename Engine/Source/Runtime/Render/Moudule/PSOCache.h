@@ -4,21 +4,28 @@
 #include "Render/RHI/GraphicDevice.h"
 #include "Core/Base/PublicSingleton.h"
 #include "Render/RenderConfig.h"
+#include "Delegate.h"
 
 namespace Zero
 {
+	DEFINITION_MULTICAST_DELEGATE(FPsoRecreateEvent, void, uint32_t)
+
 	class FPSOCache : public IPublicSingleton<FPSOCache>
 	{
 	public:
+		FPSOCache();
 		void RegisterDefaultPSO();
 		void RegisterSkyboxPSO();
 		void RegisterIBLPSO();
 		void RegisterShadowPSO();
 		void RegisterComputeShader();
-		void OnCreatePso(Ref<FShader> Shader);
+		void OnReCreatePso(Ref<FShader> Shader);
 	public:
-		Ref<FPipelineStateObject> Fetch(EPipelineState PsoState);
+		FPsoRecreateEvent& GetPsoRecreateEvent() { return m_PsoRecreateEvent; };
+		FPipelineStateObject* Fetch(uint32_t PsoID);
 	private:
-		std::map<EPipelineState, Ref<FPipelineStateObject>> m_PsoCache{};
+		std::vector<Scope<FPipelineStateObject>> m_PsoCache;
+
+		FPsoRecreateEvent m_PsoRecreateEvent;
 	};
 }

@@ -54,12 +54,10 @@ namespace Zero
 			},
 			[=](FRenderGraphContext& Context, FCommandListHandle CommandListHandle)
 			{
-				static auto RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool(RENDERLAYER_OPAQUE);
+				static auto RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool(ERenderLayer::Opaque);
 				for (Ref<FRenderItem> RenderItem : *RenderItemPool.get())
 				{
 					RenderItem->PreRender(CommandListHandle);
-					const auto& PSODesc = RenderItem->m_PipelineStateObject->GetPSODescriptor();
-					const std::string& ShaderName = PSODesc.Shader->GetDesc().FileName;
 					RenderItem->Render(CommandListHandle);
 				}
 			},

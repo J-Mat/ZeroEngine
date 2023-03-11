@@ -9,7 +9,7 @@ namespace Zero
 		:UMeshActor()
 	{
 		m_LightComponnet = CreateComponent<UDirectLightComponnet>(this);
-		m_MeshRenderComponent->AttachRenderLayer(RENDERLAYER_LIGHT, EPipelineState::DirectLight);
+		m_MeshRenderComponent->AttachRenderLayer(ERenderLayer::Light, EPsoID::DirectLight);
 		m_MeshRenderComponent->SetEnableMaterial(false);
 	}
 

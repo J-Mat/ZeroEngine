@@ -44,7 +44,7 @@ namespace Zero
 		}
 	}
 
-	std::vector<Ref<FMaterial>>& UMeshRenderComponent::GetPassMaterials(uint32_t RenderLayer)
+	std::vector<Ref<FMaterial>>& UMeshRenderComponent::GetPassMaterials(ERenderLayer RenderLayer)
 	{
 		auto& Iter = m_LayerInfo.find(RenderLayer);
 		return Iter->second->Materials;
@@ -55,11 +55,11 @@ namespace Zero
 		m_SubmeshNum = Num;
 		for (auto& Iter : m_LayerInfo)
 		{
-			uint32_t RenderLayer = Iter.first;
+			ERenderLayer RenderLayer = Iter.first;
 			for (size_t i = 0; i < m_SubmeshNum; i++)
 			{
 				Ref<FMaterial> Material;
-				if (RenderLayer == RENDERLAYER_SHADOW)
+				if (RenderLayer == ERenderLayer::Shadow)
 				{
 					Material = CreateRef<FMaterial>(false);
 				}
@@ -67,22 +67,23 @@ namespace Zero
 				{
 					Material = CreateRef<FMaterial>();
 				}
-				Material->SetShader(Iter.second->PipelineStateObject->GetPSODescriptor().Shader);
+				//Material->SetShader(Iter.second->PipelineStateObject->GetPSODescriptor().Shader);
 				Iter.second->Materials.push_back(Material);
 			}
 		}
 		
 	}
 
-	void UMeshRenderComponent::AttachRenderLayer(int32_t RenderLayer, const EPipelineState& PsoType)
+	void UMeshRenderComponent::AttachRenderLayer(ERenderLayer RenderLayer, uint32_t PsoID)
 	{
-		m_RenderLayer |= RenderLayer;
+		m_RenderLayer |= (uint32_t)RenderLayer;
 		Ref<FRenderLayerInfo> RenderLayerInfo = CreateRef<FRenderLayerInfo>();
-		RenderLayerInfo->PipelineStateObject = FPSOCache::Get().Fetch(PsoType);
+		RenderLayerInfo->PsoID = PsoID;
 		m_LayerInfo.insert({ RenderLayer, RenderLayerInfo });
+		FPSOCache::Get().GetPsoRecreateEvent().AddFunction<UMeshRenderComponent>(this, &UMeshRenderComponent::OnRecreatePso);
 	}
 
-	void UMeshRenderComponent::SetParameter(const std::string& ParameterName, EShaderDataType ShaderDataType, void* ValuePtr, uint32_t RenderLayer)
+	void UMeshRenderComponent::SetParameter(const std::string& ParameterName, EShaderDataType ShaderDataType, void* ValuePtr, ERenderLayer RenderLayer)
 	{
 		auto& Iter = m_LayerInfo.find(RenderLayer);
 		if (Iter != m_LayerInfo.end())
@@ -95,10 +96,27 @@ namespace Zero
 		}
 	}
 
-	Ref<FPipelineStateObject> UMeshRenderComponent::GetPipelineStateObject(uint32_t RenderLayer)
+	uint32_t UMeshRenderComponent::GetPsoID(ERenderLayer RenderLayer)
 	{
 		auto& Iter = m_LayerInfo.find(RenderLayer);
-		return Iter->second->PipelineStateObject;
+		return Iter->second->PsoID;
+	}
+
+	void UMeshRenderComponent::OnRecreatePso(uint32_t PsoID)
+	{
+		for (auto& [_, RenderLayerInfo] : m_LayerInfo)
+		{
+			if (PsoID == RenderLayerInfo->PsoID)
+			{ 
+				for (auto Material : RenderLayerInfo->Materials)
+				{
+					auto Pso = FPSOCache::Get().Fetch(PsoID);
+					Material->SetShader(Pso->GetPSODescriptor().Shader);
+				}
+				UpdateSettings();
+				AttachParametersToShader();
+			}
+		}
 	}
 
 	void UMeshRenderComponent::SetShadingMode(EShadingMode ShadingMode)
@@ -112,20 +130,21 @@ namespace Zero
 		Supper::PostEdit(Property);
 		if (Property->GetPropertyName() == "m_MaterialHandle")
 		{
-			AttachParameters();
+			AttachParametersToShader();
 		}
 
 		if (Property->GetPropertyName() == "m_Floats" || Property->GetPropertyName() == "m_Textures" || Property->GetPropertyName() == "m_Colors")
 		{
-			AttachParameters();
+			AttachParametersToShader();
 		}
 		if (Property->GetPropertyName() == "m_ShadingMode")
 		{
 			m_PerObjConstantsBuffer->SetInt("ShadingMode", m_ShadingMode);
+			AttachParametersToShader();
 		}
 	}
 
-	void UMeshRenderComponent::AttachParameters()
+	void UMeshRenderComponent::AttachParametersToShader()
 	{
 		if (!m_bEnableMaterial)
 		{
@@ -135,7 +154,7 @@ namespace Zero
 		{
 		}
 		{
-			auto& OpaqueLayer = m_LayerInfo.find(RENDERLAYER_OPAQUE);
+			auto& OpaqueLayer = m_LayerInfo.find(ERenderLayer::Opaque);
 
 			for (size_t i = 0; i < m_SubmeshNum; i++)
 			{
@@ -167,13 +186,14 @@ namespace Zero
 	}
 	void UMeshRenderComponent::UpdateSettings()
 	{
-		auto& OpaqueLayer = m_LayerInfo.find(RENDERLAYER_OPAQUE);
+		auto& OpaqueLayer = m_LayerInfo.find(ERenderLayer::Opaque);
 		if (OpaqueLayer == m_LayerInfo.end())
 		{
 			return;
 		}
 
-		const FShaderBinderDesc& ShaderBinderDesc = GetPipelineStateObject(RENDERLAYER_OPAQUE)->GetPSODescriptor().Shader->GetBinder()->GetBinderDesc();
+		uint32_t PsoID = GetPsoID(ERenderLayer::Opaque);
+		const FShaderBinderDesc& ShaderBinderDesc = FPSOCache::Get().Fetch(PsoID)->GetPSODescriptor().Shader->GetBinder()->GetBinderDesc();
 		{
 			UProperty* FloatProperty = GetClassCollection().FindProperty("m_Floats");
 			UMapProperty* MapFloatProperty = dynamic_cast<UMapProperty*>(FloatProperty);
@@ -215,6 +235,12 @@ namespace Zero
 						UProperty* ValueProperty = dynamic_cast<UProperty*>(KeyProprety->Next);
 						std::string* KeyPtr = KeyProprety->GetData<std::string>();
 						*KeyPtr = Element.ResourceName;
+						if (auto Iter = m_Textures.find(Element.ResourceName); Iter != m_Textures.end())
+						{
+							FTextureHandle Handle = Iter->second;
+							FTextureHandle* ValuePtr = ValueProperty->GetData<FTextureHandle>();
+							*ValuePtr = Handle;
+						}
 					}
 				}
 				UpdateEditorContainerPropertyDetails(TextureProperty);
