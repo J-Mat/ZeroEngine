@@ -32,6 +32,10 @@ namespace Zero
 			{
 				HeapResourceStates = D3D12_RESOURCE_STATE_GENERIC_READ;
 			}
+			else if (InitData.HeapType == D3D12_HEAP_TYPE_READBACK)
+			{
+				HeapResourceStates = D3D12_RESOURCE_STATE_COPY_DEST;
+			}
 			else //D3D12_HEAP_TYPE_DEFAULT
 			{
 				HeapResourceStates = D3D12_RESOURCE_STATE_COMMON;

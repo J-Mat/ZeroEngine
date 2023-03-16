@@ -54,9 +54,9 @@ namespace Zero
 	class FBuffer
 	{
 	public:
-		FBuffer(void* Data, const FBufferDesc& Desc) :
-			m_Data(Data),
-			m_Desc(Desc)
+		FBuffer(const FBufferDesc& Desc, void* Data) :
+			m_Desc(Desc),
+			m_Data(Data)
 		{}
 
 		FBuffer(std::string BufferName, const FBufferDesc& Desc) :

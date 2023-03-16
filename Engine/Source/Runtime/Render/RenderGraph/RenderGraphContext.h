@@ -68,7 +68,6 @@ namespace Zero
 
 		Ref<FTexture2D> GetTexture(FRGTextureID ResID) const;
 		Ref<FBuffer> GetBuffer(FRGBufferID ResID) const;
-	private:
 		FRenderGraphContext(FRenderGraph& RenderGraph, FRGPassBase& RGPass);
 	private:
 		FRenderGraph& m_RenderGrpah;

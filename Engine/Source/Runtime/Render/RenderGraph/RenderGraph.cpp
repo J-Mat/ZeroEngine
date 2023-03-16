@@ -40,7 +40,10 @@ namespace Zero
 			{
 				continue;
 			}
-            //FRenderGraphContext RenderGraphContexts(FDependencyLevel::m_RenderGrpah, *Pass);
+            FRenderGraphContext RenderGraphContexts(m_RenderGrpah, *Pass);
+            if (Pass->GetPassType() == ERenderPassType::Graphics && !Pass->SkipAutoRenderPassSetup())
+            {
+            }
 		}
     }
 
