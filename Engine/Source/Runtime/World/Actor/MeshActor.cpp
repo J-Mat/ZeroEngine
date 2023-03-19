@@ -30,7 +30,7 @@ namespace Zero
 
 	void UMeshActor::CommitToPipieline()
 	{
-		int32_t RenderLayer = m_MeshRenderComponent->m_RenderLayer;
+		int32_t RenderLayer = m_MeshRenderComponent->GetRenderLayer();
 		
 		const auto& LayerInfo = m_MeshRenderComponent->GetLayerInfo();
 		for (const auto Iter : LayerInfo)
@@ -44,7 +44,7 @@ namespace Zero
 				Item->m_PsoID = Iter.second->PsoID;
 				Item->m_Mesh = m_MeshVertexComponent->m_Mesh;
 				Item->m_SubMesh = SubMesh;
-				Item->m_PerObjectBuffer = m_MeshRenderComponent->m_PerObjConstantsBuffer;
+				Item->m_PerObjectBuffer = m_MeshRenderComponent->GetAndPreDraCallPerObjConstanBuffer();
 				Item->m_Material = Iter.second->Materials[MaterialIndex];
 				Item->SetModelMatrix(m_TransformationComponent->GetTransform());
 				MaterialIndex++;

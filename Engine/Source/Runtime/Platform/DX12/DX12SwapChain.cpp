@@ -144,9 +144,9 @@ namespace Zero
 	UINT FDX12SwapChain::Present(Ref<FTexture2D> Texture)
 	{
 		auto CommandListHandle = FDX12Device::Get()->GetSingleThreadCommadList();
-		auto CommandList = FDX12Device::Get()->GetCommanList(CommandListHandle);
+		auto CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
 		
-		Ref<FDX12Texture2D> BufferBuffer = m_BackBufferTextures[m_CurrentBackBufferIndex];
+		Ref<FDX12Texture2D> BackBuffer = m_BackBufferTextures[m_CurrentBackBufferIndex];
 		
 		/*
 		if (Texture)
@@ -162,7 +162,7 @@ namespace Zero
 		}
 		*/
 	
-		CommandList->TransitionBarrier(BufferBuffer->GetResource()->GetD3DResource(), D3D12_RESOURCE_STATE_PRESENT);
+		CommandList->TransitionBarrier(BackBuffer->GetResource()->GetD3DResource(), D3D12_RESOURCE_STATE_PRESENT);
 		m_CommandQueue.ExecuteCommandList(CommandList);
 
 

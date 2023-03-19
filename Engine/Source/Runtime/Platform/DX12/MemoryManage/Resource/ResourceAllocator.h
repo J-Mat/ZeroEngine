@@ -67,7 +67,8 @@ namespace Zero
 
 		std::vector<std::set<uint32_t>> m_FreeBlocks;
 
-		std::vector<FBuddyBlockData> m_DeferredDeletionQueue;
+		using DeleteBlockDataInFrame = std::pair<FBuddyBlockData, uint64_t>;
+		std::deque<DeleteBlockDataInFrame> m_DeferredDeletionQueue;
 
 		Ref<FDX12Resource> m_BackingResource = nullptr;
 

@@ -1,6 +1,7 @@
 #include "ResourceAllocator.h"
 #include "../../DX12Device.h"
-
+#include "Core/Framework/Application.h"
+#include "Core/Base/FrameTimer.h"
 
 namespace Zero
 {
@@ -140,7 +141,16 @@ namespace Zero
 			m_TotalAllocSize += AllocSize;
 
 			//Calculate AlignedOffsetFromResourceBase
-			const uint32_t OffsetFromBaseOfResource = ZMath::AlignArbitrary<uint32_t>(GetAllocOffsetInBytes(Offset), Alignment);
+			const uint32_t OffsetFromBaseOfResource = GetAllocOffsetInBytes(Offset);
+			uint32_t AlignedOffsetFromResourceBase = OffsetFromBaseOfResource;
+			if (Alignment != 0 && OffsetFromBaseOfResource % Alignment != 0)
+			{
+				AlignedOffsetFromResourceBase = ZMath::AlignArbitrary(OffsetFromBaseOfResource, Alignment);
+
+				uint32_t Padding = AlignedOffsetFromResourceBase - OffsetFromBaseOfResource;
+				CORE_ASSERT((Padding + Size) <= AllocSize, "(Padding + Size) <= AllocSize");
+			}
+			CORE_ASSERT((AlignedOffsetFromResourceBase % Alignment) == 0, "(AlignedOffsetFromResourceBase % Alignment) == 0");
 			
 			ResourceLocation.SetType(FResourceLocation::EResourceLocationType::SubAllocation);
 			ResourceLocation.m_BlockData.Order = Order;
@@ -151,17 +161,17 @@ namespace Zero
 			if (m_InitData.AllocationStrategy == EAllocationStrategy::ManualSubAllocation)
 			{
 				ResourceLocation.m_UnderlyingResource = m_BackingResource;
-				ResourceLocation.m_OffsetFromBaseOfResource = OffsetFromBaseOfResource;
-				ResourceLocation.m_GPUVirtualAddress = m_BackingResource->m_GPUVirtualAddress + OffsetFromBaseOfResource;
+				ResourceLocation.m_OffsetFromBaseOfResource = AlignedOffsetFromResourceBase;
+				ResourceLocation.m_GPUVirtualAddress = m_BackingResource->m_GPUVirtualAddress + AlignedOffsetFromResourceBase;
 
 				if (m_InitData.HeapType == D3D12_HEAP_TYPE_UPLOAD)
 				{
-					ResourceLocation.m_MappedAddress = ((uint8_t*)m_BackingResource->m_MappedBaseAddress + OffsetFromBaseOfResource);
+					ResourceLocation.m_MappedAddress = ((uint8_t*)m_BackingResource->m_MappedBaseAddress + AlignedOffsetFromResourceBase);
 				}
 			}
 			else
 			{
-				ResourceLocation.m_OffsetFromBaseOfHeap = OffsetFromBaseOfResource;
+				ResourceLocation.m_OffsetFromBaseOfHeap = AlignedOffsetFromResourceBase;
 			}
 
 			return true;
@@ -203,17 +213,27 @@ namespace Zero
 
 	void FBuddyAllocator::Deallocate(FResourceLocation& ResourceLocation)
 	{
-		m_DeferredDeletionQueue.push_back(ResourceLocation.m_BlockData);
+		uint64_t FrameCount = FApplication::Get().GetFrameTimer()->GetFrameCount();
+		m_DeferredDeletionQueue.push_back({ ResourceLocation.m_BlockData, FrameCount });
 	}
 
 	void FBuddyAllocator::CleanUpAllocations()
 	{
-		for (uint32_t i = 0; i < m_DeferredDeletionQueue.size(); ++i)
-		{
-			FBuddyBlockData& Block = m_DeferredDeletionQueue[i];
-			DeallocateInternal(Block);
+		while (!m_DeferredDeletionQueue.empty())
+		{ 
+			auto Iter = m_DeferredDeletionQueue.front();
+			uint64_t CurrentFrameCount = FApplication::Get().GetFrameTimer()->GetFrameCount();
+			if (Iter.second < CurrentFrameCount)
+			{
+				FBuddyBlockData& Block = Iter.first;
+				DeallocateInternal(Block);
+				m_DeferredDeletionQueue.pop_front();
+			}
+			else
+			{
+				break;
+			}
 		}
-		m_DeferredDeletionQueue.clear();
 	}
 
 	uint32_t FBuddyAllocator::OrderToUnitSize(uint32_t Order) const

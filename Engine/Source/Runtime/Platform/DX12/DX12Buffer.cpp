@@ -26,8 +26,6 @@ namespace Zero
 				.Quality = 0
 			},
 			.Flags = D3D12_RESOURCE_FLAG_NONE,
-
-
 		};
 		if (HasAllFlags(m_Desc.ResourceBindFlag, EResourceBindFlag::UnorderedAccess))
 			ResourceDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
@@ -44,15 +42,28 @@ namespace Zero
 			auto UploadBufferAllocator = FDX12Device::Get()->GetUploadBufferAllocator();
 			UploadBufferAllocator->AllocUploadResource(m_Desc.Size, UPLOAD_RESOURCE_ALIGNMENT, m_ResourceLocation);
 		}
-		else if (Data != nullptr)
+
+		if (Data != nullptr)
 		{
 			FDX12Device::Get()->GetInitWorldCommandList()->CreateAndInitDefaultBuffer(
-				m_Data,
+				Data,
 				m_Desc.Size,
 				DEFAULT_RESOURCE_ALIGNMENT,
 				m_ResourceLocation);
+			/*
+			m_D3DResource = FDX12Device::Get()->GetInitWorldCommandList()->CreateDefaultBuffer(
+				m_Data,
+				m_Desc.Size
+			);
+			*/
 		}
-
 	}
+
+	D3D12_GPU_VIRTUAL_ADDRESS FDX12Buffer::GetGPUAddress()
+	{
+		return m_ResourceLocation.m_GPUVirtualAddress; 
+		//return m_D3DResource->GetGPUVirtualAddress();
+	}
+
 }
 

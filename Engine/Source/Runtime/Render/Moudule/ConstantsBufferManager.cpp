@@ -22,12 +22,13 @@ namespace Zero
 				GlobalConstantsDesc.Mapper.InsertConstant(Element);
 			}
 		}
+		GlobalConstantsDesc.bDynamic = false;
 
 		return GlobalConstantsDesc;
 	}
 
 	FConstantsBufferManager::FConstantsBufferManager()
-		: m_GlobalConstantsBuffer(FRenderer::GraphicFactroy->CreateShaderConstantBuffer(GetGlobalConstantsDesc()))
+		: m_GlobalConstantsBuffer(FRenderer::GraphicFactroy->CreateConstantBuffer(GetGlobalConstantsDesc()))
 	{
 	}
 
@@ -56,7 +57,7 @@ namespace Zero
 		Ref<IShaderConstantsBuffer> Result;
 		if (m_IdleCameraConstantsBuffer.empty())
 		{
-			Result = FRenderer::GraphicFactroy->CreateShaderConstantBuffer(GetPerCameraConstantsDesc());
+			Result = FRenderer::GraphicFactroy->CreateConstantBuffer(GetPerCameraConstantsDesc());
 		}
 		else
 		{
@@ -69,7 +70,7 @@ namespace Zero
 
 	Ref<IShaderConstantsBuffer> FConstantsBufferManager::GetMaterialConstBufferByDesc(Ref<FShaderConstantsDesc> Desc)
 	{
-		return FRenderer::GraphicFactroy->CreateShaderConstantBuffer(*Desc.get());
+		return FRenderer::GraphicFactroy->CreateConstantBuffer(*Desc.get());
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -88,7 +89,7 @@ namespace Zero
 				PerObjectConstantsDesc.Mapper.InsertConstant(Element);
 			}
 		}
-
+		PerObjectConstantsDesc.bDynamic = false;
 		return PerObjectConstantsDesc;
 	}
 	Ref<IShaderConstantsBuffer> FConstantsBufferManager::GetPerObjectConstantsBuffer()
@@ -96,7 +97,7 @@ namespace Zero
 		Ref<IShaderConstantsBuffer> Result;
 		if (m_IdlePerObjectConstantsBuffer.empty())
 		{
-			Result = FRenderer::GraphicFactroy->CreateShaderConstantBuffer(GetPerObjConstantsDesc());
+			Result = FRenderer::GraphicFactroy->CreateConstantBuffer(GetPerObjConstantsDesc());
 		}
 		else
 		{

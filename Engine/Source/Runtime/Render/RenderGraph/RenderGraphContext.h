@@ -1,7 +1,7 @@
 #pragma once
 #include "RenderGraphResourceID.h"
 #include "Render/RHI/Texture.h"
-#include "Render/RhI/Buffer/Buffer.h"
+#include "Render/RhI/Buffer.h"
 
 namespace Zero
 {

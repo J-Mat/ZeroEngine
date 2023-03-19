@@ -17,9 +17,12 @@ namespace Zero
 	struct FMeshData;
 	class FMesh;
 	class FVertexBufferLayout;
+	class FBuffer;
+	struct FBufferDesc;
 	class IDevice 
 	{
 	public:
+		static constexpr UINT BACKBUFFER_COUNT = 3;
 		virtual void Init() = 0;
 		virtual void Resize(uint32_t Width, uint32_t Height) = 0;
 		virtual void BeginFrame() = 0;
@@ -39,6 +42,8 @@ namespace Zero
 		virtual Ref<FShader> CreateShader(const FShaderDesc& ShaderDesc) = 0;
 		virtual Ref<FMesh> CreateMesh(const std::vector<FMeshData>& MeshDatas, FVertexBufferLayout& Layout) = 0;
 		virtual Ref<FMesh> CreateMesh(float* Vertices, uint32_t VertexCount, uint32_t* Indices, uint32_t IndexCount, FVertexBufferLayout& Layout) = 0;
+		virtual Ref<FBuffer> CreateBuffer(const FBufferDesc& Desc) = 0;
+		virtual void BindVertexBuffer(FCommandListHandle Handle, FBuffer* VertexBuffer) = 0;
+		virtual void BindIndexBuffer(FCommandListHandle Handle, FBuffer* IndexBuffer) = 0;
 	};
-
 }

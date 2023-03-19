@@ -11,6 +11,8 @@ namespace Zero
 		float GetTotalTime()const;
 		float GetDeltaTime()const { return (float)m_DeltaTime; }
 		bool IsStoped() { return m_bIsStoped; }
+		__int64 GetFrameCount() { return m_FrameCount; }
+		
 
 		virtual void Reset() = 0;
 		virtual void Start() = 0;

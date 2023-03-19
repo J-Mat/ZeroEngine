@@ -26,7 +26,7 @@ namespace Zero
 
 	void UMeshRenderComponent::PostInit()
 	{
-		m_PerObjConstantsBuffer->SetInt("ShadingMode", m_ShadingMode);
+		//m_PerObjConstantsBuffer->SetInt("ShadingMode", m_ShadingMode);
 	}
 
 	void UMeshRenderComponent::SetEnableMaterial(bool bEnable)
@@ -123,6 +123,13 @@ namespace Zero
 	{
 		m_ShadingMode = ShadingMode;
 		m_PerObjConstantsBuffer->SetInt("ShadingMode", m_ShadingMode);
+	}
+
+	Ref<IShaderConstantsBuffer> UMeshRenderComponent::GetAndPreDraCallPerObjConstanBuffer()
+	{
+		m_PerObjConstantsBuffer->PreDrawCall();
+		m_PerObjConstantsBuffer->SetInt("ShadingMode", m_ShadingMode);
+		return m_PerObjConstantsBuffer;
 	}
 
 	void UMeshRenderComponent::PostEdit(UProperty* Property)

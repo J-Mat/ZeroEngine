@@ -2,7 +2,6 @@
 #include "Core.h"
 #include "Core/Framework/Layer.h"
 #include "Platform/DX12/GUI/DX12GuiLayer.h"
-#include "Platform/DX12/Buffer/DX12VertexBuffer.h"
 #include "Platform/DX12/DX12RenderTargetCube.h"
 #include "Platform/Windows/WinWindow.h"
 #include "Render/RHI/Shader/ShaderBinder.h"
@@ -60,10 +59,9 @@ namespace Zero
 		virtual Ref<IDevice> CreateDevice() = 0;
 		virtual FLayer* CreatGuiLayer() = 0;
 		virtual Ref<FWinWindow> CreatePlatformWindow(const FWindowsConfig& Config) = 0;
-		virtual Ref<IShaderConstantsBuffer> CreateShaderConstantBuffer(FShaderConstantsDesc& Desc) = 0;
+		virtual Ref<IShaderConstantsBuffer> CreateConstantBuffer(FShaderConstantsDesc& Desc) = 0;
 		virtual Ref<IShaderResourcesBuffer> CreateShaderResourceBuffer(FShaderResourcesDesc& Desc, FRootSignature* RootSignature) = 0;
 		virtual Ref<FComputeShader> CreateComputeShader(const FComputeShaderDesc& ComputeShaderDesc) = 0;
-		virtual Ref<FBuffer> CreateBuffer(const std::string& BufferName, const FBufferDesc& Desc) = 0;
 		virtual Ref<FRenderTarget2D> CreateRenderTarget2D(const FRenderTarget2DDesc& Desc) = 0;
 		virtual Ref<FRenderTargetCube> CreateRenderTargetCube(const FRenderTargetCubeDesc& Desc) = 0;
 	};
@@ -90,7 +88,7 @@ namespace Zero
 			return CreateRef<FWinWindow>(Config);
 		}
 
-		virtual Ref<IShaderConstantsBuffer> CreateShaderConstantBuffer(FShaderConstantsDesc& Desc)
+		virtual Ref<IShaderConstantsBuffer> CreateConstantBuffer(FShaderConstantsDesc& Desc)
 		{
 			return CreateRef<FDX12ShaderConstantsBuffer>(Desc);
 		}
@@ -112,11 +110,6 @@ namespace Zero
 			return Shader;
 		}
 
-		virtual Ref<FBuffer> CreateBuffer(const std::string& BufferName, const FBufferDesc& Desc)
-		{
-			Ref<FBuffer> Buffer = CreateRef<FBuffer>(BufferName, Desc);
-			return Buffer;
-		}
 
 		virtual Ref<FRenderTarget2D> CreateRenderTarget2D(const FRenderTarget2DDesc& Desc)
 		{

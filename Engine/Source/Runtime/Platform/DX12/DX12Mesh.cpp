@@ -1,11 +1,8 @@
 #include "DX12Mesh.h"
 #include "Render/RHI/Shader/Shader.h"
 #include "Render/Moudule/MeshGenerator.h"
-#include "Render/RHI/Buffer/VertexBuffer.h"
-#include "Render/RHI/Buffer/IndexBuffer.h"
-#include "Buffer/DX12VertexBuffer.h"
-#include "Buffer/DX12IndexBuffer.h"
 #include "DX12CommandList.h"
+#include "DX12Buffer.h"
 
 namespace Zero
 {
@@ -13,12 +10,12 @@ namespace Zero
 		: FMesh()
 	{
 		auto VectexBufferDesc = FBufferDesc::VertexBufferDesc(VertexCount, Layout.GetStride());
-		m_D3DVertexBuffer = CreateRef<FDX12VertexBuffer>(Vertices, VectexBufferDesc, Layout);
-		m_VertexBuffer = m_D3DVertexBuffer;
+		//m_D3DVertexBuffer = CreateRef<FDX12VertexBuffer>(VectexBufferDesc, Vertices,  Layout);
+		//m_VertexBuffer = m_D3DVertexBuffer;
 
 		auto IndexBufferDesc = FBufferDesc::IndexBufferDesc(IndexCount);
-		m_D3DIndexBuffer = CreateRef<FDX12IndexBuffer>(Indices, IndexBufferDesc);
-		m_IndexBuffer = m_D3DIndexBuffer;
+		//m_D3DIndexBuffer = CreateRef<FDX12IndexBuffer>(IndexBufferDesc, Indices);
+		//m_IndexBuffer = m_D3DIndexBuffer;
 		FSubMesh SubMesh;
 		SubMesh.Index = 0;
 		SubMesh.IndexNumber = IndexCount;
@@ -47,32 +44,42 @@ namespace Zero
 			Indices.insert(Indices.end(), std::begin(MeshData.Indices), std::end(MeshData.Indices));
 		}
 		VertexCount = uint32_t(Vertices.size() * sizeof(float) / Layout.GetStride());
+		IndiceCount = uint32_t(Indices.size());
 		
 		auto VectexBufferDesc = FBufferDesc::VertexBufferDesc(VertexCount, Layout.GetStride());
-		m_D3DVertexBuffer = CreateRef<FDX12VertexBuffer>(Vertices.data(), VectexBufferDesc, Layout);
-		m_VertexBuffer = m_D3DVertexBuffer;
-		IndiceCount = uint32_t(Indices.size());
 		auto IndexBufferDesc = FBufferDesc::IndexBufferDesc(IndiceCount);
-		m_D3DIndexBuffer = CreateRef<FDX12IndexBuffer>(Indices.data(), IndexBufferDesc);
-		m_IndexBuffer = m_D3DIndexBuffer;
+		m_IndexBuffer = CreateRef<FDX12Buffer>(IndexBufferDesc, Indices.data());
+		m_VertexBuffer = CreateRef<FDX12Buffer>(VectexBufferDesc, Vertices.data());
+
+		m_VBView.BufferLocation = m_VertexBuffer->GetGPUAddress();
+		m_VBView.SizeInBytes = static_cast<UINT>(m_VertexBuffer->GetDesc().Size);
+		m_VBView.StrideInBytes = static_cast<UINT>(m_VertexBuffer->GetDesc().Stride);
+
+		m_IBView.BufferLocation = m_IndexBuffer->GetGPUAddress();
+		m_IBView.Format = FDX12Utils::ConvertResourceFormat(m_IndexBuffer->GetDesc().Format);
+		m_IBView.SizeInBytes = m_IndexBuffer->GetDesc().Size;
+
+		//m_D3DIndexBuffer = CreateRef<FDX12IndexBuffer>(IndexBufferDesc, Indices.data() );
+		//m_D3DVertexBuffer = CreateRef<FDX12VertexBuffer>(VectexBufferDesc, Vertices.data(),  Layout);
 	}
 
 	void FDX12Mesh::Draw(FCommandListHandle CommandListHandle)
 	{
-		Ref<FDX12CommandList> CommandList = FDX12Device::Get()->GetCommanList(CommandListHandle);
+		CORE_ASSERT(false, "false");
+		Ref<FDX12CommandList> CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
 		auto D3DCommandList = CommandList->GetD3D12CommandList();
-		D3DCommandList->IASetVertexBuffers(0, 1, &(m_D3DVertexBuffer->GetVertexBufferView()));
-		D3DCommandList->IASetIndexBuffer(&(m_D3DIndexBuffer->GetIndexBufferView()));
+		//D3DCommandList->IASetVertexBuffers(0, 1, &(m_D3DVertexBuffer->GetVertexBufferView()));
+		//D3DCommandList->IASetIndexBuffer(&(m_D3DIndexBuffer->GetIndexBufferView()));
 		D3DCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		D3DCommandList->DrawIndexedInstanced(m_D3DIndexBuffer->GetIndexCount(), 1, 0, 0, 0);
+		//D3DCommandList->DrawIndexedInstanced(m_D3DIndexBuffer->GetIndexCount(), 1, 0, 0, 0);
 	}
 
 	void FDX12Mesh::DrawSubMesh(FSubMesh& SubMesh, FCommandListHandle CommandListHandle)
 	{
-		Ref<FDX12CommandList> CommandList = FDX12Device::Get()->GetCommanList(CommandListHandle);
+		Ref<FDX12CommandList> CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
 		auto D3DCommandList = CommandList->GetD3D12CommandList();
-		D3DCommandList->IASetVertexBuffers(0, 1, &(m_D3DVertexBuffer->GetVertexBufferView()));
-		D3DCommandList->IASetIndexBuffer(&(m_D3DIndexBuffer->GetIndexBufferView()));
+		FDX12Device::Get()->BindVertexBuffer(CommandListHandle, m_VertexBuffer.get());
+		FDX12Device::Get()->BindIndexBuffer(CommandListHandle, m_IndexBuffer.get());
 		D3DCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		D3DCommandList->DrawIndexedInstanced(SubMesh.IndexNumber, 1, SubMesh.IndexLocation, SubMesh.VertexLocation, 0);
 		//D3DCommandList->DrawInstanced(m_D3DVertexBuffer->m_VertexCount, 1, 0, 0);

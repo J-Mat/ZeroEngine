@@ -27,6 +27,7 @@ namespace Zero
 		m_IrradianceMapRenderItem->m_PsoID = EPsoID::IBLIrradiance;
 		m_IrradianceMapRenderItem->m_Material->SetShader(m_IrradianceMapRenderItem->GetPsoObj()->GetPSODescriptor().Shader);
 		m_IrradianceMapRenderItem->m_PerObjectBuffer = FConstantsBufferManager::Get().GetPerObjectConstantsBuffer();
+		m_IrradianceMapRenderItem->m_PerObjectBuffer->PreDrawCall();
 		m_IrradianceMapRenderItem->SetModelMatrix(ZMath::mat4(1.0f));
 
 		FRenderTargetCubeDesc IrradianceMapRTCubeDesc =
@@ -56,6 +57,7 @@ namespace Zero
 			m_PrefilterMapRenderItem[Mip]->m_PsoID = EPsoID::IBLPrefilter;
 			m_PrefilterMapRenderItem[Mip]->m_Material->SetShader(m_PrefilterMapRenderItem[Mip]->GetPsoObj()->GetPSODescriptor().Shader);
 			m_PrefilterMapRenderItem[Mip]->m_PerObjectBuffer = FConstantsBufferManager::Get().GetPerObjectConstantsBuffer();
+			m_PrefilterMapRenderItem[Mip]->m_PerObjectBuffer->PreDrawCall();
 			m_PrefilterMapRenderItem[Mip]->SetModelMatrix(ZMath::mat4(1.0f));
 		}
 		uint32_t PrefilterMapSize = 128;

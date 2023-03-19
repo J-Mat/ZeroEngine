@@ -195,10 +195,11 @@ namespace Zero
 		friend class FShader;
 	public:
 		FConstantBufferLayout() {}
-		FConstantBufferLayout(const std::string BufferName, int32_t BindPoint,  const std::initializer_list<FBufferElement>& Elements)
+		FConstantBufferLayout(const std::string BufferName, int32_t BindPoint,  const std::initializer_list<FBufferElement>& Elements, bool bDynamic)
 			: m_BufferName(BufferName)
 			, m_BindPoint(BindPoint)
 			, m_Elements(Elements)
+			, m_bDynamic(bDynamic)
 		{
 			CalculateOffsetsAndStride();
 		}
@@ -210,6 +211,8 @@ namespace Zero
 			return m_BindPoint; 
 		}
 		const std::string& GetBufferName() const { return m_BufferName; }
+		void SetDynamic(bool bDynamic) { m_bDynamic = bDynamic; }
+		bool GetDynamic() { return m_bDynamic; };
 		std::vector<FBufferElement>::iterator begin() { return m_Elements.begin(); }
 		std::vector<FBufferElement>::iterator end() { return m_Elements.end(); }
 
@@ -235,6 +238,7 @@ namespace Zero
 		int32_t m_BindPoint = 0;
 		int32_t m_RegisterSpace = 0;
 		uint32_t m_Stride = 0;
+		bool m_bDynamic = false;
 	};
 
 	struct FTextureTableElement

@@ -14,7 +14,7 @@ namespace Zero
 
 	void FDX12PipelineStateObject::Bind(FCommandListHandle CommandListHandle)
 	{
-		Ref<FDX12CommandList> CommandList = FDX12Device::Get()->GetCommanList(CommandListHandle);
+		Ref<FDX12CommandList> CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
 		CommandList->GetD3D12CommandList()->SetPipelineState(m_D3DPipelineState.Get());
 	}
 

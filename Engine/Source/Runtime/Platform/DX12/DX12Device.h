@@ -9,6 +9,8 @@
 #include "DX12SwapChain.h"
 #include "Render/RHI/PipelineStateObject.h"
 #include "MemoryManage/Resource/ResourceAllocator.h"
+#include "MemoryManage/ConstantBuffer/LinearDynamicAllocator.h"
+#include "Common/D3D12MemAlloc.h"
 
 
 namespace Zero
@@ -77,18 +79,19 @@ namespace Zero
 
 
 		virtual FCommandListHandle GenerateCommanList(ERenderPassType RenderPassType = ERenderPassType::Graphics) override;
-		Ref<FDX12CommandList> GetCommanList(FCommandListHandle Hanle, ERenderPassType RenderPassType = ERenderPassType::Graphics);
+		Ref<FDX12CommandList> GetCommandList(FCommandListHandle Handle, ERenderPassType RenderPassType = ERenderPassType::Graphics);
 		void SetSingleThreadCommandList(FCommandListHandle Handle) { m_SingleThreadCommandListHandle = Handle; }
-		virtual  FCommandListHandle GetSingleThreadCommadList() override { return m_SingleThreadCommandListHandle; } 
+		virtual FCommandListHandle GetSingleThreadCommadList() override { return m_SingleThreadCommandListHandle; } 
 
 		void SetInitWorldCommandList(FCommandListHandle Handle) {  m_InitWorldCommandListHandle = Handle; }
 		void SetMipCommandList(FCommandListHandle Handle) {  m_MipCommandListHandle = Handle; }
 		FCommandListHandle GetInitWorldCommadListHandle() { return m_InitWorldCommandListHandle; };
-		Ref<FDX12CommandList> GetInitWorldCommandList() { return GetCommanList(m_InitWorldCommandListHandle, ERenderPassType::Graphics); }
-		Ref<FDX12CommandList> GetMipCommandList() { return GetCommanList(m_MipCommandListHandle, ERenderPassType::Compute); }
+		Ref<FDX12CommandList> GetInitWorldCommandList() { return GetCommandList(m_InitWorldCommandListHandle, ERenderPassType::Graphics); }
+		Ref<FDX12CommandList> GetMipCommandList() { return GetCommandList(m_MipCommandListHandle, ERenderPassType::Compute); }
 		virtual void PreInitWorld() override;
 		virtual void FlushInitCommandList() override;
 		
+		void ClearBackBuffer();
 
 		virtual void BeginFrame() override;
 		virtual void EndFrame() override;
@@ -106,6 +109,10 @@ namespace Zero
 
 		FTextureResourceAllocator* GetTextureResourceAllocator() { return m_TextureResourceAllocator.get(); }
 
+		FLinearDynamicAllocator* GetLinearDynamicAllocator() { return nullptr; }// m_DynamicAllocators.get(); }
+
+		D3D12MA::Allocator* GetMemAllocator() const;
+
 	public:
 		virtual Scope<FPipelineStateObject> CreatePSO(const FPSODescriptor& PSODescriptor) override;
 		virtual Ref<FTexture2D> CreateTexture2D(const std::string& TextureName, const FTextureDesc& Desc);
@@ -115,6 +122,9 @@ namespace Zero
 		virtual Ref<FShader> CreateShader(const FShaderDesc& ShaderDesc);
 		virtual Ref<FMesh> CreateMesh(const std::vector<FMeshData>& MeshDatas, FVertexBufferLayout& Layout);
 		virtual Ref<FMesh> CreateMesh(float* Vertices, uint32_t VertexCount, uint32_t* Indices, uint32_t IndexCount, FVertexBufferLayout& Layout);
+		virtual Ref<FBuffer> CreateBuffer(const FBufferDesc& Desc) override;
+		virtual void BindVertexBuffer(FCommandListHandle Handle, FBuffer* VertexBuffer) override;
+		virtual void BindIndexBuffer(FCommandListHandle Handle, FBuffer* IndexBuffer) override;
 	private:
 		static FDX12Device* m_Instance;
 		void EnableDebugLayer();
@@ -139,11 +149,15 @@ namespace Zero
 		std::vector<std::vector<Ref<FDX12CommandList>>> m_CommandLists;
 
 
-		std::unique_ptr<FUploadBufferAllocator> m_UploadBufferAllocator = nullptr;
+		Scope<FUploadBufferAllocator> m_UploadBufferAllocator;
 
-		std::unique_ptr<FDefaultBufferAllocator> m_DefaultBufferAllocator = nullptr;
+		Scope<FDefaultBufferAllocator> m_DefaultBufferAllocator;
 
-		std::unique_ptr<FTextureResourceAllocator> m_TextureResourceAllocator = nullptr;
+		Scope<FTextureResourceAllocator> m_TextureResourceAllocator;
+
+		std::vector<Scope<FLinearDynamicAllocator>> m_DynamicAllocators;
+
+		ReleasablePtr<D3D12MA::Allocator> m_MemAllocator = nullptr;
 
 		Ref<FDescriptorAllocator> m_DescriptorAllocators[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
 		

@@ -75,7 +75,7 @@ namespace Zero
 
 	void FDX12RenderTargetCube::SetRenderTarget(uint32_t Index, FCommandListHandle CommandListHandle)
 	{
-		auto  CommandList = FDX12Device::Get()->GetCommanList(CommandListHandle);
+		auto  CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
 		FDX12TextureCubemap* DX12TextureCubemap = static_cast<FDX12TextureCubemap*>(m_TextureColorCubemap.get());
 		D3D12_CPU_DESCRIPTOR_HANDLE RTV = DX12TextureCubemap->GetRenderTargetView(Index);
 		float ClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -85,7 +85,7 @@ namespace Zero
 
 	void FDX12RenderTargetCube::Bind(FCommandListHandle CommandListHandle)
 	{
-		auto  CommandList = FDX12Device::Get()->GetCommanList(CommandListHandle);
+		auto  CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
 		FDX12TextureCubemap* DX12TextureCubemap = static_cast<FDX12TextureCubemap*>(m_TextureColorCubemap.get());
 		CommandList->GetD3D12CommandList()->RSSetViewports(1, &m_ViewPort);
 		CommandList->GetD3D12CommandList()->RSSetScissorRects(1, &m_ScissorRect);
@@ -94,7 +94,7 @@ namespace Zero
 
 	void FDX12RenderTargetCube::UnBind(FCommandListHandle CommandListHandle)
 	{
-		auto  CommandList = FDX12Device::Get()->GetCommanList(CommandListHandle);
+		auto  CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
 		FDX12TextureCubemap* DX12TextureCubemap = static_cast<FDX12TextureCubemap*>(m_TextureColorCubemap.get());
 		CommandList->TransitionBarrier(DX12TextureCubemap->GetD3DResource(), D3D12_RESOURCE_STATE_GENERIC_READ);
 	}

@@ -19,9 +19,10 @@ namespace Zero
     {
         for (int32_t Index = 0; Index < m_ConstantBufferLayouts.size(); ++Index)
         {
-            const FConstantBufferLayout& ConstantBufferLayout = m_ConstantBufferLayouts[Index];
+            FConstantBufferLayout& ConstantBufferLayout = m_ConstantBufferLayouts[Index];
             if (ConstantBufferLayout.GetBufferName() == "cbPerObject")
             {
+                ConstantBufferLayout.SetDynamic(true);
                 m_PerObjIndex = Index;
             }
             else if (ConstantBufferLayout.GetBufferName() == "cbCameraObject")
@@ -34,6 +35,7 @@ namespace Zero
             }
             else if (ConstantBufferLayout.GetBufferName() == "cbMaterial")
             {
+                ConstantBufferLayout.SetDynamic(true);
                 m_MaterialIndex = Index;
             }
         }
@@ -108,6 +110,7 @@ namespace Zero
         {
             m_ShaderConstantDescs[CBIndex] = CreateRef<FShaderConstantsDesc>();
             m_ShaderConstantDescs[CBIndex]->Size = ConstantLayout.GetStride();
+            m_ShaderConstantDescs[CBIndex]->bDynamic = ConstantLayout.GetDynamic();
             for (auto BufferElement : ConstantLayout)
             {
                 m_ConstantsMapper.InsertConstant(BufferElement);

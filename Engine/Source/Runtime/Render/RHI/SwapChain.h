@@ -8,6 +8,7 @@ namespace Zero
 	class FSwapChain
 	{
 	public:
+		static const UINT s_BufferCount = 2;
 		FSwapChain(uint32_t Width = 1, uint32_t Height = 1) 
 			: m_Width(Width), m_Height(Height)
 		{}
@@ -32,11 +33,13 @@ namespace Zero
 		virtual void Reisze(uint32_t width, uint32_t height) {}
 		
 		std::pair<uint32_t, uint32_t> GetSize() { return { m_Width, m_Height }; }
+		uint32_t GetCurrentBufferIndex() { return m_CurrentBackBufferIndex; }
 
 	protected:
 		uint32_t m_Width;
 		uint32_t m_Height;
 		bool m_bFullScreen = false;
 		bool m_bVSync = false;
+		UINT m_CurrentBackBufferIndex = 0;
 	};
 }

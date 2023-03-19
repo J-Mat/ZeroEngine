@@ -34,37 +34,30 @@ namespace Zero
 	{
 	public:
 		friend class FFrameResourcesManager;
-		FFrameResourceBuffer(uint32_t Size);
+		FFrameResourceBuffer(uint32_t Size, bool bDynamic);
+
 		~FFrameResourceBuffer()
 		{
-			delete m_CPUBuffer;
 		}
-		void CopyDataToConstantsBuffer(void* Data, uint32_t Offset, uint32_t Length)
-		{
-			void* Target = (void*)((char*)m_CPUBuffer + Offset);
-			memcpy(Target, Data, Length);
-		}
+		void AllocateDynamicSpace();
+		void CopyDataToConstantsBuffer(void* Data, uint32_t Offset, uint32_t Length);
 
-		void CopyDataFromConstantsBuffer(void* Data, uint32_t Offset, uint32_t Length)
-		{
-			void* ConstBuffer = (void*)((char*)m_CPUBuffer + Offset);
-			memcpy(Data, ConstBuffer, Length);
 
-		}
-		void* GetPtrFromConstantsBuffer(uint32_t Offset)
-		{
-			return (void*)((char*)m_CPUBuffer + Offset);
-		}
+		void CopyDataFromConstantsBuffer(void* Data, uint32_t Offset, uint32_t Length);
+
+		void* GetPtrFromConstantsBuffer(uint32_t Offset);
+
 		D3D12_GPU_VIRTUAL_ADDRESS GetCurrentGPUAddress();
 
-		void* GetBuffer() { return m_CPUBuffer; }
+		void* GetBuffer();
+	
 
 		void UploadCurrentBuffer();
 		uint32_t GetSizeInByte() { return m_SizeByte; }
 	private:
-		std::vector<FUploadBuffer::FAllocation> m_GPUBuffers;
-		void* m_CPUBuffer;
+		std::vector<FUploadBuffer::FAllocation> m_AddressBuffers;
 		uint32_t m_SizeByte;;
+		bool m_bDynamic;
 	};
 
 
@@ -78,6 +71,7 @@ namespace Zero
 		void SetCurrentFence(uint64_t FenceValue);
 		void UseNextFrameResource() { m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_FrameResourcesCount; }
 		uint32_t GetCurrentIndex() { return m_CurrentFrameIndex; }
+		uint32_t GetResourceCount() {return m_FrameResourcesCount; }
 
 
 		template<typename T>
@@ -95,12 +89,12 @@ namespace Zero
 
 		void RegistFrameResource(FFrameResourceBuffer* FrameResourceBuffer)
 		{
-			FrameResourceBuffer->m_CPUBuffer = new byte[FrameResourceBuffer->m_SizeByte];
-			FrameResourceBuffer->m_GPUBuffers.resize(m_FrameResourcesCount);
+			//FrameResourceBuffer->m_CPUBuffer = new byte[FrameResourceBuffer->m_SizeByte];
+			FrameResourceBuffer->m_AddressBuffers.resize(m_FrameResourcesCount);
 			for (uint32_t i = 0; i < m_FrameResourcesCount; ++i)
 			{
 
-				FrameResourceBuffer->m_GPUBuffers[i] = m_UploadBuffers[i]->Allocate(FrameResourceBuffer->m_SizeByte, true);
+				FrameResourceBuffer->m_AddressBuffers[i] = m_UploadBuffers[i]->Allocate(FrameResourceBuffer->m_SizeByte, true);
 			}
 		}
 

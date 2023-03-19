@@ -111,6 +111,7 @@ namespace Zero
 			if (m_Allocator != nullptr)
 			{
 				m_Allocator->Deallocate(*this);
+				m_UnderlyingResource = nullptr;
 			}
 			break;
 		}

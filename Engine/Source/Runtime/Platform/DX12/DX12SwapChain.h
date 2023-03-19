@@ -14,7 +14,6 @@ namespace Zero
 	class FDX12SwapChain : public FSwapChain
 	{
 	public:	 
-		static const UINT s_BufferCount = 2;
 		
 		FDX12SwapChain(HWND hWnd, DXGI_FORMAT RenderTargetFormat = DXGI_FORMAT_R8G8B8A8_UNORM);
 		virtual ~FDX12SwapChain();
@@ -45,7 +44,6 @@ namespace Zero
 		mutable Ref<FDX12RenderTarget2D>  m_RenderTarget;
 
 		// The current backbuffer index of the swap chain.	
-		UINT m_CurrentBackBufferIndex = 0;
 		UINT64 m_FenceValues[s_BufferCount];  // The fence values to wait for before leaving the Present method.
 		
 		// A handle to a waitable object. Used to wait for the swapchain before presenting.

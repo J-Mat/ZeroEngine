@@ -88,6 +88,7 @@ namespace Zero
 	{
 		int32_t Size = -1;
 		FConstantsMapper Mapper;
+		bool bDynamic = false;
 
 		FConstantsMapper::iterator begin() { return Mapper.begin(); }
 		FConstantsMapper::iterator end() { return Mapper.end(); }
@@ -121,7 +122,7 @@ namespace Zero
 
 		virtual void UploadDataIfDirty() = 0;
 		virtual void SetDirty() = 0;
-		virtual void Test() {};
+		virtual void PreDrawCall() {};
 
 	protected:
 		FShaderConstantsDesc& m_Desc;

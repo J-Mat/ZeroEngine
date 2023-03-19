@@ -159,6 +159,25 @@ namespace Zero
 	private:
 		inline static uint32_t m_CurIdx = 0;
 	};
+
+
+	template<typename T>
+	concept Releasable = requires (T t)
+	{
+		{t.Release()};
+	};
+
+	struct ReleaseDeleter
+	{
+		template<Releasable T>
+		void operator()(T* allocation)
+		{
+			allocation->Release();
+		}
+	};
+
+	template<Releasable T>
+	using ReleasablePtr = std::unique_ptr<T, ReleaseDeleter>;
 }
 
 namespace std

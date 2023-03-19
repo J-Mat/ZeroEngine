@@ -66,7 +66,7 @@ namespace Zero
 
 	void FDX12RenderTarget2D::ClearBuffer(FCommandListHandle CommandListHandle)
 	{
-		auto CommandList = FDX12Device::Get()->GetCommanList(CommandListHandle);
+		auto CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
 		for (int i = 0; i < m_ColoTexture.size(); ++i)
 		{ auto* Texture = static_cast<FDX12Texture2D*>(m_ColoTexture[i].Texture.get());
 			if (Texture != nullptr)
@@ -123,7 +123,7 @@ namespace Zero
 
 	void FDX12RenderTarget2D::Bind(FCommandListHandle CommandListHandle, bool bClearBuffer)
 	{
-		auto  CommandList = FDX12Device::Get()->GetCommanList(CommandListHandle);
+		auto  CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
 		CommandList->GetD3D12CommandList()->RSSetViewports(1, &m_ViewPort);
 		CommandList->GetD3D12CommandList()->RSSetScissorRects(1, &m_ScissorRect);
 		if (bClearBuffer)
@@ -173,7 +173,7 @@ namespace Zero
 	{
 		FDX12Device::Get()->GetSwapChain()->SetRenderTarget(CommandListHandle);
 
-		auto  CommandList = FDX12Device::Get()->GetCommanList(CommandListHandle);
+		auto  CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
 		for (int i = 0; i < m_ColoTexture.size(); ++i)
 		{
 			auto* Texture = static_cast<FDX12Texture2D*>(m_ColoTexture[i].Texture.get());
@@ -191,7 +191,7 @@ namespace Zero
 		auto* DepthStencilTexture = static_cast<FDX12Texture2D*>(m_DepthTexture.get());
 		if (DepthStencilTexture != nullptr)
 		{
-			auto  CommandList = FDX12Device::Get()->GetCommanList(CommandListHandle);
+			auto  CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
 			auto Resource = DepthStencilTexture->GetResource();
 			CommandList->TransitionBarrier(Resource->GetD3DResource(), D3D12_RESOURCE_STATE_COMMON);
 		}

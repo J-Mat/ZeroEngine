@@ -20,6 +20,7 @@ namespace Zero
 		m_PrevTime = CurrTime;
 		m_StopTime = 0;
 		m_bIsStoped = false;
+		m_FrameCount = 0;
 	}
 
 	void FWindowsFrameTimer::Start()
@@ -65,6 +66,7 @@ namespace Zero
 		{
 			m_DeltaTime = 0;
 		}
+		++m_FrameCount;
 
 		// Recalculate FPS
 		RefreshFPS();

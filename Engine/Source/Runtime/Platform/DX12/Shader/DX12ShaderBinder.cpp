@@ -39,7 +39,15 @@ namespace Zero
 		: IShaderConstantsBuffer(Desc)
 		, m_ConstantsMapper(Desc.Mapper)
 	{
-		m_ConstantsTableBuffer = CreateRef<FFrameResourceBuffer>(m_Desc.Size);
+		m_ConstantsTableBuffer = CreateRef<FFrameResourceBuffer>(m_Desc.Size, Desc.bDynamic);
+	}
+
+	void FDX12ShaderConstantsBuffer::PreDrawCall()
+	{
+		if (m_Desc.bDynamic)
+		{
+			m_ConstantsTableBuffer->AllocateDynamicSpace();
+		}
 	}
 
 	void FDX12ShaderConstantsBuffer::SetInt(const std::string& Name, int Value)
@@ -127,6 +135,7 @@ namespace Zero
 	}
 
 
+
 	FDX12ShaderBinder::FDX12ShaderBinder(FShaderBinderDesc& Desc)
 	: IShaderBinder(Desc)
 	{
@@ -144,14 +153,14 @@ namespace Zero
 		{
 			FDX12ShaderConstantsBuffer* D3DBuffer = static_cast<FDX12ShaderConstantsBuffer*>(Buffer);
 			D3D12_GPU_VIRTUAL_ADDRESS GPUAddress = D3DBuffer->GetFrameResourceBuffer()->GetCurrentGPUAddress();
-			Ref<FDX12CommandList> CommandList = FDX12Device::Get()->GetCommanList(CommandListHandle);
+			Ref<FDX12CommandList> CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
 			CommandList->GetD3D12CommandList()->SetGraphicsRootConstantBufferView(Slot, GPUAddress);
 		}
 	}
 
 	void FDX12ShaderBinder::Bind(FCommandListHandle CommandListHandle)
 	{
-		Ref<FDX12CommandList> CommandList = FDX12Device::Get()->GetCommanList(CommandListHandle);
+		Ref<FDX12CommandList> CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
 		CommandList->SetGraphicsRootSignature(m_RootSignature);
 	}
 

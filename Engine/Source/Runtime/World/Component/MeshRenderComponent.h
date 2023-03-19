@@ -30,7 +30,6 @@ namespace Zero
 	{
 		GENERATED_BODY()
 	public:
-		friend class UMeshActor;
 		UMeshRenderComponent();
 		virtual ~UMeshRenderComponent();
 
@@ -46,9 +45,11 @@ namespace Zero
 
 		void SetShadingMode(EShadingMode ShadingMode);
 
+		int32_t GetRenderLayer() { return m_RenderLayer;}
 		virtual void PostEdit(UProperty* Property) override;
 		void AttachParametersToShader();
 		void UpdateSettings();
+		Ref<IShaderConstantsBuffer> GetAndPreDraCallPerObjConstanBuffer();
 		const std::unordered_map<ERenderLayer, Ref<FRenderLayerInfo>>& GetLayerInfo() { return m_LayerInfo; }
 	private:
 		Ref<IShaderConstantsBuffer> m_PerObjConstantsBuffer = nullptr;

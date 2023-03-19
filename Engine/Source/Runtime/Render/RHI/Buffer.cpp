@@ -1,8 +1,8 @@
-#include "VertexBuffer.h"
+#include "Buffer.h"
 
 namespace Zero
 {
-	FVertexBufferLayout FVertexBufferLayout::s_DefaultVertexLayout = 
+	FVertexBufferLayout FVertexBufferLayout::s_DefaultVertexLayout =
 	{
 		{ EShaderDataType::Float3, "POSITION" },
 		{ EShaderDataType::Float3, "NORMAL", true },
@@ -10,13 +10,13 @@ namespace Zero
 		{ EShaderDataType::Float2, "TEXCOORD" }
 	};
 
-	FVertexBufferLayout FVertexBufferLayout::s_DebugVertexLayout = 
+	FVertexBufferLayout FVertexBufferLayout::s_DebugVertexLayout =
 	{
 		{ EShaderDataType::Float3, "POSITION" },
 		{ EShaderDataType::Float2, "TEXCOORD" }
 	};
 
-	FVertexBufferLayout FVertexBufferLayout::s_SkyboxVertexLayout = 
+	FVertexBufferLayout FVertexBufferLayout::s_SkyboxVertexLayout =
 	{
 		{ EShaderDataType::Float3, "POSITION" },
 		{ EShaderDataType::Float2, "TEXCOORD" }

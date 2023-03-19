@@ -39,13 +39,14 @@ namespace Zero
 	{
 	}
 
-	void FMaterial::SetPass(FCommandListHandle CommandListHanle)
+	void FMaterial::SetPass(FCommandListHandle CommandListHandle)
 	{
-		m_ShaderBinder->Bind(CommandListHanle);
+		m_ShaderBinder->Bind(CommandListHandle);
 		const auto& BinderDesc = m_ShaderBinder->GetBinderDesc();
 		if (m_MaterialBuffer != nullptr)
 		{
-			m_ShaderBinder->BindConstantsBuffer(CommandListHanle, BinderDesc.m_MaterialIndex, m_MaterialBuffer.get());
+			m_MaterialBuffer->PreDrawCall();
+			m_ShaderBinder->BindConstantsBuffer(CommandListHandle, BinderDesc.m_MaterialIndex, m_MaterialBuffer.get());
 		}
 		if (BinderDesc.m_CameraIndex != Utils::InvalidIndex)
 		{
@@ -58,12 +59,12 @@ namespace Zero
 			{
 				m_CameraBuffer = FConstantsBufferManager::Get().GetCameraConstantBuffer();
 			}
-			m_ShaderBinder->BindConstantsBuffer(CommandListHanle, BinderDesc.m_CameraIndex, m_CameraBuffer.get());
+			m_ShaderBinder->BindConstantsBuffer(CommandListHandle, BinderDesc.m_CameraIndex, m_CameraBuffer.get());
 		}
 		
 		if (BinderDesc.m_GloabalConstantIndex != Utils::InvalidIndex)
 		{
-			m_ShaderBinder->BindConstantsBuffer(CommandListHanle, BinderDesc.m_GloabalConstantIndex, FConstantsBufferManager::Get().GetGlobalConstantBuffer().get());
+			m_ShaderBinder->BindConstantsBuffer(CommandListHandle, BinderDesc.m_GloabalConstantIndex, FConstantsBufferManager::Get().GetGlobalConstantBuffer().get());
 		}
 		//m_Shader->Use();
 	}
@@ -97,6 +98,7 @@ namespace Zero
 				m_MaterialDesc = m_Shader->GetBinder()->GetShaderConstantsDesc(MaterialIndex);
 				if (m_MaterialDesc != nullptr)
 				{
+					m_MaterialDesc->bDynamic = false;
 					m_MaterialBuffer = FConstantsBufferManager::Get().GetMaterialConstBufferByDesc(m_MaterialDesc);
 				}
 			}

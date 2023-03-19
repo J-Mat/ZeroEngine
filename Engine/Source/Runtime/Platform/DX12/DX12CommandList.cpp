@@ -163,6 +163,8 @@ namespace Zero
 			Dst.SubresourceIndex = 0;
 
 			CopyTextureRegion(&Dst, 0, 0, 0, &Src, nullptr);
+
+			UploadResourceLocation.ReleaseResource();
 		}
 	}
 
@@ -870,9 +872,24 @@ namespace Zero
 		
 		Ref<FDX12Resource>	DefaultBuffer = ResourceLocation.m_UnderlyingResource;
 		Ref<FDX12Resource>	UploadBuffer = UploadResourceLocation.m_UnderlyingResource;
-		m_ResourceStateTracker->TransitionResource(DefaultBuffer->GetD3DResource().Get(), D3D12_RESOURCE_STATE_COPY_DEST);
+		TransitionBarrier(DefaultBuffer->GetD3DResource().Get(), D3D12_RESOURCE_STATE_COPY_DEST);
 		CopyBufferRegion(DefaultBuffer->GetD3DResource(), ResourceLocation.m_OffsetFromBaseOfResource,
 			UploadBuffer->GetD3DResource(), UploadResourceLocation.m_OffsetFromBaseOfResource, Size);
+		//UploadResourceLocation.ReleaseResource();
+	}
+
+	void FDX12CommandList::CreateAndInitDefaultBuffer(const void* BufferData, uint32_t Size, ComPtr<ID3D12Resource> Resource)
+	{
+			auto upload_buffer = FDX12Device::Get()->GetLinearDynamicAllocator();
+			FDynamicAllocation upload_alloc = upload_buffer->Allocate(Size);
+			upload_alloc.Update(BufferData, Size);
+			m_ResourceStateTracker->TransitionResource(Resource.Get(), D3D12_RESOURCE_STATE_COPY_DEST);
+			CopyBufferRegion(
+				Resource,
+				0,
+				upload_alloc.UploadBuffer,
+				upload_alloc.Offset,
+				Size);
 	}
 
 	void FDX12CommandList::SetCompute32BitConstants(uint32_t RootParameterIndex, uint32_t NumConstants, const void* Constants)

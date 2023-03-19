@@ -28,8 +28,8 @@ namespace Zero
 		ZMath::FAABB& GetAABB() { return AABB; };
 		void Merge(ZMath::FAABB& Other) { AABB.Merge(Other); };
 	protected:
-		Ref<FVertexBuffer>	m_VertexBuffer;
-		Ref<FIndexBuffer>	m_IndexBuffer;
+		//Ref<FVertexBuffer>	m_VertexBuffer;
+		//Ref<FIndexBuffer>	m_IndexBuffer;
 		std::vector<FSubMesh> m_SubMeshes;
 		ZMath::FAABB AABB;
 	};

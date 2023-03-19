@@ -36,6 +36,7 @@ namespace Zero
 		virtual void SetDirty() { m_bIsDirty = true; }
 		
 		Ref<FFrameResourceBuffer> GetFrameResourceBuffer() { return m_ConstantsTableBuffer; }
+		virtual void PreDrawCall() override;
 
 	private:
 		FConstantsMapper& m_ConstantsMapper;

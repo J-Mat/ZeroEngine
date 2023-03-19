@@ -38,7 +38,7 @@ namespace Zero
 
 		FApplication::Get().PostDraw();
 
-		auto InitComandList = FDX12Device::Get()->GetCommanList(InitWorldCommandListHandle);
+		auto InitComandList = FDX12Device::Get()->GetCommandList(InitWorldCommandListHandle);
 		FDX12Device::Get()->GetCommandQueue(ERenderPassType::Graphics).ExecuteCommandList(InitComandList);
 		auto MipComandList = FDX12Device::Get()->GetMipCommandList();
 		FDX12Device::Get()->GetCommandQueue(ERenderPassType::Compute).ExecuteCommandList(MipComandList);

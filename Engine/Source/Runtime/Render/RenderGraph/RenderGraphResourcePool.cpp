@@ -53,7 +53,7 @@ namespace Zero
 			}
 		}
 		std::string BufferName = std::format("PoolBuffer_{0}", m_BufferPool.size());
-		auto Buffer = FRenderer::GraphicFactroy->CreateBuffer(BufferName, Desc);
+		auto Buffer = FRenderer::GetDevice()->CreateBuffer(Desc);
 		std::pair<FPooledBuffer, bool> Pair = { FPooledBuffer(Buffer, false), false };
 		m_BufferPool.emplace_back(Pair);
 		return Buffer;

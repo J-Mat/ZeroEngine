@@ -40,7 +40,7 @@ namespace  Zero
 	void FDX12GuiLayer::DrawCall()
 	{
 		FCommandListHandle Handle = FDX12Device::Get()->GetSingleThreadCommadList();
-		m_GuiCommandList = FDX12Device::Get()->GetCommanList(Handle);
+		m_GuiCommandList = FDX12Device::Get()->GetCommandList(Handle);
 		ID3D12DescriptorHeap* Heap = FDX12Device::Get()->GetGuiDescHeap().Get();
 		m_GuiCommandList->GetD3D12CommandList()->SetDescriptorHeaps(1, &Heap);
 		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_GuiCommandList->GetD3D12CommandList().Get());

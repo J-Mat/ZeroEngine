@@ -12,7 +12,8 @@ namespace Zero
 		"Invalid",
 		-1,
 		{
-		}
+		},
+		false,
 	};
 
 	FConstantBufferLayout FConstantBufferLayout::s_PerObjectConstants =
@@ -22,7 +23,8 @@ namespace Zero
 		{
 			{EShaderDataType::Mat4, "Model"},
 			{EShaderDataType::Int, "ShadingMode"}
-		}
+		},
+		true
 	};
 
 	FConstantBufferLayout FConstantBufferLayout::s_PerCameraConstants =
@@ -34,7 +36,8 @@ namespace Zero
 			{EShaderDataType::Mat4, "Projection" },
 			{EShaderDataType::Mat4, "ProjectionView" },
 			{EShaderDataType::Float3, "ViewPos" },
-		}
+		},
+		false
 	};
 
 	FConstantBufferLayout FConstantBufferLayout::s_GlobalConstants =
@@ -88,6 +91,7 @@ namespace Zero
 
 			{EShaderDataType::Int,  "DirectLightNum"},
 			{EShaderDataType::Int,  "PointLightNum"},
-		}
+		},
+		false
 	};
 }

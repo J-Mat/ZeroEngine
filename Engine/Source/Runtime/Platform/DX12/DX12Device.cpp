@@ -35,9 +35,21 @@ namespace Zero
 		CheckFeatures();
 		CreateGuiDescHeap();
 
+		D3D12MA::ALLOCATOR_DESC allocator_desc{};
+		allocator_desc.pDevice = m_D3DDevice.Get();
+		allocator_desc.pAdapter = m_Adapter->GetDXGIAdapter().Get();
+		D3D12MA::Allocator* _allocator = nullptr;
+		D3D12MA::CreateAllocator(&allocator_desc, &_allocator);
+		m_MemAllocator.reset(_allocator);
+
 		m_DefaultBufferAllocator = CreateScope<FDefaultBufferAllocator>();
 		m_UploadBufferAllocator = CreateScope<FUploadBufferAllocator>();
 		m_TextureResourceAllocator = CreateScope<FTextureResourceAllocator>();
+
+		for (int i = 0; i < IDevice::BACKBUFFER_COUNT; ++i)
+		{
+			m_DynamicAllocators.push_back(CreateScope<FLinearDynamicAllocator>(50000000));  // 50'000'000
+		}
 
 		PreInitWorld();
 
@@ -87,6 +99,11 @@ namespace Zero
 	{
 		m_SwapChain = CreateRef<FDX12SwapChain>(hWnd);
 		m_SwapChain->SetVSync(false);
+	}
+
+	D3D12MA::Allocator* FDX12Device::GetMemAllocator() const
+	{
+		return m_MemAllocator.get();
 	}
 
 	Scope<FPipelineStateObject> FDX12Device::CreatePSO(const FPSODescriptor& PSODescriptor)
@@ -141,6 +158,30 @@ namespace Zero
 	{
 		return CreateRef<FDX12Mesh>(Vertices, VertexCount, Indices, IndexCount, Layout);
 	}
+
+	Ref<FBuffer> FDX12Device::CreateBuffer(const FBufferDesc& Desc)
+	{
+		return CreateRef<FDX12Buffer>(Desc);
+	}
+
+	void FDX12Device::BindVertexBuffer(FCommandListHandle Handle, FBuffer* VertexBuffer)
+	{
+		D3D12_VERTEX_BUFFER_VIEW VBView{};
+		VBView.BufferLocation = static_cast<FDX12Buffer*>(VertexBuffer)->GetGPUAddress();
+		VBView.SizeInBytes = static_cast<UINT>(VertexBuffer->GetDesc().Size);
+		VBView.StrideInBytes = static_cast<UINT>(VertexBuffer->GetDesc().Stride);
+		GetCommandList(Handle)->GetD3D12CommandList()->IASetVertexBuffers(0, 1, &VBView);
+	}
+
+	void FDX12Device::BindIndexBuffer(FCommandListHandle Handle, FBuffer* IndexBuffer)
+	{
+		D3D12_INDEX_BUFFER_VIEW ib_view{};
+		ib_view.BufferLocation = static_cast<FDX12Buffer*>(IndexBuffer)->GetGPUAddress();
+		ib_view.Format = FDX12Utils::ConvertResourceFormat(IndexBuffer->GetDesc().Format);
+		ib_view.SizeInBytes = IndexBuffer->GetDesc().Size;
+		GetCommandList(Handle)->GetD3D12CommandList()->IASetIndexBuffer(&ib_view);
+	}
+
 
 	Ref<FTextureCubemap> FDX12Device::GetOrCreateTextureCubemap(FTextureHandle Handles[CUBEMAP_TEXTURE_CNT], std::string TextureCubemapName)
 	{
@@ -401,7 +442,7 @@ namespace Zero
 		return Handle;
 	}
 
-	Ref<FDX12CommandList> FDX12Device::GetCommanList(FCommandListHandle Hanle, ERenderPassType RenderPassType)
+	Ref<FDX12CommandList> FDX12Device::GetCommandList(FCommandListHandle Hanle, ERenderPassType RenderPassType)
 	{
 		return m_CommandLists[uint32_t(RenderPassType)][Hanle];
 	}
@@ -414,7 +455,13 @@ namespace Zero
 
 	void FDX12Device::FlushInitCommandList()
 	{
-		m_CommandQueue[ERenderPassType::Graphics]->ExecuteCommandList(GetCommanList(m_InitWorldCommandListHandle));
+		m_CommandQueue[ERenderPassType::Graphics]->ExecuteCommandList(GetCommandList(m_InitWorldCommandListHandle));
+	}
+
+	void FDX12Device::ClearBackBuffer()
+	{
+		uint32_t CurrentBackIndex = m_SwapChain->GetCurrentBufferIndex();
+		m_DynamicAllocators[CurrentBackIndex]->CleanUpAllocations();
 	}
 
 	void FDX12Device::BeginFrame()

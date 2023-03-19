@@ -3,8 +3,8 @@
 #include "Render/RenderConfig.h"
 #include "ShaderData.h"
 #include "ShaderBinder.h"
-#include "../Buffer/VertexBuffer.h"
 #include "../Texture.h"
+#include "../Buffer.h"
 
 namespace Zero
 {
