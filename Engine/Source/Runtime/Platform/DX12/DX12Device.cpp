@@ -11,6 +11,7 @@
 #include "Core/Framework/Library.h"
 #include "Render/Moudule/MeshGenerator.h"
 #include "./Shader/DX12ShaderCompiler.h"
+#include "DX12RenderTargetCube.h"
 #include "ZConfig.h"
 
 
@@ -99,6 +100,11 @@ namespace Zero
 	{
 		m_SwapChain = CreateRef<FDX12SwapChain>(hWnd);
 		m_SwapChain->SetVSync(false);
+	}
+
+	FLinearDynamicAllocator* FDX12Device::GetLinearDynamicAllocator()
+	{
+		return m_DynamicAllocators[m_SwapChain->GetCurrentBufferIndex()].get();
 	}
 
 	D3D12MA::Allocator* FDX12Device::GetMemAllocator() const
@@ -227,6 +233,15 @@ namespace Zero
 		return TextureCubemap;
 	}
 
+	Ref<FRenderTarget2D> FDX12Device::CreateRenderTarget2D(const FRenderTarget2DDesc& Desc)
+	{
+		return CreateRef<FDX12RenderTarget2D>(Desc);
+	}
+
+	Ref<FRenderTargetCube> FDX12Device::CreateRenderTargetCube(const FRenderTargetCubeDesc& Desc)
+	{
+		return CreateRef<FDX12RenderTargetCube>(Desc);
+	}
 
 	void FDX12Device::EnableDebugLayer()
 	{
@@ -458,6 +473,11 @@ namespace Zero
 		m_CommandQueue[ERenderPassType::Graphics]->ExecuteCommandList(GetCommandList(m_InitWorldCommandListHandle));
 	}
 
+	uint64_t FDX12Device::GetCurrentFenceValue()
+	{
+		return m_SwapChain->GetCurrentFenceValue();
+	}
+
 	void FDX12Device::ClearBackBuffer()
 	{
 		uint32_t CurrentBackIndex = m_SwapChain->GetCurrentBufferIndex();
@@ -469,6 +489,8 @@ namespace Zero
 		m_CommandLists[ERenderPassType::Graphics].clear();
 		m_CommandLists[ERenderPassType::Compute].clear();
 		m_CommandLists[ERenderPassType::Copy].clear();
+
+		ClearBackBuffer();
 	}
 
 	void FDX12Device::EndFrame()

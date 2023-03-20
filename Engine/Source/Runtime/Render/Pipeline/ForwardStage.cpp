@@ -21,7 +21,7 @@ namespace Zero
 				EResourceFormat::R8G8B8A8_UNORM,
 			},
 		};
-		m_RenderTarget = FRenderer::GraphicFactroy->CreateRenderTarget2D(Desc);
+		m_RenderTarget = FRenderer::GetDevice()->CreateRenderTarget2D(Desc);
 		TLibrary<FRenderTarget2D>::Push(RENDER_STAGE_FORWARD, m_RenderTarget);
 
 		Ref<FRenderItemPool> RenderItemPool = UWorld::GetCurrentWorld()->GetDIYRenderItemPool();

@@ -30,6 +30,7 @@ namespace Zero
 		virtual const Ref<FRenderTarget2D> GetRenderTarget() override;
 		virtual void SetRenderTarget(FCommandListHandle CommandListHandle) override;
 		virtual UINT Present(Ref<FTexture2D> Texture = nullptr) override;
+		uint64_t GetCurrentFenceValue() { return m_FenceValues[m_CurrentBackBufferIndex]; }
 	
 		
 	private:

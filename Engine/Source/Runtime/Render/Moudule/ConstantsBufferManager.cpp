@@ -89,7 +89,7 @@ namespace Zero
 				PerObjectConstantsDesc.Mapper.InsertConstant(Element);
 			}
 		}
-		PerObjectConstantsDesc.bDynamic = false;
+		PerObjectConstantsDesc.bDynamic = true;
 		return PerObjectConstantsDesc;
 	}
 	Ref<IShaderConstantsBuffer> FConstantsBufferManager::GetPerObjectConstantsBuffer()

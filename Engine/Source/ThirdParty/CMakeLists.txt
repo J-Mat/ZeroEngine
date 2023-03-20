@@ -14,6 +14,12 @@ if(NOT TARGET stb_image)
     NoWarning(stb_image)
 endif()
 
+if(NOT TARGET D3D12MemAlloc)
+	add_subdirectory(D3D12MemAlloc)
+    set_target_properties(D3D12MemAlloc PROPERTIES FOLDER ${ThirdPartyFolder})
+    NoWarning(D3D12MemAlloc)
+endif()
+
 
 if(NOT TARGET tinyxml2)
 	  add_subdirectory(tinyxml2)

@@ -21,8 +21,5 @@ namespace Zero
 	private:
 		Ref<FDX12Buffer> m_VertexBuffer;
 		Ref<FDX12Buffer> m_IndexBuffer;
-
-		D3D12_VERTEX_BUFFER_VIEW m_VBView;
-		D3D12_INDEX_BUFFER_VIEW m_IBView;
 	};
 }

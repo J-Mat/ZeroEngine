@@ -1,7 +1,5 @@
 #include "ResourceAllocator.h"
 #include "../../DX12Device.h"
-#include "Core/Framework/Application.h"
-#include "Core/Base/FrameTimer.h"
 
 namespace Zero
 {
@@ -213,8 +211,8 @@ namespace Zero
 
 	void FBuddyAllocator::Deallocate(FResourceLocation& ResourceLocation)
 	{
-		uint64_t FrameCount = FApplication::Get().GetFrameTimer()->GetFrameCount();
-		m_DeferredDeletionQueue.push_back({ ResourceLocation.m_BlockData, FrameCount });
+		uint64_t FenceValue = FDX12Device::Get()->GetCurrentFenceValue();
+		m_DeferredDeletionQueue.push_back({ ResourceLocation.m_BlockData, FenceValue });
 	}
 
 	void FBuddyAllocator::CleanUpAllocations()
@@ -222,8 +220,8 @@ namespace Zero
 		while (!m_DeferredDeletionQueue.empty())
 		{ 
 			auto Iter = m_DeferredDeletionQueue.front();
-			uint64_t CurrentFrameCount = FApplication::Get().GetFrameTimer()->GetFrameCount();
-			if (Iter.second < CurrentFrameCount)
+			uint64_t FenceValue = FDX12Device::Get()->GetCurrentFenceValue();
+			if (Iter.second + 1 < FenceValue)
 			{
 				FBuddyBlockData& Block = Iter.first;
 				DeallocateInternal(Block);

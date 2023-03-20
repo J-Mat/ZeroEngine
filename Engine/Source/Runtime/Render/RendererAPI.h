@@ -2,7 +2,6 @@
 #include "Core.h"
 #include "Core/Framework/Layer.h"
 #include "Platform/DX12/GUI/DX12GuiLayer.h"
-#include "Platform/DX12/DX12RenderTargetCube.h"
 #include "Platform/Windows/WinWindow.h"
 #include "Render/RHI/Shader/ShaderBinder.h"
 #include "Render/RHI/Shader/Shader.h"
@@ -62,8 +61,6 @@ namespace Zero
 		virtual Ref<IShaderConstantsBuffer> CreateConstantBuffer(FShaderConstantsDesc& Desc) = 0;
 		virtual Ref<IShaderResourcesBuffer> CreateShaderResourceBuffer(FShaderResourcesDesc& Desc, FRootSignature* RootSignature) = 0;
 		virtual Ref<FComputeShader> CreateComputeShader(const FComputeShaderDesc& ComputeShaderDesc) = 0;
-		virtual Ref<FRenderTarget2D> CreateRenderTarget2D(const FRenderTarget2DDesc& Desc) = 0;
-		virtual Ref<FRenderTargetCube> CreateRenderTargetCube(const FRenderTargetCubeDesc& Desc) = 0;
 	};
 	
 
@@ -108,17 +105,6 @@ namespace Zero
 				TLibrary<FComputeShader>::Push(ComputeShaderDesc.ShaderName, Shader);
 			}
 			return Shader;
-		}
-
-
-		virtual Ref<FRenderTarget2D> CreateRenderTarget2D(const FRenderTarget2DDesc& Desc)
-		{
-			return CreateRef<FDX12RenderTarget2D>(Desc);
-		}
-
-		virtual Ref<FRenderTargetCube> CreateRenderTargetCube(const FRenderTargetCubeDesc& Desc)
-		{
-			return CreateRef<FDX12RenderTargetCube>(Desc);
 		}
 	};
 

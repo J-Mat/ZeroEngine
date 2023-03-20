@@ -115,27 +115,32 @@ namespace Zero
 
 	void FMaterial::SetFloat(const std::string& Name, const float& Value)
 	{
-		m_MaterialBuffer->SetFloat(Name, Value);
+		if (m_MaterialBuffer)
+			m_MaterialBuffer->SetFloat(Name, Value);
 	}
 
 	void FMaterial::SetFloatPtr(const std::string& Name, void* Value)
 	{
-		SetFloat(Name, *(float*)Value);
+		if (m_MaterialBuffer)
+			SetFloat(Name, *(float*)Value);
 	}
 
 	void FMaterial::SetInt(const std::string& Name, const int32_t& Value)
 	{
-		m_MaterialBuffer->SetInt(Name, Value);
+		if (m_MaterialBuffer)
+			m_MaterialBuffer->SetInt(Name, Value);
 	}
 
 	void FMaterial::SetIntPtr(const std::string& Name, void* ValueiPtr)
 	{
-		SetInt(Name, *(int32_t*)ValueiPtr);
+		if (m_MaterialBuffer)
+			SetInt(Name, *(int32_t*)ValueiPtr);
 	}
 
 	void FMaterial::SetFloat2(const std::string& Name, const ZMath::vec2& Value)
 	{
-		m_MaterialBuffer->SetFloat2(Name, Value);
+		if (m_MaterialBuffer)
+			m_MaterialBuffer->SetFloat2(Name, Value);
 	}
 
 	void FMaterial::SetFloat3(const std::string& Name, const ZMath::vec3& Value)
@@ -148,17 +153,20 @@ namespace Zero
 
 	void FMaterial::SetFloat4(const std::string& Name, const ZMath::vec4& Value)
 	{
-		m_MaterialBuffer->SetFloat4(Name, Value);
+		if (m_MaterialBuffer)
+			m_MaterialBuffer->SetFloat4(Name, Value);
 	}
 
 	void FMaterial::SetFloat4Ptr(const std::string& Name, void* ValuePtr)
 	{
-		SetFloat4(Name, *(ZMath::vec4*)ValuePtr);
+		if (m_MaterialBuffer)
+			SetFloat4(Name, *(ZMath::vec4*)ValuePtr);
 	}
 
 	void FMaterial::SetMatrix4x4(const std::string& Name, const ZMath::mat4& Value)
 	{
-		m_MaterialBuffer->SetMatrix4x4(Name, Value);
+		if (m_MaterialBuffer)
+			m_MaterialBuffer->SetMatrix4x4(Name, Value);
 	}
 
 	void FMaterial::SetCameraProjectMat(const std::string& Name, const ZMath::mat4& Value)

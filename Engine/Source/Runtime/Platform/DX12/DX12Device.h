@@ -10,7 +10,7 @@
 #include "Render/RHI/PipelineStateObject.h"
 #include "MemoryManage/Resource/ResourceAllocator.h"
 #include "MemoryManage/ConstantBuffer/LinearDynamicAllocator.h"
-#include "Common/D3D12MemAlloc.h"
+#include "D3D12MemAlloc/D3D12MemAlloc.h"
 
 
 namespace Zero
@@ -91,6 +91,7 @@ namespace Zero
 		virtual void PreInitWorld() override;
 		virtual void FlushInitCommandList() override;
 		
+		uint64_t GetCurrentFenceValue();
 		void ClearBackBuffer();
 
 		virtual void BeginFrame() override;
@@ -109,7 +110,7 @@ namespace Zero
 
 		FTextureResourceAllocator* GetTextureResourceAllocator() { return m_TextureResourceAllocator.get(); }
 
-		FLinearDynamicAllocator* GetLinearDynamicAllocator() { return nullptr; }// m_DynamicAllocators.get(); }
+		FLinearDynamicAllocator* GetLinearDynamicAllocator();
 
 		D3D12MA::Allocator* GetMemAllocator() const;
 
@@ -118,6 +119,8 @@ namespace Zero
 		virtual Ref<FTexture2D> CreateTexture2D(const std::string& TextureName, const FTextureDesc& Desc);
 		virtual Ref<FTexture2D> GetOrCreateTexture2D(const std::string& Filename, bool bNeedMipMap = false) override;
 		virtual Ref<FTextureCubemap> GetOrCreateTextureCubemap(FTextureHandle Handles[CUBEMAP_TEXTURE_CNT], std::string TextureCubemapName) override;
+		virtual Ref<FRenderTarget2D> CreateRenderTarget2D(const FRenderTarget2DDesc& Desc) override;
+		virtual Ref<FRenderTargetCube> CreateRenderTargetCube(const FRenderTargetCubeDesc& Desc) override;
 		virtual Ref<FShader> CreateShader(const FShaderBinderDesc& BinderDesc, const FShaderDesc& ShaderDesc);
 		virtual Ref<FShader> CreateShader(const FShaderDesc& ShaderDesc);
 		virtual Ref<FMesh> CreateMesh(const std::vector<FMeshData>& MeshDatas, FVertexBufferLayout& Layout);

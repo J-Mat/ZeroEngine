@@ -20,7 +20,7 @@ namespace Zero
 			},
 			.bNeedDepth = false
 		};
-		m_ShadowMapDebugRenderTarget = FRenderer::GraphicFactroy->CreateRenderTarget2D(Desc);
+		m_ShadowMapDebugRenderTarget = FRenderer::GetDevice()->CreateRenderTarget2D(Desc);
 		TLibrary<FRenderTarget2D>::Push(RENDER_STAGE_SHADOWMAP_DEBUG, m_ShadowMapDebugRenderTarget);
 		Ref<FRenderItemPool> RenderItemPool = UWorld::GetCurrentWorld()->GetDIYRenderItemPool();
 			
@@ -55,7 +55,7 @@ namespace Zero
 				.bNeedDepth = true,
 				.DepthFormat = EResourceFormat::D24_UNORM_S8_UINT 
 			};
-			m_ShadowMapRenderTargets[Index] = FRenderer::GraphicFactroy->CreateRenderTarget2D(Desc);
+			m_ShadowMapRenderTargets[Index] = FRenderer::GetDevice()->CreateRenderTarget2D(Desc);
 			std::string ShadowMapName = std::format("{0}_{1}", RENDER_STAGE_SHADOWMAP, Index);
 			TLibrary<FRenderTarget2D>::Push(ShadowMapName, m_ShadowMapRenderTargets[Index]);
 		}

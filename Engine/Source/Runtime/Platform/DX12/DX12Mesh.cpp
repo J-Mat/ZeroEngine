@@ -50,17 +50,6 @@ namespace Zero
 		auto IndexBufferDesc = FBufferDesc::IndexBufferDesc(IndiceCount);
 		m_IndexBuffer = CreateRef<FDX12Buffer>(IndexBufferDesc, Indices.data());
 		m_VertexBuffer = CreateRef<FDX12Buffer>(VectexBufferDesc, Vertices.data());
-
-		m_VBView.BufferLocation = m_VertexBuffer->GetGPUAddress();
-		m_VBView.SizeInBytes = static_cast<UINT>(m_VertexBuffer->GetDesc().Size);
-		m_VBView.StrideInBytes = static_cast<UINT>(m_VertexBuffer->GetDesc().Stride);
-
-		m_IBView.BufferLocation = m_IndexBuffer->GetGPUAddress();
-		m_IBView.Format = FDX12Utils::ConvertResourceFormat(m_IndexBuffer->GetDesc().Format);
-		m_IBView.SizeInBytes = m_IndexBuffer->GetDesc().Size;
-
-		//m_D3DIndexBuffer = CreateRef<FDX12IndexBuffer>(IndexBufferDesc, Indices.data() );
-		//m_D3DVertexBuffer = CreateRef<FDX12VertexBuffer>(VectexBufferDesc, Vertices.data(),  Layout);
 	}
 
 	void FDX12Mesh::Draw(FCommandListHandle CommandListHandle)

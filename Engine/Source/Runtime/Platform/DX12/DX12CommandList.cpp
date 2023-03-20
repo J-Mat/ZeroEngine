@@ -163,8 +163,6 @@ namespace Zero
 			Dst.SubresourceIndex = 0;
 
 			CopyTextureRegion(&Dst, 0, 0, 0, &Src, nullptr);
-
-			UploadResourceLocation.ReleaseResource();
 		}
 	}
 

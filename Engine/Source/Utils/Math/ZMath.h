@@ -85,7 +85,7 @@ namespace ZMath
     template <typename T>
     inline T AlignUp(T value, size_t alignment)
     {
-        return AlignUpWithMask(value, alignment - 1);
+        return alignment <= 1 ? value : AlignUpWithMask(value, alignment - 1);
     }
 
     template <typename T>

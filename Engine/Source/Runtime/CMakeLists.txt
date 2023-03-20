@@ -20,6 +20,7 @@ target_link_libraries(${ProjectName}
 	PUBLIC imgui
 	PUBLIC ImGuizmo
 	PUBLIC yaml-cpp
+	PUBLIC D3D12MemAlloc
 	PUBLIC Utils
 	PUBLIC headers
 )

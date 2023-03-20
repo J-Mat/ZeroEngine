@@ -35,7 +35,7 @@ namespace Zero
 			.RenderTargetName = "IrradianceMap",
 			.Size = 256,
 		};
-		m_IBLIrradianceMapRTCube = FRenderer::GraphicFactroy->CreateRenderTargetCube(IrradianceMapRTCubeDesc);
+		m_IBLIrradianceMapRTCube = FRenderer::GetDevice()->CreateRenderTargetCube(IrradianceMapRTCubeDesc);
 	}
 
 	void FImageBasedLighting::InitPrefilerMap()
@@ -71,7 +71,7 @@ namespace Zero
 				.RenderTargetName = std::format("PrefilterMap_Mip_{0}", Mip),
 				.Size = PrefilterMapSize,
 			};
-			m_PrefilterEnvMapRTCubes[Mip] = FRenderer::GraphicFactroy->CreateRenderTargetCube(PrefilterMapRTCubeDesc);
+			m_PrefilterEnvMapRTCubes[Mip] = FRenderer::GetDevice()->CreateRenderTargetCube(PrefilterMapRTCubeDesc);
 			m_PrefilterEnvMapTextureCubes[Mip] = m_PrefilterEnvMapRTCubes[Mip]->GetColorCubemap();
 			PrefilterMapSize /= 2;
 		}

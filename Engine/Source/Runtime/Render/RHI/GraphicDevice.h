@@ -19,6 +19,10 @@ namespace Zero
 	class FVertexBufferLayout;
 	class FBuffer;
 	struct FBufferDesc;
+	class FRenderTarget2D;
+	struct FRenderTarget2DDesc;
+	struct FRenderTargetCubeDesc;
+	class FRenderTargetCube;
 	class IDevice 
 	{
 	public:
@@ -45,5 +49,7 @@ namespace Zero
 		virtual Ref<FBuffer> CreateBuffer(const FBufferDesc& Desc) = 0;
 		virtual void BindVertexBuffer(FCommandListHandle Handle, FBuffer* VertexBuffer) = 0;
 		virtual void BindIndexBuffer(FCommandListHandle Handle, FBuffer* IndexBuffer) = 0;
+		virtual Ref<FRenderTarget2D> CreateRenderTarget2D(const FRenderTarget2DDesc& Desc) = 0;
+		virtual Ref<FRenderTargetCube> CreateRenderTargetCube(const FRenderTargetCubeDesc& Desc) = 0;
 	};
 }

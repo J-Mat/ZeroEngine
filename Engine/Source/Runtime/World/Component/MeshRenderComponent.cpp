@@ -35,12 +35,12 @@ namespace Zero
 		if (m_bEnableMaterial)
 		{
 			m_ClassInfoCollection.RemoveField("m_MaterialHandle", "Invisible");
-			m_ClassInfoCollection.RemoveField("m_Psotype", "Invisible");
+			m_ClassInfoCollection.RemoveField("m_ShadingMode", "Invisible");
 		}
 		else
 		{
 			m_ClassInfoCollection.AddField("m_MaterialHandle", "Invisible");
-			m_ClassInfoCollection.AddField("m_Psotype", "Invisible");
+			m_ClassInfoCollection.AddField("m_ShadingMode", "Invisible");
 		}
 	}
 
