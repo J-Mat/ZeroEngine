@@ -13,12 +13,14 @@ namespace Zero
 		FFrameBufferTexturesFormats ColorFormat;
 		bool bNeedDepth = true;
 		EResourceFormat DepthFormat = EResourceFormat::D24_UNORM_S8_UINT;
+		std::strong_ordering operator<=>(FRenderTarget2DDesc const& Other) const = default;
 	};
 
 	struct FColorTexAttachment
 	{
-		Ref<FTexture2D> Texture = nullptr;
+		FTexture2D* Texture = nullptr;
 		uint32_t ViewID = 0;
+		std::optional<FTextureClearValue> ClearValue = std::nullopt;
 	};
 
 	class FRenderTarget2D
@@ -36,16 +38,16 @@ namespace Zero
 		virtual void Bind(FCommandListHandle CommanListHandle, bool bClearBuffer = true) = 0;
 		virtual void UnBind(FCommandListHandle CommandListHandle) = 0;
 		virtual void UnBindDepth(FCommandListHandle CommandListHandle) = 0;
-		virtual void AttachColorTexture(uint32_t AttachmentIndex, Ref<FTexture2D> Texture2D, uint32_t ViewID = 0) = 0;
-		virtual void AttachDepthTexture(Ref<FTexture2D> Texture2D) = 0;
+		virtual void AttachColorTexture(uint32_t AttachmentIndex, FTexture2D* Texture2D, std::optional<FTextureClearValue> ClearValue = std::nullopt, uint32_t ViewID = 0) = 0;
+		virtual void AttachDepthTexture(FTexture2D* Texture2D) = 0;
 
 		virtual void Reset()
 		{
 			m_ColoTexture.clear();
 			m_ColoTexture.resize(7, FColorTexAttachment());
 		}
-		virtual Ref<FTexture2D> GetColorTexture(uint32_t AttachmentIndex) const { return m_ColoTexture[AttachmentIndex].Texture; }
-		virtual Ref<FTexture2D> GetDepthTexture() const { return m_DepthTexture; }
+		virtual FTexture2D* GetColorTexture(uint32_t AttachmentIndex) const { return m_ColoTexture[AttachmentIndex].Texture; }
+		virtual FTexture2D* GetDepthTexture() const { return m_DepthTexture; }
 		
 		virtual void Resize(uint32_t Width, uint32_t Height, uint32_t Depth = 1) = 0;
 		uint32_t GetWidth() { return m_Width; }
@@ -53,7 +55,7 @@ namespace Zero
 		
 	protected:
 		std::vector<FColorTexAttachment> m_ColoTexture;
-		Ref<FTexture2D> m_DepthTexture = nullptr;
+		FTexture2D* m_DepthTexture = nullptr;
 		uint32_t m_Width = 0;
 		uint32_t m_Height = 0;
 	};

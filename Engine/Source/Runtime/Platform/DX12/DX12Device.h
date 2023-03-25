@@ -97,7 +97,7 @@ namespace Zero
 		virtual void BeginFrame() override;
 		virtual void EndFrame() override;
 		
-		Ref<FDX12Texture2D> CreateDepthTexture(const std::string& TextureName, uint32_t Width, uint32_t Height);
+		FDX12Texture2D* CreateDepthTexture(const std::string& TextureName, uint32_t Width, uint32_t Height);
 
 
 		uint32_t RegisterActiveComandlist(Ref<FDX12CommandList> CommandList);
@@ -116,16 +116,17 @@ namespace Zero
 
 	public:
 		virtual Scope<FPipelineStateObject> CreatePSO(const FPSODescriptor& PSODescriptor) override;
-		virtual Ref<FTexture2D> CreateTexture2D(const std::string& TextureName, const FTextureDesc& Desc);
+		virtual FTexture2D* CreateTexture2D(const std::string& TextureName, const FTextureDesc& Desc) override;
 		virtual Ref<FTexture2D> GetOrCreateTexture2D(const std::string& Filename, bool bNeedMipMap = false) override;
 		virtual Ref<FTextureCubemap> GetOrCreateTextureCubemap(FTextureHandle Handles[CUBEMAP_TEXTURE_CNT], std::string TextureCubemapName) override;
 		virtual Ref<FRenderTarget2D> CreateRenderTarget2D(const FRenderTarget2DDesc& Desc) override;
+		virtual FRenderTarget2D* CreateRenderTarget2D() override;
 		virtual Ref<FRenderTargetCube> CreateRenderTargetCube(const FRenderTargetCubeDesc& Desc) override;
 		virtual Ref<FShader> CreateShader(const FShaderBinderDesc& BinderDesc, const FShaderDesc& ShaderDesc);
 		virtual Ref<FShader> CreateShader(const FShaderDesc& ShaderDesc);
 		virtual Ref<FMesh> CreateMesh(const std::vector<FMeshData>& MeshDatas, FVertexBufferLayout& Layout);
 		virtual Ref<FMesh> CreateMesh(float* Vertices, uint32_t VertexCount, uint32_t* Indices, uint32_t IndexCount, FVertexBufferLayout& Layout);
-		virtual Ref<FBuffer> CreateBuffer(const FBufferDesc& Desc) override;
+		virtual FBuffer* CreateBuffer(const FBufferDesc& Desc) override;
 		virtual void BindVertexBuffer(FCommandListHandle Handle, FBuffer* VertexBuffer) override;
 		virtual void BindIndexBuffer(FCommandListHandle Handle, FBuffer* IndexBuffer) override;
 	private:

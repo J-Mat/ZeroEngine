@@ -175,7 +175,7 @@ namespace Zero
 					Ref<FTexture2D> Texture = FTextureManager::Get().GetTextureByHandle(Iter.second);
 					if (Texture != nullptr)
 					{
-						OpaqueLayer->second->Materials[i]->SetTexture2D(TextureName, Texture);
+						OpaqueLayer->second->Materials[i]->SetTexture2D(TextureName, Texture.get());
 					}
 				}
 				for (auto Iter : m_Floats)

@@ -50,6 +50,8 @@ namespace Zero
 		// Find the first element whose offset is greater than the specified offset.
 	    // This is the block that should appear after the block that is being freed.
 		auto NextBlockIter = m_FreeListByOffset.upper_bound(Offset);
+		
+		// Find the block that appears before the block being freed.
 		auto PreBlockIter = NextBlockIter;
 		if (NextBlockIter != m_FreeListByOffset.begin())
 		{
@@ -60,6 +62,10 @@ namespace Zero
 			PreBlockIter = m_FreeListByOffset.end();
 		}
 		
+
+		// Add the number of free handles back to the heap.
+		// This needs to be done before merging any blocks since merging
+		// blocks modifies the numDescriptors variable.
 		m_NumFreeHandles += NumDescriptors;
 		
 		if (PreBlockIter != m_FreeListByOffset.end() && Offset == PreBlockIter->first + PreBlockIter->second.Size)
@@ -130,9 +136,19 @@ namespace Zero
 			return FDescriptorAllocation();
 		}
 		
+		// The size of the smallest block that satisfies the request.
 		uint32_t BlockSize = SmallestBlockIter->first;
+
+		// The pointer to the same entry in the FreeListByOffset map.
 		auto OffsetIter = SmallestBlockIter->second;
+
+		// The offset in the descriptor heap.
 		UINT32 Offset = OffsetIter->first;
+
+		// Remove the existing free block from the free list.
+		m_FreeListBySize.erase(SmallestBlockIter);
+		m_FreeListByOffset.erase(OffsetIter);
+
 
 		auto NewOffset = Offset + NumDescriptors;
 		auto NewSize = BlockSize - NumDescriptors;

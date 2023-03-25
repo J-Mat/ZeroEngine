@@ -1,10 +1,11 @@
-#include "UnorderedAccessResourceView.h"
+#include "DX12UnorderedAccessResourceView.h"
 #include "../DX12Device.h"
 
 namespace Zero
 {
-	FUnorderedAccessResourceView::FUnorderedAccessResourceView(Ref<FDX12Resource> Resource, Ref<FDX12Resource> CounterResource, const D3D12_UNORDERED_ACCESS_VIEW_DESC* UAVPtr)
-		: m_Resource(Resource)
+	FDX12UnorderedAccessResourceView::FDX12UnorderedAccessResourceView(Ref<FDX12Resource> Resource, Ref<FDX12Resource> CounterResource, const D3D12_UNORDERED_ACCESS_VIEW_DESC* UAVPtr)
+		: FResourceView(EResourceViewType::UAV)
+		, m_Resource(Resource)
 		, m_CounterResource(CounterResource)
 	{
 
@@ -28,7 +29,7 @@ namespace Zero
 		
 	}
 
-	FUnorderedAccessResourceView::~FUnorderedAccessResourceView()
+	FDX12UnorderedAccessResourceView::~FDX12UnorderedAccessResourceView()
 	{
 	}
 }

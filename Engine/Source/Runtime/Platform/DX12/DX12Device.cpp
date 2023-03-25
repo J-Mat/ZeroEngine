@@ -117,10 +117,9 @@ namespace Zero
 		return CreateScope<FDX12PipelineStateObject>(PSODescriptor);
 	}
 
-	Ref<FTexture2D> FDX12Device::CreateTexture2D(const std::string& TextureName, const FTextureDesc& Desc)
+	FTexture2D* FDX12Device::CreateTexture2D(const std::string& TextureName, const FTextureDesc& Desc)
 	{
-		Ref<FTexture2D> Texture = CreateRef<FDX12Texture2D>(TextureName, Desc);
-		return Texture;
+		return new FDX12Texture2D(TextureName, Desc);
 	}
 
 	Ref<FTexture2D> FDX12Device::GetOrCreateTexture2D(const std::string& Filename, bool bNeedMipMap)
@@ -165,9 +164,9 @@ namespace Zero
 		return CreateRef<FDX12Mesh>(Vertices, VertexCount, Indices, IndexCount, Layout);
 	}
 
-	Ref<FBuffer> FDX12Device::CreateBuffer(const FBufferDesc& Desc)
+	FBuffer* FDX12Device::CreateBuffer(const FBufferDesc& Desc)
 	{
-		return CreateRef<FDX12Buffer>(Desc);
+		return new FDX12Buffer(Desc);
 	}
 
 	void FDX12Device::BindVertexBuffer(FCommandListHandle Handle, FBuffer* VertexBuffer)
@@ -236,6 +235,11 @@ namespace Zero
 	Ref<FRenderTarget2D> FDX12Device::CreateRenderTarget2D(const FRenderTarget2DDesc& Desc)
 	{
 		return CreateRef<FDX12RenderTarget2D>(Desc);
+	}
+
+	FRenderTarget2D* FDX12Device::CreateRenderTarget2D()
+	{
+		return new FDX12RenderTarget2D();
 	}
 
 	Ref<FRenderTargetCube> FDX12Device::CreateRenderTargetCube(const FRenderTargetCubeDesc& Desc)
@@ -500,7 +504,7 @@ namespace Zero
 		m_TextureResourceAllocator->CleanUpAllocations();
 	}
 	
-	Ref<FDX12Texture2D> FDX12Device::CreateDepthTexture(const std::string& TextureName, uint32_t Width, uint32_t Height)
+	FDX12Texture2D* FDX12Device::CreateDepthTexture(const std::string& TextureName, uint32_t Width, uint32_t Height)
 	{
 		D3D12_CLEAR_VALUE OptClear = {};
 		OptClear.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -513,7 +517,7 @@ namespace Zero
 			.InitialState = EResourceState::Common,
 			.Format = EResourceFormat::D24_UNORM_S8_UINT,
 		};
-		return CreateRef<FDX12Texture2D>(TextureName, Desc, &ClearValue);
+		return new FDX12Texture2D(TextureName, Desc, &ClearValue);
 	}
 
 	uint32_t FDX12Device::RegisterActiveComandlist(Ref<FDX12CommandList> CommandList)

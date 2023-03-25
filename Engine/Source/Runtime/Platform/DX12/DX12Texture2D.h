@@ -5,6 +5,10 @@
 #include "Render/RHI/Texture.h"
 #include "Render/Moudule/Texture/Image.h"
 #include "./MemoryManage/Descriptor/DescriptorAllocation.h"
+#include "ResourceView/DX12RenderTargetView.h"
+#include "ResourceView/DX12DepthStencilView.h"
+#include "ResourceView/DX12ShaderResourceView.h"
+#include "ResourceView/DX12UnorderedAccessResourceView.h"
 
 namespace Zero
 {
@@ -52,40 +56,36 @@ namespace Zero
         /**
         * Get the RTV for the texture.
         */
-        D3D12_CPU_DESCRIPTOR_HANDLE GetRTV(uint32_t ViewID = 0) const;
+        FResourceView* GetRTV(uint32_t ViewID = 0) const;
 
         /**
         * Get the DSV for the texture.
         */
-        D3D12_CPU_DESCRIPTOR_HANDLE GetDSV(uint32_t ViewID = 0) const;
+        FResourceView* GetDSV(uint32_t ViewID = 0) const;
 
         /**
         * Get the default SRV for the texture.
         */
-        D3D12_CPU_DESCRIPTOR_HANDLE GetSRV(uint32_t ViewID = 0) const;
+        FResourceView* GetSRV(uint32_t ViewID = 0) const;
 
         /**
         * Get the UAV for the texture at a specific mip level.
         * Note: Only only supported for 1D and 2D textures.
         */
-        D3D12_CPU_DESCRIPTOR_HANDLE GetUnorderedAccessView(uint32_t mip) const;
+        FResourceView* GetUAV(uint32_t mip) const;
         
         Ref<FDX12Resource> GetResource() { return m_ResourceLocation.GetResource(); }
 
 	private:
-		FDescriptorAllocation m_RenderTargetView;
-		FDescriptorAllocation m_DepthStencilView;
-		FDescriptorAllocation m_ShaderResourceView;
-		FDescriptorAllocation m_UnorderedAccessView;
         FLightDescrptorAllocation m_GuiAllocation;
         bool m_bHasGuiResource = false;
         D3D12_PLACED_SUBRESOURCE_FOOTPRINT m_Footprint{};
 
 
-		std::vector<FDescriptorAllocation> m_SRVs;
-		std::vector<FDescriptorAllocation> m_UAVs;
-		std::vector<FDescriptorAllocation> m_RTVs;
-		std::vector<FDescriptorAllocation> m_DSVs;
+		std::vector<Scope<FDX12ShaderResourceView>> m_SRVs;
+		std::vector<Scope<FDX12UnorderedAccessResourceView>> m_UAVs;
+        std::vector<Scope<FDX12RenderTargetView>> m_RTVs;
+		std::vector<Scope<FDX12DepthStencilView>> m_DSVs;
 
 		FResourceLocation m_ResourceLocation;
 

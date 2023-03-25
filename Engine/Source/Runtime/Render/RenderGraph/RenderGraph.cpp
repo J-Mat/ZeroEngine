@@ -1,4 +1,5 @@
 #include "RenderGraph.h"
+#include "../RenderPass/RenderPass.h"
 
 namespace Zero
 {
@@ -43,6 +44,16 @@ namespace Zero
             FRenderGraphContext RenderGraphContexts(m_RenderGrpah, *Pass);
             if (Pass->GetPassType() == ERenderPassType::Graphics && !Pass->SkipAutoRenderPassSetup())
             {
+                FRenderPassDesc RenderPassDesc;
+                if (Pass->AllowUAVWrites())
+                { 
+                    //RenderPassDesc.
+                }
+                for (auto const& RenderTargetInfo : Pass->m_RenderTergetInfo)
+                {
+                    FRGTextureID RGTextureID = RenderTargetInfo.RGRenderTargetID.GetResourceID();
+                    FTexture2D* Texture = m_RenderGrpah.GetTexture(RGTextureID);
+                }
             }
 		}
     }
@@ -65,23 +76,23 @@ namespace Zero
         CullPasses();
     }
 
-    void FRenderGraph::SetTextureUsage(FRGTextureID RGTextureID)
+    void FRenderGraph::CreateTextureViews(FRGTextureID RGTextureID)
     {
         for (auto& [RGTextureID, Descs] : m_SRVTexDescMap)
         { 
-            Ref<FTexture2D> Texture = GetTexture(RGTextureID);
+            FTexture2D* Texture = GetTexture(RGTextureID);
             Texture->MakeSRVs(Descs);
         }
 
         for (auto& [RGTextureID, Descs] : m_UAVTexDescMap)
         { 
-            Ref<FTexture2D> Texture = GetTexture(RGTextureID);
+            FTexture2D* Texture = GetTexture(RGTextureID);
             Texture->MakeUAVs(Descs);
         }
 
         for (auto& [RGTextureID, Descs] : m_RTVTexDescMap)
         { 
-            Ref<FTexture2D> Texture = GetTexture(RGTextureID);
+            FTexture2D* Texture = GetTexture(RGTextureID);
             Texture->MakeRTVs(Descs);
         }
     }
@@ -99,14 +110,14 @@ namespace Zero
             auto& DependencyLevel = m_DependencyLevels[i];
             for (auto RGTextureID : DependencyLevel.m_TextureCreates)
             {
-                Ref<FRGTexture> RGTexture = GetRGTexture(RGTextureID);
+                FRGTexture* RGTexture = GetRGTexture(RGTextureID);
                 RGTexture->Resource = m_ResourcePool.AllocateTexture(RGTexture->Desc);
-                SetTextureUsage(RGTextureID);
+                CreateTextureViews(RGTextureID);
             }
 
             for (auto RGBufferID : DependencyLevel.m_BufferCreates)
             { 
-                Ref<FRGBuffer> RGBuffer = GetRGBuffer(RGBufferID);
+                FRGBuffer* RGBuffer = GetRGBuffer(RGBufferID);
                 RGBuffer->Resource = m_ResourcePool.AllocateBuffer(RGBuffer->Desc);
             }
         }
@@ -157,6 +168,7 @@ namespace Zero
                     {
                         PassAdjacencyList.push_back(j);
                         bDepends = true;
+                        break;
                     }
                 }
 
@@ -168,7 +180,7 @@ namespace Zero
                     if (CurPass->m_BufferWrites.find(OtherNodeRead) != CurPass->m_BufferWrites.end())
                     {
                         PassAdjacencyList.push_back(j);
-                        bDepends = true;
+                        break;
                     }
                 }
             }
@@ -238,7 +250,7 @@ namespace Zero
         CORE_ASSERT(m_TextureNameIDMap.find(Name) == m_TextureNameIDMap.end(), "Texture with that name has already been declared");
         FTextureDesc TextureDesc{};
         FillTextureDesc(Desc, TextureDesc);
-        m_Textures.emplace_back(CreateRef<FRGTexture>(uint32_t(m_Textures.size()), TextureDesc, Name));
+        m_Textures.emplace_back(new FRGTexture(uint32_t(m_Textures.size()), TextureDesc, Name));
         auto RGTextureID = FRGTextureID(uint32_t(m_Textures.size() - 1));
         m_TextureNameIDMap[Name] = RGTextureID;
         return RGTextureID;
@@ -249,7 +261,7 @@ namespace Zero
         CORE_ASSERT(m_BufferNameIDMap.find(Name) == m_BufferNameIDMap.end(), "Buffer with that name has already been declared");
         FBufferDesc BufferDesc{};
         FillBufferDesc(Desc, BufferDesc);
-        m_Buffers.emplace_back(CreateRef<FRGBuffer>(uint32_t(m_Buffers.size()), BufferDesc, Name));
+        m_Buffers.emplace_back(new FRGBuffer(uint32_t(m_Buffers.size()), BufferDesc, Name));
         auto RGBufferID = FRGBufferID(uint32_t(m_Buffers.size() - 1));
         m_BufferNameIDMap[Name] = RGBufferID;
         return RGBufferID;
@@ -276,34 +288,34 @@ namespace Zero
     }
 
 
-    void FRenderGraph::ImportTexture(FRGResourceName Name, Ref<FTexture2D> Texture)
+    void FRenderGraph::ImportTexture(FRGResourceName Name, FTexture2D* Texture)
     {
-        m_Textures.emplace_back(CreateRef<FRGTexture>(uint32_t(m_Textures.size()), Texture, Name));
+        m_Textures.emplace_back(new FRGTexture(uint32_t(m_Textures.size()), Texture, Name));
         m_TextureNameIDMap[Name] = FRGTextureID(uint32_t(m_Textures.size() - 1));
     }
 
-    void FRenderGraph::ImportBuffer(FRGResourceName Name, Ref<FBuffer> Buffer)
+    void FRenderGraph::ImportBuffer(FRGResourceName Name, FBuffer* Buffer)
     {
-        m_Buffers.emplace_back(CreateRef<FRGBuffer>(uint32_t(m_Buffers.size()), Buffer, Name));
+        m_Buffers.emplace_back(new FRGBuffer(uint32_t(m_Buffers.size()), Buffer, Name));
         m_BufferNameIDMap[Name] = FRGBufferID(uint32_t(m_Buffers.size() - 1));
     }
 
-    Ref<FRGTexture> FRenderGraph::GetRGTexture(FRGTextureID RGTextureID) const
+    FRGTexture* FRenderGraph::GetRGTexture(FRGTextureID RGTextureID) const
     {
         return m_Textures[RGTextureID.ID];
     }
 
-    Ref<FTexture2D> FRenderGraph::GetTexture(FRGTextureID RGTextureID)
+    FTexture2D* FRenderGraph::GetTexture(FRGTextureID RGTextureID)
     {
         return GetRGTexture(RGTextureID)->Resource;
     }
 
-    Ref<FRGBuffer> FRenderGraph::GetRGBuffer(FRGBufferID RGBufferID) const
+    FRGBuffer* FRenderGraph::GetRGBuffer(FRGBufferID RGBufferID) const
     {
         return m_Buffers[RGBufferID.ID];
     }
 
-    Ref<FBuffer> FRenderGraph::GetBuffer(FRGBufferID RGBufferID)
+    FBuffer* FRenderGraph::GetBuffer(FRGBufferID RGBufferID)
     {
         return GetRGBuffer(RGBufferID)->Resource;
     }
@@ -312,7 +324,7 @@ namespace Zero
     {
         FRGTextureID Handle = m_TextureNameIDMap[Name];
         CORE_ASSERT(IsValidTextureHandle(Handle), "Resource has not been declared!");
-        Ref<FRGTexture> RGTexture = GetRGTexture(Handle);
+        FRGTexture* RGTexture = GetRGTexture(Handle);
         RGTexture->Desc.ResourceBindFlags |= EResourceBindFlag::RenderTarget;
         if (RGTexture->Desc.InitialState == EResourceState::Common)
         { 
@@ -336,7 +348,7 @@ namespace Zero
     {
         FRGTextureID Handle = m_TextureNameIDMap[Name];
         CORE_ASSERT(IsValidTextureHandle(Handle), "Resource has not been declared!");
-        Ref<FRGTexture> RGTexture = GetRGTexture(Handle);
+        FRGTexture* RGTexture = GetRGTexture(Handle);
         RGTexture->Desc.ResourceBindFlags |= EResourceBindFlag::DepthStencil;
         if (RGTexture->Desc.InitialState == EResourceState::Common)
         { 
@@ -360,7 +372,7 @@ namespace Zero
     {
         FRGTextureID Handle = m_TextureNameIDMap[Name];
         CORE_ASSERT(IsValidTextureHandle(Handle), "Resource has not been declared!");
-        Ref<FRGTexture> RGTexture = GetRGTexture(Handle);
+        FRGTexture* RGTexture = GetRGTexture(Handle);
         RGTexture->Desc.ResourceBindFlags |= EResourceBindFlag::ShaderResource;
         if (RGTexture->Desc.InitialState == EResourceState::Common)
         { 
@@ -384,7 +396,7 @@ namespace Zero
     {
         FRGTextureID Handle = m_TextureNameIDMap[Name];
         CORE_ASSERT(IsValidTextureHandle(Handle), "Resource has not been declared!");
-        Ref<FRGTexture> RGTexture = GetRGTexture(Handle);
+        FRGTexture* RGTexture = GetRGTexture(Handle);
         RGTexture->Desc.ResourceBindFlags |= EResourceBindFlag::ShaderResource;
         if (RGTexture->Desc.InitialState == EResourceState::Common)
         { 
@@ -408,7 +420,7 @@ namespace Zero
     {
         FRGBufferID Handle = m_BufferNameIDMap[Name];
         CORE_ASSERT(IsValidBufferHandle(Handle), "Resource has not been declared!");
-        Ref<FRGBuffer> RGBuffer = GetRGBuffer(Handle);
+        FRGBuffer* RGBuffer = GetRGBuffer(Handle);
         RGBuffer->Desc.ResourceBindFlag |= EResourceBindFlag::ShaderResource;
 
         std::vector<FBufferSubresourceDesc>& ViewDescs = m_SRVBufferDescMap[Handle];  // m_BufferViewDescMap[Handle];
@@ -429,7 +441,7 @@ namespace Zero
     {
         FRGBufferID Handle = m_BufferNameIDMap[Name];
         CORE_ASSERT(IsValidBufferHandle(Handle), "Resource has not been declared!");
-        Ref<FRGBuffer> RGBuffer = GetRGBuffer(Handle);
+        FRGBuffer* RGBuffer = GetRGBuffer(Handle);
         RGBuffer->Desc.ResourceBindFlag |= EResourceBindFlag::UnorderedAccess;
         std::vector<FBufferSubresourceDesc>& ViewDescs = m_UAVBufferDescMap[Handle]; //m_BufferViewDescMap[Handle];
         for (uint32_t i = 0; i < ViewDescs.size(); ++i)

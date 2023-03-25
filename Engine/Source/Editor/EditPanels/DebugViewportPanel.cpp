@@ -32,7 +32,7 @@ namespace Zero
 		}
 		*/
 		
-		Ref<FTexture2D> Texture = m_RenderTarget->GetColorTexture(m_RenderTargetIndex);
+		FTexture2D* Texture = m_RenderTarget->GetColorTexture(m_RenderTargetIndex);
 		ImGui::Image((ImTextureID)Texture->GetGuiShaderReseource(), ViewportPanelSize);
 
 		ImGui::End();

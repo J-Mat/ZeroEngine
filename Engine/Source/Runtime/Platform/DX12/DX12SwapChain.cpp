@@ -130,8 +130,8 @@ namespace Zero
 
 	const Ref<FRenderTarget2D> FDX12SwapChain::GetRenderTarget()
 	{
-		m_RenderTarget->AttachColorTexture(0, m_BackBufferTextures[m_CurrentBackBufferIndex]);
-		m_RenderTarget->AttachDepthTexture(m_DepthStencilTexture);
+		m_RenderTarget->AttachColorTexture(0, m_BackBufferTextures[m_CurrentBackBufferIndex].get());
+		m_RenderTarget->AttachDepthTexture(m_DepthStencilTexture.get());
 		TLibrary<FRenderTarget2D>::Push("MainViewport", m_RenderTarget);
 		return m_RenderTarget;
 	}
@@ -218,6 +218,6 @@ namespace Zero
 		};
 		*/
 		std::string DepthName = "SwapChainDepth";
-		m_DepthStencilTexture = FDX12Device::Get()->CreateDepthTexture(DepthName, m_Width, m_Height);
+		m_DepthStencilTexture.reset(FDX12Device::Get()->CreateDepthTexture(DepthName, m_Width, m_Height));
 	}
 }

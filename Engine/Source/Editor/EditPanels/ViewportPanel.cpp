@@ -30,7 +30,7 @@ namespace Zero
 			UWorld::GetCurrentWorld()->GetMainCamera()->OnResizeViewport(uint32_t(m_WindowsSize.x), uint32_t(m_WindowsSize.y));
 		}
 		
-		Ref<FTexture2D> Texture = m_RenderTarget->GetColorTexture(m_RenderTargetIndex);
+		FTexture2D* Texture = m_RenderTarget->GetColorTexture(m_RenderTargetIndex);
 		ImGui::Image((ImTextureID)Texture->GetGuiShaderReseource(), ViewportPanelSize);
 
 		OnMouseClick();

@@ -1,5 +1,4 @@
 #include "Renderer.h"
-#include "Render/RenderGraph/RenderGraphResourcePool.h"
 #include "Render/RenderGraph/RenderGraph.h"
 
 namespace Zero

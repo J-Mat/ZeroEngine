@@ -189,7 +189,7 @@ namespace Zero
 		m_CameraBuffer->SetFloat3(Name, Value);
 	}
 
-	void FMaterial::SetTexture2D(const std::string& Name, Ref<FTexture2D> Texture)
+	void FMaterial::SetTexture2D(const std::string& Name, FTexture2D* Texture)
 	{
 		if (m_ResourcesBuffer)
 		{

@@ -9,12 +9,12 @@ namespace Zero
 	{
 	}
 
-	Ref<FTexture2D> FRenderGraphContext::GetTexture(FRGTextureID ResID) const
+	FTexture2D* FRenderGraphContext::GetTexture(FRGTextureID ResID) const
 	{
 		return m_RenderGrpah.GetTexture(ResID);
 	}
 
-	Ref<FBuffer>  FRenderGraphContext::GetBuffer(FRGBufferID ResID) const
+	FBuffer* FRenderGraphContext::GetBuffer(FRGBufferID ResID) const
 	{
 		return m_RenderGrpah.GetBuffer(ResID);
 	}

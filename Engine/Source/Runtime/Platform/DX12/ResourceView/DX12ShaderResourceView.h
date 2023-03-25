@@ -1,19 +1,17 @@
 #pragma once
 #include "Core.h"
 #include "../Common/DX12Header.h"
+#include "Render/RHI/ResourceView.h"
 #include "../MemoryManage/Resource/Resource.h"
 #include "../MemoryManage/Descriptor/DescriptorAllocation.h"
 
 namespace Zero
 {
-	class FUnorderedAccessResourceView
+	class FDX12ShaderResourceView : public FResourceView
 	{
 	public:
-		FUnorderedAccessResourceView(
-			Ref<FDX12Resource> Resource, 
-			Ref<FDX12Resource> CounterResource = nullptr,
-			const D3D12_UNORDERED_ACCESS_VIEW_DESC* UAVPtr = nullptr);
-		~FUnorderedAccessResourceView();
+		FDX12ShaderResourceView(Ref<FDX12Resource> Resource, D3D12_SHADER_RESOURCE_VIEW_DESC* SRV = nullptr);
+		~FDX12ShaderResourceView();
 		Ref<FDX12Resource> GetResource() const
 		{
 			return m_Resource;
@@ -23,10 +21,12 @@ namespace Zero
 		{
 			return m_Descriptor.GetDescriptorHandle();
 		}
+		virtual void* GetNativeResource() override
+		{
+			return m_Resource->GetD3DResource().Get();
+		}
 	private:
 		Ref<FDX12Resource> m_Resource;
-		Ref<FDX12Resource> m_CounterResource;
 		FDescriptorAllocation  m_Descriptor;
-			
 	};
 }

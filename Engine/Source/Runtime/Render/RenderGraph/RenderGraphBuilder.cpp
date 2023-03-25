@@ -60,7 +60,7 @@ namespace Zero
 			DummyReadTexture(Name);
 		}
 		m_RgPass.m_TextureWrites.insert(RGTextureID);
-		Ref<FRGTexture> Texture = m_RenderGrpah.GetRGTexture(RGTextureID);
+		FRGTexture* Texture = m_RenderGrpah.GetRGTexture(RGTextureID);
 		if (Texture->bImported)
 		{
 			m_RgPass.m_Flags |= ERGPassFlags::ForceNoCull;
@@ -85,7 +85,7 @@ namespace Zero
 			DummyReadTexture(Name);
 		}
 		m_RgPass.m_TextureWrites.insert(m_RenderGrpah.GetTextureID(Name));
-		Ref<FRGTexture> Texture = m_RenderGrpah.GetRGTexture(ResID);
+		FRGTexture* Texture = m_RenderGrpah.GetRGTexture(ResID);
 		if (Texture->bImported)
 		{
 			m_RgPass.m_Flags |= ERGPassFlags::ForceNoCull;
@@ -112,7 +112,7 @@ namespace Zero
 			DummyReadTexture(Name);
 		}
 		m_RgPass.m_TextureWrites.insert(m_RenderGrpah.GetTextureID(Name));
-		Ref<FRGTexture> Texture = m_RenderGrpah.GetRGTexture(ResID);
+		FRGTexture* Texture = m_RenderGrpah.GetRGTexture(ResID);
 		if (Texture->bImported)
 		{
 			m_RgPass.m_Flags |= ERGPassFlags::ForceNoCull;
@@ -133,7 +133,7 @@ namespace Zero
 			.StencilAccess = StencilLoadStoreOps,
 			.bReadOnly = false
 		};
-		Ref<FRGTexture> Texture = m_RenderGrpah.GetRGTexture(ResID);
+		FRGTexture* Texture = m_RenderGrpah.GetRGTexture(ResID);
 		m_RgPass.m_TextureReads.insert(ResID);
 
 
@@ -191,7 +191,7 @@ namespace Zero
 			DummyReadBuffer(Name);
 		}
 		m_RgPass.m_BufferWrites.insert(RGBufferID);
-		Ref<FRGBuffer> RGBuffer = m_RenderGrpah.GetRGBuffer(RGBufferID);
+		FRGBuffer* RGBuffer = m_RenderGrpah.GetRGBuffer(RGBufferID);
 		if (RGBuffer->bImported)
 		{
 			m_RgPass.m_Flags |= ERGPassFlags::ForceNoCull;
@@ -215,7 +215,7 @@ namespace Zero
 			DummyReadBuffer(CounterName);
 		}
 		m_RgPass.m_BufferWrites.insert(ResID);
-		Ref<FRGBuffer> RGBuffer = m_RenderGrpah.GetRGBuffer(ResID);
+		FRGBuffer* RGBuffer = m_RenderGrpah.GetRGBuffer(ResID);
 		if (RGBuffer->bImported)
 		{
 			m_RgPass.m_Flags |= ERGPassFlags::ForceNoCull;

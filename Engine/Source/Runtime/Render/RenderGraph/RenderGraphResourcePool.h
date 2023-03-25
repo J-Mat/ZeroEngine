@@ -1,6 +1,7 @@
 #pragma once
 #include "Core.h"
 #include "Render/RHI/Texture.h"
+#include "Render/RHI/RenderTarget.h"
 #include "Render/RHI/Buffer.h"
 
 namespace Zero
@@ -19,16 +20,25 @@ namespace Zero
 			uint64_t LastUsedFrame;
 		};
 
+		struct FPoolRenderTarget
+		{
+			Ref<FRenderTarget2D> RenderTarget;
+			uint64_t LastUsedFrame;
+		};
+
 	public:
 		FRGResourcePool() = default;
 		void Tick();
-		Ref<FTexture2D> AllocateTexture(const FTextureDesc& Desc);
-		Ref<FBuffer> AllocateBuffer(const FBufferDesc& Desc);
-		void ReleaseTexture(Ref<FTexture2D> Texture);
-		void ReleaseBuffer(Ref<FBuffer> Buffer);
+		FTexture2D* AllocateTexture(const FTextureDesc& Desc);
+		FBuffer* AllocateBuffer(const FBufferDesc& Desc);
+		FRenderTarget2D* AllocateRenderTarget();
+		void ReleaseTexture(FTexture2D* Texture);
+		void ReleaseBuffer(FBuffer* Buffer);
+		void ReleaseRenderTarget(FRenderTarget2D* RenderTarget);
 	private:
 		uint64_t m_FrameIndex = 0;
 		std::vector<std::pair<FPooledTexture, bool>> m_TexturePool;
 		std::vector<std::pair<FPooledBuffer, bool>> m_BufferPool;
+		std::vector<std::pair<FPoolRenderTarget, bool>> m_RenderTargetPool;
 	};
 }

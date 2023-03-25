@@ -64,7 +64,7 @@ namespace Zero
 			{
 				RenderItem->m_Material->SetTextureCubemap("IBLIrradianceMap", m_IBLMoudule->GetIrradianceRTCube()->GetColorCubemap());
 				RenderItem->m_Material->SetTextureCubemapArray("IBLPrefilterMaps", m_IBLMoudule->GetPrefilterEnvMapTextureCubes());
-				RenderItem->m_Material->SetTexture2D("_BrdfLUT", LUTTexture2D);
+				RenderItem->m_Material->SetTexture2D("_BrdfLUT", LUTTexture2D.get());
 				RenderItem->m_Material->SetIBL(true);
 			}
 

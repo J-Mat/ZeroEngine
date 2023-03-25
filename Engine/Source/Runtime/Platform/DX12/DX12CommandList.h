@@ -163,7 +163,7 @@ namespace Zero
 		/**
 		* Set the SRV on the graphics pipeline.
 		*/
-		void SetShaderResourceView(uint32_t RootParameterIndex, uint32_t DescriptorOffset, const Ref<FShaderResourceView>& SRV,
+		void SetShaderResourceView(uint32_t RootParameterIndex, uint32_t DescriptorOffset, const Ref<FDX12ShaderResourceView>& SRV,
 			D3D12_RESOURCE_STATES StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
 			UINT FirstSubresource = 0,
 			UINT NumSubresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES);
@@ -174,7 +174,7 @@ namespace Zero
 		*
 		* Note: Only Buffer resoruces can be used with inline UAV's.
 		*/
-		void SetUnorderedAccessView(uint32_t RootParameterIndex, uint32_t DescriptorOffset,  const Ref<FUnorderedAccessResourceView>& Uav,
+		void SetUnorderedAccessView(uint32_t RootParameterIndex, uint32_t DescriptorOffset,  const Ref<FDX12UnorderedAccessResourceView>& Uav,
 			D3D12_RESOURCE_STATES StateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
 			UINT FirstSubresource = 0,
 			UINT NumSubresources = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES);

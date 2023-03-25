@@ -4,8 +4,7 @@
 #include "DX12RenderTarget2D.h"
 #include "DX12RootSignature.h"
 #include "./PSO/GenerateMipsPSO.h"
-#include "./ResourceView/ShaderResourceView.h"
-#include "./ResourceView/UnorderedAccessResourceView.h"
+#include "./ResourceView/DX12RenderTargetView.h"
 #include "Utils.h"
 
 namespace Zero
@@ -295,7 +294,7 @@ namespace Zero
 			.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D,
 		};
 
-		//auto Uav = CreateRef<FUnorderedAccessResourceView>(TextureResource, &UavDesc);
+		//auto Uav = CreateRef<FDX12UnorderedAccessResourceView>(TextureResource, &UavDesc);
 
 		D3D12_RESOURCE_DESC TexDesc = TextureResource->GetD3DResource()->GetDesc();
 		UINT const MipmapLevels = TexDesc.MipLevels;
@@ -362,7 +361,7 @@ namespace Zero
 			}
 		};
 
-		auto Srv = CreateRef<FShaderResourceView>(Texture->GetResource(), &SrvDesc);
+		auto Srv = CreateRef<FDX12ShaderResourceView>(Texture->GetResource(), &SrvDesc);
 		
 		for (uint32_t SrcMip = 0; SrcMip < ResourceDesc.MipLevels - 1u;)
 		{
@@ -416,7 +415,7 @@ namespace Zero
 						.MipSlice = SrcMip + Mip + 1
 					}
 				};
-				auto Uav = CreateRef<FUnorderedAccessResourceView>(Texture->GetResource(), nullptr, &UavDesc);
+				auto Uav = CreateRef<FDX12UnorderedAccessResourceView>(Texture->GetResource(), nullptr, &UavDesc);
 				SetUnorderedAccessView(EGenerateMips::GM_OutMip, Mip, Uav, D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
 					SrcMip + Mip + 1, 1);
 			}
@@ -572,7 +571,8 @@ namespace Zero
 		auto Resource = TexturePtr->GetResource();
 		TransitionBarrier(Resource, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, true);
 		float ClearColor[4] = { Color.r, Color.g, Color.b, Color.a };
-		m_D3DCommandList->ClearRenderTargetView(TexturePtr->GetRTV(), ClearColor, 0, nullptr);
+		FDX12RenderTargetView* Rtv = static_cast<FDX12RenderTargetView*>(TexturePtr->GetRTV());
+		m_D3DCommandList->ClearRenderTargetView(Rtv->GetDescriptorHandle(), ClearColor, 0, nullptr);
 
 		TrackResource(Resource);
 	}
@@ -581,7 +581,8 @@ namespace Zero
 	{
 		auto Resource = TexturePtr->GetResource();
 		TransitionBarrier(Resource, D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, true);
-		m_D3DCommandList->ClearDepthStencilView(TexturePtr->GetDSV(), ClearFlags, Depth, Stencil, 0, nullptr);
+		FDX12DepthStencilView* Dsv = static_cast<FDX12DepthStencilView*>(TexturePtr->GetDSV());
+		m_D3DCommandList->ClearDepthStencilView(Dsv->GetDescriptorHandle(), ClearFlags, Depth, Stencil, 0, nullptr);
 
 		TrackResource(Resource);
 	}
@@ -726,7 +727,7 @@ namespace Zero
 		}
 	}
 
-	void FDX12CommandList::SetShaderResourceView(uint32_t RootParameterIndex, uint32_t DescriptorOffset, const Ref<FShaderResourceView>& SRV, D3D12_RESOURCE_STATES StateAfter, UINT FirstSubresource, UINT NumSubresource)
+	void FDX12CommandList::SetShaderResourceView(uint32_t RootParameterIndex, uint32_t DescriptorOffset, const Ref<FDX12ShaderResourceView>& SRV, D3D12_RESOURCE_STATES StateAfter /*= D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE*/, UINT FirstSubresource /*= 0*/, UINT NumSubresource /*= D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES*/)
 	{
 		auto Resource = SRV->GetResource();
 		if (NumSubresource < D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES)
@@ -749,7 +750,7 @@ namespace Zero
 		);
 	}
 
-	void FDX12CommandList::SetUnorderedAccessView(uint32_t RootParameterIndex, uint32_t DescriptorOffset, const Ref<FUnorderedAccessResourceView>& Uav, D3D12_RESOURCE_STATES StateAfter /*= D3D12_RESOURCE_STATE_UNORDERED_ACCESS*/, UINT FirstSubresource /*= 0*/, UINT NumSubresources /*= D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES*/)
+	void FDX12CommandList::SetUnorderedAccessView(uint32_t RootParameterIndex, uint32_t DescriptorOffset, const Ref<FDX12UnorderedAccessResourceView>& Uav, D3D12_RESOURCE_STATES StateAfter /*= D3D12_RESOURCE_STATE_UNORDERED_ACCESS*/, UINT FirstSubresource /*= 0*/, UINT NumSubresources /*= D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES*/)
 	{
 		auto Resource = Uav->GetResource();
 		if (Resource)

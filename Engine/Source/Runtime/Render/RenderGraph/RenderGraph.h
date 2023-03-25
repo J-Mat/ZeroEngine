@@ -56,11 +56,13 @@ namespace Zero
 		void Build();
 		void Execute();
 
+		FRGResourcePool& GetResourcePool() { return m_ResourcePool; };
+
 	private:
 		FRGResourcePool m_ResourcePool;
 		std::vector<Ref<FRGPassBase>> m_Passes;
-		std::vector<Ref<FRGTexture>> m_Textures;
-		std::vector<Ref<FRGBuffer>> m_Buffers;
+		std::vector<FRGTexture*> m_Textures;
+		std::vector<FRGBuffer*> m_Buffers;
 
 		std::vector<std::vector<size_t>> m_AdjacencyList;
 		std::vector<size_t> m_TopologicallySortedPasses;
@@ -105,15 +107,15 @@ namespace Zero
 		bool IsValidTextureHandle(FRGTextureID RGTextureID) const;
 		bool IsValidBufferHandle(FRGBufferID RGBufferID) const;
 		
-		void SetTextureUsage(FRGTextureID RGTextureID);
+		void CreateTextureViews(FRGTextureID RGTextureID);
 		
-		void ImportTexture(FRGResourceName Name, Ref<FTexture2D> Texture);
-		void ImportBuffer(FRGResourceName Name, Ref<FBuffer> Buffer);
+		void ImportTexture(FRGResourceName Name, FTexture2D* Texture);
+		void ImportBuffer(FRGResourceName Name, FBuffer* Buffer);
 		
-		inline Ref<FRGTexture> GetRGTexture(FRGTextureID RGTextureID) const;
-		Ref<FTexture2D> GetTexture(FRGTextureID RGTextureID);
-		inline Ref<FRGBuffer> GetRGBuffer(FRGBufferID RGBufferID) const;
-		Ref<FBuffer> GetBuffer(FRGBufferID RGBufferID);
+		inline FRGTexture* GetRGTexture(FRGTextureID RGTextureID) const;
+		FTexture2D* GetTexture(FRGTextureID RGTextureID);
+		inline FRGBuffer* GetRGBuffer(FRGBufferID RGBufferID) const;
+		FBuffer* GetBuffer(FRGBufferID RGBufferID);
 		
 		FRGRenderTargetID RenderTarget(FRGResourceName name, const FTextureSubresourceDesc& desc);
 		FRGDepthStencilID DepthStencil(FRGResourceName name, const FTextureSubresourceDesc& desc);

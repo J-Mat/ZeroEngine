@@ -46,8 +46,7 @@ namespace Zero
 				.InitialState = EResourceState::Common,
 				.Format = RTDesc.ColorFormat[Index],
 			};
-			Ref<FTexture2D> Texture;
-			Texture = CreateRef<FDX12Texture2D>(TextureName, Desc, &ClearValue);
+			FTexture2D* Texture = new FDX12Texture2D(TextureName, Desc, &ClearValue);
 			AttachColorTexture(Index, Texture);
 #ifdef EDITOR_MODE
 				Texture->RegistGuiShaderResource();
@@ -58,7 +57,7 @@ namespace Zero
 		{
 			//.SRVFormat = DXGI_FORMAT_R24_UNORM_X8_TYPELESS
 			std::string TextureName = std::format("{0}_Depth", RTDesc.RenderTargetName);
-			Ref<FDX12Texture2D> DepthTexture = FDX12Device::Get()->CreateDepthTexture(TextureName, m_Width, m_Height);
+			FDX12Texture2D* DepthTexture = FDX12Device::Get()->CreateDepthTexture(TextureName, m_Width, m_Height);
 			AttachDepthTexture(DepthTexture);
 		}
 		SetViewportRect();
@@ -68,13 +67,18 @@ namespace Zero
 	{
 		auto CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
 		for (int i = 0; i < m_ColoTexture.size(); ++i)
-		{ auto* Texture = static_cast<FDX12Texture2D*>(m_ColoTexture[i].Texture.get());
+		{ auto* Texture = static_cast<FDX12Texture2D*>(m_ColoTexture[i].Texture);
 			if (Texture != nullptr)
 			{
+				if (m_ColoTexture[i].ClearValue)
+				{
+					auto ClearValue = m_ColoTexture[i].ClearValue.value();
+					CommandList->ClearTexture(Texture, ClearValue.Color.ToVec4());
+				}
 				CommandList->ClearTexture(Texture, Utils::Colors::Transparent);
 			}
 		}
-		auto* DepthStencilTexture = static_cast<FDX12Texture2D*>(m_DepthTexture.get());
+		auto* DepthStencilTexture = static_cast<FDX12Texture2D*>(m_DepthTexture);
 		if (DepthStencilTexture != nullptr)
 		{
 			CommandList->ClearDepthStencilTexture(DepthStencilTexture, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL);
@@ -103,20 +107,20 @@ namespace Zero
 		SetViewportRect();
 	}
 
-	void FDX12RenderTarget2D::AttachColorTexture(uint32_t Index, Ref<FTexture2D> Texture2D, uint32_t ViewID)
+	void FDX12RenderTarget2D::AttachColorTexture(uint32_t AttachmentIndex, FTexture2D* Texture2D, std::optional<FTextureClearValue> ClearValue /*= std::nullopt*/, uint32_t ViewID /*= 0*/)
 	{
-		m_ColoTexture[Index] = { Texture2D, ViewID };
+		m_ColoTexture[AttachmentIndex] = { Texture2D, ViewID, ClearValue };
 
-		if (m_ColoTexture[Index].Texture.get() != nullptr)
+		if (m_ColoTexture[AttachmentIndex].Texture != nullptr)
 		{
-			ZMath::uvec2 Size = m_ColoTexture[Index].Texture->GetSize();
+			ZMath::uvec2 Size = m_ColoTexture[AttachmentIndex].Texture->GetSize();
 			m_Width = Size.x;
 			m_Height = Size.y;
 			SetViewportRect();
 		}
 	}
 
-	void FDX12RenderTarget2D::AttachDepthTexture(Ref<FTexture2D> Texture2D)
+	void FDX12RenderTarget2D::AttachDepthTexture(FTexture2D* Texture2D)
 	{
 		m_DepthTexture = Texture2D;
 	}
@@ -133,28 +137,31 @@ namespace Zero
 		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> Handles;
 		for (int i = 0; i < m_ColoTexture.size(); ++i)
 		{
-			auto* Texture = static_cast<FDX12Texture2D*>(m_ColoTexture[i].Texture.get());
+			auto* Texture = static_cast<FDX12Texture2D*>(m_ColoTexture[i].Texture);
 			if (Texture)
 			{
 				auto Resource = Texture->GetResource();
 				CommandList->TransitionBarrier(Resource->GetD3DResource(), D3D12_RESOURCE_STATE_RENDER_TARGET);
-				Handles.push_back(Texture->GetRTV(m_ColoTexture[i].ViewID));
+				FDX12RenderTargetView* Rtv = static_cast<FDX12RenderTargetView*>(Texture->GetRTV());
+				Handles.push_back(Rtv->GetDescriptorHandle());
 			}
 		}
 		if (m_DepthTexture != nullptr)
 		{
-			auto* DsvTexture = static_cast<FDX12Texture2D*>(m_DepthTexture.get());
+			auto* DsvTexture = static_cast<FDX12Texture2D*>(m_DepthTexture);
 			if (Handles.size() == 0)
 			{ 
-				CommandList->GetD3D12CommandList()->OMSetRenderTargets(0, nullptr, false, &DsvTexture->GetDSV());
+				FDX12DepthStencilView* Dsv = static_cast<FDX12DepthStencilView*>(DsvTexture->GetDSV());
+				CommandList->GetD3D12CommandList()->OMSetRenderTargets(0, nullptr, false, &Dsv->GetDescriptorHandle());
 			}
 			else
 			{
+				FDX12DepthStencilView* Dsv = static_cast<FDX12DepthStencilView*>(DsvTexture->GetDSV());
 				CommandList->GetD3D12CommandList()->OMSetRenderTargets(
 					UINT(Handles.size()),
 					Handles.data(),
 					false,
-					&DsvTexture->GetDSV()
+					&Dsv->GetDescriptorHandle()
 				);
 			}
 		}
@@ -176,7 +183,7 @@ namespace Zero
 		auto  CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
 		for (int i = 0; i < m_ColoTexture.size(); ++i)
 		{
-			auto* Texture = static_cast<FDX12Texture2D*>(m_ColoTexture[i].Texture.get());
+			auto* Texture = static_cast<FDX12Texture2D*>(m_ColoTexture[i].Texture);
 			if (Texture)
 			{
 				auto Resource = Texture->GetResource();
@@ -188,7 +195,7 @@ namespace Zero
 
 	void FDX12RenderTarget2D::UnBindDepth(FCommandListHandle CommandListHandle)
 	{
-		auto* DepthStencilTexture = static_cast<FDX12Texture2D*>(m_DepthTexture.get());
+		auto* DepthStencilTexture = static_cast<FDX12Texture2D*>(m_DepthTexture);
 		if (DepthStencilTexture != nullptr)
 		{
 			auto  CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
@@ -220,7 +227,7 @@ namespace Zero
 
 		for (int i = 0; i <= m_ColoTexture.size(); ++i)
 		{
-			auto* Texture = static_cast<FDX12Texture2D*>(m_ColoTexture[i].Texture.get());
+			auto* Texture = static_cast<FDX12Texture2D*>(m_ColoTexture[i].Texture);
 			if (Texture)
 			{
 				auto Resource = Texture->GetResource();
@@ -234,7 +241,7 @@ namespace Zero
 	DXGI_FORMAT FDX12RenderTarget2D::GetDepthStencilFormat() const
 	{
 		DXGI_FORMAT DsvFormat = DXGI_FORMAT_UNKNOWN;
-		auto DepthStencilTexture = static_cast<FDX12Texture2D*>(m_DepthTexture.get());
+		auto DepthStencilTexture = static_cast<FDX12Texture2D*>(m_DepthTexture);
 		if (DepthStencilTexture)
 		{
 			auto Resource = DepthStencilTexture->GetResource();
@@ -247,7 +254,7 @@ namespace Zero
 		DXGI_SAMPLE_DESC SampleDesc = { 1, 0 };
 		for (int i = 0; i <= m_ColoTexture.size(); ++i)
 		{
-			auto* Texture = static_cast<FDX12Texture2D*>(m_ColoTexture[i].Texture.get());
+			auto* Texture = static_cast<FDX12Texture2D*>(m_ColoTexture[i].Texture);
 			if (Texture)
 			{
 				auto Resource = Texture->GetResource();

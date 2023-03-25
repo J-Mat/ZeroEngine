@@ -347,36 +347,29 @@ namespace Zero
 			// Create RTV	
 			if ((Desc.Flags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET) != 0 && m_ResourceLocation.GetResource()->CheckRTVSupport())
 			{
-				if (m_RenderTargetView.IsNull())
-				{
-					m_RenderTargetView = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-				}
-				D3DDevice->CreateRenderTargetView(m_ResourceLocation.GetResource()->GetD3DResource().Get(), nullptr, m_RenderTargetView.GetDescriptorHandle());
+				m_RTVs.resize(1);
+				auto ptr = CreateScope<FDX12RenderTargetView>(m_ResourceLocation.GetResource(), nullptr);
+				m_RTVs[0] = std::move(ptr);
 			}
 
 			// Create DSV	
 			if ((Desc.Flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL) != 0 && m_ResourceLocation.GetResource()->CheckDSVSupport())
 			{
-				if (m_DepthStencilView.IsNull())
-				{
-					m_DepthStencilView = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
-				}
-				D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc;
-				dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
-				dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-				dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-				dsvDesc.Texture2D.MipSlice = 0;
-				D3DDevice->CreateDepthStencilView(m_ResourceLocation.GetResource()->GetD3DResource().Get(), &dsvDesc,
-					m_DepthStencilView.GetDescriptorHandle());
+				D3D12_DEPTH_STENCIL_VIEW_DESC DsvDesc;
+				DsvDesc.Flags = D3D12_DSV_FLAG_NONE;
+				DsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+				DsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+				DsvDesc.Texture2D.MipSlice = 0;
+				//D3DDevice->CreateDepthStencilView(m_ResourceLocation.GetResource()->GetD3DResource().Get(), &DsvDesc, m_DepthStencilView.GetDescriptorHandle());
+				
+				m_DSVs.resize(1);
+				auto Dsv = CreateScope<FDX12DepthStencilView>(m_ResourceLocation.GetResource(), &DsvDesc);
+				m_DSVs[0] = std::move(Dsv);
 			}
 			// Create SRV
 			m_SRVFormat = GetSRVFormat(Desc.Format);
 			if (((Desc.Flags & D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE) == 0 && m_ResourceLocation.GetResource()->CheckSRVSupport()) || m_SRVFormat != DXGI_FORMAT_UNKNOWN)
 			{
-				if (m_ShaderResourceView.IsNull())
-				{
-					m_ShaderResourceView = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-				}
 				D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc = {};
 				if (m_ImageData != nullptr)
 				{
@@ -398,22 +391,21 @@ namespace Zero
 				SrvDesc.Texture2D.MipLevels = Desc.MipLevels;
 				SrvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 				SrvDesc.Texture2D.PlaneSlice = 0;
-				D3DDevice->CreateShaderResourceView(m_ResourceLocation.GetResource()->GetD3DResource().Get(), &SrvDesc,
-					m_ShaderResourceView.GetDescriptorHandle());
+				m_SRVs.resize(1);
+				auto Srv = CreateScope<FDX12ShaderResourceView>(m_ResourceLocation.GetResource(), &SrvDesc);
+				m_SRVs[0] = std::move(Srv);
+				
 			}
 			// Create UAV for each mip (only supported for 1D and 2D textures).
 			if ((Desc.Flags & D3D12_RESOURCE_STATE_UNORDERED_ACCESS) != 0 && m_ResourceLocation.GetResource()->CheckUAVSupport() &&
 				Desc.DepthOrArraySize == 1)
 			{
-				if (m_UnorderedAccessView.IsNull())
-				{
-					m_UnorderedAccessView = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, Desc.MipLevels);
-				}
+				m_UAVs.resize(Desc.MipLevels);
 				for (int i = 0; i < Desc.MipLevels; ++i)
 				{
-					auto uavDesc = GetUAVDesc(Desc, i);
-					D3DDevice->CreateUnorderedAccessView(m_ResourceLocation.GetResource()->GetD3DResource().Get(), nullptr, &uavDesc,
-						m_UnorderedAccessView.GetDescriptorHandle(i));
+					auto UavDesc = GetUAVDesc(Desc, i);
+					auto Uav = CreateScope<FDX12UnorderedAccessResourceView>(m_ResourceLocation.GetResource(), nullptr, &UavDesc);
+					m_UAVs[i] = std::move(Uav);
 				}
 			}
 		}
@@ -421,6 +413,7 @@ namespace Zero
 
 	void FDX12Texture2D::MakeSRVs(const std::vector<FTextureSubresourceDesc>& Descs)
 	{
+		/*
 		bool bCheckSRVSupport = m_ResourceLocation.GetResource()->CheckSRVSupport();
 		CORE_ASSERT(bCheckSRVSupport, "Check SRVSupport");
 		m_ShaderResourceView = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, uint32_t(Descs.size()));
@@ -441,10 +434,12 @@ namespace Zero
 				m_ShaderResourceView.GetDescriptorHandle(i));
 
 		}
+		*/
 	}
 
 	void FDX12Texture2D::MakeRTVs(const std::vector<FTextureSubresourceDesc>& Descs)
 	{
+		/*
 		bool bCheckRTVSupport = m_ResourceLocation.GetResource()->CheckRTVSupport();
 		CORE_ASSERT(bCheckRTVSupport, "Check RTVSupport");
 		m_RenderTargetView = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
@@ -501,10 +496,12 @@ namespace Zero
 			FDX12Device::Get()->GetDevice()->CreateRenderTargetView(m_ResourceLocation.GetResource()->GetD3DResource().Get(), &RTVDesc,
 				m_RenderTargetView.GetDescriptorHandle(i));
 		}
+		*/
 	}
 
 	void FDX12Texture2D::MakeDSVs(const std::vector<FTextureSubresourceDesc>& Descs)
 	{
+		/*
 		bool bCheckDSVSupport = m_ResourceLocation.GetResource()->CheckDSVSupport();
 		CORE_ASSERT(bCheckDSVSupport, "Check DSVSupport");
 		m_DepthStencilView = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
@@ -561,10 +558,12 @@ namespace Zero
 			FDX12Device::Get()->GetDevice()->CreateDepthStencilView(m_ResourceLocation.GetResource()->GetD3DResource().Get(), &DSVDesc,
 				m_DepthStencilView.GetDescriptorHandle(i));
 		}
+		*/
 	}
 
 	void FDX12Texture2D::MakeUAVs(const std::vector<FTextureSubresourceDesc>& Descs)
 	{
+	/*
 		bool bCheckUAVSupport = m_ResourceLocation.GetResource()->CheckUAVSupport();
 		CORE_ASSERT(bCheckUAVSupport, "Check UAVSupport");
 		m_UnorderedAccessView = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
@@ -605,6 +604,7 @@ namespace Zero
 			FDX12Device::Get()->GetDevice()->CreateUnorderedAccessView(m_ResourceLocation.GetResource()->GetD3DResource().Get(), nullptr, &UAVDesc,
 				m_UnorderedAccessView.GetDescriptorHandle(i));
 		}
+		*/
 	}
 
 	void FDX12Texture2D::GenerateMip()
@@ -612,24 +612,24 @@ namespace Zero
 		FDX12Device::Get()->GetMipCommandList()->GenerateMipSimple(GetResource());
 	}
 
-	D3D12_CPU_DESCRIPTOR_HANDLE FDX12Texture2D::GetRTV(uint32_t ViewID) const
+	FResourceView* FDX12Texture2D::GetRTV(uint32_t ViewID) const
 	{
-		return m_RenderTargetView.GetDescriptorHandle(ViewID);
+		return m_RTVs[ViewID].get();
 	}
 
-	D3D12_CPU_DESCRIPTOR_HANDLE FDX12Texture2D::GetDSV(uint32_t ViewID) const
+	FResourceView* FDX12Texture2D::GetDSV(uint32_t ViewID) const
 	{
-		return m_DepthStencilView.GetDescriptorHandle(ViewID);
+		return m_DSVs[ViewID].get();
 	}
 
-	D3D12_CPU_DESCRIPTOR_HANDLE FDX12Texture2D::GetSRV(uint32_t ViewID) const
+	FResourceView* FDX12Texture2D::GetSRV(uint32_t ViewID) const
 	{
-		return m_ShaderResourceView.GetDescriptorHandle(ViewID);
+		return m_SRVs[ViewID].get();
 	}
 
-	D3D12_CPU_DESCRIPTOR_HANDLE FDX12Texture2D::GetUnorderedAccessView(uint32_t mip) const
+	FResourceView* FDX12Texture2D::GetUAV(uint32_t mip) const
 	{
-		return D3D12_CPU_DESCRIPTOR_HANDLE();
+		return m_UAVs[mip].get();
 	}
 
 

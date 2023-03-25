@@ -23,47 +23,68 @@ namespace Zero
 		++m_FrameIndex;
 	}
 
-	Ref<FTexture2D> FRGResourcePool::AllocateTexture(FTextureDesc const& Desc)
+	FTexture2D* FRGResourcePool::AllocateTexture(const FTextureDesc& Desc)
 	{
 		for (auto& [PoolTexture, bActive] : m_TexturePool)
 		{
-			if (bActive && PoolTexture.Texture->GetDesc().IsCompatible(Desc))
+			if (!bActive && PoolTexture.Texture->GetDesc().IsCompatible(Desc))
 			{
 				PoolTexture.LastUsedFrame = m_FrameIndex;
 				bActive = true;
-				return PoolTexture.Texture;
+				return PoolTexture.Texture.get();
 			}
 		}
 		std::string TextureName = std::format("PoolTexture_{0}", m_TexturePool.size());
-		auto Texture = FRenderer::GetDevice()->CreateTexture2D(TextureName, Desc);
-		std::pair<FPooledTexture, bool> Pair = { FPooledTexture(Texture, false), false };
+		Ref<FTexture2D> Texture;
+		Texture.reset(FRenderer::GetDevice()->CreateTexture2D(TextureName, Desc));
+		std::pair<FPooledTexture, bool> Pair = { FPooledTexture(Texture, false), true };
 		m_TexturePool.emplace_back(Pair);
-		return Texture;
+		return Texture.get();
 	}
 
-	Ref<FBuffer> FRGResourcePool::AllocateBuffer(const FBufferDesc& Desc)
+	FBuffer* FRGResourcePool::AllocateBuffer(const FBufferDesc& Desc)
 	{
 		for (auto& [PoolBuffer, bActive] : m_BufferPool)
 		{ 
-			if (bActive && PoolBuffer.Buffer->GetDesc() == Desc)
+			if (!bActive && PoolBuffer.Buffer->GetDesc() == Desc)
 			{
 				PoolBuffer.LastUsedFrame = m_FrameIndex;
 				bActive = true;
-				return PoolBuffer.Buffer;
+				return PoolBuffer.Buffer.get();
 			}
 		}
 		std::string BufferName = std::format("PoolBuffer_{0}", m_BufferPool.size());
-		auto Buffer = FRenderer::GetDevice()->CreateBuffer(Desc);
-		std::pair<FPooledBuffer, bool> Pair = { FPooledBuffer(Buffer, false), false };
+		Ref<FBuffer>Buffer;
+		Buffer.reset(FRenderer::GetDevice()->CreateBuffer(Desc));
+		std::pair<FPooledBuffer, bool> Pair = { FPooledBuffer(Buffer,  false), true};
 		m_BufferPool.emplace_back(Pair);
-		return Buffer;
+		return m_BufferPool.end()->first.Buffer.get();
 	}
 
-	void FRGResourcePool::ReleaseTexture(Ref<FTexture2D> Texture)
+	FRenderTarget2D* FRGResourcePool::AllocateRenderTarget()
+	{
+		for (auto& [PoolRenderTarget, bActive] : m_RenderTargetPool)
+		{ 
+			if (!bActive)
+			{
+				PoolRenderTarget.LastUsedFrame = m_FrameIndex;
+				bActive = true;
+				return PoolRenderTarget.RenderTarget.get();
+			}
+		}
+		Ref<FRenderTarget2D> RenderTarget; 
+		RenderTarget.reset(FRenderer::GetDevice()->CreateRenderTarget2D());
+		std::pair<FPoolRenderTarget, bool> Pair = { FPoolRenderTarget(RenderTarget, false), true};
+		m_RenderTargetPool.emplace_back(Pair);
+		return m_RenderTargetPool.end()->first.RenderTarget.get();
+	}
+
+
+	void FRGResourcePool::ReleaseTexture(FTexture2D* Texture)
 	{
 		for (auto& [PooledTexture, bActive] : m_TexturePool)
 		{
-			if (bActive && PooledTexture.Texture == Texture)
+			if (!bActive && PooledTexture.Texture.get() == Texture)
 			{
 				bActive = false;
 				return;
@@ -71,15 +92,28 @@ namespace Zero
 		}
 	}
 
-	void FRGResourcePool::ReleaseBuffer(Ref<FBuffer> Buffer)
+	void FRGResourcePool::ReleaseBuffer(FBuffer* Buffer)
 	{
 		for (auto& [PooledBuffer, bActive] : m_BufferPool)
 		{
-			if (bActive && PooledBuffer.Buffer == Buffer)
+			if (bActive && PooledBuffer.Buffer.get() == Buffer)
 			{
 				bActive = false;
 				return;
 			}
 		}
 	}
+
+	void FRGResourcePool::ReleaseRenderTarget(FRenderTarget2D* RenderTarget)
+	{
+		for (auto& [PoolRenderTarget, bActive] : m_RenderTargetPool)
+		{
+			if (bActive && PoolRenderTarget.RenderTarget.get() == RenderTarget)
+			{
+				bActive = false;
+				return;
+			}
+		}
+	}
+
 }

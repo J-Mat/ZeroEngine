@@ -32,6 +32,14 @@ namespace Zero
 				return memcmp(Color, other.Color, sizeof(Color)) == 0;
 			}
 
+			ZMath::vec4 ToVec4()
+			{
+				return {Color[0],
+					Color[1],
+					Color[2],
+					Color[3]};
+			};
+
 			float Color[4];
 		};
 		struct ClearDepthStencil
