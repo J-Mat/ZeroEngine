@@ -10,6 +10,7 @@
 #include "MemoryManage/Descriptor/DynamicDescriptorHeap.h"
 #include "MemoryManage/Descriptor/DescriptorCache.h"
 #include "./PSO/GenerateMipsPSO.h"
+#include "DX12ResourceBarrierBatch.h"
 
 
 
@@ -18,10 +19,7 @@ namespace Zero
 	class FDX12PipelineStateObject;
 	class FDX12Resource;
 	class FDX12Texture2D;
-	class FRootSignature;
-	class FDX12RenderTarget2D;
-	class FShaderResourceView;
-	class FUnorderedAccessResourceView;
+	class FDX12ResourceBarrierBatch;
 	class FDX12CommandList : public FCommandList, public std::enable_shared_from_this<FDX12CommandList>
 	{
 	public:
@@ -181,6 +179,8 @@ namespace Zero
 
 		CD3DX12_GPU_DESCRIPTOR_HANDLE AppendCbvSrvUavDescriptors(D3D12_CPU_DESCRIPTOR_HANDLE* DstDescriptor, uint32_t NumDescriptors);
 
+		FDX12ResourceBarrierBatch* GetResourceBarrierBatch() {return m_ResourceBarrierBatch.get();}
+
 	private:
 		void TrackResource(Microsoft::WRL::ComPtr<ID3D12Object> Object);
 		void TrackResource(const Ref<FDX12Resource>& res);
@@ -192,6 +192,7 @@ namespace Zero
 		void SetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE HeapType, ID3D12DescriptorHeap* Heap);
 
 	private:
+		Scope<FDX12ResourceBarrierBatch> m_ResourceBarrierBatch;
 		Scope<FDescriptorCache> m_DescriptorCache;
 		Scope<FGenerateMipsPSO> m_GenerateMipsPSO = nullptr;
 		std::vector<ComPtr<ID3D12Object>> m_TrackedObjects;

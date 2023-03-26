@@ -18,6 +18,9 @@ namespace Zero
 		ThrowIfFailed(FDX12Device::Get()->GetDevice()->CreateCommandList(0, m_CommandListType, m_CommandAllocator.Get(),
 			nullptr, IID_PPV_ARGS(&m_D3DCommandList)));
 
+
+		m_ResourceBarrierBatch = CreateScope<FDX12ResourceBarrierBatch>();
+
 		m_UploadBuffer = CreateScope<FUploadBuffer>();
 
 		m_ResourceStateTracker = CreateScope<FResourceStateTracker>();

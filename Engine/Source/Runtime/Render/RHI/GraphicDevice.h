@@ -23,6 +23,7 @@ namespace Zero
 	struct FRenderTarget2DDesc;
 	struct FRenderTargetCubeDesc;
 	class FRenderTargetCube;
+	class FResourceBarrierBatch;
 	class IDevice 
 	{
 	public:
@@ -52,5 +53,6 @@ namespace Zero
 		virtual Ref<FRenderTarget2D> CreateRenderTarget2D(const FRenderTarget2DDesc& Desc) = 0;
 		virtual FRenderTarget2D* CreateRenderTarget2D() = 0;
 		virtual Ref<FRenderTargetCube> CreateRenderTargetCube(const FRenderTargetCubeDesc& Desc) = 0;
+		virtual FResourceBarrierBatch* GetResourceBarrierBatch(FCommandListHandle Handle, ERenderPassType RenderPassType = ERenderPassType::Graphics) = 0;
 	};
 }

@@ -75,6 +75,7 @@ namespace Zero
         FResourceView* GetUAV(uint32_t mip) const;
         
         Ref<FDX12Resource> GetResource() { return m_ResourceLocation.GetResource(); }
+		virtual void* GetNative() override { return m_ResourceLocation.GetResource()->GetD3DResource().Get(); };
 
 	private:
         FLightDescrptorAllocation m_GuiAllocation;

@@ -188,6 +188,12 @@ namespace Zero
 	}
 
 
+	FResourceBarrierBatch* FDX12Device::GetResourceBarrierBatch(FCommandListHandle Handle, ERenderPassType RenderPassType)
+	{
+		Ref<FDX12CommandList> CommandList = GetCommandList(Handle, RenderPassType);
+		return CommandList->GetResourceBarrierBatch();
+	}
+
 	Ref<FTextureCubemap> FDX12Device::GetOrCreateTextureCubemap(FTextureHandle Handles[CUBEMAP_TEXTURE_CNT], std::string TextureCubemapName)
 	{
 		return nullptr;

@@ -1,5 +1,9 @@
 #include "RenderGraph.h"
 #include "../RenderPass/RenderPass.h"
+#include "Render/RHI/ResourceBarrierBatch.h"
+#include "Render/RendererAPI.h"
+#include "EnumUtil.h"
+
 
 namespace Zero
 {
@@ -33,7 +37,7 @@ namespace Zero
         }
     }
 
-    void FRenderGraph::FDependencyLevel::Execute()
+	void FRenderGraph::FDependencyLevel::Execute(FCommandListHandle CommandListHandle)
     {
 		for (auto Pass : m_Passes)
 		{
@@ -53,19 +57,76 @@ namespace Zero
                 {
                     FRGTextureID RGTextureID = RenderTargetInfo.RGRenderTargetID.GetResourceID();
                     FTexture2D* Texture = m_RenderGrpah.GetTexture(RGTextureID);
+
+					ERGLoadAccessOp LoadAccess = ERGLoadAccessOp::NoAccess;
+					ERGStoreAccessOp StoreAccess = ERGStoreAccessOp::NoAccess;
+                    SplitAccessOp(RenderTargetInfo.RenderTargetAccess, LoadAccess, StoreAccess);
+
+                    const FTextureDesc& TexDesc = Texture->GetDesc();
+                    FRtvAttachmentDesc RtvDesc = 
+                    {
+                        .RTTexture = Texture,
+                        .BeginningAccess = LoadAccess,
+                        .EndingAccess = StoreAccess,
+                        .ClearValue = TexDesc.ClearValue,
+                    };
+                    RenderPassDesc.RtvAttachments.push_back(RtvDesc);
                 }
+                if (Pass->m_DepthStencil.has_value())
+                {
+                    auto DepthStencilInfo = Pass->m_DepthStencil.value();
+                    FRGTextureID RGTextureID = DepthStencilInfo.RGDepthStencilID.GetResourceID();
+                    FTexture2D* Texture = m_RenderGrpah.GetTexture(RGTextureID);
+
+					ERGLoadAccessOp LoadAccess = ERGLoadAccessOp::NoAccess;
+					ERGStoreAccessOp StoreAccess = ERGStoreAccessOp::NoAccess;
+                    SplitAccessOp(DepthStencilInfo.DepthAccess, LoadAccess, StoreAccess);
+
+                    const FTextureDesc& TexDesc = Texture->GetDesc();
+
+                    FDsvAttachmentDesc DsvDesc = 
+                    {
+                        .DSTexture = Texture,
+                        .DepthBeginningAccess = LoadAccess,
+                        .DepthEndingAccess = StoreAccess,
+                        .ClearValue = TexDesc.ClearValue,
+                    };
+                    RenderPassDesc.DsvAttachment = std::move(DsvDesc);
+                }
+                CORE_ASSERT(Pass->m_VieportWidth != 0 && Pass->m_VieportHeight != 0, "Viewport Width/Height is 0! The call to builder.SetViewport is probably missing...");
+                RenderPassDesc.Width = Pass->m_VieportWidth;
+                RenderPassDesc.Height = Pass->m_VieportHeight;
+                FRenderPass RenderPass(m_RenderGrpah, RenderPassDesc);
+                RenderPass.Begin(CommandListHandle);
+                Pass->Execute(RenderGraphContexts, CommandListHandle);
+                RenderPass.End(CommandListHandle);
+            }
+            else
+            {
+                Pass->Execute(RenderGraphContexts, CommandListHandle);
             }
 		}
     }
 
-    uint32_t FRenderGraph::FDependencyLevel::GetSize()
+
+	uint32_t FRenderGraph::FDependencyLevel::GetSize()
     {
-        return 0;
+        return uint32_t(m_Passes.size());
     }
 
     uint32_t FRenderGraph::FDependencyLevel::GetNonCulledSize() const
     {
         return 0;
+        /*
+        return std::count_if(
+            std::begin(m_Passes),
+            std::end(m_Passes),
+            [](const FRGPassBase* Pass)
+            {
+                return !Pass->IsCulled();
+            }
+        );
+        */
     }
 
     void FRenderGraph::Build()
@@ -99,6 +160,7 @@ namespace Zero
 
     void FRenderGraph::Execute()
     {
+        FCommandListHandle CommandListHandle = FRenderer::GetDevice()->GetSingleThreadCommadList();
         m_ResourcePool.Tick();
         for (auto& DependencyLevel : m_DependencyLevels)
         { 
@@ -120,7 +182,42 @@ namespace Zero
                 FRGBuffer* RGBuffer = GetRGBuffer(RGBufferID);
                 RGBuffer->Resource = m_ResourcePool.AllocateBuffer(RGBuffer->Desc);
             }
+
+            FResourceBarrierBatch* ResourceBarrierBatch = FRenderer::GetDevice()->GetResourceBarrierBatch(CommandListHandle);
+            {
+                for (const auto& [RGTextureID, State] : DependencyLevel.m_TextureStateMap)
+                {
+                    FRGTexture* RGTexture = GetRGTexture(RGTextureID);
+                    FTexture2D* Texture = RGTexture->Resource;
+                    if (DependencyLevel.m_TextureCreates.contains(RGTextureID))
+                    {
+                        EResourceState InitialState = Texture->GetDesc().InitialState;
+                        if (!HasAllFlags(InitialState, State))
+                        {
+                            ResourceBarrierBatch->AddTransition(Texture->GetNative(), InitialState, State);
+                        }
+                        continue;
+                    }
+                    bool bFound = false;
+                    for (int32_t j = i - 1; j >= 0; --j)
+                    {
+                        auto& PreDependencyLevel = m_DependencyLevels[j];
+                        if (auto Iter = PreDependencyLevel.m_TextureStateMap.find(RGTextureID);
+                            Iter != PreDependencyLevel.m_TextureStateMap.end())
+                        {
+                            EResourceState PreState = Iter->second;
+                            if (PreState != State)
+                            {
+                                ResourceBarrierBatch->AddTransition(Texture->GetNative(), PreState, State);
+                            }
+                            bFound = true;
+                            break;
+                        }
+                    }
+                }
+            }
         }
+
     }
 
     FRGTextureID FRenderGraph::GetTextureID(FRGResourceName Name)

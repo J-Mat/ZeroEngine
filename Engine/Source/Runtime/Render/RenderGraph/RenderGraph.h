@@ -20,7 +20,7 @@ namespace Zero
 			explicit FDependencyLevel(FRenderGraph& Rg) : m_RenderGrpah(Rg) {};
 			void AddPass(Ref<FRGPassBase> Pass);
 			void Setup();
-			void Execute();
+			void Execute(FCommandListHandle ComandListHandle);
 			uint32_t GetSize();
 			uint32_t GetNonCulledSize() const;
 			FRenderGraph& m_RenderGrpah;

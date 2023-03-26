@@ -59,10 +59,10 @@ namespace Zero
 		NoAccess_NoAccess = CombineAccessOps(ERGLoadAccessOp::NoAccess, ERGStoreAccessOp::NoAccess),
 	};
 
-	inline constexpr void SplitAccessOp(ERGLoadStoreAccessOp LoadstoreOp, ERGLoadAccessOp& load_op, ERGStoreAccessOp& StoreOp)
+	inline constexpr void SplitAccessOp(ERGLoadStoreAccessOp LoadstoreOp, ERGLoadAccessOp& LoadOp, ERGStoreAccessOp& StoreOp)
 	{
 		StoreOp = static_cast<ERGStoreAccessOp>((uint8_t)LoadstoreOp & 0b11);
-		load_op = static_cast<ERGLoadAccessOp>(((uint8_t)LoadstoreOp >> 2) & 0b11);
+		LoadOp = static_cast<ERGLoadAccessOp>(((uint8_t)LoadstoreOp >> 2) & 0b11);
 	}
 	
 	class FRenderGraph;

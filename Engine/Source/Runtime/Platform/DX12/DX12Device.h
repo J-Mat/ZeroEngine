@@ -129,6 +129,7 @@ namespace Zero
 		virtual FBuffer* CreateBuffer(const FBufferDesc& Desc) override;
 		virtual void BindVertexBuffer(FCommandListHandle Handle, FBuffer* VertexBuffer) override;
 		virtual void BindIndexBuffer(FCommandListHandle Handle, FBuffer* IndexBuffer) override;
+		virtual FResourceBarrierBatch* GetResourceBarrierBatch(FCommandListHandle Handle, ERenderPassType RenderPassType) override;
 	private:
 		static FDX12Device* m_Instance;
 		void EnableDebugLayer();

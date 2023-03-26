@@ -18,9 +18,9 @@ namespace Zero
 
 		switch (RHI)
 		{
-		case ERHI::DirectX12: GraphicFactroy = CreateScope<FDX12Factory>();
-		case ERHI::OpenGL:    break; 
-		default: break;
+			case ERHI::DirectX12: GraphicFactroy = CreateScope<FDX12Factory>();
+			case ERHI::OpenGL:    break; 
+			default: break;
 		}
 
 		

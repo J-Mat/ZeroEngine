@@ -6,7 +6,7 @@ namespace Zero
 {
 	struct FTextureClearValue
 	{
-		enum class EActiveMember
+		enum class ActiveMember
 		{
 			None,
 			Color,
@@ -51,40 +51,40 @@ namespace Zero
 			uint8_t Stencil;
 		};
 
-		FTextureClearValue() : EActiveMember(EActiveMember::None), DepthStencil{} {}
+		FTextureClearValue() : ActiveMember(ActiveMember::None), DepthStencil{} {}
 
 		FTextureClearValue(float r, float g, float b, float a)
-			: EActiveMember(EActiveMember::Color), Color(r, g, b, a)
+			: ActiveMember(ActiveMember::Color), Color(r, g, b, a)
 		{
 		}
 
 		FTextureClearValue(float(&_color)[4])
-			: EActiveMember(EActiveMember::Color), Color{ _color }
+			: ActiveMember(ActiveMember::Color), Color{ _color }
 		{
 		}
 
 		FTextureClearValue(ClearColor const& Color)
-			: EActiveMember(EActiveMember::Color), Color(Color)
+			: ActiveMember(ActiveMember::Color), Color(Color)
 		{}
 
 		FTextureClearValue(float Depth, uint8_t Stencil)
-			: EActiveMember(EActiveMember::DepthStencil), DepthStencil(Depth, Stencil)
+			: ActiveMember(ActiveMember::DepthStencil), DepthStencil(Depth, Stencil)
 		{}
 		FTextureClearValue(ClearDepthStencil const& DepthStencil)
-			: EActiveMember(EActiveMember::DepthStencil), DepthStencil(DepthStencil)
+			: ActiveMember(ActiveMember::DepthStencil), DepthStencil(DepthStencil)
 		{}
 
 		FTextureClearValue(FTextureClearValue const& other)
-			: EActiveMember(other.EActiveMember), Color{}
+			: ActiveMember(other.ActiveMember), Color{}
 		{
-			if (EActiveMember == EActiveMember::Color) Color = other.Color;
-			else if (EActiveMember == EActiveMember::DepthStencil) DepthStencil = other.DepthStencil;
+			if (ActiveMember == ActiveMember::Color) Color = other.Color;
+			else if (ActiveMember == ActiveMember::DepthStencil) DepthStencil = other.DepthStencil;
 		}
 
 		bool operator==(FTextureClearValue const& other) const
 		{
-			if (EActiveMember != other.EActiveMember) return false;
-			else if (EActiveMember == EActiveMember::Color)
+			if (ActiveMember != other.ActiveMember) return false;
+			else if (ActiveMember == ActiveMember::Color)
 			{
 				return Color == other.Color;
 			}
@@ -92,7 +92,7 @@ namespace Zero
 				&& DepthStencil.Stencil == other.DepthStencil.Stencil;
 		}
 
-		EActiveMember EActiveMember;
+		ActiveMember ActiveMember;
 		union
 		{
 			ClearColor Color;
@@ -155,6 +155,7 @@ namespace Zero
 		virtual uint32_t GetHeight() { return m_TextureDesc.Height; };
 		virtual void Bind(uint32_t Slot) {};
 		FTextureDesc const& GetDesc() const { return m_TextureDesc; }
+		virtual void* GetNative() { return nullptr; };
 	protected:
 		FTextureDesc m_TextureDesc;
 	}; 
@@ -175,10 +176,10 @@ namespace Zero
 		virtual ZMath::uvec2 GetSize() = 0;
 		virtual void RegistGuiShaderResource() = 0;
 		virtual UINT64 GetGuiShaderReseource() = 0;
-		virtual void MakeSRVs(const std::vector<FTextureSubresourceDesc>& Descs) {};
-		virtual void MakeRTVs(const std::vector<FTextureSubresourceDesc>& Descs) {};
-		virtual void MakeDSVs(const std::vector<FTextureSubresourceDesc>& Descs) {};
-		virtual void MakeUAVs(const std::vector<FTextureSubresourceDesc>& Descs) {};
+		virtual void MakeSRVs(const std::vector<FTextureSubresourceDesc>& Descs) = 0;
+		virtual void MakeRTVs(const std::vector<FTextureSubresourceDesc>& Descs) = 0;
+		virtual void MakeDSVs(const std::vector<FTextureSubresourceDesc>& Descs) = 0;
+		virtual void MakeUAVs(const std::vector<FTextureSubresourceDesc>& Descs) = 0;
 		virtual void GenerateMip() = 0;
 	protected:	
         Ref<FImage> m_ImageData = nullptr;

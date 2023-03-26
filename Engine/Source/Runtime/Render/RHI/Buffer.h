@@ -125,6 +125,7 @@ namespace Zero
 		virtual void* Map() { return nullptr; }
 		virtual void Unmap() {}
 		virtual void Update(void const* SrcData, size_t DataSize, size_t Offset = 0) {};
+		virtual void* GetNative() { return nullptr; }
 	protected:
 		FBufferDesc m_Desc;
 		std::string m_BufferName;
