@@ -48,9 +48,6 @@ namespace Zero
 			};
 			FTexture2D* Texture = new FDX12Texture2D(TextureName, Desc, &ClearValue);
 			AttachColorTexture(Index, Texture);
-#ifdef EDITOR_MODE
-				Texture->RegistGuiShaderResource();
-#endif
 		}
 
 		if (RTDesc.bNeedDepth)
@@ -95,7 +92,6 @@ namespace Zero
 			if (m_ColoTexture[i].Texture != nullptr)
 			{
 				m_ColoTexture[i].Texture->Resize(Width, Height, Depth);
-				m_ColoTexture[i].Texture->RegistGuiShaderResource();
 			}
 		}
 

@@ -16,7 +16,7 @@
 namespace Zero
 {
 	class IGraphicFactroy;
-	class FRenderer
+	class FGraphic
 	{
 	public:
 		static void SetRHI(ERHI InRHI);
@@ -71,7 +71,7 @@ namespace Zero
 		{
 			auto Device = CreateRef<FDX12Device>();
 			Device->Init();
-			FRenderer::PushDevice(Device);
+			FGraphic::PushDevice(Device);
 			return Device;
 		}
 

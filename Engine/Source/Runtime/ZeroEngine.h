@@ -5,6 +5,7 @@
 #include "Utils.h"
 #include "Render/Pipeline/RenderStage.h"
 #include "Render/Pipeline/RenderPipeline.h"
+#include "Render/DAGRenderer.h"
 #include "World/World.h"
 #include "World/Actor/CameraActor.h"
 #include "World/Actor/MeshActor.h"

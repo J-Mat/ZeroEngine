@@ -28,7 +28,7 @@ namespace Zero
 	}
 
 	FConstantsBufferManager::FConstantsBufferManager()
-		: m_GlobalConstantsBuffer(FRenderer::GraphicFactroy->CreateConstantBuffer(GetGlobalConstantsDesc()))
+		: m_GlobalConstantsBuffer(FGraphic::GraphicFactroy->CreateConstantBuffer(GetGlobalConstantsDesc()))
 	{
 	}
 
@@ -57,7 +57,7 @@ namespace Zero
 		Ref<IShaderConstantsBuffer> Result;
 		if (m_IdleCameraConstantsBuffer.empty())
 		{
-			Result = FRenderer::GraphicFactroy->CreateConstantBuffer(GetPerCameraConstantsDesc());
+			Result = FGraphic::GraphicFactroy->CreateConstantBuffer(GetPerCameraConstantsDesc());
 		}
 		else
 		{
@@ -70,7 +70,7 @@ namespace Zero
 
 	Ref<IShaderConstantsBuffer> FConstantsBufferManager::GetMaterialConstBufferByDesc(Ref<FShaderConstantsDesc> Desc)
 	{
-		return FRenderer::GraphicFactroy->CreateConstantBuffer(*Desc.get());
+		return FGraphic::GraphicFactroy->CreateConstantBuffer(*Desc.get());
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -97,7 +97,7 @@ namespace Zero
 		Ref<IShaderConstantsBuffer> Result;
 		if (m_IdlePerObjectConstantsBuffer.empty())
 		{
-			Result = FRenderer::GraphicFactroy->CreateConstantBuffer(GetPerObjConstantsDesc());
+			Result = FGraphic::GraphicFactroy->CreateConstantBuffer(GetPerObjConstantsDesc());
 		}
 		else
 		{

@@ -18,7 +18,7 @@ namespace Zero
 		static UWorld* CreateWorld(uint32_t DeviceSlot = 0)
 		{
 			auto* World = new UWorld();
-			World->SetDevice(FRenderer::GetDevice(DeviceSlot));
+			World->SetDevice(FGraphic::GetDevice(DeviceSlot));
 			return World;
 		}
 		UWorld();

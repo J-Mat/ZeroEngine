@@ -18,7 +18,7 @@ namespace Zero
 		//FMeshGenerator::GetInstance().CreateRect(MeshData);
 		MeshDatas.push_back(MeshData);
 
-		m_IrradianceMapRenderItem->m_Mesh = FRenderer::GetDevice()->CreateMesh(
+		m_IrradianceMapRenderItem->m_Mesh = FGraphic::GetDevice()->CreateMesh(
 			MeshDatas,
 			FVertexBufferLayout::s_DefaultVertexLayout
 		);
@@ -35,7 +35,7 @@ namespace Zero
 			.RenderTargetName = "IrradianceMap",
 			.Size = 256,
 		};
-		m_IBLIrradianceMapRTCube = FRenderer::GetDevice()->CreateRenderTargetCube(IrradianceMapRTCubeDesc);
+		m_IBLIrradianceMapRTCube = FGraphic::GetDevice()->CreateRenderTargetCube(IrradianceMapRTCubeDesc);
 	}
 
 	void FImageBasedLighting::InitPrefilerMap()
@@ -45,7 +45,7 @@ namespace Zero
 		FMeshGenerator::Get().CreateCube(MeshData, 1.0f, 1.0f, 1.0f, 0);
 		//FMeshGenerator::GetInstance().CreateRect(MeshData);
 		MeshDatas.push_back(MeshData);
-		Ref<FMesh> Mesh = FRenderer::GetDevice()->CreateMesh(
+		Ref<FMesh> Mesh = FGraphic::GetDevice()->CreateMesh(
 			MeshDatas,
 			FVertexBufferLayout::s_DefaultVertexLayout);
 
@@ -71,7 +71,7 @@ namespace Zero
 				.RenderTargetName = std::format("PrefilterMap_Mip_{0}", Mip),
 				.Size = PrefilterMapSize,
 			};
-			m_PrefilterEnvMapRTCubes[Mip] = FRenderer::GetDevice()->CreateRenderTargetCube(PrefilterMapRTCubeDesc);
+			m_PrefilterEnvMapRTCubes[Mip] = FGraphic::GetDevice()->CreateRenderTargetCube(PrefilterMapRTCubeDesc);
 			m_PrefilterEnvMapTextureCubes[Mip] = m_PrefilterEnvMapRTCubes[Mip]->GetColorCubemap();
 			PrefilterMapSize /= 2;
 		}
@@ -91,7 +91,7 @@ namespace Zero
 
 	void FImageBasedLighting::PreCaculate()
 	{
-		m_CommandListHandle = FRenderer::GetDevice()->GetSingleThreadCommadList();
+		m_CommandListHandle = FGraphic::GetDevice()->GetSingleThreadCommadList();
 		CreateIBLIrradianceMap();
 		CreateIBLPrefilterEnvMap();
 	}

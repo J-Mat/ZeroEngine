@@ -14,6 +14,7 @@ namespace Zero
 	{
 	public:
 		FPSOCache();
+		void RegisterGlobalPSO();
 		void RegisterDefaultPSO();
 		void RegisterSkyboxPSO();
 		void RegisterIBLPSO();

@@ -27,7 +27,6 @@ namespace Zero
 	void FRenderPass::Begin(FCommandListHandle CommandListHandle)
 	{
 		m_RenderTarget->Bind(CommandListHandle);
-
 	}
 
 	void FRenderPass::End(FCommandListHandle CommandListHandle)

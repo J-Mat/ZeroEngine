@@ -4,7 +4,7 @@
 
 inline int GetKeyCode(int GLFWCode, int WinCode)
 {
-	switch (Zero::FRenderer::GetRHI())
+	switch (Zero::FGraphic::GetRHI())
 	{
 	case Zero::ERHI::DirectX12: return WinCode;
 	case Zero::ERHI::OpenGL:    return GLFWCode; 

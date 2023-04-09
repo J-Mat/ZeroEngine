@@ -143,7 +143,8 @@ namespace Zero
 
 	UINT FDX12SwapChain::Present(Ref<FTexture2D> Texture)
 	{
-		auto CommandListHandle = FDX12Device::Get()->GetSingleThreadCommadList();
+		FCommandListHandle CommandListHandle = FDX12Device::Get()->GenerateCommanList(ERenderPassType::Graphics);
+		//auto CommandListHandle = FDX12Device::Get()->GetSingleThreadCommadList();
 		auto CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
 		
 		Ref<FDX12Texture2D> BackBuffer = m_BackBufferTextures[m_CurrentBackBufferIndex];
@@ -180,7 +181,6 @@ namespace Zero
 		auto FenceValue = m_FenceValues[m_CurrentBackBufferIndex];
 		m_CommandQueue.WaitForFenceValue(FenceValue);
 		
-		FDX12Device::Get()->ReleaseStaleDescriptors();
 
 		return m_CurrentBackBufferIndex;
 	}
@@ -194,7 +194,6 @@ namespace Zero
 			
 			std::string BufferName = std::format("BackBuffer[{0}]", i);
 			m_BackBufferTextures[i] = CreateRef<FDX12Texture2D>(BufferName, BackBuffer, m_Width, m_Height);
-			m_BackBufferTextures[i]->RegistGuiShaderResource();
 
 			// Set the names for the backbuffer textures.
 			// Useful for debugging.

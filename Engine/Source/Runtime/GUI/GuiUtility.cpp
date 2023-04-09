@@ -5,7 +5,7 @@ namespace ImGui
 {
 	void DrawImage(ImTextureID user_texture_id, const ImVec2& size)
 	{
-		switch (Zero::FRenderer::RHI)
+		switch (Zero::FGraphic::RHI)
 		{
 		case Zero::ERHI::DirectX12:
 			ImGui::Image(user_texture_id, size,

@@ -7,7 +7,40 @@
 
 namespace Zero
 {
-    void FRenderGraph::FDependencyLevel::AddPass(Ref<FRGPassBase> Pass)
+	FRenderGraph::FRenderGraph(FRGResourcePool& Pool)
+		:m_ResourcePool(Pool)
+	{
+
+	}
+
+	FRenderGraph::~FRenderGraph()
+	{
+        for (auto& [RGTextureID, _] : m_SRVTexDescMap)
+        { 
+            FTexture2D* Texture = GetTexture(RGTextureID);
+            Texture->ReleaseSRVs();
+        }
+
+        for (auto& [RGTextureID, _] : m_UAVTexDescMap)
+        { 
+            FTexture2D* Texture = GetTexture(RGTextureID);
+            Texture->ReleaseUAVs();
+        }
+
+        for (auto& [RGTextureID, _] : m_RTVTexDescMap)
+        { 
+            FTexture2D* Texture = GetTexture(RGTextureID);
+            Texture->ReleaseRTVs();
+        }
+
+        for (auto& [RGTextureID, _] : m_DSVTexDescMap)
+        { 
+            FTexture2D* Texture = GetTexture(RGTextureID);
+            Texture->ReleaseDSVs();
+        }
+	}
+
+	void FRenderGraph::FDependencyLevel::AddPass(Ref<FRGPassBase> Pass)
     {
         m_Passes.push_back(Pass);
         m_TextureReads.insert(Pass->m_TextureReads.begin(), Pass->m_TextureReads.end());
@@ -22,13 +55,13 @@ namespace Zero
         { 
             if (Pass->IsCulled())
                 continue;
-            m_TextureReads.insert(Pass->m_TextureCreates.begin(), Pass->m_TextureCreates.end());
+            m_TextureCreates.insert(Pass->m_TextureCreates.begin(), Pass->m_TextureCreates.end());
             m_TextureDestroys.insert(Pass->m_TextureDestroys.begin(), Pass->m_TextureDestroys.end());
             for (auto [RGTextureID, State] : Pass->m_TextureStateMap)
             { 
                 m_TextureStateMap[RGTextureID] |= State;
             }
-            m_BufferReads.insert(Pass->m_BufferCreates.begin(), Pass->m_BufferCreates.end());
+            m_BufferCreates.insert(Pass->m_BufferCreates.begin(), Pass->m_BufferCreates.end());
             m_BufferDestroys.insert(Pass->m_BufferDestroys.begin(), Pass->m_BufferDestroys.end());
             for (auto [RGTextureID, State] : Pass->m_BufferStateMap)
             { 
@@ -129,7 +162,8 @@ namespace Zero
         */
     }
 
-    void FRenderGraph::Build()
+
+	void FRenderGraph::Build()
     {
         BuildAdjacencyLists();
         TopologicalSort();
@@ -139,28 +173,153 @@ namespace Zero
 
     void FRenderGraph::CreateTextureViews(FRGTextureID RGTextureID)
     {
-        for (auto& [RGTextureID, Descs] : m_SRVTexDescMap)
-        { 
-            FTexture2D* Texture = GetTexture(RGTextureID);
-            Texture->MakeSRVs(Descs);
+        FTexture2D* Texture = GetTexture(RGTextureID);
+        if (auto Iter = m_SRVTexDescMap.find(RGTextureID); Iter != m_SRVTexDescMap.end())
+        {
+            Texture->MakeSRVs(Iter->second);
         }
 
-        for (auto& [RGTextureID, Descs] : m_UAVTexDescMap)
+        if (auto Iter = m_UAVTexDescMap.find(RGTextureID); Iter != m_UAVTexDescMap.end())
         { 
-            FTexture2D* Texture = GetTexture(RGTextureID);
-            Texture->MakeUAVs(Descs);
+            Texture->MakeUAVs(Iter->second);
         }
 
-        for (auto& [RGTextureID, Descs] : m_RTVTexDescMap)
+        if (auto Iter = m_RTVTexDescMap.find(RGTextureID); Iter != m_RTVTexDescMap.end())
+        {
+            Texture->MakeRTVs(Iter->second);
+        }
+
+        if (auto Iter = m_DSVTexDescMap.find(RGTextureID); Iter !=  m_DSVTexDescMap.end())
         { 
-            FTexture2D* Texture = GetTexture(RGTextureID);
-            Texture->MakeRTVs(Descs);
+            Texture->MakeDSVs(Iter->second);
         }
     }
 
-    void FRenderGraph::Execute()
+
+	void FRenderGraph::TextureStateTransition(FDependencyLevel& DependencyLevel, size_t LevelIndex, FResourceBarrierBatch* ResourceBarrierBatch)
+	{
+        {
+            for (const auto& [RGTextureID, WantedState] : DependencyLevel.m_TextureStateMap)
+            {
+                FRGTexture* RGTexture = GetRGTexture(RGTextureID);
+                FTexture2D* Texture = RGTexture->Resource;
+                if (DependencyLevel.m_TextureCreates.contains(RGTextureID))
+                {
+                    EResourceState InitialState = Texture->GetDesc().InitialState;
+                    if (!HasAllFlags(InitialState, WantedState))
+                    {
+                        ResourceBarrierBatch->AddTransition(Texture->GetNative(), InitialState, WantedState);
+                    }
+                    continue;
+                }
+                bool bFound = false;
+                for (int32_t j = (int32_t)LevelIndex - 1; j >= 0; --j)
+                {
+                    auto& PreDependencyLevel = m_DependencyLevels[j];
+                    if (auto Iter = PreDependencyLevel.m_TextureStateMap.find(RGTextureID);
+                        Iter != PreDependencyLevel.m_TextureStateMap.end())
+                    {
+                        EResourceState PreState = Iter->second;
+                        if (PreState != WantedState)
+                        {
+                            ResourceBarrierBatch->AddTransition(Texture->GetNative(), PreState, WantedState);
+                        }
+                        bFound = true;
+                        break;
+                    }
+                }
+                if (!bFound && RGTexture->bImported)
+                {
+                    auto PreState = RGTexture->Desc.InitialState;
+                    if (PreState != WantedState)
+                    {
+                        ResourceBarrierBatch->AddTransition(Texture->GetNative(), PreState, WantedState);
+                    }
+                }
+            }
+        }
+	}
+
+	void FRenderGraph::BufferStateTransition(FDependencyLevel& DependencyLevel, size_t LevelIndex, FResourceBarrierBatch* ResourceBarrierBatch)
+	{
+        {
+            for (const auto& [RGBufferID, WantedState] : DependencyLevel.m_BufferStateMap)
+            {
+                FRGBuffer* RGBuffer = GetRGBuffer(RGBufferID);
+                FBuffer* Buffer = RGBuffer->Resource;
+                if (DependencyLevel.m_BufferCreates.contains(RGBufferID))
+                {
+                    if (WantedState != EResourceState::Common)
+                    {
+                        ResourceBarrierBatch->AddTransition(Buffer->GetNative(), EResourceState::Common, WantedState);
+                    }
+                    continue;
+                }
+                bool bFound = false;
+                for (int32_t j = (int32_t)LevelIndex - 1; j >= 0; --j)
+                {
+                    auto& PreDependencyLevel = m_DependencyLevels[j];
+                    if (auto Iter = PreDependencyLevel.m_BufferStateMap.find(RGBufferID);
+                        Iter != PreDependencyLevel.m_BufferStateMap.end())
+                    {
+                        EResourceState PreState = Iter->second;
+                        if (PreState != WantedState)
+                        {
+                            ResourceBarrierBatch->AddTransition(Buffer->GetNative(), PreState, WantedState);
+                        }
+                        bFound = true;
+                        break;
+                    }
+                }
+                if (!bFound && RGBuffer->bImported)
+                {
+                    if (WantedState != EResourceState::Common)
+                    {
+                        ResourceBarrierBatch->AddTransition(Buffer->GetNative(), EResourceState::Common, WantedState);
+                    }
+                }
+            }
+        }
+	}
+
+	void FRenderGraph::DestroyTexture(FDependencyLevel& DependencyLevel, FResourceBarrierBatch* ResourceBarrierBatch)
+	{
+        for (FRGTextureID RGTextureID : DependencyLevel.m_TextureDestroys)
+        {
+            FRGTexture* RGTexture = GetRGTexture(RGTextureID);
+            FTexture2D* Texture = RGTexture->Resource;
+            EResourceState WantedState = Texture->GetDesc().InitialState;
+            EResourceState PrevState = DependencyLevel.m_TextureStateMap[RGTextureID];
+            if (WantedState != PrevState)
+                ResourceBarrierBatch->AddTransition(Texture->GetNative(), PrevState, WantedState);
+            if (!RGTexture->bImported)
+            {
+                m_ResourcePool.ReleaseTexture(Texture);
+            }
+        }
+	}
+
+	void FRenderGraph::DestroyBuffer(FDependencyLevel& DependencyLevel, FResourceBarrierBatch* ResourceBarrierBatch)
+	{
+        for (FRGBufferID RGBufferID : DependencyLevel.m_BufferDestroys)
+        {
+            FRGBuffer* RGTexture = GetRGBuffer(RGBufferID);
+            FBuffer* Buffer = RGTexture->Resource;
+            EResourceState WantedState = EResourceState::Common;
+            EResourceState PrevState = DependencyLevel.m_BufferStateMap[RGBufferID];
+            if (WantedState != PrevState)
+                ResourceBarrierBatch->AddTransition(Buffer->GetNative(), PrevState, WantedState);
+            if (!RGTexture->bImported)
+            {
+                m_ResourcePool.ReleaseBuffer(Buffer);
+            }
+        }
+
+	}
+
+	void FRenderGraph::Execute()
     {
-        FCommandListHandle CommandListHandle = FRenderer::GetDevice()->GetSingleThreadCommadList();
+        FCommandListHandle CommandListHandle = FGraphic::GetDevice()->GetSingleThreadCommadList();
         m_ResourcePool.Tick();
         for (auto& DependencyLevel : m_DependencyLevels)
         { 
@@ -182,40 +341,19 @@ namespace Zero
                 FRGBuffer* RGBuffer = GetRGBuffer(RGBufferID);
                 RGBuffer->Resource = m_ResourcePool.AllocateBuffer(RGBuffer->Desc);
             }
+            FResourceBarrierBatch* ResourceBarrierBatch = FGraphic::GetDevice()->GetResourceBarrierBatch(CommandListHandle);
+            TextureStateTransition(DependencyLevel, i, ResourceBarrierBatch);
+            BufferStateTransition(DependencyLevel, i, ResourceBarrierBatch);
+            ResourceBarrierBatch->Submit();
+            DependencyLevel.Execute(CommandListHandle);
 
-            FResourceBarrierBatch* ResourceBarrierBatch = FRenderer::GetDevice()->GetResourceBarrierBatch(CommandListHandle);
-            {
-                for (const auto& [RGTextureID, State] : DependencyLevel.m_TextureStateMap)
-                {
-                    FRGTexture* RGTexture = GetRGTexture(RGTextureID);
-                    FTexture2D* Texture = RGTexture->Resource;
-                    if (DependencyLevel.m_TextureCreates.contains(RGTextureID))
-                    {
-                        EResourceState InitialState = Texture->GetDesc().InitialState;
-                        if (!HasAllFlags(InitialState, State))
-                        {
-                            ResourceBarrierBatch->AddTransition(Texture->GetNative(), InitialState, State);
-                        }
-                        continue;
-                    }
-                    bool bFound = false;
-                    for (int32_t j = i - 1; j >= 0; --j)
-                    {
-                        auto& PreDependencyLevel = m_DependencyLevels[j];
-                        if (auto Iter = PreDependencyLevel.m_TextureStateMap.find(RGTextureID);
-                            Iter != PreDependencyLevel.m_TextureStateMap.end())
-                        {
-                            EResourceState PreState = Iter->second;
-                            if (PreState != State)
-                            {
-                                ResourceBarrierBatch->AddTransition(Texture->GetNative(), PreState, State);
-                            }
-                            bFound = true;
-                            break;
-                        }
-                    }
-                }
-            }
+            ResourceBarrierBatch->Clear();
+           
+            DestroyTexture(DependencyLevel, ResourceBarrierBatch);
+            DestroyBuffer(DependencyLevel, ResourceBarrierBatch);
+
+            ResourceBarrierBatch->Submit();
+            
         }
 
     }
@@ -251,11 +389,11 @@ namespace Zero
     void FRenderGraph::BuildAdjacencyLists()
     {
         m_AdjacencyList.resize(m_Passes.size());
-        for (size_t i = 0; m_Passes.size(); ++i)
+        for (size_t i = 0; i < m_Passes.size(); ++i)
         {
             auto& CurPass = m_Passes[i];
             std::vector<uint64_t>& PassAdjacencyList = m_AdjacencyList[i];
-            for (size_t j = i + 1; m_Passes.size(); ++j)
+            for (size_t j = i + 1; j < m_Passes.size(); ++j)
             {
                 auto& OtherPass = m_Passes[j];
                 bool bDepends = false;
@@ -399,7 +537,7 @@ namespace Zero
 
     FRGTexture* FRenderGraph::GetRGTexture(FRGTextureID RGTextureID) const
     {
-        return m_Textures[RGTextureID.ID];
+        return m_Textures[RGTextureID.ID].get();
     }
 
     FTexture2D* FRenderGraph::GetTexture(FRGTextureID RGTextureID)
@@ -409,7 +547,7 @@ namespace Zero
 
     FRGBuffer* FRenderGraph::GetRGBuffer(FRGBufferID RGBufferID) const
     {
-        return m_Buffers[RGBufferID.ID];
+        return m_Buffers[RGBufferID.ID].get();
     }
 
     FBuffer* FRenderGraph::GetBuffer(FRGBufferID RGBufferID)

@@ -26,6 +26,7 @@ namespace Zero
 		FDX12CommandList(D3D12_COMMAND_LIST_TYPE Type);
 		virtual ~FDX12CommandList() = default;
 
+		void Init();
 		void FlushResourceBarriers();
 		void OnDeployed();
 		ComPtr<ID3D12GraphicsCommandList> GetD3D12CommandList() { return m_D3DCommandList; }

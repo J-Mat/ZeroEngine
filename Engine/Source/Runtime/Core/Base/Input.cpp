@@ -7,7 +7,7 @@ namespace Zero
 
 	void FInput::Init()
 	{
-		switch (Zero::FRenderer::GetRHI())
+		switch (Zero::FGraphic::GetRHI())
 		{
 		case Zero::ERHI::DirectX12: 
 			s_Instance = new FWinInput(); 

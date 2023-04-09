@@ -99,7 +99,7 @@ namespace Zero
 		}
 	}
 
-	FDX12Texture2D::FDX12Texture2D(const std::string& TextureName, const FTextureDesc& Desc, const FTextureClearValue* ClearValuePtr)
+	FDX12Texture2D::FDX12Texture2D(const std::string& TextureName, const FTextureDesc& Desc, bool bCreateTextureView /*= true*/, const FTextureClearValue* ClearValuePtr /*= nullptr*/)
 		: FTexture2D(Desc)
 	{
 		if (HasAnyFlag(m_TextureDesc.ResourceBindFlags, EResourceBindFlag::RenderTarget | EResourceBindFlag::DepthStencil))
@@ -165,7 +165,10 @@ namespace Zero
 			auto* TextureResourceAllocator = FDX12Device::Get()->GetTextureResourceAllocator();
 			TextureResourceAllocator->AllocTextureResource(TextureName, ResourceState, ResourceDesc, m_ResourceLocation);
 		}
-		CreateViews();
+		if (bCreateTextureView)
+		{
+			CreateViews();
+		}
 	}
 
 	FDX12Texture2D::FDX12Texture2D(const std::string& TextureName, Ref<FImage> ImageData, bool bNeedMipMap)
@@ -198,6 +201,7 @@ namespace Zero
 		m_TextureDesc.Height = Height;
 		CreateViews();
 	}
+
 
 
 	void FDX12Texture2D::Resize(uint32_t Width, uint32_t Height, uint32_t DepthOrArraySize = 1)
@@ -396,6 +400,11 @@ namespace Zero
 				m_SRVs[0] = std::move(Srv);
 				
 			}
+			if ((Desc.Flags & D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE) == 0 && m_ResourceLocation.GetResource()->CheckSRVSupport())
+			{
+				m_bHasGuiResource = false;
+				RegistGuiShaderResource();
+			}
 			// Create UAV for each mip (only supported for 1D and 2D textures).
 			if ((Desc.Flags & D3D12_RESOURCE_STATE_UNORDERED_ACCESS) != 0 && m_ResourceLocation.GetResource()->CheckUAVSupport() &&
 				Desc.DepthOrArraySize == 1)
@@ -503,7 +512,7 @@ namespace Zero
 	void FDX12Texture2D::MakeDSVs(const std::vector<FTextureSubresourceDesc>& Descs)
 	{
 		bool bCheckDSVSupport = m_ResourceLocation.GetResource()->CheckDSVSupport();
-		CORE_ASSERT(bCheckDSVSupport, "Check DSVSupport");
+		CORE_ASSERT(bCheckDSVSupport, "Check DSVSutrue, pport");
 
 		m_DSVs.clear();
 		m_DSVs.resize(Descs.size());
@@ -512,6 +521,7 @@ namespace Zero
 		{
 			auto& SubresourceDesc = Descs[i];
 			D3D12_DEPTH_STENCIL_VIEW_DESC DSVDesc;
+			DSVDesc.Flags = D3D12_DSV_FLAG_NONE;
 			switch (m_TextureDesc.Format)
 			{
 			case EResourceFormat::R16_TYPELESS:
@@ -615,6 +625,26 @@ namespace Zero
 	void FDX12Texture2D::GenerateMip()
 	{
 		FDX12Device::Get()->GetMipCommandList()->GenerateMipSimple(GetResource());
+	}
+
+	void FDX12Texture2D::ReleaseDSVs()
+	{
+		m_DSVs.clear();
+	}
+
+	void FDX12Texture2D::ReleaseUAVs()
+	{
+		m_UAVs.clear();
+	}
+
+	void FDX12Texture2D::ReleaseRTVs()
+	{
+		m_RTVs.clear();
+	}
+
+	void FDX12Texture2D::ReleaseSRVs() 
+	{
+		m_SRVs.clear();
 	}
 
 	FResourceView* FDX12Texture2D::GetRTV(uint32_t ViewID) const

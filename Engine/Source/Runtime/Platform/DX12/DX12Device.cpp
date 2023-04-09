@@ -117,9 +117,9 @@ namespace Zero
 		return CreateScope<FDX12PipelineStateObject>(PSODescriptor);
 	}
 
-	FTexture2D* FDX12Device::CreateTexture2D(const std::string& TextureName, const FTextureDesc& Desc)
+	FTexture2D* FDX12Device::CreateTexture2D(const std::string& TextureName, const FTextureDesc& Desc, bool bCreateTextureView /*= true*/)
 	{
-		return new FDX12Texture2D(TextureName, Desc);
+		return new FDX12Texture2D(TextureName, Desc, bCreateTextureView);
 	}
 
 	Ref<FTexture2D> FDX12Device::GetOrCreateTexture2D(const std::string& Filename, bool bNeedMipMap)
@@ -131,9 +131,6 @@ namespace Zero
 		{
 			Ref<FImage> Image = CreateRef<FImage>(TexturePath.string());
 			Texture = CreateRef<FDX12Texture2D>(Filename, Image, bNeedMipMap);
-#if	EDITOR_MODE
-			Texture->RegistGuiShaderResource();
-#endif
 		}
 		return Texture;
 	
@@ -523,7 +520,7 @@ namespace Zero
 			.InitialState = EResourceState::Common,
 			.Format = EResourceFormat::D24_UNORM_S8_UINT,
 		};
-		return new FDX12Texture2D(TextureName, Desc, &ClearValue);
+		return new FDX12Texture2D(TextureName, Desc, true, &ClearValue);
 	}
 
 	uint32_t FDX12Device::RegisterActiveComandlist(Ref<FDX12CommandList> CommandList)

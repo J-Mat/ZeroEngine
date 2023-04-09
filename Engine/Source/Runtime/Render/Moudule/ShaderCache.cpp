@@ -14,7 +14,7 @@ namespace Zero
 
 	Zero::Ref<Zero::FShader> FShaderCache::CreateShader(const FShaderDesc& ShaderDesc)
     {
-        auto Shader =  FRenderer::GetDevice()->CreateShader(ShaderDesc);
+        auto Shader =  FGraphic::GetDevice()->CreateShader(ShaderDesc);
         m_AllShaders[ShaderDesc.ShaderID] = Shader;
         return Shader;
     }

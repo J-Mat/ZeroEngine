@@ -22,7 +22,7 @@ namespace Zero
         D3D12_CLEAR_VALUE GetClearValue();
         void AttachHeapTypeAndResourceState(D3D12_HEAP_TYPE& D3DHeapType, D3D12_RESOURCE_STATES& D3DResourceState, D3D12_RESOURCE_DESC& ResourceDesc);
 	public:
-        FDX12Texture2D(const std::string& TextureName, const FTextureDesc& Desc, const FTextureClearValue* ClearValuePtr = nullptr);
+        FDX12Texture2D(const std::string& TextureName, const FTextureDesc& Desc, bool bCreateTextureView = true, const FTextureClearValue* ClearValuePtr = nullptr);
         FDX12Texture2D(const std::string& TextureName, Ref<FImage> ImageData, bool bNeedMipMap = true);
         FDX12Texture2D(const std::string& TextureName, ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, const D3D12_CLEAR_VALUE* FTextureClearValue = nullptr);
 
@@ -40,7 +40,6 @@ namespace Zero
 
         virtual void Resize(uint32_t Width, uint32_t Height, uint32_t DepthOrArraySize);
 
-        virtual void RegistGuiShaderResource() override;
         virtual UINT64 GetGuiShaderReseource() override;
 
         D3D12_UNORDERED_ACCESS_VIEW_DESC GetUAVDesc(const D3D12_RESOURCE_DESC& ResDesc, UINT MipSlice, UINT ArraySlice = 0, UINT PlaneSlice = 0);
@@ -52,6 +51,11 @@ namespace Zero
         virtual void MakeDSVs(const std::vector<FTextureSubresourceDesc>& Descs) override; 
         virtual void MakeUAVs(const std::vector<FTextureSubresourceDesc>& Descs) override; 
         virtual void GenerateMip() override;
+
+        virtual void ReleaseSRVs()  override;
+		virtual void ReleaseRTVs()  override;
+		virtual void ReleaseDSVs()  override;
+		virtual void ReleaseUAVs()  override;
 
         /**
         * Get the RTV for the texture.
@@ -77,7 +81,11 @@ namespace Zero
         Ref<FDX12Resource> GetResource() { return m_ResourceLocation.GetResource(); }
 		virtual void* GetNative() override { return m_ResourceLocation.GetResource()->GetD3DResource().Get(); };
 
+	protected:	
+        virtual void RegistGuiShaderResource() override;
+
 	private:
+
         FLightDescrptorAllocation m_GuiAllocation;
         bool m_bHasGuiResource = false;
         D3D12_PLACED_SUBRESOURCE_FOOTPRINT m_Footprint{};

@@ -19,8 +19,6 @@ namespace Zero
 			nullptr, IID_PPV_ARGS(&m_D3DCommandList)));
 
 
-		m_ResourceBarrierBatch = CreateScope<FDX12ResourceBarrierBatch>();
-
 		m_UploadBuffer = CreateScope<FUploadBuffer>();
 
 		m_ResourceStateTracker = CreateScope<FResourceStateTracker>();
@@ -33,6 +31,12 @@ namespace Zero
 		}
 		m_DescriptorCache = CreateScope<FDescriptorCache>();
 	}
+
+	void FDX12CommandList::Init()
+	{
+		m_ResourceBarrierBatch = CreateScope<FDX12ResourceBarrierBatch>(this->shared_from_this());
+	}
+
 
 	void FDX12CommandList::FlushResourceBarriers()
 	{

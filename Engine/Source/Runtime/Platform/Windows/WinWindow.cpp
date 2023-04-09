@@ -121,7 +121,7 @@ namespace Zero
 			return;
 		}
 		
-		m_Device = static_cast<FDX12Device*>(FRenderer::GraphicFactroy->CreateDevice().get())->AsShared();
+		m_Device = static_cast<FDX12Device*>(FGraphic::GraphicFactroy->CreateDevice().get())->AsShared();
 		FDX12Device::Get()->CreateSwapChain(m_WindowData.hMainWnd);
 		FDX12Device::Get()->FlushInitCommandList();
 		FFrameResourcesManager::Get().Init();

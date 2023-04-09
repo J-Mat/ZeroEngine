@@ -42,6 +42,10 @@ namespace Zero
 		FDX12Device::Get()->GetCommandQueue(ERenderPassType::Graphics).ExecuteCommandList(InitComandList);
 		auto MipComandList = FDX12Device::Get()->GetMipCommandList();
 		FDX12Device::Get()->GetCommandQueue(ERenderPassType::Compute).ExecuteCommandList(MipComandList);
+		auto SingleThreadComandList = FDX12Device::Get()->GetCommandList(SingleThreadCommandListHandle);
+
+		FDX12Device::Get()->GetCommandQueue(ERenderPassType::Graphics).ExecuteCommandList_Raw(SingleThreadComandList);
+
 		SwapChain->Present();
 
 		FDX12Device::Get()->EndFrame();

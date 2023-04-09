@@ -21,7 +21,7 @@ namespace Zero
 				EResourceFormat::R8G8B8A8_UNORM,
 			},
 		};
-		m_RenderTarget = FRenderer::GetDevice()->CreateRenderTarget2D(Desc);
+		m_RenderTarget = FGraphic::GetDevice()->CreateRenderTarget2D(Desc);
 		TLibrary<FRenderTarget2D>::Push(RENDER_STAGE_FORWARD, m_RenderTarget);
 
 		Ref<FRenderItemPool> RenderItemPool = UWorld::GetCurrentWorld()->GetDIYRenderItemPool();
@@ -79,7 +79,7 @@ namespace Zero
 
 	void FForwardStage::OnDraw()
 	{
-		m_CommandListHandle = FRenderer::GetDevice()->GetSingleThreadCommadList();
+		m_CommandListHandle = FGraphic::GetDevice()->GetSingleThreadCommadList();
 		static auto* Settings = FSettingManager::Get().FecthSettings<USceneSettings>(USceneSettings::StaticGetObjectName());
 		
 		if (Settings->m_bUseSkyBox)

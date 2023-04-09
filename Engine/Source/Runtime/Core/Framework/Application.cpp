@@ -13,8 +13,8 @@ namespace Zero
 		s_Instance = this;
 		
 		// Init: Window
-		FRenderer::SetRHI(ERHI::DirectX12);
-		m_Window = FRenderer::GraphicFactroy->CreatePlatformWindow(FWindowsConfig(hInst, m_Name));
+		FGraphic::SetRHI(ERHI::DirectX12);
+		m_Window = FGraphic::GraphicFactroy->CreatePlatformWindow(FWindowsConfig(hInst, m_Name));
 		m_Window->SetEventCallback(BIND_EVENT_FN(FApplication::OnEvent));
 		
 		// Init: Input System
@@ -23,7 +23,7 @@ namespace Zero
 		m_FrameTimer.reset(FFrameTimer::Create());
 		m_FrameTimer->Reset();
 
-		PushOverlay(FRenderer::GraphicFactroy->CreatGuiLayer());
+		PushOverlay(FGraphic::GraphicFactroy->CreatGuiLayer());
 	}
 
 	void FApplication::Run()

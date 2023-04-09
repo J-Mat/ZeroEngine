@@ -8,6 +8,7 @@
 
 namespace Zero
 {
+	class FResourceBarrierBatch;
 	class FRenderGraph
 	{
 		friend class FRenderGraphBuilder;
@@ -40,9 +41,9 @@ namespace Zero
 			std::map<FRGBufferID, EResourceState> m_BufferStateMap;
 		};
 	public:
-		FRenderGraph(FRGResourcePool& Pool) :
-			m_ResourcePool(Pool)
-		{}
+		FRenderGraph(FRGResourcePool& Pool);
+		~FRenderGraph();
+	
 
 		template<typename PassData, typename... FArgs> requires std::is_constructible_v<FRederGraphPass<PassData>, FArgs...>
 		decltype(auto) AddPass(FArgs&&... Args)
@@ -53,6 +54,15 @@ namespace Zero
 			return *dynamic_cast<FRederGraphPass<PassData>*>(m_Passes.back().get());
 		}
 
+		void TextureStateTransition(FDependencyLevel& DependencyLevel, size_t LevelIndex, FResourceBarrierBatch* ResourceBarrierBatch);
+		void BufferStateTransition(FDependencyLevel& DependencyLevel, size_t LevelIndex, FResourceBarrierBatch* ResourceBarrierBatch);
+
+		void DestroyTexture(FDependencyLevel& DependencyLevel, FResourceBarrierBatch* ResourceBarrierBatch);
+		void DestroyBuffer(FDependencyLevel& DependencyLevel, FResourceBarrierBatch* ResourceBarrierBatch);
+
+		void ImportTexture(FRGResourceName Name, FTexture2D* Texture);
+		void ImportBuffer(FRGResourceName Name, FBuffer* Buffer);
+
 		void Build();
 		void Execute();
 
@@ -61,8 +71,8 @@ namespace Zero
 	private:
 		FRGResourcePool m_ResourcePool;
 		std::vector<Ref<FRGPassBase>> m_Passes;
-		std::vector<FRGTexture*> m_Textures;
-		std::vector<FRGBuffer*> m_Buffers;
+		std::vector<Scope<FRGTexture>> m_Textures;
+		std::vector<Scope<FRGBuffer>> m_Buffers;
 
 		std::vector<std::vector<size_t>> m_AdjacencyList;
 		std::vector<size_t> m_TopologicallySortedPasses;
@@ -109,8 +119,6 @@ namespace Zero
 		
 		void CreateTextureViews(FRGTextureID RGTextureID);
 		
-		void ImportTexture(FRGResourceName Name, FTexture2D* Texture);
-		void ImportBuffer(FRGResourceName Name, FBuffer* Buffer);
 		
 		inline FRGTexture* GetRGTexture(FRGTextureID RGTextureID) const;
 		FTexture2D* GetTexture(FRGTextureID RGTextureID);

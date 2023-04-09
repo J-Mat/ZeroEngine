@@ -21,7 +21,7 @@ namespace Zero
 	class FMaterial;
 	struct FRenderLayerInfo
 	{
-		uint32_t PsoID = EPsoID::InvalidPso;
+		uint32_t PsoID = EPsoID::GlobalPso;
 		std::vector<Ref<FMaterial>> Materials;
 	};
 

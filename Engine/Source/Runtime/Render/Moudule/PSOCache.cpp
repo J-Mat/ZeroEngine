@@ -15,6 +15,22 @@ namespace Zero
 		m_PsoCache.resize(EPsoID::PSOCount);
 	}
 
+	void FPSOCache::RegisterGlobalPSO()
+	{
+		FShaderDesc ShaderDesc 
+		{
+			.FileName = "Shader\\Global.hlsl",
+			.ShaderID = EShaderID::Global,
+		};
+
+		FPSODescriptor ForwadLitDesc{
+			.PSOType =	EPSOType::PT_Normal
+		};
+
+		ForwadLitDesc.Shader = FShaderCache::Get().CreateShader(ShaderDesc);
+		m_PsoCache[EPsoID::GlobalPso] = FGraphic::GetDevice()->CreatePSO(ForwadLitDesc);
+	}
+
 	void FPSOCache::RegisterDefaultPSO()
 	{
 		{
@@ -29,7 +45,7 @@ namespace Zero
 			};
 
 			ForwadLitDesc.Shader = FShaderCache::Get().CreateShader(ShaderDesc);
-		 	m_PsoCache[EPsoID::ForwadLit] = FRenderer::GetDevice()->CreatePSO(ForwadLitDesc);
+		 	m_PsoCache[EPsoID::ForwadLit] = FGraphic::GetDevice()->CreatePSO(ForwadLitDesc);
 		}
 
 		{
@@ -40,7 +56,7 @@ namespace Zero
 			};
 			FPSODescriptor DirectLightDesc;
 			DirectLightDesc.Shader = FShaderCache::Get().CreateShader(ShaderDesc);
-		 	m_PsoCache[EPsoID::DirectLight] = FRenderer::GetDevice()->CreatePSO(DirectLightDesc);
+		 	m_PsoCache[EPsoID::DirectLight] = FGraphic::GetDevice()->CreatePSO(DirectLightDesc);
 		}
 
 		{
@@ -51,7 +67,7 @@ namespace Zero
 			};
 			FPSODescriptor PointLightDesc;
 			PointLightDesc.Shader = FShaderCache::Get().CreateShader(ShaderDesc);
-		 	m_PsoCache[EPsoID::PointLight] = FRenderer::GetDevice()->CreatePSO(PointLightDesc);
+		 	m_PsoCache[EPsoID::PointLight] = FGraphic::GetDevice()->CreatePSO(PointLightDesc);
 		}
 	}
 
@@ -68,7 +84,7 @@ namespace Zero
 			.DepthFunc = EComparisonFunc::LESS_EQUAL,
 			.CullMode = ECullMode::CULL_MODE_FRONT
 		};
-		 m_PsoCache[EPsoID::Skybox] = FRenderer::GetDevice()->CreatePSO(SkyboxPSODesc);
+		 m_PsoCache[EPsoID::Skybox] = FGraphic::GetDevice()->CreatePSO(SkyboxPSODesc);
 	}
 
 	void FPSOCache::RegisterIBLPSO()
@@ -89,7 +105,7 @@ namespace Zero
 				.bDepthEnable = false,
 				.CullMode = ECullMode::CULL_MODE_FRONT,
 			};
-			m_PsoCache[EPsoID::IBLIrradiance] = FRenderer::GetDevice()->CreatePSO(IrradianceMapPSODesc);
+			m_PsoCache[EPsoID::IBLIrradiance] = FGraphic::GetDevice()->CreatePSO(IrradianceMapPSODesc);
 		}
 
 		{
@@ -108,7 +124,7 @@ namespace Zero
 				.bDepthEnable = false,
 				.CullMode = ECullMode::CULL_MODE_FRONT,
 			};
-			m_PsoCache[EPsoID::IBLPrefilter] = FRenderer::GetDevice()->CreatePSO(PrefilterMapPSODesc);
+			m_PsoCache[EPsoID::IBLPrefilter] = FGraphic::GetDevice()->CreatePSO(PrefilterMapPSODesc);
 		}
 	}
 
@@ -124,7 +140,7 @@ namespace Zero
 				.PSOType = EPSOType::PT_Depth,
 				.Shader = FShaderCache::Get().CreateShader(ShaderDesc),
 			};
-			m_PsoCache[EPsoID::ShadowMap] = FRenderer::GetDevice()->CreatePSO(ShadowDesc);
+			m_PsoCache[EPsoID::ShadowMap] = FGraphic::GetDevice()->CreatePSO(ShadowDesc);
 		}
 
 		{
@@ -138,7 +154,7 @@ namespace Zero
 				.Shader = FShaderCache::Get().CreateShader(ShaderDesc),
 				.bDepthEnable = false,
 			};
-			m_PsoCache[EPsoID::ShadowDebug] = FRenderer::GetDevice()->CreatePSO(ShadowDesc);
+			m_PsoCache[EPsoID::ShadowDebug] = FGraphic::GetDevice()->CreatePSO(ShadowDesc);
 		}
 	}
 
@@ -152,7 +168,7 @@ namespace Zero
 					.BlockSize_Y = 8,
 					.BlockSize_Z = 1
 			};
-			FRenderer::GraphicFactroy->CreateComputeShader(GenerteMipShader);
+			FGraphic::GraphicFactroy->CreateComputeShader(GenerteMipShader);
 		}
 
 		{
@@ -163,7 +179,7 @@ namespace Zero
 					.BlockSize_Y = 8,
 					.BlockSize_Z = 1
 			};
-			FRenderer::GraphicFactroy->CreateComputeShader(GenerteMipShader);
+			FGraphic::GraphicFactroy->CreateComputeShader(GenerteMipShader);
 		}
 	}
 
@@ -182,7 +198,7 @@ namespace Zero
 			{
 				auto NewPsoDesc = PsoDesc;
 				NewPsoDesc.Shader = Shader;
-				m_PsoCache[i] = FRenderer::GetDevice()->CreatePSO(NewPsoDesc);
+				m_PsoCache[i] = FGraphic::GetDevice()->CreatePSO(NewPsoDesc);
 				m_PsoRecreateEvent.Broadcast(i);
 			}
 		}

@@ -6,6 +6,12 @@
 
 namespace Zero
 {
+
+	FDX12ResourceBarrierBatch::FDX12ResourceBarrierBatch(Ref<FDX12CommandList> CommandList):
+		m_CommandList(CommandList)
+	{
+	}
+
 	void FDX12ResourceBarrierBatch::AddTransition(void* Resource, EResourceState StateBefore, EResourceState StateAfter, uint32_t SubResource /*= -1*/)
 	{
 		D3D12_RESOURCE_BARRIER ResourceBarrier = {
@@ -34,7 +40,7 @@ namespace Zero
 
 	void FDX12ResourceBarrierBatch::AddAliasing(void* Before, void* After)
 	{
-		D3D12_RESOURCE_BARRIER resource_barrier =
+		D3D12_RESOURCE_BARRIER ResourceBarrier =
 		{
 			.Type = D3D12_RESOURCE_BARRIER_TYPE_ALIASING,
 			.Aliasing = {
@@ -42,15 +48,14 @@ namespace Zero
 				.pResourceAfter = (ID3D12Resource*)After,
 			},
 		};
-		m_ResourceBarriers.push_back(resource_barrier);
+		m_ResourceBarriers.push_back(ResourceBarrier);
 	}
 
-	void FDX12ResourceBarrierBatch::Submit(FCommandListHandle CommandListHandle)
+	void FDX12ResourceBarrierBatch::Submit()
 	{
 		if (!m_ResourceBarriers.empty())
 		{
-			auto CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
-			CommandList->GetD3D12CommandList()->ResourceBarrier(static_cast<UINT>(m_ResourceBarriers.size()), m_ResourceBarriers.data());
+			m_CommandList->GetD3D12CommandList()->ResourceBarrier(static_cast<UINT>(m_ResourceBarriers.size()), m_ResourceBarriers.data());
 		}
 	}
 

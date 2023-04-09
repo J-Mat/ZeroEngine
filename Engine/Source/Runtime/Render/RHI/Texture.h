@@ -174,14 +174,18 @@ namespace Zero
 		virtual Ref<FImage> GetImage() { return m_ImageData; };
 		virtual void Resize(uint32_t Width, uint32_t Height, uint32_t DepthOrArraySize = 1) = 0;
 		virtual ZMath::uvec2 GetSize() = 0;
-		virtual void RegistGuiShaderResource() = 0;
 		virtual UINT64 GetGuiShaderReseource() = 0;
 		virtual void MakeSRVs(const std::vector<FTextureSubresourceDesc>& Descs) = 0;
 		virtual void MakeRTVs(const std::vector<FTextureSubresourceDesc>& Descs) = 0;
 		virtual void MakeDSVs(const std::vector<FTextureSubresourceDesc>& Descs) = 0;
 		virtual void MakeUAVs(const std::vector<FTextureSubresourceDesc>& Descs) = 0;
 		virtual void GenerateMip() = 0;
+		virtual void ReleaseSRVs() = 0;
+		virtual void ReleaseRTVs() = 0;
+		virtual void ReleaseDSVs() = 0;
+		virtual void ReleaseUAVs() = 0;
 	protected:	
+		virtual void RegistGuiShaderResource() = 0;
         Ref<FImage> m_ImageData = nullptr;
 		bool m_bNeedMipMap = false;
 	};

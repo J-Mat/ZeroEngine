@@ -49,7 +49,9 @@ namespace Zero
 
 	Ref<FDX12CommandList> FDX12CommandQueue::CreateNewCommandList()
 	{
-		return CreateRef<FDX12CommandList>(m_CommandListType);
+		auto CommandList = CreateRef<FDX12CommandList>(m_CommandListType);
+		CommandList->Init();
+		return CommandList;
 	}
 
 	Ref<FDX12CommandList> FDX12CommandQueue::GetCommandList()
@@ -112,6 +114,32 @@ namespace Zero
 		for (auto CommandList : ToBeQueued)
 		{
 			m_InFlightCommandLists.Push({ FenceValue, CommandList});
+		}
+
+		return FenceValue;
+	}
+
+	uint64_t FDX12CommandQueue::ExecuteCommandList_Raw(Ref<FDX12CommandList> CommandList)
+	{
+		return ExecuteCommandLists_Raw(std::vector<std::shared_ptr<FDX12CommandList>>({ CommandList }));
+	}
+
+	uint64_t FDX12CommandQueue::ExecuteCommandLists_Raw(const std::vector<Ref<FDX12CommandList>>& CommandLists)
+	{
+		UINT NumCommandLists = static_cast<UINT>(CommandLists.size());
+		
+		std::vector<ID3D12CommandList*> D3DCommandLists;
+		for (auto CommandList : CommandLists)
+		{
+			D3DCommandLists.push_back(CommandList->GetD3D12CommandList().Get());
+		}
+		m_D3DCommandQueue->ExecuteCommandLists(NumCommandLists, D3DCommandLists.data());
+		
+		uint64_t FenceValue = Signal();
+		
+		for (auto CommandList : CommandLists)
+		{
+			m_InFlightCommandLists.Push({ FenceValue, CommandList });
 		}
 
 		return FenceValue;

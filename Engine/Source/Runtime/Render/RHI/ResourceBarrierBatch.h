@@ -13,7 +13,7 @@ namespace Zero
 		virtual void AddTransition(void* Resource, EResourceState StateBefore, EResourceState StateAfter, uint32_t SubResource = -1) = 0;
 		virtual void AddUAV(void* Resource) = 0;
 		virtual void AddAliasing(void* Before, void* After) = 0;
-		virtual void Submit(FCommandListHandle CommandListHandle) = 0;
+		virtual void Submit() = 0;
 		virtual void ReverseTransitions() = 0;
 		virtual void Clear() = 0;
 	};

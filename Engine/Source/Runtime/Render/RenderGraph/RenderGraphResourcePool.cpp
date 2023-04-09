@@ -36,7 +36,7 @@ namespace Zero
 		}
 		std::string TextureName = std::format("PoolTexture_{0}", m_TexturePool.size());
 		Ref<FTexture2D> Texture;
-		Texture.reset(FRenderer::GetDevice()->CreateTexture2D(TextureName, Desc));
+		Texture.reset(FGraphic::GetDevice()->CreateTexture2D(TextureName, Desc, false));
 		std::pair<FPooledTexture, bool> Pair = { FPooledTexture(Texture, false), true };
 		m_TexturePool.emplace_back(Pair);
 		return Texture.get();
@@ -55,10 +55,10 @@ namespace Zero
 		}
 		std::string BufferName = std::format("PoolBuffer_{0}", m_BufferPool.size());
 		Ref<FBuffer>Buffer;
-		Buffer.reset(FRenderer::GetDevice()->CreateBuffer(Desc));
+		Buffer.reset(FGraphic::GetDevice()->CreateBuffer(Desc));
 		std::pair<FPooledBuffer, bool> Pair = { FPooledBuffer(Buffer,  false), true};
 		m_BufferPool.emplace_back(Pair);
-		return m_BufferPool.end()->first.Buffer.get();
+		return Buffer.get();
 	}
 
 	FRenderTarget2D* FRGResourcePool::AllocateRenderTarget()
@@ -73,10 +73,10 @@ namespace Zero
 			}
 		}
 		Ref<FRenderTarget2D> RenderTarget; 
-		RenderTarget.reset(FRenderer::GetDevice()->CreateRenderTarget2D());
+		RenderTarget.reset(FGraphic::GetDevice()->CreateRenderTarget2D());
 		std::pair<FPoolRenderTarget, bool> Pair = { FPoolRenderTarget(RenderTarget, false), true};
 		m_RenderTargetPool.emplace_back(Pair);
-		return m_RenderTargetPool.end()->first.RenderTarget.get();
+		return RenderTarget.get();
 	}
 
 

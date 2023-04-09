@@ -6,6 +6,8 @@
 #define RG_STR_RES_NAME(name) FRGResourceName(name) FRGResourceName(name, Zero::crc64(name)) 
 #define RG_STR_RES_NAME_IDX(name, idx) FRGResourceName(name, idx) FRGResourceName(name, Zero::crc64(name) + idx)
 
+
+
 namespace Zero
 {
 	struct FRGResourceName
@@ -23,11 +25,19 @@ namespace Zero
 
 		uint64_t HashedName;
 		char const* Name;
+
+		
 	};
 
 	inline bool operator==(FRGResourceName const& name1, FRGResourceName const& name2)
 	{
 		return name1.HashedName == name2.HashedName;
+	}
+
+	namespace RGResourceName
+	{
+		constexpr FRGResourceName FinalTexture = RG_RES_NAME(FinalTexture);
+		constexpr FRGResourceName DepthStencil = RG_RES_NAME(DepthStencil);
 	}
 }
 

@@ -41,7 +41,7 @@ namespace Zero
 		virtual void CreateSwapChain(HWND hWnd) = 0;
 		virtual Scope<FPipelineStateObject> CreatePSO(const FPSODescriptor& PSODescriptor) = 0;
 		virtual Ref<FTexture2D> GetOrCreateTexture2D(const std::string& Filename, bool bNeedMipMap = false) = 0;
-		virtual FTexture2D* CreateTexture2D(const std::string& TextureName, const FTextureDesc& Desc) = 0;
+		virtual FTexture2D* CreateTexture2D(const std::string& TextureName, const FTextureDesc& Desc, bool bCreateTextureView) = 0;
 		virtual Ref<FTextureCubemap> GetOrCreateTextureCubemap(FTextureHandle Handles[CUBEMAP_TEXTURE_CNT], std::string TextureCubemapName) = 0;
 		virtual Ref<FShader> CreateShader(const FShaderBinderDesc& BinderDesc, const FShaderDesc& ShaderDesc) = 0;
 		virtual Ref<FShader> CreateShader(const FShaderDesc& ShaderDesc) = 0;

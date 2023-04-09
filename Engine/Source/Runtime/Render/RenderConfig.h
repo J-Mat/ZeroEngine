@@ -86,6 +86,7 @@ namespace Zero
 	{
 		enum
 		{
+			Global,
 			SkyBox,
 			ForwardLit,
 			DirectLight,
@@ -104,7 +105,7 @@ namespace Zero
 	{
 		enum
 		{
-			InvalidPso,
+			GlobalPso,
 			Skybox,
 			ShadowMap,
 			ShadowDebug,

@@ -3,16 +3,16 @@
 
 namespace Zero
 {
-	Scope<IGraphicFactroy> FRenderer::GraphicFactroy = nullptr;
-	ERHI FRenderer::RHI = ERHI::DirectX12;
-	ERayTracerAPI FRenderer::RayTracer = ERayTracerAPI::DXR;
-	std::vector<Ref<IDevice>> FRenderer::Devices;
+	Scope<IGraphicFactroy> FGraphic::GraphicFactroy = nullptr;
+	ERHI FGraphic::RHI = ERHI::DirectX12;
+	ERayTracerAPI FGraphic::RayTracer = ERayTracerAPI::DXR;
+	std::vector<Ref<IDevice>> FGraphic::Devices;
 
-	void FRenderer::InitAPI()
+	void FGraphic::InitAPI()
 	{
 	}
 
-	void FRenderer::SetRHI(ERHI InRHI)
+	void FGraphic::SetRHI(ERHI InRHI)
 	{	
 		RHI = InRHI;
 

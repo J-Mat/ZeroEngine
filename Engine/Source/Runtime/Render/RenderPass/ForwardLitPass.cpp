@@ -33,10 +33,10 @@ namespace Zero
 						.Width = m_Width,
 						.Height = m_Height,
 						.ClearValue = FTextureClearValue(1.0f, 0),
-						.Format = EResourceFormat::R32_TYPELESS
+						.Format = EResourceFormat::D24_UNORM_S8_UINT
 					};
-					Builder.DeclareTexture(RG_RES_NAME(DepthStencil), DepthDesc);
-					Builder.WriteDepthStencil(RG_RES_NAME(DepthStencil), ERGLoadStoreAccessOp::Clear_Preserve);
+					Builder.DeclareTexture(RGResourceName::DepthStencil, DepthDesc);
+					Builder.WriteDepthStencil(RGResourceName::DepthStencil, ERGLoadStoreAccessOp::Clear_Preserve);
 				}
 
 				{
@@ -46,8 +46,8 @@ namespace Zero
 						.ClearValue = FTextureClearValue(0.0f, 0.0f, 0.0f, 0.0f),
 						.Format = EResourceFormat::R8G8B8A8_UNORM
 					};
-					Builder.DeclareTexture(RG_RES_NAME(GBufferColor), ColorDesc);
-					Builder.WriteRenderTarget(RG_RES_NAME(GBufferColor), ERGLoadStoreAccessOp::Clear_Preserve);
+					//Builder.DeclareTexture(RG_RES_NAME(GBufferColor), ColorDesc);
+					Builder.WriteRenderTarget(RGResourceName::FinalTexture, ERGLoadStoreAccessOp::Clear_Preserve);
 				}
 
 				Builder.SetViewport(m_Width, m_Height);
@@ -68,5 +68,7 @@ namespace Zero
 
 	void FForwardLitPass::OnResize(uint32_t Width, uint32_t Height)
 	{
+		m_Width = Width;
+		m_Height = Height;
 	}
 }

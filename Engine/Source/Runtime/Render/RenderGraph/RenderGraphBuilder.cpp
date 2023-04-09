@@ -3,6 +3,12 @@
 
 namespace Zero
 {
+	FRenderGraphBuilder::FRenderGraphBuilder(FRenderGraph& RenderGraph, FRGPassBase& RGPassBase)
+		: m_RenderGrpah(RenderGraph), m_RgPass(RGPassBase)
+	{
+
+	}
+
 	void FRenderGraphBuilder::SetViewport(uint32_t Width, uint32_t Height)
 	{
 		m_RgPass.m_VieportWidth = Width;
