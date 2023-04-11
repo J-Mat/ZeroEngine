@@ -10,7 +10,7 @@ namespace Zero
 		{
 			FPooledTexture& Resource = m_TexturePool[i].first;
 			bool bActive = m_TexturePool[i].second;
-			if (bActive && Resource.LastUsedFrame + 4 < m_FrameIndex)
+			if (!bActive && Resource.LastUsedFrame + 4 < m_FrameIndex)
 			{
 				std::swap(m_TexturePool[i], m_TexturePool.back());
 				m_TexturePool.pop_back();
@@ -23,18 +23,19 @@ namespace Zero
 		++m_FrameIndex;
 	}
 
-	FTexture2D* FRGResourcePool::AllocateTexture(const FTextureDesc& Desc)
+	FTexture2D* FRGResourcePool::AllocateTexture(const FTextureDesc& Desc, char const* Name)
 	{
+		std::string TextureName = std::format("PoolTexture_{0}_{1}", m_TexturePool.size(), Name);
 		for (auto& [PoolTexture, bActive] : m_TexturePool)
 		{
 			if (!bActive && PoolTexture.Texture->GetDesc().IsCompatible(Desc))
 			{
+				PoolTexture.Texture->SetName(TextureName);
 				PoolTexture.LastUsedFrame = m_FrameIndex;
 				bActive = true;
 				return PoolTexture.Texture.get();
 			}
 		}
-		std::string TextureName = std::format("PoolTexture_{0}", m_TexturePool.size());
 		Ref<FTexture2D> Texture;
 		Texture.reset(FGraphic::GetDevice()->CreateTexture2D(TextureName, Desc, false));
 		std::pair<FPooledTexture, bool> Pair = { FPooledTexture(Texture, false), true };
@@ -84,7 +85,7 @@ namespace Zero
 	{
 		for (auto& [PooledTexture, bActive] : m_TexturePool)
 		{
-			if (!bActive && PooledTexture.Texture.get() == Texture)
+			if (bActive && PooledTexture.Texture.get() == Texture)
 			{
 				bActive = false;
 				return;

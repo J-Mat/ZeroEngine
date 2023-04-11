@@ -3,7 +3,7 @@
 
 namespace Zero
 {
-	FDX12RenderTargetView::FDX12RenderTargetView(Ref<FDX12Resource> Resource, D3D12_RENDER_TARGET_VIEW_DESC* RTV /*= nullptr*/) 
+	FDX12RenderTargetView::FDX12RenderTargetView(Ref<FDX12Resource> Resource, D3D12_RENDER_TARGET_VIEW_DESC* RTVPtr /*= nullptr*/) 
 		:FResourceView(EResourceViewType::RTV)
 		, m_Resource(Resource)
 	{
@@ -11,7 +11,7 @@ namespace Zero
 		m_Descriptor = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 		FDX12Device::Get()->GetDevice()->CreateRenderTargetView(
 			m_Resource->GetD3DResource().Get(), 
-			nullptr,
+			RTVPtr,
 			m_Descriptor.GetDescriptorHandle()
 		);
 	}

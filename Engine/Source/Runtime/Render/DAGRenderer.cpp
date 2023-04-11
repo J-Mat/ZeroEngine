@@ -28,10 +28,12 @@ namespace Zero
 		{
 			.Width = m_Width,
 			.Height = m_Height,
+			.ResourceBindFlags = EResourceBindFlag::RenderTarget | EResourceBindFlag::ShaderResource,
 			.ClearValue = FTextureClearValue(0.0f, 0.0f, 0.0f, 0.0f),
-			.Format = EResourceFormat::R8G8B8A8_UNORM
+			.Format = EResourceFormat::R8G8B8A8_UNORM,
 		};
 		m_FinalTexture.reset(FGraphic::GetDevice()->CreateTexture2D("FinalTexture", TextureDesc, false));
+		m_FinalTexture->RegistGuiShaderResource();
 
 	}
 

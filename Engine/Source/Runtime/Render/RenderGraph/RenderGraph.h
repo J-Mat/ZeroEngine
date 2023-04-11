@@ -106,6 +106,7 @@ namespace Zero
 		void TopologicalSort();
 		void BuildDependencyLevels();
 		void CullPasses();
+		void CalculateResourcesLifetime();
 		void DepthFirstSearch(size_t i, std::vector<bool>& visited, std::stack<size_t>& Stack);
 		
 		FRGTextureID DeclareTexture(FRGResourceName Name, const FRGTextureDesc& Desc);
@@ -118,6 +119,7 @@ namespace Zero
 		bool IsValidBufferHandle(FRGBufferID RGBufferID) const;
 		
 		void CreateTextureViews(FRGTextureID RGTextureID);
+		void CreateBufferViews(FRGBufferID RGBufferID);
 		
 		
 		inline FRGTexture* GetRGTexture(FRGTextureID RGTextureID) const;

@@ -20,12 +20,12 @@ namespace Zero
 		void OnUpdate();
 		void OnDraw();
 
-		FTexture2D* GetFinalTexture()
+		Ref<FTexture2D> GetFinalTexture()
 		{
-			return m_FinalTexture.get();
+			return m_FinalTexture;
 		}
 	private:
-		Scope<FTexture2D> m_FinalTexture;
+		Ref<FTexture2D> m_FinalTexture;
 		FRGResourcePool m_RGResourcePool;
 		uint32_t m_Width;
 		uint32_t m_Height;

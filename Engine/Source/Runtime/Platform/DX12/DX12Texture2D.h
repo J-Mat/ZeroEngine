@@ -22,10 +22,12 @@ namespace Zero
         D3D12_CLEAR_VALUE GetClearValue();
         void AttachHeapTypeAndResourceState(D3D12_HEAP_TYPE& D3DHeapType, D3D12_RESOURCE_STATES& D3DResourceState, D3D12_RESOURCE_DESC& ResourceDesc);
 	public:
-        FDX12Texture2D(const std::string& TextureName, const FTextureDesc& Desc, bool bCreateTextureView = true, const FTextureClearValue* ClearValuePtr = nullptr);
+        FDX12Texture2D(const std::string& TextureName, const FTextureDesc& Desc, bool bCreateTextureView = true);
         FDX12Texture2D(const std::string& TextureName, Ref<FImage> ImageData, bool bNeedMipMap = true);
         FDX12Texture2D(const std::string& TextureName, ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, const D3D12_CLEAR_VALUE* FTextureClearValue = nullptr);
+        virtual ~FDX12Texture2D();
 
+        virtual void SetName(const std::string& Name) override;
 
         static DXGI_FORMAT GetUAVCompatableFormat(DXGI_FORMAT Format);
         static bool IsSRGBFormat(DXGI_FORMAT Format);
@@ -81,9 +83,7 @@ namespace Zero
         Ref<FDX12Resource> GetResource() { return m_ResourceLocation.GetResource(); }
 		virtual void* GetNative() override { return m_ResourceLocation.GetResource()->GetD3DResource().Get(); };
 
-	protected:	
         virtual void RegistGuiShaderResource() override;
-
 	private:
 
         FLightDescrptorAllocation m_GuiAllocation;

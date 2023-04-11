@@ -42,6 +42,7 @@ namespace Zero
 		bool KeyEventPressed(FKeyPressedEvent& Event);
 		
 	private: 
+		Scope<FDAGRender> m_DAGRender = nullptr;
 		Ref<FRenderPipeline> m_ScriptablePipeline;
 		UWorld* m_World = nullptr;
 		Ref<FEditorCameraController> m_CameraController;
@@ -51,6 +52,5 @@ namespace Zero
 		Ref<FOutlinePanel> m_OutlinePanel;
 		Ref<FDetailPanel> m_DetailPanel;
 		Ref<FPlaceActorsPanel> m_PlaceActorPanel;
-	
 	};
 }

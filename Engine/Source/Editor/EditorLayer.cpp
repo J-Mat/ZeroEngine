@@ -18,8 +18,8 @@ namespace Zero
 	FEditorLayer::FEditorLayer() :
 		FLayer("EditorLayer")
 	{
-		m_ScriptablePipeline = CreateRef<FRenderPipeline>();
-		FRenderer::GetDevice()->PreInitWorld();
+		//m_ScriptablePipeline = CreateRef<FRenderPipeline>();
+		FGraphic::GetDevice()->PreInitWorld();
 		RegisterSettings();
 		RegisterEditPanel();
 		BuildWorld();
@@ -28,7 +28,7 @@ namespace Zero
 	void FEditorLayer::BuildWorld()
 	{
 		m_World = UWorld::CreateWorld();
-		m_World->SetDevice(FRenderer::GetDevice());
+		m_World->SetDevice(FGraphic::GetDevice());
 		UWorld::SetCurrentWorld(m_World);
 
 		m_CameraController = CreateRef<FEditorCameraController>(m_World->GetMainCamera());
@@ -62,11 +62,13 @@ namespace Zero
 
 	void FEditorLayer::RegisterRenderStage()
 	{
+		/*
 		Ref<FRenderStage> ShadowStage = FShadowStage::Create();
 		m_ScriptablePipeline->PushLayer(ShadowStage);
 
 		Ref<FRenderStage> ForwardRendering = FForwardStage::Create();
 		m_ScriptablePipeline->PushLayer(ForwardRendering);
+		*/
 	}
 
 	void FEditorLayer::RegisterEditPanel()
@@ -90,10 +92,13 @@ namespace Zero
 	void FEditorLayer::OnAttach()
 	{
 		CLIENT_LOG_INFO("FEditorLayer::OnAttach");
-		FRenderer::GetDevice()->FlushInitCommandList();
+		FGraphic::GetDevice()->FlushInitCommandList();
 		
-		auto MainViewportRenderTarget = TLibrary<FRenderTarget2D>::Fetch(RENDER_STAGE_FORWARD);
-		m_ViewportPanel->SetRenderTarget(MainViewportRenderTarget);
+	//	auto MainViewportRenderTarget = TLibrary<FRenderTarget2D>::Fetch(RENDER_STAGE_FORWARD);
+	//  m_ViewportPanel->SetRenderTarget(MainViewportRenderTarget);
+		ZMath::ivec2 WindowSize = m_ViewportPanel->GetWindowsSize();
+		m_DAGRender = CreateScope<FDAGRender>(WindowSize.x, WindowSize.y);
+		m_ViewportPanel->GetResizeViewportEvent().AddFunction(m_DAGRender.get(), &FDAGRender::OnResize);
 
 		auto ShadowMapRenderTarget = TLibrary<FRenderTarget2D>::Fetch(RENDER_STAGE_SHADOWMAP_DEBUG);
 		m_DebugViewportPanel->SetRenderTarget(ShadowMapRenderTarget);
@@ -107,12 +112,15 @@ namespace Zero
 	{
 		UWorld::GetCurrentWorld()->Tick();
 		m_CameraController->Tick();
+		m_DAGRender->OnUpdate();
 	}
 
 	void FEditorLayer::OnDraw()
 	{
 		FTextureManager::Get().Tick();
-		m_ScriptablePipeline->Run();
+		//m_ScriptablePipeline->Run();
+		m_DAGRender->OnDraw();
+		m_ViewportPanel->SetRenderTexture(m_DAGRender->GetFinalTexture());
 	}
 
 

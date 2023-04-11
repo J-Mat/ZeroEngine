@@ -4,10 +4,17 @@
 
 namespace Zero
 {
+
+	FViewportPanel::FViewportPanel():
+		FBasePanel()
+	{
+		m_WindowsSize = { 800.0f, 450.0f };
+	}
+
 	void FViewportPanel::SetRenderTarget(Ref<FRenderTarget2D> RenderTarget, uint32_t Index)
 	{
-		m_RenderTarget = RenderTarget;
-		m_RenderTargetIndex = Index;
+		//m_RenderTarget = RenderTarget;
+		//m_RenderTargetIndex = Index;
 	}
 
 	void FViewportPanel::OnGuiRender()
@@ -22,16 +29,23 @@ namespace Zero
 		ImVec2 ViewportPanelSize = { float(m_WindowsSize.x), float(m_WindowsSize.y) };
 		if (m_WindowsSize != m_LastWindowsSize)
 		{
+			/*
 			if (m_RenderTarget != nullptr)
 			{
 				m_RenderTarget->Resize(uint32_t(m_WindowsSize.x), uint32_t(m_WindowsSize.y));
+				m_ResizeViewportEvent.Broadcast(uint32_t(m_WindowsSize.x), uint32_t(m_WindowsSize.y));
 			}
+			*/
+			m_ResizeViewportEvent.Broadcast(uint32_t(m_WindowsSize.x), uint32_t(m_WindowsSize.y));
+			//m_RenderTexture = nullptr;
 			
 			UWorld::GetCurrentWorld()->GetMainCamera()->OnResizeViewport(uint32_t(m_WindowsSize.x), uint32_t(m_WindowsSize.y));
 		}
 		
-		FTexture2D* Texture = m_RenderTarget->GetColorTexture(m_RenderTargetIndex);
-		ImGui::Image((ImTextureID)Texture->GetGuiShaderReseource(), ViewportPanelSize);
+		if (m_RenderTexture)
+		{
+			ImGui::Image((ImTextureID)m_RenderTexture->GetGuiShaderReseource(), ViewportPanelSize);
+		}
 
 		OnMouseClick();
 		OnRenderGizmo();

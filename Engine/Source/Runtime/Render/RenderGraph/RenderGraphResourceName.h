@@ -38,6 +38,7 @@ namespace Zero
 	{
 		constexpr FRGResourceName FinalTexture = RG_RES_NAME(FinalTexture);
 		constexpr FRGResourceName DepthStencil = RG_RES_NAME(DepthStencil);
+		constexpr FRGResourceName GBufferColor = RG_RES_NAME(GBufferColor);
 	}
 }
 

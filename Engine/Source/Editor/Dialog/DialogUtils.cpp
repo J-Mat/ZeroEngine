@@ -10,7 +10,7 @@ namespace Zero
 		ZeroMemory(&Ofn, sizeof(OPENFILENAME));
 		Ofn.lStructSize = sizeof(OPENFILENAME);
 		//ofn.hwndOwner
-		switch (FRenderer::RHI)
+		switch (FGraphic::RHI)
 		{
 		case ERHI::DirectX12 :
 			Ofn.hwndOwner = (HWND)FApplication::Get().GetWindow().GetNativeWindow();
@@ -38,7 +38,7 @@ namespace Zero
 		ZeroMemory(&Ofn, sizeof(OPENFILENAME));
 		Ofn.lStructSize = sizeof(OPENFILENAME);
 		//ofn.hwndOwner
-		switch (FRenderer::RHI)
+		switch (FGraphic::RHI)
 		{
 		case ERHI::DirectX12 :
 			Ofn.hwndOwner = (HWND)FApplication::Get().GetWindow().GetNativeWindow();

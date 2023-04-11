@@ -576,22 +576,22 @@ namespace Zero
 	void FDX12CommandList::ClearTexture(FDX12Texture2D* TexturePtr, const ZMath::vec4 Color)
 	{
 		auto Resource = TexturePtr->GetResource();
-		TransitionBarrier(Resource, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, true);
+		//TransitionBarrier(Resource, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, true);
 		float ClearColor[4] = { Color.r, Color.g, Color.b, Color.a };
 		FDX12RenderTargetView* Rtv = static_cast<FDX12RenderTargetView*>(TexturePtr->GetRTV());
 		m_D3DCommandList->ClearRenderTargetView(Rtv->GetDescriptorHandle(), ClearColor, 0, nullptr);
 
-		TrackResource(Resource);
+		//TrackResource(Resource);
 	}
 
 	void FDX12CommandList::ClearDepthStencilTexture(FDX12Texture2D* TexturePtr, D3D12_CLEAR_FLAGS ClearFlags, float Depth, uint8_t Stencil)
 	{
 		auto Resource = TexturePtr->GetResource();
-		TransitionBarrier(Resource, D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, true);
+		//TransitionBarrier(Resource, D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, true);
 		FDX12DepthStencilView* Dsv = static_cast<FDX12DepthStencilView*>(TexturePtr->GetDSV());
 		m_D3DCommandList->ClearDepthStencilView(Dsv->GetDescriptorHandle(), ClearFlags, Depth, Stencil, 0, nullptr);
 
-		TrackResource(Resource);
+		//TrackResource(Resource);
 	}
 
 	void FDX12CommandList::CopyResource(const Ref<FDX12Resource>& DstRes, const Ref<FDX12Resource>& SrcRes)

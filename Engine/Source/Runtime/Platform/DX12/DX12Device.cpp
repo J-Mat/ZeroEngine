@@ -518,9 +518,10 @@ namespace Zero
 			.Height = Height,
 			.ResourceBindFlags = EResourceBindFlag::DepthStencil | EResourceBindFlag::ShaderResource,
 			.InitialState = EResourceState::Common,
+			.ClearValue = ClearValue,
 			.Format = EResourceFormat::D24_UNORM_S8_UINT,
 		};
-		return new FDX12Texture2D(TextureName, Desc, true, &ClearValue);
+		return new FDX12Texture2D(TextureName, Desc, true);
 	}
 
 	uint32_t FDX12Device::RegisterActiveComandlist(Ref<FDX12CommandList> CommandList)

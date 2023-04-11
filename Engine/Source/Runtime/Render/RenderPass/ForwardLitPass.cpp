@@ -46,7 +46,7 @@ namespace Zero
 						.ClearValue = FTextureClearValue(0.0f, 0.0f, 0.0f, 0.0f),
 						.Format = EResourceFormat::R8G8B8A8_UNORM
 					};
-					//Builder.DeclareTexture(RG_RES_NAME(GBufferColor), ColorDesc);
+					//Builder.DeclareTexture(RGResourceName::GBufferColor, ColorDesc);
 					Builder.WriteRenderTarget(RGResourceName::FinalTexture, ERGLoadStoreAccessOp::Clear_Preserve);
 				}
 

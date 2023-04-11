@@ -29,7 +29,7 @@ namespace Zero
 	public:
 		FRGResourcePool() = default;
 		void Tick();
-		FTexture2D* AllocateTexture(const FTextureDesc& Desc);
+		FTexture2D* AllocateTexture(const FTextureDesc& Desc, char const* Name);
 		FBuffer* AllocateBuffer(const FBufferDesc& Desc);
 		FRenderTarget2D* AllocateRenderTarget();
 		void ReleaseTexture(FTexture2D* Texture);

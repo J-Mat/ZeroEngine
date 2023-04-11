@@ -99,7 +99,7 @@ namespace Zero
 		}
 	}
 
-	FDX12Texture2D::FDX12Texture2D(const std::string& TextureName, const FTextureDesc& Desc, bool bCreateTextureView /*= true*/, const FTextureClearValue* ClearValuePtr /*= nullptr*/)
+	FDX12Texture2D::FDX12Texture2D(const std::string& TextureName, const FTextureDesc& Desc, bool bCreateTextureView /*= true*/)
 		: FTexture2D(Desc)
 	{
 		if (HasAnyFlag(m_TextureDesc.ResourceBindFlags, EResourceBindFlag::RenderTarget | EResourceBindFlag::DepthStencil))
@@ -113,19 +113,16 @@ namespace Zero
 			{
 				.Format = ResourceDesc.Format
 			};
-			if (ClearValuePtr != nullptr)
-			{ 
-				if (HasAnyFlag(m_TextureDesc.ResourceBindFlags, EResourceBindFlag::DepthStencil))
-				{
-					D3DClearValue.DepthStencil = { ClearValuePtr->DepthStencil.Depth, ClearValuePtr->DepthStencil.Stencil };
-				}
-				else
-				{
-					D3DClearValue.Color[0] = ClearValuePtr->Color.Color[0];
-					D3DClearValue.Color[1] = ClearValuePtr->Color.Color[1];
-					D3DClearValue.Color[2] = ClearValuePtr->Color.Color[2];
-					D3DClearValue.Color[3] = ClearValuePtr->Color.Color[3];
-				}
+			if (HasAnyFlag(m_TextureDesc.ResourceBindFlags, EResourceBindFlag::DepthStencil))
+			{
+				D3DClearValue.DepthStencil = { m_TextureDesc.ClearValue.DepthStencil.Depth, m_TextureDesc.ClearValue.DepthStencil.Stencil };
+			}
+			else
+			{
+				D3DClearValue.Color[0] = m_TextureDesc.ClearValue.Color.Color[0];
+				D3DClearValue.Color[1] = m_TextureDesc.ClearValue.Color.Color[1];
+				D3DClearValue.Color[2] = m_TextureDesc.ClearValue.Color.Color[2];
+				D3DClearValue.Color[3] = m_TextureDesc.ClearValue.Color.Color[3];
 			}
 
 			ID3D12Device* D3DDevice = FDX12Device::Get()->GetDevice();
@@ -136,7 +133,7 @@ namespace Zero
 					D3D12_HEAP_FLAG_NONE,
 					&ResourceDesc,
 					D3DResourceState,
-					ClearValuePtr ? &D3DClearValue : nullptr,
+					&D3DClearValue,
 					IID_PPV_ARGS(D3DResource.GetAddressOf())
 				)
 			);
@@ -153,13 +150,10 @@ namespace Zero
 			{
 				.Format = ResourceDesc.Format
 			};
-			if (ClearValuePtr != nullptr)
-			{ 
-				D3DClearValue.Color[0] = ClearValuePtr->Color.Color[0];
-				D3DClearValue.Color[1] = ClearValuePtr->Color.Color[1];
-				D3DClearValue.Color[2] = ClearValuePtr->Color.Color[2];
-				D3DClearValue.Color[3] = ClearValuePtr->Color.Color[3];
-			}
+			D3DClearValue.Color[0] = m_TextureDesc.ClearValue.Color.Color[0];
+			D3DClearValue.Color[1] = m_TextureDesc.ClearValue.Color.Color[1];
+			D3DClearValue.Color[2] = m_TextureDesc.ClearValue.Color.Color[2];
+			D3DClearValue.Color[3] = m_TextureDesc.ClearValue.Color.Color[3];
 
 
 			auto* TextureResourceAllocator = FDX12Device::Get()->GetTextureResourceAllocator();
@@ -203,6 +197,15 @@ namespace Zero
 	}
 
 
+	FDX12Texture2D::~FDX12Texture2D()
+	{
+		std::cout << Utils::WString2String(m_ResourceLocation.GetResource()->GetName()) <<  std::endl;
+	}
+
+	void FDX12Texture2D::SetName(const std::string& Name)
+	{
+		m_ResourceLocation.GetResource()->SetName(Utils::String2WString(Name));
+	}
 
 	void FDX12Texture2D::Resize(uint32_t Width, uint32_t Height, uint32_t DepthOrArraySize = 1)
 	{
@@ -502,6 +505,7 @@ namespace Zero
 				{
 					RTVDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 					RTVDesc.Texture2D.MipSlice = SubresourceDesc.FirstMip;
+					RTVDesc.Texture2D.PlaneSlice = 0;
 				}
 			}
 			auto Rtv = CreateScope<FDX12RenderTargetView>(m_ResourceLocation.GetResource(), &RTVDesc);

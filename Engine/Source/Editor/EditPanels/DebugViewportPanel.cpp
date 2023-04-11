@@ -10,6 +10,7 @@ namespace Zero
 	}
 	void FDebugViewportPanel::OnGuiRender()
 	{
+		return;
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2({ 0,0 }));
 		ImGui::Begin("Debug", 0, ImGuiWindowFlags_MenuBar);
 		

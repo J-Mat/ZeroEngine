@@ -37,7 +37,7 @@ namespace Zero
 		char const* Name;
 
 		FRGPassBase* Writer = nullptr;
-		FRGPassBase* LastUsedBy = nullptr;
+		FRGPassBase* LastPassUsedBy = nullptr;
 	};
 
 	template<ERGResourceType ResourceType>
@@ -55,6 +55,11 @@ namespace Zero
 		{}
 		FResource* Resource;
 		FResourceDesc Desc;
+
+		virtual ~FTypedRGResource() 
+		{
+			Resource = nullptr;
+		}
 	};
 	using FRGTexture = FTypedRGResource<ERGResourceType::Texture>;
 	using FRGBuffer = FTypedRGResource<ERGResourceType::Buffer>;	

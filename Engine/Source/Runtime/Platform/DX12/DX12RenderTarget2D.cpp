@@ -137,7 +137,7 @@ namespace Zero
 			if (Texture)
 			{
 				auto Resource = Texture->GetResource();
-				CommandList->TransitionBarrier(Resource->GetD3DResource(), D3D12_RESOURCE_STATE_RENDER_TARGET);
+				//CommandList->TransitionBarrier(Resource->GetD3DResource(), D3D12_RESOURCE_STATE_RENDER_TARGET);
 				FDX12RenderTargetView* Rtv = static_cast<FDX12RenderTargetView*>(Texture->GetRTV());
 				Handles.push_back(Rtv->GetDescriptorHandle());
 			}

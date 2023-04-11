@@ -171,6 +171,7 @@ namespace Zero
 			ITexture(TextureDesc)
 		{}
 		virtual ~FTexture2D() = default;
+		virtual void SetName(const std::string& Name) = 0;
 		virtual Ref<FImage> GetImage() { return m_ImageData; };
 		virtual void Resize(uint32_t Width, uint32_t Height, uint32_t DepthOrArraySize = 1) = 0;
 		virtual ZMath::uvec2 GetSize() = 0;
@@ -184,8 +185,8 @@ namespace Zero
 		virtual void ReleaseRTVs() = 0;
 		virtual void ReleaseDSVs() = 0;
 		virtual void ReleaseUAVs() = 0;
-	protected:	
 		virtual void RegistGuiShaderResource() = 0;
+	protected:	
         Ref<FImage> m_ImageData = nullptr;
 		bool m_bNeedMipMap = false;
 	};
