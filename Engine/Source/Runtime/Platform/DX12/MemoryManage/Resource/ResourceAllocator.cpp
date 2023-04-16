@@ -299,7 +299,7 @@ namespace Zero
 		m_Allocator = CreateScope<FMultiBuddyAllocator>(InitData);
 	}
 
-	void FTextureResourceAllocator::AllocTextureResource(const std::string& TextureName, const D3D12_RESOURCE_STATES& ResourceState, const D3D12_RESOURCE_DESC& ResourceDesc, FResourceLocation& ResourceLocation)
+	void FTextureResourceAllocator::AllocTextureResource(const std::string& TextureName, const D3D12_RESOURCE_DESC& ResourceDesc, FResourceLocation& ResourceLocation)
 	{
 		auto* D3DDeviec = FDX12Device::Get()->GetDevice();
 		const D3D12_RESOURCE_ALLOCATION_INFO Info = D3DDeviec->GetResourceAllocationInfo(0, 1, &ResourceDesc);
@@ -308,7 +308,7 @@ namespace Zero
 		ComPtr<ID3D12Resource> D3DResource;
 		ID3D12Heap* BackingHeap = ResourceLocation.m_Allocator->GetBackingHeap();
 		uint64_t HeapOffset = ResourceLocation.m_OffsetFromBaseOfHeap;
-		D3DDeviec->CreatePlacedResource(BackingHeap, HeapOffset, &ResourceDesc, ResourceState, nullptr, IID_PPV_ARGS(&D3DResource));
+		D3DDeviec->CreatePlacedResource(BackingHeap, HeapOffset, &ResourceDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&D3DResource));
 
 		ResourceLocation.m_UnderlyingResource = CreateRef<FDX12Resource>(TextureName, D3DResource);
 		ResourceLocation.m_BlockData.PlacedResource = ResourceLocation.m_UnderlyingResource;

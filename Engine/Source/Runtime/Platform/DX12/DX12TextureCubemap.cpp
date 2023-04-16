@@ -8,16 +8,21 @@
 namespace Zero
 {
 	FDX12TextureCubemap::FDX12TextureCubemap(const std::string& TextureName, const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* FTextureClearValue)
-		: FDX12Resource(TextureName, ResourceDesc, FTextureClearValue)
+		:FTextureCubemap()
 	{
 		m_TextureDesc.Width = (uint32_t)ResourceDesc.Width;
 		m_TextureDesc.Height  = (uint32_t)ResourceDesc.Height;
 		CreateViews();
 	}
 
+	
+	FDX12TextureCubemap::FDX12TextureCubemap(const std::string& TextureName, const FTextureDesc& Desc)
+		:FTextureCubemap(Desc)
+	{
+	}
 
-    FDX12TextureCubemap::FDX12TextureCubemap(const std::string& TextureName, Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT], bool bRenderDepth)
-		:  FDX12Resource()
+	FDX12TextureCubemap::FDX12TextureCubemap(const std::string& TextureName, Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT], bool bRenderDepth)
+		: FTextureCubemap()
 		, m_bRenderDepth(bRenderDepth)
 	{
 		m_TextureDesc.Width = ImageData[0]->GetWidth();
@@ -31,22 +36,22 @@ namespace Zero
 				m_TextureDesc.Height,
 				ImageData[0]->GetChannel()
 			);
-		Resource->SetName(Utils::StringToLPCWSTR(TextureName));
-		SetResource(Resource);
+		//Resource->SetName(Utils::StringToLPCWSTR(TextureName));
 		CreateViews();
 	}
 
 	FDX12TextureCubemap::FDX12TextureCubemap(ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, bool bRenderDepth, const D3D12_CLEAR_VALUE* FTextureClearValue)
-		: FDX12Resource("TextureCubeMap", Resource, FTextureClearValue)
-		, m_bRenderDepth(bRenderDepth)
+		: m_bRenderDepth(bRenderDepth)
 	{
 		m_TextureDesc.Width = Width;
 		m_TextureDesc.Height = Height;
 		CreateViews();
 	}
 
+
 	void FDX12TextureCubemap::Resize(uint32_t Width, uint32_t Height, uint32_t DepthOrArraySize)
 	{
+		/*
 		if (m_D3DResource)
 		{
 			CD3DX12_RESOURCE_DESC ResDesc(m_D3DResource->GetDesc());
@@ -71,6 +76,7 @@ namespace Zero
 			
 			CreateViews();
 		}
+		*/
 	}
 
 	// Get a UAV description that matches the resource description.
@@ -127,76 +133,73 @@ namespace Zero
 
 	void FDX12TextureCubemap::CreateViews()
 	{
-		if (m_D3DResource)
-		{
-			auto D3DDevice = FDX12Device::Get()->GetDevice();
+		auto D3DDevice = FDX12Device::Get()->GetDevice();
 			
-			CD3DX12_RESOURCE_DESC Desc(m_D3DResource->GetDesc());
+		CD3DX12_RESOURCE_DESC Desc(m_D3DResource->GetDesc());
 
-			// Create RTV	
-			if ((Desc.Flags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET) != 0 && CheckRTVSupport())
+		// Create RTV	
+		if ((Desc.Flags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET) != 0 && m_ResourceLocation.GetResource()->CheckRTVSupport())
+		{
+			if (m_RenderTargetView.IsNull())
 			{
-				if (m_RenderTargetView.IsNull())
-				{
-					m_RenderTargetView = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 6);
-				}
-				for (uint32_t i = 0; i < 6; ++i)
-				{
-					D3D12_RENDER_TARGET_VIEW_DESC RtvDesc = {
-						.Format = m_D3DResource->GetDesc().Format,
-						.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DARRAY,
-						.Texture2DArray = 
-						{
-							.MipSlice = 0,
-							.FirstArraySlice = UINT(i),
-							.ArraySize = 1,
-							.PlaneSlice = 0,
-						},
-					};
-					D3DDevice->CreateRenderTargetView(m_D3DResource.Get(), &RtvDesc, m_RenderTargetView.GetDescriptorHandle(i));
-				}
+				m_RenderTargetView = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 6);
 			}
+			for (uint32_t i = 0; i < 6; ++i)
+			{
+				D3D12_RENDER_TARGET_VIEW_DESC RtvDesc = {
+					.Format = m_D3DResource->GetDesc().Format,
+					.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DARRAY,
+					.Texture2DArray = 
+					{
+						.MipSlice = 0,
+						.FirstArraySlice = UINT(i),
+						.ArraySize = 1,
+						.PlaneSlice = 0,
+					},
+				};
+				D3DDevice->CreateRenderTargetView(m_D3DResource.Get(), &RtvDesc, m_RenderTargetView.GetDescriptorHandle(i));
+			}
+		}
 
-			// Create DSV	
-			if (m_bRenderDepth && (Desc.Flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL) != 0 && CheckDSVSupport())
+		// Create DSV	
+		if (m_bRenderDepth && (Desc.Flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL) != 0 && CheckDSVSupport())
+		{
+			if (m_DepthStencilView.IsNull())
 			{
-				if (m_DepthStencilView.IsNull())
-				{
-					m_DepthStencilView = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 6);
-				}
-				for (uint32_t i = 0; i < 6; ++i)
-				{
-					D3D12_DEPTH_STENCIL_VIEW_DESC DsvDesc = {
-						.Format = DXGI_FORMAT_D24_UNORM_S8_UINT,
-						.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2DARRAY,
-						.Flags = D3D12_DSV_FLAG_NONE,
-						.Texture2DArray = 
-						{
-							.MipSlice = 0,
-							.FirstArraySlice = UINT(i),
-							.ArraySize = 1,
-						},
-					};
-					D3DDevice->CreateDepthStencilView(m_D3DResource.Get(), &DsvDesc, m_DepthStencilView.GetDescriptorHandle(i));
-				}
+				m_DepthStencilView = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 6);
 			}
-			// Create SRV
-			if ((Desc.Flags & D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE) == 0 && CheckSRVSupport())
+			for (uint32_t i = 0; i < 6; ++i)
 			{
-				if (m_ShaderResourceView.IsNull())
-				{
-					m_ShaderResourceView = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-				}
-				D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc = {};
-				SrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-				SrvDesc.Format = Desc.Format;
-				SrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
-				SrvDesc.Texture2D.MostDetailedMip = 0;
-				SrvDesc.Texture2D.MipLevels = 1;
-				SrvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
-				D3DDevice->CreateShaderResourceView(m_D3DResource.Get(), &SrvDesc,
-					m_ShaderResourceView.GetDescriptorHandle());
+				D3D12_DEPTH_STENCIL_VIEW_DESC DsvDesc = {
+					.Format = DXGI_FORMAT_D24_UNORM_S8_UINT,
+					.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2DARRAY,
+					.Flags = D3D12_DSV_FLAG_NONE,
+					.Texture2DArray = 
+					{
+						.MipSlice = 0,
+						.FirstArraySlice = UINT(i),
+						.ArraySize = 1,
+					},
+				};
+				D3DDevice->CreateDepthStencilView(m_D3DResource.Get(), &DsvDesc, m_DepthStencilView.GetDescriptorHandle(i));
 			}
+		}
+		// Create SRV
+		if ((Desc.Flags & D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE) == 0 && CheckSRVSupport())
+		{
+			if (m_ShaderResourceView.IsNull())
+			{
+				m_ShaderResourceView = FDX12Device::Get()->AllocateRuntimeDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+			}
+			D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc = {};
+			SrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+			SrvDesc.Format = Desc.Format;
+			SrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+			SrvDesc.Texture2D.MostDetailedMip = 0;
+			SrvDesc.Texture2D.MipLevels = 1;
+			SrvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+			D3DDevice->CreateShaderResourceView(m_D3DResource.Get(), &SrvDesc,
+				m_ShaderResourceView.GetDescriptorHandle());
 		}
 	}
 

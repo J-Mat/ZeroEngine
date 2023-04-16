@@ -94,7 +94,7 @@ namespace Zero
 	{
 	public:
 		FTextureResourceAllocator();
-		void AllocTextureResource(const std::string& TextureName,  const D3D12_RESOURCE_STATES& ResourceState, const D3D12_RESOURCE_DESC& ResourceDesc, FResourceLocation& ResourceLocation);
+		void AllocTextureResource(const std::string& TextureName, const D3D12_RESOURCE_DESC& ResourceDesc, FResourceLocation& ResourceLocation);
 		void CleanUpAllocations();
 	private:
 		Scope<FMultiBuddyAllocator> m_Allocator = nullptr;

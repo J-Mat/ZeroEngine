@@ -15,7 +15,7 @@ namespace Zero
     class FDX12Device;
     class FDescriptorAllocation;
     
-	class FDX12Texture2D :public FTexture2D, public std::enable_shared_from_this<FDX12Texture2D>
+	class FDX12Texture2D :public FTexture2D
 	{
         friend class FDX12RenderTarget2D;
     private: 

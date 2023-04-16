@@ -41,6 +41,7 @@ namespace Zero
 		FTextureHandle LoadTexture(std::string const& FileName, bool bNeedMip = true);
 		Ref<FTexture2D> GetTextureByHandle(FTextureHandle Handle);
 		FTextureHandle GetDefaultTextureHandle() { return m_DefaultHandle; };
+		Ref<FTextureCubemap>
 	private:
 		std::map<std::string, FTextureHandle> m_LoadedTexNameHandleMap{};
 		//std::map<FTextureHandle, Ref<FTexture2D>> m_TextureMap{};

@@ -168,7 +168,6 @@ namespace Zero
 	FDX12Texture2D::FDX12Texture2D(const std::string& TextureName, Ref<FImage> ImageData, bool bNeedMipMap)
 		 : FTexture2D(bNeedMipMap)
 	{
-		m_ImageData = ImageData;
 		m_TextureDesc.Width = (uint64_t)ImageData->GetWidth();
 		m_TextureDesc.Height = ImageData->GetHeight();
 		m_TextureDesc.MipLevels = bNeedMipMap ? ZMath::min(ZMath::CalLog2Interger((uint32_t)m_TextureDesc.Width), ZMath::CalLog2Interger(m_TextureDesc.Height)) + 1 : 1;
@@ -176,12 +175,10 @@ namespace Zero
 		m_TextureDesc.Format = EResourceFormat::R8G8B8A8_UNORM;
 		m_TextureDesc.SampleCount = 1;
 		m_TextureDesc.ResourceBindFlags = EResourceBindFlag::UnorderedAccess;
-		m_TextureDesc.InitialState = EResourceState::Common;
 
 		CORE_ASSERT(ImageData->GetData() != nullptr, "Image has no data!");
 		//auto Resource = FDX12Device::Get()->GetInitWorldCommandList()->CreateTextureResource(TextureName, ImageData, m_bNeedMipMap);
 
-		FDX12Device::Get()->GetInitWorldCommandList()->AllocateTextureResource(TextureName, m_TextureDesc, m_ResourceLocation, ImageData, bNeedMipMap);
 		CreateViews();
 	}
 
@@ -216,17 +213,14 @@ namespace Zero
 			{
 				m_ResourceLocation.ReleaseResource();
 				CD3DX12_RESOURCE_DESC ResDesc(m_ResourceLocation.GetResource()->GetD3DResource()->GetDesc());
-				m_TextureDesc.InitialState = EResourceState::Common;
 				m_TextureDesc.Width = std::max(Width, 1u);
 				m_TextureDesc.Height = std::max(Height, 1u);
 				m_TextureDesc.MipLevels = ResDesc.SampleDesc.Count > 1 ? 1 : 0;
 
-				D3D12_RESOURCE_STATES ResourceState = FDX12Utils::ConvertToD3DResourceState(m_TextureDesc.InitialState);
-
 				D3D12_RESOURCE_DESC ResourceDesc = FDX12Utils::ConvertResourceDesc(m_TextureDesc);
 
 				auto* TextureResourceAllocator = FDX12Device::Get()->GetTextureResourceAllocator();
-				TextureResourceAllocator->AllocTextureResource(Utils::WString2String(Resource->GetName()), ResourceState, ResourceDesc, m_ResourceLocation);
+				TextureResourceAllocator->AllocTextureResource(Utils::WString2String(Resource->GetName()), ResourceDesc, m_ResourceLocation);
 
 				FResourceStateTracker::AddGlobalResourceState(m_ResourceLocation.GetResource()->GetD3DResource().Get(), D3D12_RESOURCE_STATE_COMMON);
 			}
