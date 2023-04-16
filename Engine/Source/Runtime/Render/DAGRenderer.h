@@ -1,6 +1,7 @@
 #pragma once
 #include "Core.h"
 #include "./RenderPass/ForwardLitPass.h"
+#include "./RenderPass/CopyToFinalTexturePass.h"
 #include "Render/RenderGraph/RenderGraphResourcePool.h"
 
 namespace Zero
@@ -31,5 +32,6 @@ namespace Zero
 		uint32_t m_Height;
 		
 		FForwardLitPass m_ForwardLitPass;
+		FCopyToFinalTexturePass m_CopyToFinalTexturePass;
 	};
 };

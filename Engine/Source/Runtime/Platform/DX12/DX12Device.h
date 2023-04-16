@@ -80,8 +80,8 @@ namespace Zero
 
 		virtual FCommandListHandle GenerateCommanList(ERenderPassType RenderPassType = ERenderPassType::Graphics) override;
 		Ref<FDX12CommandList> GetCommandList(FCommandListHandle Handle, ERenderPassType RenderPassType = ERenderPassType::Graphics);
-		void SetSingleThreadCommandList(FCommandListHandle Handle) { m_SingleThreadCommandListHandle = Handle; }
-		virtual FCommandListHandle GetSingleThreadCommadList() override { return m_SingleThreadCommandListHandle; } 
+		virtual Ref<FCommandList> GetRHICommandList(FCommandListHandle Handle, ERenderPassType RenderPassType = ERenderPassType::Graphics) override;
+		virtual FCommandListHandle GetSingleThreadCommadList(ERenderPassType RenderPassType = ERenderPassType::Graphics) override { return m_SingleThreadCommandListHandles[RenderPassType]; }
 
 		void SetInitWorldCommandList(FCommandListHandle Handle) {  m_InitWorldCommandListHandle = Handle; }
 		void SetMipCommandList(FCommandListHandle Handle) {  m_MipCommandListHandle = Handle; }
@@ -95,6 +95,8 @@ namespace Zero
 		void ClearBackBuffer();
 
 		virtual void BeginFrame() override;
+		void InitSingleThreadCommandLists();
+		void ExecuteSingleThreadCommandLists();
 		virtual void EndFrame() override;
 		
 		FDX12Texture2D* CreateDepthTexture(const std::string& TextureName, uint32_t Width, uint32_t Height);
@@ -129,7 +131,6 @@ namespace Zero
 		virtual FBuffer* CreateBuffer(const FBufferDesc& Desc) override;
 		virtual void BindVertexBuffer(FCommandListHandle Handle, FBuffer* VertexBuffer) override;
 		virtual void BindIndexBuffer(FCommandListHandle Handle, FBuffer* IndexBuffer) override;
-		virtual FResourceBarrierBatch* GetResourceBarrierBatch(FCommandListHandle Handle, ERenderPassType RenderPassType) override;
 	private:
 		static FDX12Device* m_Instance;
 		void EnableDebugLayer();
@@ -141,7 +142,7 @@ namespace Zero
 
 		
 	private:
-		FCommandListHandle m_SingleThreadCommandListHandle = -1;
+		FCommandListHandle m_SingleThreadCommandListHandles[3] = { uint32_t(-1), uint32_t(-1), uint32_t(-1) };
 		FCommandListHandle m_InitWorldCommandListHandle = -1;
 		FCommandListHandle m_MipCommandListHandle = -1;
 		UINT m_RtvDescriptorSize;

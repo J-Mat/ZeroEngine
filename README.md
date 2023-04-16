@@ -9,6 +9,7 @@ Renderer based on DX12 from zero.
 - [jpvanoosten/LearningDirectX12: This repository is intended to be used as a code repository for learning DirectX 12. (github.com)](https://github.com/jpvanoosten/LearningDirectX12)
 - [SuikaSibyl/SibylEngine2021 (github.com)](https://github.com/SuikaSibyl/SibylEngine2021)
 - [zhanjinzhao/TotoroEngine: A toy 3D game engine using DirectX 12. (github.com)](https://github.com/zhanjinzhao/TotoroEngine)
+- [mateeeeeee/Adria-DX12: Rendergraph-based graphics engine written in C++ using DirectX12 (github.com)](https://github.com/mateeeeeee/Adria-DX12)
 
 ## MileStone
 
@@ -100,10 +101,17 @@ I am gonna do research on several shadow algorithms. PCF, PCSS, CSM, VSM etc.
 
 I stopped developping new features for a long while to restruct the framework.
 
-Actually I've added some cool features to my renderder. 
+Actually I've added some cool features to my renderder.
 
 - Resource managerment based Buddy System.  I managed the resources including textures, upload buffers, default buffers etc.
 - Generate Mips for textures through compute shader. It is such a best way to learn how to use CS!
 - Shader hot fix through dxc. Maybe there are  some bugs.
 
-Render Graph is on the way !
+Frame Graph is on the way !
+
+
+### Frame Graph framework 2023-4-16
+
+Since the code was not so complicated, I upgraded the render framework. It is the brand new render pipeline that is totally different from former. 
+
+light, shadow, light effects will be transform to the frame graph as render passes.

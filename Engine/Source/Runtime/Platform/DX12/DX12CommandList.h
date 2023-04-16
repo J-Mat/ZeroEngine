@@ -10,8 +10,6 @@
 #include "MemoryManage/Descriptor/DynamicDescriptorHeap.h"
 #include "MemoryManage/Descriptor/DescriptorCache.h"
 #include "./PSO/GenerateMipsPSO.h"
-#include "DX12ResourceBarrierBatch.h"
-
 
 
 namespace Zero
@@ -19,7 +17,6 @@ namespace Zero
 	class FDX12PipelineStateObject;
 	class FDX12Resource;
 	class FDX12Texture2D;
-	class FDX12ResourceBarrierBatch;
 	class FDX12CommandList : public FCommandList, public std::enable_shared_from_this<FDX12CommandList>
 	{
 	public:
@@ -55,6 +52,8 @@ namespace Zero
 		*/
 		void CopyResource(const Ref<FDX12Resource>& DstRes, const Ref<FDX12Resource>& SrcRes);
 		void CopyResource(ComPtr<ID3D12Resource> DstRes, ComPtr<ID3D12Resource> SrcRes);
+		void CopyResource(ID3D12Resource* DstRes, ID3D12Resource* SrcRes);
+		virtual void CopyResource(void* Dst, void* Src);
 
 		/**
 		* Draw geometry.
@@ -106,8 +105,11 @@ namespace Zero
 		*/
 		void TransitionBarrier(const Ref<FDX12Resource>& Resource, D3D12_RESOURCE_STATES StateAfter,
 			UINT Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, bool bFlushBarriers = false);
+		void TransitionBarrier(ID3D12Resource* Resource, D3D12_RESOURCE_STATES StateAfter,
+			UINT Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, bool bFlushBarriers = false);
 		void TransitionBarrier(ComPtr<ID3D12Resource> Resource, D3D12_RESOURCE_STATES StateAfter,
 			UINT Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, bool bFlushBarriers = false);
+		virtual void TransitionBarrier(void* Resource, EResourceState ResourceState, UINT Subresource = -1, bool bFlushBarriers = false) override;
 
 		/**
 		 * Add a UAV barrier to ensure that any writes to a resource have completed
@@ -180,7 +182,6 @@ namespace Zero
 
 		CD3DX12_GPU_DESCRIPTOR_HANDLE AppendCbvSrvUavDescriptors(D3D12_CPU_DESCRIPTOR_HANDLE* DstDescriptor, uint32_t NumDescriptors);
 
-		FDX12ResourceBarrierBatch* GetResourceBarrierBatch() {return m_ResourceBarrierBatch.get();}
 
 	private:
 		void TrackResource(Microsoft::WRL::ComPtr<ID3D12Object> Object);
@@ -193,7 +194,6 @@ namespace Zero
 		void SetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE HeapType, ID3D12DescriptorHeap* Heap);
 
 	private:
-		Scope<FDX12ResourceBarrierBatch> m_ResourceBarrierBatch;
 		Scope<FDescriptorCache> m_DescriptorCache;
 		Scope<FGenerateMipsPSO> m_GenerateMipsPSO = nullptr;
 		std::vector<ComPtr<ID3D12Object>> m_TrackedObjects;

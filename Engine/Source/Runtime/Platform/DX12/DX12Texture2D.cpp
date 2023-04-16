@@ -199,7 +199,7 @@ namespace Zero
 
 	FDX12Texture2D::~FDX12Texture2D()
 	{
-		std::cout << Utils::WString2String(m_ResourceLocation.GetResource()->GetName()) <<  std::endl;
+		CORE_LOG_INFO("Delete Texture {0}", Utils::WString2String(m_ResourceLocation.GetResource()->GetName()));
 	}
 
 	void FDX12Texture2D::SetName(const std::string& Name)
@@ -212,7 +212,6 @@ namespace Zero
 		Ref<FDX12Resource> Resource = m_ResourceLocation.GetResource();
 		if (m_ResourceLocation.GetResource()->GetD3DResource())
 		{
-			
 			if (m_ResourceLocation.m_ResourceLocationType == FResourceLocation::EResourceLocationType::SubAllocation)
 			{
 				m_ResourceLocation.ReleaseResource();

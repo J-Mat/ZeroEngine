@@ -30,27 +30,6 @@ namespace Zero
 		CORE_ASSERT(m_RgPass.m_Type != ERenderPassType::Copy, "Invalid Call in Copy Pass");
 		FRGTextureReadOnlyID RGTextureReadOnlyID = m_RenderGrpah.ReadTexture(Name, Desc);
 		FRGTextureID RGTextureID = RGTextureReadOnlyID.GetResourceID();
-		if (m_RgPass.GetPassType() == ERenderPassType::Graphics)
-		{ 
-			switch (ReadAcess)
-			{
-			case ERGReadAccess::ReadAccess_PixelShader:
-				m_RgPass.m_TextureStateMap[RGTextureID] = EResourceState::PixelShaderResource;
-				break;
-			case ERGReadAccess::ReadAccess_NonPixelShader:
-				m_RgPass.m_TextureStateMap[RGTextureID] = EResourceState::NonPixelShaderResource;
-				break;
-			case ERGReadAccess::ReadAccess_AllShader:
-				m_RgPass.m_TextureStateMap[RGTextureID] = EResourceState::AllShaderResource;
-				break;
-			default:
-				CORE_ASSERT(false, "Invalid Read Flag!");
-			}
-		}
-		else if (m_RgPass.GetPassType() == ERenderPassType::Compute || m_RgPass.GetPassType() == ERenderPassType::ComputeAsync)
-		{
-			m_RgPass.m_TextureStateMap[RGTextureID] = EResourceState::NonPixelShaderResource;
-		}
 		m_RgPass.m_TextureReads.insert(RGTextureID);
 		return RGTextureReadOnlyID;
 	}
@@ -60,7 +39,6 @@ namespace Zero
 		CORE_ASSERT(m_RgPass.m_Type != ERenderPassType::Copy, "Invalid Call in Copy Pass");
 		FRGTextureReadWriteID RGTextureWriteOnlyID = m_RenderGrpah.WriteTexture(Name, Desc);
 		FRGTextureID RGTextureID = RGTextureWriteOnlyID.GetResourceID();
-		m_RgPass.m_TextureStateMap[RGTextureID] = EResourceState::UnorderedAccess;
 		if (!m_RgPass.m_TextureCreates.contains(RGTextureID) && !m_RgPass.ActAsCreatorWhenWriting())
 		{
 			DummyReadTexture(Name);
@@ -79,7 +57,6 @@ namespace Zero
 		CORE_ASSERT(m_RgPass.m_Type != ERenderPassType::Copy, "Invalid Call in Copy Pass");
 		FRGRenderTargetID RenderTargetID = m_RenderGrpah.RenderTarget(Name, Desc);
 		FRGTextureID ResID = RenderTargetID.GetResourceID();
-		m_RgPass.m_TextureStateMap[ResID] = EResourceState::RenderTarget;
 		FRGPassBase::FRenderTargetInfo RenderTargetInfo
 		{
 			.RGRenderTargetID = RenderTargetID,
@@ -104,7 +81,6 @@ namespace Zero
 		CORE_ASSERT(m_RgPass.m_Type != ERenderPassType::Copy, "Invalid Call in Copy Pass");
 		FRGDepthStencilID DepthStencilID = m_RenderGrpah.DepthStencil(Name, Desc);
 		FRGTextureID ResID = DepthStencilID.GetResourceID();
-		m_RgPass.m_TextureStateMap[ResID] = EResourceState::DepthWrite;
 		FRGPassBase::FDepthStencilInfo DepthStencilInfo
 		{
 			.RGDepthStencilID = DepthStencilID,
@@ -131,7 +107,6 @@ namespace Zero
 		CORE_ASSERT(m_RgPass.m_Type != ERenderPassType::Copy, "Invalid Call in Copy Pass");
 		FRGDepthStencilID RGDepthStencilID = m_RenderGrpah.DepthStencil(Name, Desc);
 		FRGTextureID ResID = RGDepthStencilID.GetResourceID();
-		m_RgPass.m_TextureStateMap[ResID] = EResourceState::RenderTarget;
 		FRGPassBase::FDepthStencilInfo DepthStencilInfo
 		{
 			.RGDepthStencilID = RGDepthStencilID,
@@ -147,7 +122,6 @@ namespace Zero
 		{
 			m_RgPass.m_Flags |= ERGPassFlags::ForceNoCull;
 		}
-		m_RgPass.m_TextureStateMap[ResID] = EResourceState::DepthRead;
 		return RGDepthStencilID;
 	}
 	
@@ -161,27 +135,6 @@ namespace Zero
 			ReadAccess = ERGReadAccess::ReadAccess_NonPixelShader;
 		}
 		FRGBufferID ResID = ReadOnlyID.GetResourceID();
-		if (m_RgPass.GetPassType() == ERenderPassType::Graphics)
-		{ 
-			switch (ReadAccess)
-			{
-			case ERGReadAccess::ReadAccess_PixelShader:
-				m_RgPass.m_BufferStateMap[ResID] = EResourceState::PixelShaderResource;
-				break;
-			case ERGReadAccess::ReadAccess_NonPixelShader:
-				m_RgPass.m_BufferStateMap[ResID] = EResourceState::NonPixelShaderResource;
-				break;
-			case ERGReadAccess::ReadAccess_AllShader:
-				m_RgPass.m_BufferStateMap[ResID] = EResourceState::AllShaderResource;
-				break;
-			default:
-				CORE_ASSERT(false, "Invalid Read Flag!");
-			}
-		}
-		else if (m_RgPass.GetPassType() == ERenderPassType::Compute || m_RgPass.GetPassType() == ERenderPassType::ComputeAsync)
-		{ 
-			m_RgPass.m_BufferStateMap[ResID] = EResourceState::NonPixelShaderResource;
-		}
 		m_RgPass.m_BufferCreates.insert(ResID);
 		return ReadOnlyID;
 	}
@@ -191,7 +144,6 @@ namespace Zero
 		CORE_ASSERT(m_RgPass.m_Type != ERenderPassType::Copy, "Invalid Call in Copy Pass");
 		FRGBufferReadWriteID RGBufferReadWriteID = m_RenderGrpah.WriteBuffer(Name, Desc);
 		FRGBufferID RGBufferID = RGBufferReadWriteID.GetResourceID();
-		m_RgPass.m_BufferStateMap[RGBufferID] = EResourceState::UnorderedAccess;
 		if (!m_RgPass.m_BufferCreates.contains(RGBufferID) && !m_RgPass.ActAsCreatorWhenWriting())
 		{
 			DummyReadBuffer(Name);
@@ -212,8 +164,6 @@ namespace Zero
 		FRGBufferID CounterID = m_RenderGrpah.GetBufferID(CounterName);
 		FRGBufferID ResID = RGBufferReadWriteID.GetResourceID();
 
-		m_RgPass.m_BufferStateMap[ResID] = EResourceState::UnorderedAccess;
-		m_RgPass.m_BufferStateMap[CounterID] = EResourceState::UnorderedAccess;
 		DummyWriteBuffer(CounterName);
 		if (!m_RgPass.m_BufferCreates.contains(ResID) && !m_RgPass.ActAsCreatorWhenWriting())
 		{
@@ -247,6 +197,31 @@ namespace Zero
 	void FRenderGraphBuilder::DummyWriteBuffer(FRGResourceName Name)
 	{
 		m_RgPass.m_BufferWrites.insert(m_RenderGrpah.GetBufferID(Name));
+	}
+
+	FRGTextureCopySrcID FRenderGraphBuilder::ReadCopySrcTexture(FRGResourceName Name)
+	{
+		FRGTextureCopySrcID RGTextureCopySrcID = m_RenderGrpah.ReadCopySrcTexture(Name);
+		FRGTextureID RGTextureID(RGTextureCopySrcID);
+		m_RgPass.m_TextureReads.insert(RGTextureID);
+		return RGTextureCopySrcID;
+	}
+
+	FRGTextureCopyDstID FRenderGraphBuilder::WriteCopyDstTexture(FRGResourceName Name)
+	{
+		FRGTextureCopyDstID RGTextureCopyDstID = m_RenderGrpah.WriteCopyDstTexture(Name);
+		FRGTextureID RGTextureID(RGTextureCopyDstID);
+		if (!m_RgPass.m_TextureCreates.contains(RGTextureID) && !m_RgPass.ActAsCreatorWhenWriting())
+		{
+			DummyReadTexture(Name);
+		}
+		m_RgPass.m_TextureWrites.insert(RGTextureID);
+		auto* texture = m_RenderGrpah.GetRGTexture(RGTextureID);
+		if (texture->bImported)
+		{
+			m_RgPass.m_Flags |= ERGPassFlags::ForceNoCull;
+		}
+		return RGTextureCopyDstID;
 	}
 
 	bool FRenderGraphBuilder::IsTextureDeclared(FRGResourceName Name)

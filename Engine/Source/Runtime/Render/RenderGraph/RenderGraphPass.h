@@ -112,13 +112,11 @@ namespace Zero
 		std::set<FRGTextureID> m_TextureReads;
 		std::set<FRGTextureID> m_TextureWrites;
 		std::set<FRGTextureID> m_TextureDestroys;
-		std::map<FRGTextureID, EResourceState> m_TextureStateMap;
 
 		std::set<FRGBufferID> m_BufferCreates;
 		std::set<FRGBufferID> m_BufferReads;
 		std::set<FRGBufferID> m_BufferWrites;
 		std::set<FRGBufferID> m_BufferDestroys;
-		std::map<FRGBufferID, EResourceState> m_BufferStateMap;
 		
 		std::vector<FRenderTargetInfo> m_RenderTergetInfo;
 		std::optional<FDepthStencilInfo> m_DepthStencil = std::nullopt;
@@ -131,7 +129,7 @@ namespace Zero
 	{
 	public:
 		using SetupFunc = std::function<void(FPassData&, FRenderGraphBuilder&)> ;
-		using ExcuteFunc = std::function<void(FPassData&, FRenderGraphContext&, FCommandListHandle)>;
+		using ExcuteFunc = std::function<void(const FPassData&, FRenderGraphContext&, FCommandListHandle)>;
 		FRederGraphPass(const char* Name, SetupFunc&& Setup, ExcuteFunc&& Execute, ERenderPassType Type = ERenderPassType::Graphics, ERGPassFlags Flags = ERGPassFlags::None)
 			: FRGPassBase(Name, Type, Flags),
 			m_SetupFunc(std::move(Setup)),
@@ -147,9 +145,9 @@ namespace Zero
 		SetupFunc m_SetupFunc;
 		ExcuteFunc m_ExcuteFunc;
 	private:
-		void Setup(RenderGraphBuilder& Builder) override
+		void Setup(FRenderGraphBuilder& Builder) override
 		{
-			ADRIA_ASSERT(m_SetupFunc != nullptr, "setup function is null!");
+			CORE_ASSERT(m_SetupFunc != nullptr, "setup function is null!");
 			m_SetupFunc(m_PassData, Builder);
 		}
 

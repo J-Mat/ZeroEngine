@@ -34,7 +34,6 @@ namespace Zero
 
 	void FDX12CommandList::Init()
 	{
-		m_ResourceBarrierBatch = CreateScope<FDX12ResourceBarrierBatch>(this->shared_from_this());
 	}
 
 
@@ -45,7 +44,10 @@ namespace Zero
 
 	void FDX12CommandList::OnDeployed()
 	{
-		SetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, m_DescriptorCache->GetCacheCbvSrvUavDescriptorHeap().Get());
+		if (m_CommandListType != D3D12_COMMAND_LIST_TYPE_COPY)
+		{
+			SetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, m_DescriptorCache->GetCacheCbvSrvUavDescriptorHeap().Get());
+		}	
 		//SetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, m_DescriptorCache->GetCacheRtvDescriptorHeap().Get());
 	}
 
@@ -576,40 +578,50 @@ namespace Zero
 	void FDX12CommandList::ClearTexture(FDX12Texture2D* TexturePtr, const ZMath::vec4 Color)
 	{
 		auto Resource = TexturePtr->GetResource();
-		//TransitionBarrier(Resource, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, true);
+		TransitionBarrier(Resource, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, true);
 		float ClearColor[4] = { Color.r, Color.g, Color.b, Color.a };
 		FDX12RenderTargetView* Rtv = static_cast<FDX12RenderTargetView*>(TexturePtr->GetRTV());
 		m_D3DCommandList->ClearRenderTargetView(Rtv->GetDescriptorHandle(), ClearColor, 0, nullptr);
 
-		//TrackResource(Resource);
+		TrackResource(Resource);
 	}
 
 	void FDX12CommandList::ClearDepthStencilTexture(FDX12Texture2D* TexturePtr, D3D12_CLEAR_FLAGS ClearFlags, float Depth, uint8_t Stencil)
 	{
 		auto Resource = TexturePtr->GetResource();
-		//TransitionBarrier(Resource, D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, true);
+		TransitionBarrier(Resource, D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, true);
 		FDX12DepthStencilView* Dsv = static_cast<FDX12DepthStencilView*>(TexturePtr->GetDSV());
 		m_D3DCommandList->ClearDepthStencilView(Dsv->GetDescriptorHandle(), ClearFlags, Depth, Stencil, 0, nullptr);
 
-		//TrackResource(Resource);
+		TrackResource(Resource);
 	}
 
 	void FDX12CommandList::CopyResource(const Ref<FDX12Resource>& DstRes, const Ref<FDX12Resource>& SrcRes)
 	{
-		CopyResource(DstRes->GetD3DResource(), SrcRes->GetD3DResource());
+		CopyResource(DstRes->GetD3DResource().Get(), SrcRes->GetD3DResource().Get());
 	}
 
-	void FDX12CommandList::CopyResource(ComPtr<ID3D12Resource> DstRes, ComPtr<ID3D12Resource> SrcRes)
+	void FDX12CommandList::CopyResource(ID3D12Resource* DstRes, ID3D12Resource* SrcRes)
 	{
 		TransitionBarrier(DstRes, D3D12_RESOURCE_STATE_COPY_DEST);
 		TransitionBarrier(SrcRes, D3D12_RESOURCE_STATE_COPY_SOURCE);
 
 		FlushResourceBarriers();
 
-		m_D3DCommandList->CopyResource(DstRes.Get(), SrcRes.Get());
+		m_D3DCommandList->CopyResource(DstRes, SrcRes);
 
 		TrackResource(DstRes);
 		TrackResource(SrcRes);
+	}
+
+	void FDX12CommandList::CopyResource(void* Dst, void* Src)
+	{
+		CopyResource((ID3D12Resource*)Dst, (ID3D12Resource*)Src);
+	}
+
+	void FDX12CommandList::CopyResource(ComPtr<ID3D12Resource> DstRes, ComPtr<ID3D12Resource> SrcRes)
+	{
+		CopyResource(DstRes.Get(), SrcRes.Get());
 	}
 
 	void FDX12CommandList::Draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t startVertex, uint32_t startInstance)
@@ -695,6 +707,26 @@ namespace Zero
 		{
 			FlushResourceBarriers();
 		}
+	}
+
+	void FDX12CommandList::TransitionBarrier(ID3D12Resource* Resource, D3D12_RESOURCE_STATES StateAfter, UINT Subresource /*= D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES*/, bool bFlushBarriers /*= false*/)
+	{
+		if (Resource)
+		{
+			auto Barrier = CD3DX12_RESOURCE_BARRIER::Transition(Resource, D3D12_RESOURCE_STATE_COMMON, StateAfter, Subresource);
+			m_ResourceStateTracker->ResourceBarrier(Barrier);
+		}
+
+		if (bFlushBarriers)
+		{
+			FlushResourceBarriers();
+		}
+	}
+
+
+	void FDX12CommandList::TransitionBarrier(void* Resource, EResourceState ResourceState, UINT Subresource /*= -1*/, bool bFlushBarriers /*= false*/)
+	{
+		TransitionBarrier((ID3D12Resource*)Resource, FDX12Utils::ConvertToD3DResourceState(ResourceState), Subresource, bFlushBarriers);
 	}
 
 	void FDX12CommandList::UAVBarrier(const Ref<FDX12Resource>& Resource, bool bFlushBarriers)

@@ -36,11 +36,11 @@ namespace Zero
 				return PoolTexture.Texture.get();
 			}
 		}
-		Ref<FTexture2D> Texture;
+		Scope<FTexture2D> Texture;
 		Texture.reset(FGraphic::GetDevice()->CreateTexture2D(TextureName, Desc, false));
-		std::pair<FPooledTexture, bool> Pair = { FPooledTexture(Texture, false), true };
-		m_TexturePool.emplace_back(Pair);
-		return Texture.get();
+		std::pair<FPooledTexture, bool> Pair = { FPooledTexture(std::move(Texture), m_FrameIndex), true };
+		m_TexturePool.emplace_back(std::move(Pair));
+		return m_TexturePool.back().first.Texture.get();
 	}
 
 	FBuffer* FRGResourcePool::AllocateBuffer(const FBufferDesc& Desc)

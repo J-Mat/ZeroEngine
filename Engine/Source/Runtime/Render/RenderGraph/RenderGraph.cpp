@@ -1,6 +1,5 @@
 #include "RenderGraph.h"
 #include "../RenderPass/RenderPass.h"
-#include "Render/RHI/ResourceBarrierBatch.h"
 #include "Render/RendererAPI.h"
 #include "EnumUtil.h"
 
@@ -57,20 +56,12 @@ namespace Zero
                 continue;
             m_TextureCreates.insert(Pass->m_TextureCreates.begin(), Pass->m_TextureCreates.end());
             m_TextureDestroys.insert(Pass->m_TextureDestroys.begin(), Pass->m_TextureDestroys.end());
-            for (auto [RGTextureID, State] : Pass->m_TextureStateMap)
-            { 
-                m_TextureStateMap[RGTextureID] |= State;
-            }
             m_BufferCreates.insert(Pass->m_BufferCreates.begin(), Pass->m_BufferCreates.end());
             m_BufferDestroys.insert(Pass->m_BufferDestroys.begin(), Pass->m_BufferDestroys.end());
-            for (auto [RGTextureID, State] : Pass->m_BufferStateMap)
-            { 
-                m_BufferStateMap[RGTextureID] |= State;
-            }
         }
     }
 
-	void FRenderGraph::FDependencyLevel::Execute(FCommandListHandle CommandListHandle)
+	void FRenderGraph::FDependencyLevel::Execute()
     {
 		for (auto Pass : m_Passes)
 		{
@@ -79,6 +70,7 @@ namespace Zero
 				continue;
 			}
             FRenderGraphContext RenderGraphContexts(m_RenderGrpah, *Pass);
+               FCommandListHandle CommandListHandle = FGraphic::GetDevice()->GetSingleThreadCommadList(ERenderPassType::Graphics);
             if (Pass->GetPassType() == ERenderPassType::Graphics && !Pass->SkipAutoRenderPassSetup())
             {
                 FRenderPassDesc RenderPassDesc;
@@ -202,100 +194,12 @@ namespace Zero
 
 	}
 
-	void FRenderGraph::TextureStateTransition(FDependencyLevel& DependencyLevel, size_t LevelIndex, FResourceBarrierBatch* ResourceBarrierBatch)
-	{
-        for (const auto& [RGTextureID, WantedState] : DependencyLevel.m_TextureStateMap)
-        {
-            FRGTexture* RGTexture = GetRGTexture(RGTextureID);
-            FTexture2D* Texture = RGTexture->Resource;
-            if (DependencyLevel.m_TextureCreates.contains(RGTextureID))
-            {
-                EResourceState InitialState = Texture->GetDesc().InitialState;
-                if (!HasAllFlags(InitialState, WantedState))
-                {
-                    ResourceBarrierBatch->AddTransition(Texture->GetNative(), InitialState, WantedState);
-                }
-                continue;
-            }
-            bool bFound = false;
-            for (int32_t j = (int32_t)LevelIndex - 1; j >= 0; --j)
-            {
-                auto& PreDependencyLevel = m_DependencyLevels[j];
-                if (auto Iter = PreDependencyLevel.m_TextureStateMap.find(RGTextureID);
-                    Iter != PreDependencyLevel.m_TextureStateMap.end())
-                {
-                    EResourceState PreState = Iter->second;
-                    if (PreState != WantedState)
-                    {
-                        ResourceBarrierBatch->AddTransition(Texture->GetNative(), PreState, WantedState);
-                    }
-                    bFound = true;
-                    break;
-                }
-            }
-            if (!bFound && RGTexture->bImported)
-            {
-                auto PreState = RGTexture->Desc.InitialState;
-                if (PreState != WantedState)
-                {
-                    ResourceBarrierBatch->AddTransition(Texture->GetNative(), PreState, WantedState);
-                }
-            }
-        }
-	}
-
-	void FRenderGraph::BufferStateTransition(FDependencyLevel& DependencyLevel, size_t LevelIndex, FResourceBarrierBatch* ResourceBarrierBatch)
-	{
-        {
-            for (const auto& [RGBufferID, WantedState] : DependencyLevel.m_BufferStateMap)
-            {
-                FRGBuffer* RGBuffer = GetRGBuffer(RGBufferID);
-                FBuffer* Buffer = RGBuffer->Resource;
-                if (DependencyLevel.m_BufferCreates.contains(RGBufferID))
-                {
-                    if (WantedState != EResourceState::Common)
-                    {
-                        ResourceBarrierBatch->AddTransition(Buffer->GetNative(), EResourceState::Common, WantedState);
-                    }
-                    continue;
-                }
-                bool bFound = false;
-                for (int32_t j = (int32_t)LevelIndex - 1; j >= 0; --j)
-                {
-                    auto& PreDependencyLevel = m_DependencyLevels[j];
-                    if (auto Iter = PreDependencyLevel.m_BufferStateMap.find(RGBufferID);
-                        Iter != PreDependencyLevel.m_BufferStateMap.end())
-                    {
-                        EResourceState PreState = Iter->second;
-                        if (PreState != WantedState)
-                        {
-                            ResourceBarrierBatch->AddTransition(Buffer->GetNative(), PreState, WantedState);
-                        }
-                        bFound = true;
-                        break;
-                    }
-                }
-                if (!bFound && RGBuffer->bImported)
-                {
-                    if (WantedState != EResourceState::Common)
-                    {
-                        ResourceBarrierBatch->AddTransition(Buffer->GetNative(), EResourceState::Common, WantedState);
-                    }
-                }
-            }
-        }
-	}
-
-	void FRenderGraph::DestroyTexture(FDependencyLevel& DependencyLevel, FResourceBarrierBatch* ResourceBarrierBatch)
+	void FRenderGraph::DestroyTexture(FDependencyLevel& DependencyLevel)
 	{
         for (FRGTextureID RGTextureID : DependencyLevel.m_TextureDestroys)
         {
             FRGTexture* RGTexture = GetRGTexture(RGTextureID);
             FTexture2D* Texture = RGTexture->Resource;
-            EResourceState WantedState = Texture->GetDesc().InitialState;
-            EResourceState PrevState = DependencyLevel.m_TextureStateMap[RGTextureID];
-            if (WantedState != PrevState)
-                ResourceBarrierBatch->AddTransition(Texture->GetNative(), PrevState, WantedState);
             if (!RGTexture->bImported)
             {
                 m_ResourcePool.ReleaseTexture(Texture);
@@ -303,16 +207,12 @@ namespace Zero
         }
 	}
 
-	void FRenderGraph::DestroyBuffer(FDependencyLevel& DependencyLevel, FResourceBarrierBatch* ResourceBarrierBatch)
+	void FRenderGraph::DestroyBuffer(FDependencyLevel& DependencyLevel)
 	{
         for (FRGBufferID RGBufferID : DependencyLevel.m_BufferDestroys)
         {
             FRGBuffer* RGTexture = GetRGBuffer(RGBufferID);
             FBuffer* Buffer = RGTexture->Resource;
-            EResourceState WantedState = EResourceState::Common;
-            EResourceState PrevState = DependencyLevel.m_BufferStateMap[RGBufferID];
-            if (WantedState != PrevState)
-                ResourceBarrierBatch->AddTransition(Buffer->GetNative(), PrevState, WantedState);
             if (!RGTexture->bImported)
             {
                 m_ResourcePool.ReleaseBuffer(Buffer);
@@ -323,7 +223,6 @@ namespace Zero
 
 	void FRenderGraph::Execute()
     {
-        FCommandListHandle CommandListHandle = FGraphic::GetDevice()->GetSingleThreadCommadList();
         m_ResourcePool.Tick();
         for (auto& DependencyLevel : m_DependencyLevels)
         { 
@@ -345,19 +244,10 @@ namespace Zero
                 FRGBuffer* RGBuffer = GetRGBuffer(RGBufferID);
                 RGBuffer->Resource = m_ResourcePool.AllocateBuffer(RGBuffer->Desc);
             }
-            FResourceBarrierBatch* ResourceBarrierBatch = FGraphic::GetDevice()->GetResourceBarrierBatch(CommandListHandle);
-            TextureStateTransition(DependencyLevel, i, ResourceBarrierBatch);
-            BufferStateTransition(DependencyLevel, i, ResourceBarrierBatch);
-            ResourceBarrierBatch->Submit();
-            DependencyLevel.Execute(CommandListHandle);
-
-            ResourceBarrierBatch->Clear();
+            DependencyLevel.Execute();
            
-            DestroyTexture(DependencyLevel, ResourceBarrierBatch);
-            DestroyBuffer(DependencyLevel, ResourceBarrierBatch);
-
-            ResourceBarrierBatch->Submit();
-            
+            DestroyTexture(DependencyLevel);
+            DestroyBuffer(DependencyLevel);
         }
 
     }
@@ -613,16 +503,26 @@ namespace Zero
         return GetRGBuffer(RGBufferID)->Resource;
     }
 
-    FRGRenderTargetID FRenderGraph::RenderTarget(FRGResourceName Name, const FTextureSubresourceDesc& Desc)
+	FRGTextureCopySrcID FRenderGraph::ReadCopySrcTexture(FRGResourceName Name)
+	{
+        FRGTextureID Handle = m_TextureNameIDMap[Name];
+        CORE_ASSERT(IsValidTextureHandle(Handle), "Resource has not been declared!");
+        return FRGTextureCopySrcID(Handle);
+	}
+
+	FRGTextureCopyDstID FRenderGraph::WriteCopyDstTexture(FRGResourceName Name)
+	{
+        FRGTextureID Handle = m_TextureNameIDMap[Name];
+        CORE_ASSERT(IsValidTextureHandle(Handle), "Resource has not been declared!");
+        return FRGTextureCopyDstID(Handle);
+	}
+
+	FRGRenderTargetID FRenderGraph::RenderTarget(FRGResourceName Name, const FTextureSubresourceDesc& Desc)
     {
         FRGTextureID Handle = m_TextureNameIDMap[Name];
         CORE_ASSERT(IsValidTextureHandle(Handle), "Resource has not been declared!");
         FRGTexture* RGTexture = GetRGTexture(Handle);
         RGTexture->Desc.ResourceBindFlags |= EResourceBindFlag::RenderTarget;
-        if (RGTexture->Desc.InitialState == EResourceState::Common)
-        { 
-            RGTexture->Desc.InitialState = EResourceState::RenderTarget;
-        }
         
         std::vector <FTextureSubresourceDesc>& ViewDescs = m_RTVTexDescMap[Handle]; // m_TextureViewDescMap[Handle];
         for (uint32_t i = 0; i < ViewDescs.size(); ++i)
@@ -643,10 +543,6 @@ namespace Zero
         CORE_ASSERT(IsValidTextureHandle(Handle), "Resource has not been declared!");
         FRGTexture* RGTexture = GetRGTexture(Handle);
         RGTexture->Desc.ResourceBindFlags |= EResourceBindFlag::DepthStencil;
-        if (RGTexture->Desc.InitialState == EResourceState::Common)
-        { 
-            RGTexture->Desc.InitialState = EResourceState::DepthWrite;
-        }
         
         std::vector<FTextureSubresourceDesc>& ViewDescs = m_DSVTexDescMap[Handle]; //m_TextureViewDescMap[Handle];
         for (uint32_t i = 0; i < ViewDescs.size(); ++i)
@@ -667,10 +563,6 @@ namespace Zero
         CORE_ASSERT(IsValidTextureHandle(Handle), "Resource has not been declared!");
         FRGTexture* RGTexture = GetRGTexture(Handle);
         RGTexture->Desc.ResourceBindFlags |= EResourceBindFlag::ShaderResource;
-        if (RGTexture->Desc.InitialState == EResourceState::Common)
-        { 
-            RGTexture->Desc.InitialState = EResourceState::PixelShaderResource | EResourceState::NonPixelShaderResource;
-        }
 
         std::vector<FTextureSubresourceDesc>& ViewDescs = m_SRVTexDescMap[Handle];
         for (uint32_t i = 0; i < ViewDescs.size(); ++i)
@@ -691,10 +583,6 @@ namespace Zero
         CORE_ASSERT(IsValidTextureHandle(Handle), "Resource has not been declared!");
         FRGTexture* RGTexture = GetRGTexture(Handle);
         RGTexture->Desc.ResourceBindFlags |= EResourceBindFlag::ShaderResource;
-        if (RGTexture->Desc.InitialState == EResourceState::Common)
-        { 
-            RGTexture->Desc.InitialState = EResourceState::UnorderedAccess;
-        }
         std::vector<FTextureSubresourceDesc>& ViewDescs = m_UAVTexDescMap[Handle]; // m_TextureViewDescMap[Handle];
         for (uint32_t i = 0; i < ViewDescs.size(); ++i)
         { 

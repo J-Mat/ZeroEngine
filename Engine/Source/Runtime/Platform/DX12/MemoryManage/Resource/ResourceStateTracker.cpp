@@ -4,7 +4,8 @@
 
 namespace Zero
 {
-	FResourceStateTracker::ResourceStateMap FResourceStateTracker::s_GlobalResourceState;
+	FResourceStateTracker::FResourceStateMap FResourceStateTracker::s_GlobalResourceState;
+	FResourceStateTracker::FResourceList FResourceStateTracker::s_GarbageResources;
 	bool  FResourceStateTracker::s_bLocked = false;
 	std::mutex FResourceStateTracker::s_GlobalMutex;
 
@@ -104,7 +105,7 @@ namespace Zero
 
 	uint32_t FResourceStateTracker::FlushPendingResourceBarriers(const Ref<FDX12CommandList>& CommandList)
 	{
-		//CORE_ASSERT(s_bLocked, "Barrier is unlocked!");
+		CORE_ASSERT(s_bLocked, "Barrier is unlocked!");
 		
 		FResourceBarriers ToExcuteBarriers;
 		ToExcuteBarriers.reserve(m_PendingResourceBarriersList.size());
@@ -173,7 +174,7 @@ namespace Zero
 
 	void FResourceStateTracker::CommitFinalResourceStates()
 	{
-		//CORE_ASSERT(s_bLocked, "s_bLocked is unlocked");
+		CORE_ASSERT(s_bLocked, "s_bLocked is unlocked");
 
 		// Commit final Resource states to the global Resource state array (map).
 		for (const auto& ResourceState : m_FinalResourceState)
@@ -209,6 +210,51 @@ namespace Zero
 		{
 			std::lock_guard<std::mutex> lock(s_GlobalMutex);
 			s_GlobalResourceState[Resource].SetSubResourceState(D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, State);
+		}
+	}
+
+	void FResourceStateTracker::RemoveGlobalResourceState( ID3D12Resource* Resource, bool bImmediate )
+	{
+		if ( Resource != nullptr )
+		{
+			std::lock_guard<std::mutex> lock(s_GlobalMutex);
+			if ( bImmediate )
+			{
+				// Perform immediate removal of the resource in the resource state tracker.
+				s_GlobalResourceState.erase( Resource );
+			}
+			else
+			{
+				// Defer the removal until all resources are no longer being referenced.
+				Resource->AddRef();
+				s_GarbageResources.push_back(Resource);
+			}
+        }
+    }
+
+	inline bool IsUnique( ID3D12Resource* Res )
+	{
+	    Res->AddRef();
+	    return Res->Release() == 1;
+	}
+
+	void FResourceStateTracker::RemoveGarbageResources()
+	{
+		std::lock_guard<std::mutex> lock(s_GlobalMutex);
+		FResourceList::iterator Iter = s_GarbageResources.begin();
+		while ( Iter != s_GarbageResources.end() )
+		{
+			auto Res = *Iter;
+		    if ( IsUnique( Res ) )
+			{
+				Res->Release();
+		        s_GlobalResourceState.erase( Res );
+		        Iter = s_GarbageResources.erase( Iter );
+			}
+		    else
+			{ 
+				++Iter;
+			}
 		}
 	}
 }

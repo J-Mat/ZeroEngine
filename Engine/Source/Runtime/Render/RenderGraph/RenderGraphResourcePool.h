@@ -10,7 +10,7 @@ namespace Zero
 	{
 		struct FPooledTexture
 		{
-			Ref<FTexture2D> Texture;
+			Scope<FTexture2D> Texture;
 			uint64_t LastUsedFrame;
 		};
 

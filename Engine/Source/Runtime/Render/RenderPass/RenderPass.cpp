@@ -34,6 +34,5 @@ namespace Zero
 		m_RenderTarget->UnBind(CommandListHandle);
 		m_RenderGrpah.GetResourcePool().ReleaseRenderTarget(m_RenderTarget);
 	}
-
 }
 

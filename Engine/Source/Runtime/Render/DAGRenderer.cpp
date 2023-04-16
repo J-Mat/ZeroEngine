@@ -55,6 +55,8 @@ namespace Zero
 		FRenderGraph RenderGraph(m_RGResourcePool);
 		RenderGraph.ImportTexture(RGResourceName::FinalTexture, m_FinalTexture.get());
 		m_ForwardLitPass.AddPass(RenderGraph);
+		m_CopyToFinalTexturePass.AddPass(RenderGraph);
+		
 	
 		RenderGraph.Build();
 		RenderGraph.Execute();

@@ -114,16 +114,16 @@ namespace Zero
          */
         static void AddGlobalResourceState(ID3D12Resource* Resource, D3D12_RESOURCE_STATES State);
 
-        ///**
-        // * Remove a resource from the global resource state array (map).
-        // * This should only be done when the resource is destroyed.
-        // */
-        //static void RemoveGlobalResourceState( ID3D12Resource* resource, bool immediate = false );
+        /**
+         * Remove a resource from the global resource state array (map).
+         * This should only be done when the resource is destroyed.
+         */
+        static void RemoveGlobalResourceState( ID3D12Resource* Resource, bool bImmediate = false );
 
-        ///**
-        // * Remove garbage resources.
-        // */
-        //static void RemoveGarbageResources();
+        /**
+         * Remove garbage resources.
+         */
+        static void RemoveGarbageResources();
 	private:
 		using FResourceBarriers = std::vector<D3D12_RESOURCE_BARRIER>;
 
@@ -164,11 +164,13 @@ namespace Zero
 			std::map<UINT, D3D12_RESOURCE_STATES> SubResourceState;
 		};
 		
-		using ResourceStateMap = std::unordered_map<ID3D12Resource*, FResourcestate>;
+        using FResourceList = std::vector<ID3D12Resource*>;
+		using FResourceStateMap = std::unordered_map<ID3D12Resource*, FResourcestate>;
 
-		ResourceStateMap m_FinalResourceState;
+		FResourceStateMap m_FinalResourceState;
 
-		static ResourceStateMap s_GlobalResourceState;
+		static FResourceStateMap s_GlobalResourceState;
+        static FResourceList s_GarbageResources;
 		
 		static std::mutex s_GlobalMutex;
 		static bool       s_bLocked;

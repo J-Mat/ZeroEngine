@@ -184,13 +184,6 @@ namespace Zero
 		GetCommandList(Handle)->GetD3D12CommandList()->IASetIndexBuffer(&ib_view);
 	}
 
-
-	FResourceBarrierBatch* FDX12Device::GetResourceBarrierBatch(FCommandListHandle Handle, ERenderPassType RenderPassType)
-	{
-		Ref<FDX12CommandList> CommandList = GetCommandList(Handle, RenderPassType);
-		return CommandList->GetResourceBarrierBatch();
-	}
-
 	Ref<FTextureCubemap> FDX12Device::GetOrCreateTextureCubemap(FTextureHandle Handles[CUBEMAP_TEXTURE_CNT], std::string TextureCubemapName)
 	{
 		return nullptr;
@@ -464,9 +457,14 @@ namespace Zero
 		return Handle;
 	}
 
-	Ref<FDX12CommandList> FDX12Device::GetCommandList(FCommandListHandle Hanle, ERenderPassType RenderPassType)
+	Ref<FDX12CommandList> FDX12Device::GetCommandList(FCommandListHandle Handle, ERenderPassType RenderPassType)
 	{
-		return m_CommandLists[uint32_t(RenderPassType)][Hanle];
+		return m_CommandLists[uint32_t(RenderPassType)][Handle];
+	}
+
+	Ref<FCommandList> FDX12Device::GetRHICommandList(FCommandListHandle Handle, ERenderPassType RenderPassType /*= ERenderPassType::Graphics*/)
+	{
+		return m_CommandLists[uint32_t(RenderPassType)][Handle];
 	}
 
 	void FDX12Device::PreInitWorld()
@@ -498,6 +496,30 @@ namespace Zero
 		m_CommandLists[ERenderPassType::Copy].clear();
 
 		ClearBackBuffer();
+		InitSingleThreadCommandLists();
+	}
+
+	void FDX12Device::InitSingleThreadCommandLists()
+	{
+		m_SingleThreadCommandListHandles[ERenderPassType::Graphics] = GenerateCommanList(ERenderPassType::Graphics);
+		m_SingleThreadCommandListHandles[ERenderPassType::Compute] = GenerateCommanList(ERenderPassType::Compute);
+		m_SingleThreadCommandListHandles[ERenderPassType::Copy] = GenerateCommanList(ERenderPassType::Copy);
+	}
+
+	void FDX12Device::ExecuteSingleThreadCommandLists()
+	{
+		{
+			auto ComandList = GetCommandList(m_SingleThreadCommandListHandles[ERenderPassType::Graphics], ERenderPassType::Graphics);
+			GetCommandQueue(ERenderPassType::Graphics).ExecuteCommandList(ComandList);
+		}
+		{
+			auto ComandList = GetCommandList(m_SingleThreadCommandListHandles[ERenderPassType::Compute], ERenderPassType::Compute);
+			GetCommandQueue(ERenderPassType::Compute).ExecuteCommandList(ComandList);
+		}
+		{
+			auto ComandList = GetCommandList(m_SingleThreadCommandListHandles[ERenderPassType::Copy], ERenderPassType::Copy);
+			GetCommandQueue(ERenderPassType::Copy).ExecuteCommandList(ComandList);
+		}
 	}
 
 	void FDX12Device::EndFrame()
@@ -505,6 +527,7 @@ namespace Zero
 		m_DefaultBufferAllocator->CleanUpAllocations();
 		m_UploadBufferAllocator->CleanUpAllocations();
 		m_TextureResourceAllocator->CleanUpAllocations();
+		FResourceStateTracker::RemoveGarbageResources();
 	}
 	
 	FDX12Texture2D* FDX12Device::CreateDepthTexture(const std::string& TextureName, uint32_t Width, uint32_t Height)

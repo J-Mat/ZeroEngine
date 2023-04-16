@@ -21,33 +21,32 @@ namespace Zero
 
 	void FDX12RenderPipeline::DrawFrame()
 	{
-		FDX12Device::Get()->BeginFrame();
-		FCommandListHandle SingleThreadCommandListHandle = FDX12Device::Get()->GenerateCommanList(ERenderPassType::Graphics);
-		FDX12Device::Get()->SetSingleThreadCommandList(SingleThreadCommandListHandle);
+		static auto* Device = FDX12Device::Get();
+		Device->BeginFrame();
 
-		FCommandListHandle InitWorldCommandListHandle = FDX12Device::Get()->GenerateCommanList(ERenderPassType::Graphics);
-		FDX12Device::Get()->SetInitWorldCommandList(InitWorldCommandListHandle);
+		FCommandListHandle InitWorldCommandListHandle = Device->GenerateCommanList(ERenderPassType::Graphics);
+		Device->SetInitWorldCommandList(InitWorldCommandListHandle);
 		
-		FCommandListHandle MipComandListHandle = FDX12Device::Get()->GenerateCommanList(ERenderPassType::Compute);
-		FDX12Device::Get()->SetMipCommandList(MipComandListHandle);
+		FCommandListHandle MipComandListHandle = Device->GenerateCommanList(ERenderPassType::Compute);
+		Device->SetMipCommandList(MipComandListHandle);
 
-		auto SwapChain = FDX12Device::Get()->GetSwapChain();
+		auto SwapChain = Device->GetSwapChain();
 
 
 		FApplication::Get().OnDraw();
 
 		FApplication::Get().PostDraw();
 
-		auto InitComandList = FDX12Device::Get()->GetCommandList(InitWorldCommandListHandle);
-		FDX12Device::Get()->GetCommandQueue(ERenderPassType::Graphics).ExecuteCommandList(InitComandList);
-		auto MipComandList = FDX12Device::Get()->GetMipCommandList();
-		FDX12Device::Get()->GetCommandQueue(ERenderPassType::Compute).ExecuteCommandList(MipComandList);
-		auto SingleThreadComandList = FDX12Device::Get()->GetCommandList(SingleThreadCommandListHandle);
+		auto InitComandList = Device->GetCommandList(InitWorldCommandListHandle);
+		Device->GetCommandQueue(ERenderPassType::Graphics).ExecuteCommandList(InitComandList);
+		auto MipComandList = Device->GetMipCommandList();
+		Device->GetCommandQueue(ERenderPassType::Compute).ExecuteCommandList(MipComandList);
+		
+		Device->ExecuteSingleThreadCommandLists();
 
-		FDX12Device::Get()->GetCommandQueue(ERenderPassType::Graphics).ExecuteCommandList_Raw(SingleThreadComandList);
 
 		SwapChain->Present();
 
-		FDX12Device::Get()->EndFrame();
+		Device->EndFrame();
 	}
 }

@@ -4,13 +4,9 @@
 #include "Render/RenderGraph/RenderGraphContext.h"
 #include "Render/RHI/RenderItem.h"
 #include "Render/Moudule/Material.h"
-#include "Render/RHI/PipelineStateObject.h"
-#include "Render/RHI/SwapChain.h"
-#include "Render/RHI/RenderTarget.h"
 #include "World/World.h"
 #include "World/LightManager.h"
 #include "Render/RenderConfig.h"
-#include "Data/Settings/SettingsManager.h"
 #include "Data/Settings/SceneSettings.h"
 #include "Render/Moudule/ImageBasedLighting.h"
 #include "Render/RHI/Texture.h"
@@ -46,8 +42,8 @@ namespace Zero
 						.ClearValue = FTextureClearValue(0.0f, 0.0f, 0.0f, 0.0f),
 						.Format = EResourceFormat::R8G8B8A8_UNORM
 					};
-					//Builder.DeclareTexture(RGResourceName::GBufferColor, ColorDesc);
-					Builder.WriteRenderTarget(RGResourceName::FinalTexture, ERGLoadStoreAccessOp::Clear_Preserve);
+					Builder.DeclareTexture(RGResourceName::GBufferColor, ColorDesc);
+					Builder.WriteRenderTarget(RGResourceName::GBufferColor, ERGLoadStoreAccessOp::Clear_Preserve);
 				}
 
 				Builder.SetViewport(m_Width, m_Height);
@@ -62,7 +58,7 @@ namespace Zero
 				}
 			},
 			ERenderPassType::Graphics,
-			ERGPassFlags::None
+			ERGPassFlags::ForceNoCull
 		);
 	}
 

@@ -137,7 +137,7 @@ namespace Zero
 			if (Texture)
 			{
 				auto Resource = Texture->GetResource();
-				//CommandList->TransitionBarrier(Resource->GetD3DResource(), D3D12_RESOURCE_STATE_RENDER_TARGET);
+				CommandList->TransitionBarrier(Resource->GetD3DResource().Get(), D3D12_RESOURCE_STATE_RENDER_TARGET);
 				FDX12RenderTargetView* Rtv = static_cast<FDX12RenderTargetView*>(Texture->GetRTV());
 				Handles.push_back(Rtv->GetDescriptorHandle());
 			}
@@ -176,6 +176,7 @@ namespace Zero
 	{
 		FDX12Device::Get()->GetSwapChain()->SetRenderTarget(CommandListHandle);
 
+		return;
 		auto  CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
 		for (int i = 0; i < m_ColoTexture.size(); ++i)
 		{
@@ -183,7 +184,7 @@ namespace Zero
 			if (Texture)
 			{
 				auto Resource = Texture->GetResource();
-				CommandList->TransitionBarrier(Resource->GetD3DResource(), D3D12_RESOURCE_STATE_COMMON);
+				CommandList->TransitionBarrier(Resource->GetD3DResource().Get(), D3D12_RESOURCE_STATE_COMMON);
 			}
 		}
 		UnBindDepth(CommandListHandle);

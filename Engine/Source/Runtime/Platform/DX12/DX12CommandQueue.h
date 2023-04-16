@@ -24,9 +24,6 @@ namespace Zero
 		uint64_t ExecuteCommandList(Ref<FDX12CommandList> CommandList);
 		uint64_t ExecuteCommandLists(const std::vector<Ref<FDX12CommandList>>& CommandLists);
 
-		uint64_t ExecuteCommandList_Raw(Ref<FDX12CommandList> CommandList);
-		uint64_t ExecuteCommandLists_Raw(const std::vector<Ref<FDX12CommandList>>& CommandLists);
-
 		uint64_t Signal();
 		bool     IsFenceComplete(uint64_t fenceValue);
 		void     WaitForFenceValue(uint64_t fenceValue);

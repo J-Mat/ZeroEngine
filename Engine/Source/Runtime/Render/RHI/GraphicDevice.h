@@ -35,10 +35,11 @@ namespace Zero
 		virtual void PreInitWorld() = 0;
 		virtual void FlushInitCommandList() = 0;
 		virtual FCommandListHandle GenerateCommanList(ERenderPassType RenderPassType = ERenderPassType::Graphics) = 0;
-		virtual FCommandListHandle GetSingleThreadCommadList() = 0;
+		virtual FCommandListHandle GetSingleThreadCommadList(ERenderPassType RenderPassType = ERenderPassType::Graphics) = 0;
 		virtual void Flush() = 0;
 		virtual Ref<FSwapChain>  GetSwapChain() { return nullptr; }
 		virtual void CreateSwapChain(HWND hWnd) = 0;
+		virtual Ref<FCommandList> GetRHICommandList(FCommandListHandle Handle, ERenderPassType RenderPassType = ERenderPassType::Graphics) = 0;
 		virtual Scope<FPipelineStateObject> CreatePSO(const FPSODescriptor& PSODescriptor) = 0;
 		virtual Ref<FTexture2D> GetOrCreateTexture2D(const std::string& Filename, bool bNeedMipMap = false) = 0;
 		virtual FTexture2D* CreateTexture2D(const std::string& TextureName, const FTextureDesc& Desc, bool bCreateTextureView) = 0;
@@ -53,6 +54,5 @@ namespace Zero
 		virtual Ref<FRenderTarget2D> CreateRenderTarget2D(const FRenderTarget2DDesc& Desc) = 0;
 		virtual FRenderTarget2D* CreateRenderTarget2D() = 0;
 		virtual Ref<FRenderTargetCube> CreateRenderTargetCube(const FRenderTargetCubeDesc& Desc) = 0;
-		virtual FResourceBarrierBatch* GetResourceBarrierBatch(FCommandListHandle Handle, ERenderPassType RenderPassType = ERenderPassType::Graphics) = 0;
 	};
 }

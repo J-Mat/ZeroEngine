@@ -14,6 +14,7 @@ namespace Zero
 {
 	void FForwardStage::OnAttach()
 	{
+		CORE_ASSERT(false, "no");
 		FRenderTarget2DDesc Desc
 		{
 			.RenderTargetName = "ForwardLit",
@@ -39,6 +40,7 @@ namespace Zero
 
 	void FForwardStage::RawRenderLayer(ERenderLayer RenderLayerType)
 	{
+		CORE_ASSERT(false, "no");
 		auto RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool(RenderLayerType);
 		for (Ref<FRenderItem> RenderItem : *RenderItemPool.get())
 		{
@@ -79,6 +81,7 @@ namespace Zero
 
 	void FForwardStage::OnDraw()
 	{
+		CORE_ASSERT(false, "no");
 		m_CommandListHandle = FGraphic::GetDevice()->GetSingleThreadCommadList();
 		static auto* Settings = FSettingManager::Get().FecthSettings<USceneSettings>(USceneSettings::StaticGetObjectName());
 		

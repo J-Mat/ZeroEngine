@@ -21,7 +21,7 @@ namespace Zero
 			explicit FDependencyLevel(FRenderGraph& Rg) : m_RenderGrpah(Rg) {};
 			void AddPass(Ref<FRGPassBase> Pass);
 			void Setup();
-			void Execute(FCommandListHandle ComandListHandle);
+			void Execute();
 			uint32_t GetSize();
 			uint32_t GetNonCulledSize() const;
 			FRenderGraph& m_RenderGrpah;
@@ -54,11 +54,9 @@ namespace Zero
 			return *dynamic_cast<FRederGraphPass<PassData>*>(m_Passes.back().get());
 		}
 
-		void TextureStateTransition(FDependencyLevel& DependencyLevel, size_t LevelIndex, FResourceBarrierBatch* ResourceBarrierBatch);
-		void BufferStateTransition(FDependencyLevel& DependencyLevel, size_t LevelIndex, FResourceBarrierBatch* ResourceBarrierBatch);
 
-		void DestroyTexture(FDependencyLevel& DependencyLevel, FResourceBarrierBatch* ResourceBarrierBatch);
-		void DestroyBuffer(FDependencyLevel& DependencyLevel, FResourceBarrierBatch* ResourceBarrierBatch);
+		void DestroyTexture(FDependencyLevel& DependencyLevel);
+		void DestroyBuffer(FDependencyLevel& DependencyLevel);
 
 		void ImportTexture(FRGResourceName Name, FTexture2D* Texture);
 		void ImportBuffer(FRGResourceName Name, FBuffer* Buffer);
@@ -69,7 +67,7 @@ namespace Zero
 		FRGResourcePool& GetResourcePool() { return m_ResourcePool; };
 
 	private:
-		FRGResourcePool m_ResourcePool;
+		FRGResourcePool& m_ResourcePool;
 		std::vector<Ref<FRGPassBase>> m_Passes;
 		std::vector<Scope<FRGTexture>> m_Textures;
 		std::vector<Scope<FRGBuffer>> m_Buffers;
@@ -126,6 +124,10 @@ namespace Zero
 		FTexture2D* GetTexture(FRGTextureID RGTextureID);
 		inline FRGBuffer* GetRGBuffer(FRGBufferID RGBufferID) const;
 		FBuffer* GetBuffer(FRGBufferID RGBufferID);
+
+
+		FRGTextureCopySrcID ReadCopySrcTexture(FRGResourceName Name);
+		FRGTextureCopyDstID WriteCopyDstTexture(FRGResourceName Name);
 		
 		FRGRenderTargetID RenderTarget(FRGResourceName name, const FTextureSubresourceDesc& desc);
 		FRGDepthStencilID DepthStencil(FRGResourceName name, const FTextureSubresourceDesc& desc);

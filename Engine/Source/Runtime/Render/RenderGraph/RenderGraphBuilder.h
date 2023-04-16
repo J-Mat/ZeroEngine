@@ -75,6 +75,9 @@ namespace Zero
 		void DummyReadBuffer(FRGResourceName Name);
 		void DummyWriteBuffer(FRGResourceName Name);
 
+		FRGTextureCopySrcID ReadCopySrcTexture(FRGResourceName Name);
+		FRGTextureCopyDstID WriteCopyDstTexture(FRGResourceName Name);
+
 		FRGTextureReadOnlyID ReadTexture(FRGResourceName Name, ERGReadAccess RGReadAccess = ERGReadAccess::ReadAccess_AllShader,
 			uint32_t FirstMip = 0, uint32_t MipCount = -1, uint32_t FirstSlice = 0, uint32_t SliceCount = -1)
 		{

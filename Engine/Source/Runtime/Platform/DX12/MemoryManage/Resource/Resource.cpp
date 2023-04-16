@@ -102,6 +102,10 @@ namespace Zero
 
 	void FResourceLocation::ReleaseResource()
 	{
+		if (m_UnderlyingResource && m_UnderlyingResource->GetD3DResource())
+		{
+			FResourceStateTracker::RemoveGlobalResourceState(m_UnderlyingResource->GetD3DResource().Get());
+		}
 		switch (m_ResourceLocationType)
 		{
 		case EResourceLocationType::StandAlone:
