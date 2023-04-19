@@ -15,20 +15,22 @@ namespace Zero
 		m_PsoCache.resize(EPsoID::PSOCount);
 	}
 
-	void FPSOCache::RegisterGlobalPSO()
+	void FPSOCache::RegisterErrorPSO()
 	{
+		/*
 		FShaderDesc ShaderDesc 
 		{
-			.FileName = "Shader\\Global.hlsl",
-			.ShaderID = EShaderID::Global,
+			.FileName = "Shader\\Error.hlsl",
+			.ShaderID = EShaderID::Error,
 		};
 
-		FPSODescriptor ForwadLitDesc{
+		FPSODescriptor ErrorDesc{
 			.PSOType =	EPSOType::PT_Normal
 		};
 
-		ForwadLitDesc.Shader = FShaderCache::Get().CreateShader(ShaderDesc);
-		m_PsoCache[EPsoID::GlobalPso] = FGraphic::GetDevice()->CreatePSO(ForwadLitDesc);
+		ErrorDesc.Shader = FShaderCache::Get().CreateShader(ShaderDesc);
+		m_PsoCache[EPsoID::GlobalPso] = FGraphic::GetDevice()->CreatePSO(ErrorDesc);
+	*/
 	}
 
 	void FPSOCache::RegisterDefaultPSO()
@@ -96,7 +98,7 @@ namespace Zero
 				.ShaderID = EShaderID::IBLIrradiance,
 				.NumRenderTarget = 1,
 				.Formats = {
-					EResourceFormat::B8G8R8A8_UNORM
+					EResourceFormat::R8G8B8A8_UNORM
 				},
 			};
 			FPSODescriptor IrradianceMapPSODesc
@@ -115,7 +117,7 @@ namespace Zero
 				.ShaderID = EShaderID::IBLPrefilter,
 				.NumRenderTarget = 1,
 				.Formats = {
-					EResourceFormat::B8G8R8A8_UNORM
+					EResourceFormat::R8G8B8A8_UNORM
 				},
 			};
 			FPSODescriptor PrefilterMapPSODesc

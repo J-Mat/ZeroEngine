@@ -122,12 +122,10 @@ namespace Zero
 
 	void FDX12CommandList::AllocateTextureResource(const std::string& TextureName, const FTextureDesc& TextureDesc, FResourceLocation& ResourceLocation, Ref<FImage> Image /*= nullptr*/, bool bGenerateMip /*= false*/)
 	{
-		D3D12_RESOURCE_STATES ResourceState = FDX12Utils::ConvertToD3DResourceState(TextureDesc.InitialState);
-
 		D3D12_RESOURCE_DESC ResourceDesc = FDX12Utils::ConvertResourceDesc(TextureDesc);
 
 		auto* TextureResourceAllocator = FDX12Device::Get()->GetTextureResourceAllocator();
-		TextureResourceAllocator->AllocTextureResource(TextureName, ResourceState, ResourceDesc, ResourceLocation);
+		TextureResourceAllocator->AllocTextureResource(TextureName, ResourceDesc, ResourceLocation);
 
 		if (Image != nullptr)
 		{
@@ -172,6 +170,65 @@ namespace Zero
 
 			CopyTextureRegion(&Dst, 0, 0, 0, &Src, nullptr);
 		}
+	}
+
+	void FDX12CommandList::AllocateTextureCubemapResource(const std::string& TextureName, const FTextureDesc& TextureDesc, FResourceLocation& ResourceLocation, Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT])
+	{
+		ID3D12Device* D3DDevice = FDX12Device::Get()->GetDevice();
+		D3D12_RESOURCE_DESC ResourceDesc = FDX12Utils::ConvertResourceDesc(TextureDesc);
+
+		auto* TextureResourceAllocator = FDX12Device::Get()->GetTextureResourceAllocator();
+		TextureResourceAllocator->AllocTextureResource(TextureName, ResourceDesc, ResourceLocation);
+
+		UINT NumSubresources = CUBEMAP_TEXTURE_CNT;
+		D3D12_PLACED_SUBRESOURCE_FOOTPRINT  Footprint[CUBEMAP_TEXTURE_CNT] = {};
+		UINT NumRows[CUBEMAP_TEXTURE_CNT] = {};
+		UINT64  n64RowSizeInBytes[CUBEMAP_TEXTURE_CNT] = {};
+		UINT64  TotalBytes = 0;
+		// 获取资源内存布局信息
+		D3DDevice->GetCopyableFootprints(&ResourceDesc,
+			0,
+			NumSubresources,
+			0,
+			Footprint,
+			NumRows,
+			n64RowSizeInBytes,
+			&TotalBytes);
+
+		
+		UINT64 UploadSize = GetRequiredIntermediateSize(
+			ResourceLocation.GetResource()->GetD3DResource().Get(),
+			0,
+			CUBEMAP_TEXTURE_CNT);
+
+		auto* UploadResourceAllocator = FDX12Device::Get()->GetUploadBufferAllocator();
+		FResourceLocation UploadResourceLocation;
+		void* MappedData = UploadResourceAllocator->AllocUploadResource(UploadSize, UPLOAD_RESOURCE_ALIGNMENT, UploadResourceLocation);
+		ID3D12Resource* UploadBuffer = UploadResourceLocation.m_UnderlyingResource->GetD3DResource().Get();
+
+
+		TransitionBarrier(ResourceLocation.GetResource(), D3D12_RESOURCE_STATE_COPY_DEST);
+		FlushResourceBarriers();
+
+		D3D12_SUBRESOURCE_DATA SubResourceData[CUBEMAP_TEXTURE_CNT] = {};
+		for (int i = 0; i < CUBEMAP_TEXTURE_CNT; ++i)
+		{
+			SubResourceData[i].pData = ImageData[i]->GetData();
+			SubResourceData[i].RowPitch = ImageData[i]->GetWidth() * ImageData[i]->GetChannel();
+			SubResourceData[i].SlicePitch = ImageData[i]->GetHeight() * SubResourceData[i].RowPitch;
+		}
+
+		UpdateSubresources(
+			m_D3DCommandList.Get(), 
+			ResourceLocation.GetResource()->GetD3DResource().Get(),
+			UploadResourceLocation.GetResource()->GetD3DResource().Get(), 
+			0, 
+			0, 
+			CUBEMAP_TEXTURE_CNT, 
+			SubResourceData);
+
+		TransitionBarrier(ResourceLocation.GetResource(), D3D12_RESOURCE_STATE_GENERIC_READ);
+		TrackResource(ResourceLocation.GetResource());
 	}
 
 	void FDX12CommandList::GenerateMip(Ref<FDX12Resource> TextureResource)
@@ -445,7 +502,6 @@ namespace Zero
 
 	ComPtr<ID3D12Resource> FDX12CommandList::CreateTextureCubemapResource(Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT], uint64_t Width, uint32_t Height, uint32_t Chanels)
 	{
-
 		ID3D12Device* D3DDevice = FDX12Device::Get()->GetDevice();
 		ComPtr<ID3D12Resource> TextureCubemapResource;
 

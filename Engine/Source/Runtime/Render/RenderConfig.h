@@ -86,7 +86,7 @@ namespace Zero
 	{
 		enum
 		{
-			Global,
+			Error,
 			SkyBox,
 			ForwardLit,
 			DirectLight,

@@ -118,7 +118,7 @@ namespace Zero
                     };
                     RenderPassDesc.DsvAttachment = std::move(DsvDesc);
                 }
-                CORE_ASSERT(Pass->m_VieportWidth != 0 && Pass->m_VieportHeight != 0, "Viewport Width/Height is 0! The call to builder.SetViewport is probably missing...");
+                //CORE_ASSERT(Pass->m_VieportWidth != 0 && Pass->m_VieportHeight != 0, "Viewport Width/Height is 0! The call to builder.SetViewport is probably missing...");
                 RenderPassDesc.Width = Pass->m_VieportWidth;
                 RenderPassDesc.Height = Pass->m_VieportHeight;
                 FRenderPass RenderPass(m_RenderGrpah, RenderPassDesc);

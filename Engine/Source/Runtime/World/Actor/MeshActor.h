@@ -23,6 +23,7 @@ namespace Zero
 		virtual void CommitToPipieline();
 		virtual void Tick();
 		virtual ZMath::FAABB GetAABB() override;
+		virtual void SetCustomParemeters() {};
 		
 		void SetParameter(const std::string& ParameterName, EShaderDataType ShaderDataType, void* ValuePtr, ERenderLayer RenderLayer = ERenderLayer::Opaque);
 

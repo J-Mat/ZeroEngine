@@ -1,7 +1,8 @@
 #pragma once
 #include "Core.h"
-#include "./RenderPass/ForwardLitPass.h"
-#include "./RenderPass/CopyToFinalTexturePass.h"
+#include "RenderPass/RenderGraphPass/ForwardLitPass.h"
+#include "RenderPass/RenderGraphPass/CopyToFinalTexturePass.h"
+#include "RenderPass/RenderGraphPass/SkyboxPass.h"
 #include "Render/RenderGraph/RenderGraphResourcePool.h"
 
 namespace Zero
@@ -19,6 +20,7 @@ namespace Zero
 		void CreateSizeDependentResources();
 		void OnResize(uint32_t Width, uint32_t Height);
 		void OnUpdate();
+		void SetupEnvironmentMap(FRenderGraph& Rg);
 		void OnDraw();
 
 		Ref<FTexture2D> GetFinalTexture()
@@ -32,6 +34,7 @@ namespace Zero
 		uint32_t m_Height;
 		
 		FForwardLitPass m_ForwardLitPass;
+		FSkyboxPass m_SkyboxPass;
 		FCopyToFinalTexturePass m_CopyToFinalTexturePass;
 	};
 };

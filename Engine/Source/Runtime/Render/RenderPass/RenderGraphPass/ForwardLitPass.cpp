@@ -10,6 +10,7 @@
 #include "Data/Settings/SceneSettings.h"
 #include "Render/Moudule/ImageBasedLighting.h"
 #include "Render/RHI/Texture.h"
+#include "Render/RenderUtils.h"
 
 namespace Zero
 {
@@ -50,12 +51,15 @@ namespace Zero
 			},
 			[=](FRenderGraphContext& Context, FCommandListHandle CommandListHandle)
 			{
-				static auto RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool(ERenderLayer::Opaque);
-				for (Ref<FRenderItem> RenderItem : *RenderItemPool.get())
+				FRenderUtils::FRenderFunc  RenderFunc = [&](Ref<FRenderItem> RenderItem)
 				{
-					RenderItem->PreRender(CommandListHandle);
-					RenderItem->Render(CommandListHandle);
-				}
+					auto& IBLModule = FRenderUtils::GetIBLMoudule();
+					RenderItem->m_Material->SetTextureCubemap("IBLIrradianceMap", IBLModule->GetIrradianceRTCube()->GetColorCubemap());
+					//RenderItem->m_Material->SetTextureCubemapArray("IBLPrefilterMaps", IBLModule->GetPrefilterEnvMapTextureCubes());
+					//RenderItem->m_Material->SetTexture2D("_BrdfLUT", FTextureManager::Get().GetLutTexture().get());
+					RenderItem->m_Material->SetIBL(true);
+				};
+				FRenderUtils::RenderLayer(ERenderLayer::Opaque, CommandListHandle, RenderFunc);
 			},
 			ERenderPassType::Graphics,
 			ERGPassFlags::ForceNoCull

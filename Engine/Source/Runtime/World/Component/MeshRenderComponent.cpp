@@ -140,54 +140,48 @@ namespace Zero
 			AttachParametersToShader();
 		}
 
-		if (Property->GetPropertyName() == "m_Floats" || Property->GetPropertyName() == "m_Textures" || Property->GetPropertyName() == "m_Colors")
+		if (Property->GetPropertyName() == "m_Floats" || Property->GetPropertyName() == "m_TextureHandles" || Property->GetPropertyName() == "m_Colors")
 		{
-			AttachParametersToShader();
+			UpdateSettings();
+			m_bUpdateIfDirty = true;
 		}
 		if (Property->GetPropertyName() == "m_ShadingMode")
 		{
 			m_PerObjConstantsBuffer->SetInt("ShadingMode", m_ShadingMode);
-			AttachParametersToShader();
+			
 		}
+	}
+
+	void UMeshRenderComponent::Tick()
+	{
+		Supper::Tick();
+		AttachParametersToShader();
 	}
 
 	void UMeshRenderComponent::AttachParametersToShader()
 	{
-		if (!m_bEnableMaterial)
+		for (auto& RenderLayer : m_LayerInfo)
 		{
-			return;
-		}
-		if (m_MaterialHandle != "")
-		{
-		}
-		{
-			auto& OpaqueLayer = m_LayerInfo.find(ERenderLayer::Opaque);
-
 			for (size_t i = 0; i < m_SubmeshNum; i++)
 			{
 				for (auto Iter : m_Textures)
 				{
-					if (Iter.second.IsNull())
-					{
-						Iter.second = FTextureManager::Get().GetDefaultTextureHandle();
-					}
 					const std::string& TextureName = Iter.first;
-					Ref<FTexture2D> Texture = FTextureManager::Get().GetTextureByHandle(Iter.second);
+					Ref<FTexture2D> Texture = Iter.second;
 					if (Texture != nullptr)
 					{
-						OpaqueLayer->second->Materials[i]->SetTexture2D(TextureName, Texture.get());
+						RenderLayer.second->Materials[i]->SetTexture2D(TextureName, Texture.get());
 					}
 				}
 				for (auto Iter : m_Floats)
 				{
-					OpaqueLayer->second->Materials[i]->SetFloat(Iter.first, Iter.second.Value);
+					RenderLayer.second->Materials[i]->SetFloat(Iter.first, Iter.second.Value);
 				}
 
 				for (auto Iter : m_Colors)
 				{
-					OpaqueLayer->second->Materials[i]->SetFloat3(Iter.first, Iter.second);
+					RenderLayer.second->Materials[i]->SetFloat3(Iter.first, Iter.second);
 				}
-
 			}
 		}
 	}
@@ -227,7 +221,7 @@ namespace Zero
 			}
 		}
 		{
-			UProperty* TextureProperty = GetClassCollection().FindProperty("m_Textures");
+			UProperty* TextureProperty = GetClassCollection().FindProperty("m_TextureHandles");
 			UMapProperty* MapTextureProperty = dynamic_cast<UMapProperty*>(TextureProperty);
 			if (MapTextureProperty != nullptr)
 			{
@@ -242,7 +236,7 @@ namespace Zero
 						UProperty* ValueProperty = dynamic_cast<UProperty*>(KeyProprety->Next);
 						std::string* KeyPtr = KeyProprety->GetData<std::string>();
 						*KeyPtr = Element.ResourceName;
-						if (auto Iter = m_Textures.find(Element.ResourceName); Iter != m_Textures.end())
+						if (auto Iter = m_TextureHandles.find(Element.ResourceName); Iter != m_TextureHandles.end())
 						{
 							FTextureHandle Handle = Iter->second;
 							FTextureHandle* ValuePtr = ValueProperty->GetData<FTextureHandle>();
@@ -251,6 +245,11 @@ namespace Zero
 					}
 				}
 				UpdateEditorContainerPropertyDetails(TextureProperty);
+			}
+			m_Textures.clear();
+			for (auto Iter : m_TextureHandles)
+			{ 
+				m_Textures.insert(std::make_pair(Iter.first, FTextureManager::Get().GetTextureByHandle(Iter.second)));
 			}
 		}
 		{
@@ -277,6 +276,7 @@ namespace Zero
 				}
 			}
 		}
+		m_bUpdateIfDirty = true;
 	}
 }
 

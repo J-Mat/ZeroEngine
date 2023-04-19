@@ -55,6 +55,7 @@ namespace Zero
 	{
 		FPSOCache::Get().RegisterComputeShader();
 		FPSOCache::Get().RegisterDefaultPSO();
+		FPSOCache::Get().RegisterErrorPSO();
 		FPSOCache::Get().RegisterSkyboxPSO();
 		FPSOCache::Get().RegisterIBLPSO();
 		FPSOCache::Get().RegisterShadowPSO();

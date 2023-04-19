@@ -43,19 +43,31 @@ namespace Zero
 				.Width = m_Width,
 				.Height = m_Height,
 				.ResourceBindFlags = (EResourceBindFlag::RenderTarget | EResourceBindFlag::ShaderResource),
-				.InitialState = EResourceState::Common,
 				.Format = RTDesc.ColorFormat[Index],
 			};
 			FTexture2D* Texture = new FDX12Texture2D(TextureName, Desc, &ClearValue);
-			AttachColorTexture(Index, Texture);
+			FRenderTexAttachment ColorAttachment =
+			{
+				.Texture = Texture,
+				.ViewID = 0,
+				.ClearValue = ClearValue,
+				.bClearColor = true
+			};
+			AttachColorTexture(Index, ColorAttachment);
 		}
 
 		if (RTDesc.bNeedDepth)
 		{
-			//.SRVFormat = DXGI_FORMAT_R24_UNORM_X8_TYPELESS
 			std::string TextureName = std::format("{0}_Depth", RTDesc.RenderTargetName);
 			FDX12Texture2D* DepthTexture = FDX12Device::Get()->CreateDepthTexture(TextureName, m_Width, m_Height);
-			AttachDepthTexture(DepthTexture);
+			FRenderTexAttachment DepthAttachment =
+			{
+				.Texture = DepthTexture,
+				.ViewID = 0,
+				.ClearValue = {},
+				.bClearColor = true
+			};
+			AttachDepthTexture(DepthAttachment);
 		}
 		SetViewportRect();
 	}
@@ -67,16 +79,15 @@ namespace Zero
 		{ auto* Texture = static_cast<FDX12Texture2D*>(m_ColoTexture[i].Texture);
 			if (Texture != nullptr)
 			{
-				if (m_ColoTexture[i].ClearValue)
+				if (m_ColoTexture[i].bClearColor)
 				{
 					auto ClearValue = m_ColoTexture[i].ClearValue.value();
 					CommandList->ClearTexture(Texture, ClearValue.Color.ToVec4());
 				}
-				CommandList->ClearTexture(Texture, Utils::Colors::Transparent);
 			}
 		}
-		auto* DepthStencilTexture = static_cast<FDX12Texture2D*>(m_DepthTexture);
-		if (DepthStencilTexture != nullptr)
+		auto* DepthStencilTexture = static_cast<FDX12Texture2D*>(m_DepthTexture.Texture);
+		if (DepthStencilTexture != nullptr && m_DepthTexture.bClearColor)
 		{
 			CommandList->ClearDepthStencilTexture(DepthStencilTexture, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL);
 		}
@@ -95,18 +106,17 @@ namespace Zero
 			}
 		}
 
-		if (m_DepthTexture != nullptr)
+		if (m_DepthTexture.Texture != nullptr)
 		{
-			m_DepthTexture->Resize(Width, Height, Depth);
+			m_DepthTexture.Texture->Resize(Width, Height, Depth);
 		}
 		
 		SetViewportRect();
 	}
 
-	void FDX12RenderTarget2D::AttachColorTexture(uint32_t AttachmentIndex, FTexture2D* Texture2D, std::optional<FTextureClearValue> ClearValue /*= std::nullopt*/, uint32_t ViewID /*= 0*/)
+	void FDX12RenderTarget2D::AttachColorTexture(uint32_t AttachmentIndex, const FRenderTexAttachment& Attachment)
 	{
-		m_ColoTexture[AttachmentIndex] = { Texture2D, ViewID, ClearValue };
-
+		m_ColoTexture[AttachmentIndex] = Attachment;
 		if (m_ColoTexture[AttachmentIndex].Texture != nullptr)
 		{
 			ZMath::uvec2 Size = m_ColoTexture[AttachmentIndex].Texture->GetSize();
@@ -116,20 +126,17 @@ namespace Zero
 		}
 	}
 
-	void FDX12RenderTarget2D::AttachDepthTexture(FTexture2D* Texture2D)
+	void FDX12RenderTarget2D::AttachDepthTexture(const FRenderTexAttachment& Attachment)
 	{
-		m_DepthTexture = Texture2D;
+		m_DepthTexture = Attachment;
 	}
 
-	void FDX12RenderTarget2D::Bind(FCommandListHandle CommandListHandle, bool bClearBuffer)
+	void FDX12RenderTarget2D::Bind(FCommandListHandle CommandListHandle)
 	{
 		auto  CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
 		CommandList->GetD3D12CommandList()->RSSetViewports(1, &m_ViewPort);
 		CommandList->GetD3D12CommandList()->RSSetScissorRects(1, &m_ScissorRect);
-		if (bClearBuffer)
-		{
-			ClearBuffer(CommandListHandle);
-		}
+		ClearBuffer(CommandListHandle);
 		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> Handles;
 		for (int i = 0; i < m_ColoTexture.size(); ++i)
 		{
@@ -142,9 +149,9 @@ namespace Zero
 				Handles.push_back(Rtv->GetDescriptorHandle());
 			}
 		}
-		if (m_DepthTexture != nullptr)
+		if (m_DepthTexture.Texture != nullptr)
 		{
-			auto* DsvTexture = static_cast<FDX12Texture2D*>(m_DepthTexture);
+			auto* DsvTexture = static_cast<FDX12Texture2D*>(m_DepthTexture.Texture);
 			if (Handles.size() == 0)
 			{ 
 				FDX12DepthStencilView* Dsv = static_cast<FDX12DepthStencilView*>(DsvTexture->GetDSV());
@@ -192,7 +199,7 @@ namespace Zero
 
 	void FDX12RenderTarget2D::UnBindDepth(FCommandListHandle CommandListHandle)
 	{
-		auto* DepthStencilTexture = static_cast<FDX12Texture2D*>(m_DepthTexture);
+		auto* DepthStencilTexture = static_cast<FDX12Texture2D*>(m_DepthTexture.Texture);
 		if (DepthStencilTexture != nullptr)
 		{
 			auto  CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
@@ -238,7 +245,7 @@ namespace Zero
 	DXGI_FORMAT FDX12RenderTarget2D::GetDepthStencilFormat() const
 	{
 		DXGI_FORMAT DsvFormat = DXGI_FORMAT_UNKNOWN;
-		auto DepthStencilTexture = static_cast<FDX12Texture2D*>(m_DepthTexture);
+		auto DepthStencilTexture = static_cast<FDX12Texture2D*>(m_DepthTexture.Texture);
 		if (DepthStencilTexture)
 		{
 			auto Resource = DepthStencilTexture->GetResource();

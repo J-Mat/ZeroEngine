@@ -130,8 +130,27 @@ namespace Zero
 
 	const Ref<FRenderTarget2D> FDX12SwapChain::GetRenderTarget()
 	{
-		m_RenderTarget->AttachColorTexture(0, m_BackBufferTextures[m_CurrentBackBufferIndex].get());
-		m_RenderTarget->AttachDepthTexture(m_DepthStencilTexture.get());
+		{
+			FRenderTexAttachment ColorAttachment =
+			{
+				.Texture = m_BackBufferTextures[m_CurrentBackBufferIndex].get(),
+				.ViewID = 0,
+				.ClearValue = FTextureClearValue(),
+				.bClearColor = true,
+			};
+			m_RenderTarget->AttachColorTexture(0, ColorAttachment);
+		}
+
+		{
+			FRenderTexAttachment DepthAttachment =
+			{
+				.Texture = m_DepthStencilTexture.get(),
+				.ViewID = 0,
+				.ClearValue = FTextureClearValue(),
+				.bClearColor = true,
+			};
+			m_RenderTarget->AttachDepthTexture(DepthAttachment);
+		}
 		TLibrary<FRenderTarget2D>::Push("MainViewport", m_RenderTarget);
 		return m_RenderTarget;
 	}

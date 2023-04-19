@@ -3,6 +3,7 @@
 #include "ZConfig.h"
 #include "Image.h"
 #include "Render/RendererAPI.h"
+#include "Render/RHI/Texture.h"
 
 namespace Zero
 {
@@ -57,7 +58,12 @@ namespace Zero
 	void FTextureManager::LoadDefaultTexture()
 	{
 		m_DefaultHandle = LoadTexture("Texture\\DefaultTexture.png");
+		{
+			auto Handle = LoadTexture("Texture\\pbr\\IBL_BRDF_LUT.png");
+			m_LutTexture = GetTextureByHandle(Handle);
+		}
 	}
+
 
 	FTextureHandle FTextureManager::LoadTexture(std::string const& FileName, bool bNeedMip)
     {
@@ -97,8 +103,31 @@ namespace Zero
 		if (auto Iter = m_TextureMap.find(Handle); Iter != m_TextureMap.end())
 		{
 			return Iter->second;
-		}
+		}	
+		return GetTextureByHandle(m_DefaultHandle);
+	}
+
+
+	Ref<FTextureCube> FTextureManager::GetCurrentSkybox()
+	{
+		if (auto Iter = m_TextureCubeMap.find(m_SkyboxHandle); Iter != m_TextureCubeMap.end())
+		{
+			return Iter->second;
+		}	
 		return nullptr;
+	}
+
+	Ref<FTextureCube> FTextureManager::CreateTextureCubemap(const std::string& TextureName, std::string* FileNames)
+	{
+		FTextureHandle Handles[6];
+		for (size_t i = 0; i < 6; i++)
+		{
+			Handles[i] = LoadTexture(FileNames[i]);
+		}
+		m_SkyboxHandle = { TextureName, FIndexGetter<FTextureHandle>::Get() };
+		Ref<FTextureCube> Texture = FDX12Device::Get()->GetOrCreateTextureCubemap(Handles, TextureName);
+		m_TextureCubeMap.insert({ m_SkyboxHandle, Texture});
+		return Texture;
 	}
 
 	FTextureHandle FTextureManager::LoadRegularTexture(std::string const& FileName, bool bNeedMip)

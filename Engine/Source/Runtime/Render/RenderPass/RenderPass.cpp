@@ -4,7 +4,6 @@
 
 namespace Zero
 {
-
 	FRenderPass::FRenderPass(FRenderGraph& Rg, FRenderPassDesc const& Desc):
 		m_RenderGrpah(Rg),
 		m_Width(Desc.Width),
@@ -14,15 +13,29 @@ namespace Zero
 		for (uint32_t i = 0; i < Desc.RtvAttachments.size(); ++i)
 		{
 			const FRtvAttachmentDesc& RtvAttachmentDesc = Desc.RtvAttachments[i];
-			m_RenderTarget->AttachColorTexture(i, RtvAttachmentDesc.RTTexture, RtvAttachmentDesc.ClearValue);
+
+			FRenderTexAttachment Attachment =
+			{
+				.Texture = RtvAttachmentDesc.RTTexture,
+				.ViewID = 0,
+				.ClearValue = RtvAttachmentDesc.ClearValue,
+				.bClearColor = RtvAttachmentDesc.BeginningAccess == ERGLoadAccessOp::Clear ? true : false,
+			};
+			m_RenderTarget->AttachColorTexture(i, Attachment);
 		}
 		if (Desc.DsvAttachment)
 		{
 			auto& DsvAttachmentDesc = Desc.DsvAttachment.value();
-			m_RenderTarget->AttachDepthTexture(DsvAttachmentDesc.DSTexture);
+			FRenderTexAttachment Attachment =
+			{
+				.Texture = DsvAttachmentDesc.DSTexture,
+				.ViewID = 0,
+				.ClearValue = DsvAttachmentDesc.ClearValue,
+				.bClearColor = DsvAttachmentDesc.DepthBeginningAccess == ERGLoadAccessOp::Clear ? true : false,
+			};
+			m_RenderTarget->AttachDepthTexture(Attachment);
 		}
 	}
-
 
 	void FRenderPass::Begin(FCommandListHandle CommandListHandle)
 	{

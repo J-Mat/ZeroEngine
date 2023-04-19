@@ -3,7 +3,7 @@
 #include "Platform/DX12/DX12RootSignature.h"
 #include "Platform/DX12/MemoryManage/Descriptor/DynamicDescriptorHeap.h"
 #include "../DX12CommandList.h"
-#include "../DX12TextureCubemap.h"
+#include "../DX12TextureCube.h"
 
 namespace Zero
 {
@@ -263,19 +263,20 @@ namespace Zero
 		}
 	}
 
-	void FDX12ShaderResourcesBuffer::SetTextureCubemap(const std::string& Name, Ref<FTextureCubemap> Texture)
+	void FDX12ShaderResourcesBuffer::SetTextureCubemap(const std::string& Name, Ref<FTextureCube> Texture)
 	{
 		FShaderResourceItem Item;
 		if (m_Desc.Mapper.FetchResource(Name, Item))
 		{
-			FDX12TextureCubemap* D3DTexture = static_cast<FDX12TextureCubemap*>(Texture.get());
-			m_SrvDynamicDescriptorHeap->StageDescriptors(Item.SRTIndex, Item.Offset, 1, D3DTexture->GetShaderResourceView());
+			FDX12TextureCube* D3DTexture = static_cast<FDX12TextureCube*>(Texture.get());
+			FDX12ShaderResourceView* Srv = static_cast<FDX12ShaderResourceView*>(D3DTexture->GetSRV());
+			m_SrvDynamicDescriptorHeap->StageDescriptors(Item.SRTIndex, Item.Offset, 1, Srv->GetDescriptorHandle());
 			m_Desc.Mapper.SetTextureID(Name); 
 			m_bIsDirty = true;
 		}
 	}
 
-	void FDX12ShaderResourcesBuffer::SetTextureCubemapArray(const std::string& Name, const std::vector<Ref<FTextureCubemap>>& TextureCubes)
+	void FDX12ShaderResourcesBuffer::SetTextureCubemapArray(const std::string& Name, const std::vector<Ref<FTextureCube>>& TextureCubes)
 	{
 		FShaderResourceItem Item;
 		if (m_Desc.Mapper.FetchResource(Name, Item))
@@ -283,8 +284,9 @@ namespace Zero
 			uint32_t Offset = 0;
 			for (auto Texture : TextureCubes)
 			{
-				FDX12TextureCubemap* D3DTexture = static_cast<FDX12TextureCubemap*>(Texture.get());
-				m_SrvDynamicDescriptorHeap->StageDescriptors(Item.SRTIndex, Offset++, 1, D3DTexture->GetShaderResourceView());
+				FDX12TextureCube* D3DTexture = static_cast<FDX12TextureCube*>(Texture.get());
+				FDX12ShaderResourceView* Srv = static_cast<FDX12ShaderResourceView*>(D3DTexture->GetSRV());
+				m_SrvDynamicDescriptorHeap->StageDescriptors(Item.SRTIndex, Offset++, 1, Srv->GetDescriptorHandle());
 			}
 			m_Desc.Mapper.SetTextureID(Name); 
 			m_bIsDirty = true;

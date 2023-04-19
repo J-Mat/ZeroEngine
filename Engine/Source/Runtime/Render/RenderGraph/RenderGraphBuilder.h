@@ -42,7 +42,6 @@ namespace Zero
 		TexDesc.HeapType = RGTexDesc.HeapType;
 		TexDesc.ClearValue = RGTexDesc.ClearValue;
 		TexDesc.ResourceBindFlags = EResourceBindFlag::None;
-		TexDesc.InitialState = EResourceState::Common;
 	}
 
 	static void FillBufferDesc(FRGBufferDesc const& RGBufferDesc, FBufferDesc& BufferDesc)

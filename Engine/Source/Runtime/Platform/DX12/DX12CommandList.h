@@ -36,6 +36,7 @@ namespace Zero
 	
 		Ref<FDX12Resource> CreateTextureResource(const std::string& TextureName, Ref<FImage> Image, bool bGenerateMip = false);
 		void AllocateTextureResource(const std::string& TextureName, const FTextureDesc& TextureDesc, FResourceLocation& ResourceLocation, Ref<FImage> Image = nullptr, bool bGenerateMip = false);
+		void AllocateTextureCubemapResource(const std::string& TextureName, const FTextureDesc& TextureDesc, FResourceLocation& ResourceLocation,  Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT]);
 		void GenerateMip(Ref<FDX12Resource> TextureResource);
 		void GenerateMipSimple(Ref<FDX12Resource> TextureResource);
 		void GenerateMips_UAV(Ref<FDX12Texture2D> Texture, bool bIsSRGB);

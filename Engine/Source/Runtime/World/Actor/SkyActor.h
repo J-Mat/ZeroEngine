@@ -9,7 +9,7 @@ namespace Zero
 {
 	class UMeshVertexComponent;
 	class UMeshRenderComponent;
-	class FTextureCubemap;
+	class FTextureCube;
 	class FRenderItemPool;
 	UCLASS()
 	class USkyActor : public UMeshActor
@@ -18,6 +18,10 @@ namespace Zero
 	public:
 		USkyActor();
 		virtual void BuildMesh();
-		void SetTextureCubemap(const std::string& TextureName, Ref<FTextureCubemap> TextureCubeMap);
+		virtual void SetCustomParemeters() override;
+		void SetTextureCubemap(const std::string& TextureName, Ref<FTextureCube> TextureCubeMap);
+	private:
+		std::string m_TextureCubeMapName;
+		Ref<FTextureCube> m_TextureCubeMap;
 	};
 }

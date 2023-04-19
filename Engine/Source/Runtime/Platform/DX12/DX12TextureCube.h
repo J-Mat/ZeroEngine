@@ -5,19 +5,21 @@
 #include "Render/Moudule/Texture/Image.h"
 #include "./MemoryManage/Resource/Resource.h"
 #include "./MemoryManage/Descriptor/DescriptorAllocation.h"
+#include "ResourceView/DX12RenderTargetView.h"
+#include "ResourceView/DX12DepthStencilView.h"
+#include "ResourceView/DX12ShaderResourceView.h"
+#include "ResourceView/DX12UnorderedAccessResourceView.h"
 
 namespace Zero
 {
     class FDX12Device;
     class FDescriptorAllocation;
 
-	class FDX12TextureCubemap :public FTextureCubemap
+	class FDX12TextureCube :public FTextureCube
 	{
 	public:
-        FDX12TextureCubemap(const std::string& TextureName, const FTextureDesc& Desc);
-		FDX12TextureCubemap(const std::string& TextureName, const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* FTextureClearValue = nullptr);
-        FDX12TextureCubemap(const std::string& TextureName, Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT], bool bRenderDepth = false);
-        FDX12TextureCubemap(ComPtr<ID3D12Resource> Resource, uint32_t Width, uint32_t Height, bool bRenderDepth = false, const D3D12_CLEAR_VALUE* FTextureClearValue = nullptr);
+        FDX12TextureCube(const std::string& TextureName, const FTextureDesc& Desc);
+        FDX12TextureCube(const std::string& TextureName, Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT], bool bRenderDepth = false);
 
 
         virtual ZMath::uvec2 GetSize() 
@@ -34,27 +36,32 @@ namespace Zero
         /**
         * Get the RTV for the texture.
         */
-        D3D12_CPU_DESCRIPTOR_HANDLE GetRenderTargetView(uint32_t Index) const;
+        FResourceView* GetRTV(uint32_t ViewID = 0) const;
 
         /**
         * Get the DSV for the texture.
         */
-        D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilView(uint32_t Index) const;
+        FResourceView* GetDSV(uint32_t ViewID = 0) const;
 
         /**
         * Get the default SRV for the texture.
         */
-        D3D12_CPU_DESCRIPTOR_HANDLE GetShaderResourceView() const;
+        FResourceView* GetSRV(uint32_t ViewID = 0) const;
 
+
+		Ref<FDX12Resource> GetResource() { return m_ResourceLocation.GetResource(); }
+		virtual void* GetNative() override { return m_ResourceLocation.GetResource()->GetD3DResource().Get(); };
 	private:
 
         uint32_t m_EachFaceSize = 0;
         bool m_bRenderDepth = false;
 
-		FDescriptorAllocation m_RenderTargetView;
-		FDescriptorAllocation m_DepthStencilView;
-		FDescriptorAllocation m_ShaderResourceView;
         FLightDescrptorAllocation m_GuiAllocation;
+
+		std::vector<Scope<FDX12ShaderResourceView>> m_SRVs;
+		std::vector<Scope<FDX12UnorderedAccessResourceView>> m_UAVs;
+		std::vector<Scope<FDX12RenderTargetView>> m_RTVs;
+		std::vector<Scope<FDX12DepthStencilView>> m_DSVs;
 
 		FResourceLocation m_ResourceLocation;
         bool m_bHasGuiResource = false;

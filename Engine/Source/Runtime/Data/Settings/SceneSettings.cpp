@@ -3,6 +3,8 @@
 #include "Render/RendererAPI.h"
 #include "World/World.h"
 #include "World/Actor/SkyActor.h"
+#include "Render/Moudule/Texture/TextureManager.h"
+#include "Render/RenderUtils.h"
 
 
 namespace Zero
@@ -10,15 +12,15 @@ namespace Zero
 	void USceneSettings::PostInit()
 	{
 		Supper::PostInit();
-		GenrerateTextureCubemapHanle();
+		GenrerateTextureCubemapHandle();
 	}
 
 	void USceneSettings::PostEdit(UProperty* Property)
 	{
 		Supper::PostEdit(Property);
-		GenrerateTextureCubemapHanle();
-		if (Property->GetPropertyName() == "m_bUseSkyBox")
+		if (Property->GetPropertyName() == "m_bUseSkyBox" && m_bUseSkyBox)
 		{
+			GenrerateTextureCubemapHandle();
 		}
 	}
 
@@ -33,15 +35,19 @@ namespace Zero
 		return UWorld::GetCurrentWorld()->CreateActor<USkyActor>();
 	}
 
-	void USceneSettings::GenrerateTextureCubemapHanle()
+	void USceneSettings::GenrerateTextureCubemapHandle()
 	{
 		std::vector<std::string> Tokens = { m_SkyBoxRright.TextureName, m_SkyBoxLeft.TextureName, m_SkyBoxTop.TextureName, m_SkyBoxBottom.TextureName, m_SkyBoxFront.TextureName, m_SkyBoxBack.TextureName };
 		std::string TempHandle = Utils::StringUtils::Join(Tokens, "|");
 		if (m_TextureCubemapHandle != TempHandle)
 		{
 			m_TextureCubemapHandle = TempHandle;
-			FTextureHandle Handles[CUBEMAP_TEXTURE_CNT] = { m_SkyBoxRright, m_SkyBoxLeft, m_SkyBoxTop, m_SkyBoxBottom, m_SkyBoxFront, m_SkyBoxBack };
-			Ref<FTextureCubemap> TextureCubemap = FGraphic::GetDevice()->GetOrCreateTextureCubemap(Handles, "default");
+			std::string* Handles = Tokens.data();
+			Ref<FTextureCube> TextureCubemap = FTextureManager::Get().CreateTextureCubemap("skybox", Handles);
+			if (TextureCubemap != nullptr)
+			{
+				FRenderUtils::SetNeedRefreshIBL();
+			}
 			GetSkyActor()->SetTextureCubemap("gSkyboxMap", TextureCubemap);
 		}
 	}

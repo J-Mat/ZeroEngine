@@ -163,7 +163,8 @@ namespace Zero
 	class FTexture2D : public ITexture
 	{
 	public:
-		FTexture2D(bool bNeetMipMap = false) :
+		FTexture2D(Ref<FImage> ImageData, bool bNeetMipMap = false) :
+			m_ImageData(ImageData),
 			m_bNeedMipMap(bNeetMipMap) 
 		{}
 		FTexture2D(const FTextureDesc &TextureDesc ) :
@@ -186,19 +187,20 @@ namespace Zero
 		virtual void ReleaseUAVs() = 0;
 		virtual void RegistGuiShaderResource() = 0;
 	protected:	
+		Ref<FImage> m_ImageData;
 		bool m_bNeedMipMap = false;
 	};
 
-	class FTextureCubemap : public ITexture
+	class FTextureCube : public ITexture
 	{
 	public:
-		FTextureCubemap(const FTextureDesc &TextureDesc ) :
+		FTextureCube(const FTextureDesc &TextureDesc ) :
 			ITexture(TextureDesc)
 		{}
-		FTextureCubemap() :
+		FTextureCube() :
 			ITexture()
 		{}
-		virtual ~FTextureCubemap() = default;
+		virtual ~FTextureCube() = default;
 		virtual void Resize(uint32_t Width, uint32_t Height, uint32_t DepthOrArraySize = 1) = 0;
 		virtual ZMath::uvec2 GetSize() = 0;
 	};

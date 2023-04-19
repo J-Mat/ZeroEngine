@@ -24,7 +24,6 @@ namespace Zero
 
 		uint32_t SubMeshNum = m_MeshVertexComponent->m_Mesh->GetSubMeshNum();
 		m_MeshRenderComponent->SetSubmeshNum(SubMeshNum);
-		m_MeshRenderComponent->AttachParametersToShader();
 		m_MeshRenderComponent->UpdateSettings();
 	}
 
@@ -57,6 +56,8 @@ namespace Zero
 
 	void UMeshActor::Tick()
 	{
+		Supper::Tick();
+		SetCustomParemeters();
 		CommitToPipieline();
 	}
 
@@ -69,5 +70,4 @@ namespace Zero
 	{
 		m_MeshRenderComponent->SetParameter(ParameterName, ShaderDataType, ValuePtr, RenderLayer);
 	}
-
 }

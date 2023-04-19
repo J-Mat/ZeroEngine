@@ -2,7 +2,7 @@
 #include "DX12RenderTarget2D.h"
 #include "DX12Device.h"
 #include "DX12CommandList.h"
-#include "DX12TextureCubemap.h"
+#include "DX12TextureCube.h"
 #include "Colors.h"
 
 
@@ -11,7 +11,7 @@ namespace Zero
 	FDX12RenderTargetCube::FDX12RenderTargetCube(const FRenderTargetCubeDesc& Desc)
 		: FRenderTargetCube(Desc)
 	{
-		DXGI_FORMAT DxgiFormat = FDX12Utils::ConvertResourceFormat(Desc.TextureFormat);
+		/*
 		D3D12_RESOURCE_DESC TexDesc = {
 			.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D,
 			.Alignment = 0,
@@ -27,32 +27,53 @@ namespace Zero
 			.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN,
 			.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET
 		};
+		*/
 
-		CD3DX12_CLEAR_VALUE OptClear;
-		OptClear.Format = DxgiFormat;
-		memcpy(OptClear.Color, DirectX::Colors::Transparent, 4 * sizeof(float));
-		std::string ColorTexturName = std::format("{0}_Color", Desc.RenderTargetName);
-		m_TextureColorCubemap = CreateRef<FDX12TextureCubemap>(ColorTexturName, TexDesc, &OptClear);
+		{
+			FTextureDesc TextureDesc = {
+				.Type = ETextureType::TextureType_2D,
+				.Width = m_Size,
+				.Height = m_Size,
+				.ArraySize = 6,
+				.ResourceBindFlags = EResourceBindFlag::ShaderResource | EResourceBindFlag::RenderTarget,
+				.Format = Desc.TextureFormat,
+			};
+			std::string ColorTexturName = std::format("{0}_Color", Desc.RenderTargetName);
+			m_TextureColorCubemap = CreateRef<FDX12TextureCube>(ColorTexturName, TextureDesc);
+		}
+
 
 		if (m_bRenderDepth)
 		{
-			D3D12_RESOURCE_DESC DepthDesc = {
-				.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D,
-				.Alignment = 0,
+			{
+				D3D12_RESOURCE_DESC DepthDesc = {
+					.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D,
+					.Alignment = 0,
+					.Width = m_Size,
+					.Height = m_Size,
+					.DepthOrArraySize = 6,
+					.MipLevels = 1,
+					.Format = DXGI_FORMAT_D24_UNORM_S8_UINT,
+					.SampleDesc = {
+						.Count = 1,
+						.Quality = 0
+					},
+					.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN,
+					.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL
+				};
+			}
+
+			FTextureDesc TextureDesc = {
+				.Type = ETextureType::TextureType_2D,
 				.Width = m_Size,
 				.Height = m_Size,
-				.DepthOrArraySize = 6,
-				.MipLevels = 1,
-				.Format = DXGI_FORMAT_D24_UNORM_S8_UINT,
-				.SampleDesc = {
-					.Count = 1,
-					.Quality = 0
-				},
-				.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN,
-				.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL
+				.ArraySize = 6,
+				.ResourceBindFlags = EResourceBindFlag::ShaderResource | EResourceBindFlag::DepthStencil,
+				.Format = EResourceFormat::D24_UNORM_S8_UINT,
 			};
+
 			std::string DepthTexturName = std::format("{0}_Depth", Desc.RenderTargetName);
-			m_TextureDepthCubemap = CreateRef<FDX12TextureCubemap>(DepthTexturName, DepthDesc);
+			m_TextureDepthCubemap = CreateRef<FDX12TextureCube>(DepthTexturName, TextureDesc);
 		}
 		SetViewportRect();
 	}
@@ -76,27 +97,53 @@ namespace Zero
 	void FDX12RenderTargetCube::SetRenderTarget(uint32_t Index, FCommandListHandle CommandListHandle)
 	{
 		auto  CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
-		FDX12TextureCubemap* DX12TextureCubemap = static_cast<FDX12TextureCubemap*>(m_TextureColorCubemap.get());
-		D3D12_CPU_DESCRIPTOR_HANDLE RTV = DX12TextureCubemap->GetRenderTargetView(Index);
-		float ClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-		CommandList->GetD3D12CommandList()->ClearRenderTargetView(RTV, ClearColor, 0, nullptr);
-		CommandList->GetD3D12CommandList()->OMSetRenderTargets(1, &RTV, true, nullptr);
+		FDX12TextureCube* DX12TextureCubemap = static_cast<FDX12TextureCube*>(m_TextureColorCubemap.get());
+		FDX12RenderTargetView* RTV = static_cast<FDX12RenderTargetView*>(DX12TextureCubemap->GetRTV(Index));
+		ZMath::vec4 ClearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+		if (Index == 0)
+		{
+			ClearColor = { 1.0f, 0.0f, 0.0f, 1.0f };
+		}
+		if (Index == 1)
+		{
+			ClearColor = { 0.0f, 1.0f, 0.0f, 1.0f };
+		}
+		if (Index == 2)
+		{
+			ClearColor = { 0.0f, 0.0f, 1.0f, 1.0f };
+		}
+		if (Index == 3)
+		{
+			ClearColor = { 1.0f, 1.0f, 0.0f, 1.0f };
+		}
+		if (Index == 4)
+		{
+			ClearColor = { 1.0f, 0.0f, 1.0f, 1.0f };
+		}
+		if (Index == 5)
+		{
+			ClearColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+		}
+		float Color[4] = { ClearColor[0],ClearColor[1], ClearColor[2], ClearColor[3]};
+
+		CommandList->GetD3D12CommandList()->ClearRenderTargetView(RTV->GetDescriptorHandle(),Color, 0, nullptr);
+		CommandList->GetD3D12CommandList()->OMSetRenderTargets(1, &RTV->GetDescriptorHandle(), true, nullptr);
 	}
 
 	void FDX12RenderTargetCube::Bind(FCommandListHandle CommandListHandle)
 	{
 		auto  CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
-		FDX12TextureCubemap* DX12TextureCubemap = static_cast<FDX12TextureCubemap*>(m_TextureColorCubemap.get());
+		FDX12TextureCube* DX12TextureCubemap = static_cast<FDX12TextureCube*>(m_TextureColorCubemap.get());
 		CommandList->GetD3D12CommandList()->RSSetViewports(1, &m_ViewPort);
 		CommandList->GetD3D12CommandList()->RSSetScissorRects(1, &m_ScissorRect);
-		CommandList->TransitionBarrier(DX12TextureCubemap->GetD3DResource(), D3D12_RESOURCE_STATE_RENDER_TARGET);
+		CommandList->TransitionBarrier(DX12TextureCubemap->GetResource()->GetD3DResource(), D3D12_RESOURCE_STATE_RENDER_TARGET);
 	}
 
 	void FDX12RenderTargetCube::UnBind(FCommandListHandle CommandListHandle)
 	{
 		auto  CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
-		FDX12TextureCubemap* DX12TextureCubemap = static_cast<FDX12TextureCubemap*>(m_TextureColorCubemap.get());
-		CommandList->TransitionBarrier(DX12TextureCubemap->GetD3DResource(), D3D12_RESOURCE_STATE_GENERIC_READ);
+		FDX12TextureCube* DX12TextureCubemap = static_cast<FDX12TextureCube*>(m_TextureColorCubemap.get());
+		CommandList->TransitionBarrier(DX12TextureCubemap->GetResource()->GetD3DResource(), D3D12_RESOURCE_STATE_GENERIC_READ);
 	}
 
 }

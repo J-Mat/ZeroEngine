@@ -86,15 +86,15 @@ namespace Zero
 	template<typename T>
 	using Weak = std::weak_ptr<T>;
 
-	struct FTextureHadleType
+	struct FTextureHandleType
 	{
 		std::string TextureName = "";
 		uint32_t ID = INVALID_ID;
-		FTextureHadleType() = default;
-		FTextureHadleType(std::string _TextureName)
+		FTextureHandleType() = default;
+		FTextureHandleType(std::string _TextureName)
 			: TextureName(_TextureName)
 		{}
-		FTextureHadleType(std::string _TextureName, uint32_t _ID)
+		FTextureHandleType(std::string _TextureName, uint32_t _ID)
 			: TextureName(_TextureName)
 			, ID(_ID)
 		{}
@@ -102,9 +102,9 @@ namespace Zero
 		{
 			return ID == -1 || TextureName == "";
 		}
-		auto operator<=>(FTextureHadleType const&) const = default;
+		auto operator<=>(FTextureHandleType const&) const = default;
 	};
-	using FTextureHandle = FTextureHadleType;
+	using FTextureHandle = FTextureHandleType;
 
 	using FJsonObj = nlohmann::json;
 	using FMaterialHandle = std::string;

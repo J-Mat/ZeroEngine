@@ -47,10 +47,15 @@ namespace Zero
 
 		int32_t GetRenderLayer() { return m_RenderLayer;}
 		virtual void PostEdit(UProperty* Property) override;
+		virtual void Tick() override;
 		void AttachParametersToShader();
 		void UpdateSettings();
 		Ref<IShaderConstantsBuffer> GetAndPreDraCallPerObjConstanBuffer();
 		const std::unordered_map<ERenderLayer, Ref<FRenderLayerInfo>>& GetLayerInfo() { return m_LayerInfo; }
+
+	private:
+		bool m_bUpdateIfDirty = false;
+		std::map<std::string, Ref<FTexture2D>> m_Textures;
 	private:
 		Ref<IShaderConstantsBuffer> m_PerObjConstantsBuffer = nullptr;
 		std::unordered_map<ERenderLayer, Ref<FRenderLayerInfo>> m_LayerInfo;
@@ -65,16 +70,15 @@ namespace Zero
 		UPROPERTY(Invisible)
 		int32_t m_RenderLayer = 0;
 
-
 		UPROPERTY()
 		EShadingMode m_ShadingMode = EShadingMode::SM_Light;
 
 	public:
 		UPROPERTY(Format = hlsl)
 		FShaderFileHandle m_ShaderFile = "Shader\\ForwardLit.hlsl";
-
+		
 		UPROPERTY(Fixed, KeyUnEditable)
-		std::map<std::string, FTextureHandle> m_Textures;
+		std::map<std::string, FTextureHandle> m_TextureHandles;
 
 		UPROPERTY(Fixed, KeyUnEditable)
 		std::map<std::string, FFloatSlider> m_Floats;

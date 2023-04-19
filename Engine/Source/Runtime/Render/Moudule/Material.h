@@ -23,7 +23,7 @@ namespace Zero
 	struct FShaderResourcesDesc;
 	class IDevice;
 	class FTexture2D;
-	class FTextureCubemap;
+	class FTextureCube;
 	class IShaderConstantsBuffer;
 	class IShaderResourcesBuffer;
 	DEFINITION_SIMPLE_SINGLE_DELEGATE(FOnSetParameter, void, const std::string&, void*)
@@ -53,8 +53,8 @@ namespace Zero
 		void SetCameraViewPos(const std::string& Name, const ZMath::vec3& Value);
 		void SetTexture2D(const std::string& Name, FTexture2D* Texture);
 		void SetTexture2DArray(const std::string& Name, const std::vector<Ref<FTexture2D>> Textures);
-		void SetTextureCubemap(const std::string& Name, Ref<FTextureCubemap> Texture);
-		void SetTextureCubemapArray(const std::string& Name, const std::vector<Ref<FTextureCubemap>>& Textures);
+		void SetTextureCubemap(const std::string& Name, Ref<FTextureCube> Texture);
+		void SetTextureCubemapArray(const std::string& Name, const std::vector<Ref<FTextureCube>>& Textures);
 
 		void SetParameter(const std::string& ParameterName, EShaderDataType ShaderDataType, void* ValuePtr);
 

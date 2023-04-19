@@ -33,6 +33,7 @@ namespace Zero
 		std::vector<Ref<FTexture2D>> m_Resources;
 	};
 
+	class FTextureCube;
 	class FTextureManager : public IPublicSingleton<FTextureManager>
 	{
 	public:
@@ -41,15 +42,22 @@ namespace Zero
 		FTextureHandle LoadTexture(std::string const& FileName, bool bNeedMip = true);
 		Ref<FTexture2D> GetTextureByHandle(FTextureHandle Handle);
 		FTextureHandle GetDefaultTextureHandle() { return m_DefaultHandle; };
-		Ref<FTextureCubemap>
+		Ref<FTextureCube> GetCurrentSkybox();
+		Ref<FTextureCube> CreateTextureCubemap(const std::string& TextureName, std::string* FileNames);
+	public:
+		Ref<FTexture2D> GetLutTexture() { return m_LutTexture; };
 	private:
 		std::map<std::string, FTextureHandle> m_LoadedTexNameHandleMap{};
 		//std::map<FTextureHandle, Ref<FTexture2D>> m_TextureMap{};
 		std::map<FTextureHandle, Ref<FTexture2D>> m_TextureMap{};
+		std::map<FTextureHandle, Ref<FTextureCube>> m_TextureCubeMap{};
 		FMipsGenerator m_MipsGenrators;
 	private:
 		FTextureHandle LoadRegularTexture(std::string const& FileName, bool bNeedMip);
 		FTextureHandle LoadTexture_HDR_TGA_PIC(std::string const& FileName);
+	private:
 		FTextureHandle m_DefaultHandle;
+		FTextureHandle m_SkyboxHandle;
+		Ref<FTexture2D> m_LutTexture;
 	};
 }

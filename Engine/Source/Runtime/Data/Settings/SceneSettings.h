@@ -37,7 +37,7 @@ namespace Zero
 		UPROPERTY()
 		FTextureHandle m_SkyBoxBack; //= FTextureManager::Get().LoadTexture("Texture / skybox / back.jpg");//DEFAULT_TEXTURE_HANDLE;
 	private: 
-		void GenrerateTextureCubemapHanle();
+		void GenrerateTextureCubemapHandle();
 		USkyActor* GetSkyActor();
 	private:
 		std::string m_TextureCubemapHandle = "";

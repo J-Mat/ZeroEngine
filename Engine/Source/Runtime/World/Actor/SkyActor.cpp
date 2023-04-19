@@ -29,14 +29,20 @@ namespace Zero
 	}
 
 
-	void USkyActor::SetTextureCubemap(const std::string& TextureName, Ref<FTextureCubemap> TextureCubeMap)
+	void USkyActor::SetCustomParemeters()
 	{
 		uint32_t MaterialIndex = 0;
 		for (FSubMesh& SubMesh : *m_MeshVertexComponent->m_Mesh.get())
 		{
 			Ref<FMaterial> Material = m_MeshRenderComponent->GetPassMaterials(ERenderLayer::Skybox)[MaterialIndex];
-			Material->SetTextureCubemap(TextureName, TextureCubeMap);
+			Material->SetTextureCubemap(m_TextureCubeMapName, m_TextureCubeMap);
 			MaterialIndex++;
 		}
+	}
+
+	void USkyActor::SetTextureCubemap(const std::string& TextureName, Ref<FTextureCube> TextureCubeMap)
+	{
+		m_TextureCubeMapName = TextureName;
+		m_TextureCubeMap = TextureCubeMap;
 	}
 }

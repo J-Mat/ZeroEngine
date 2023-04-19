@@ -1,6 +1,9 @@
 #include "DAGRenderer.h"
 #include "Render/RenderGraph/RenderGraph.h"
 #include "Render/RendererAPI.h"
+#include "Data/Settings/SettingsManager.h"
+#include "Data/Settings/SceneSettings.h"
+#include "Render/RenderUtils.h"
 
 
 namespace Zero
@@ -50,11 +53,26 @@ namespace Zero
 		SetupShadow();
 	}
 
+	void FDAGRender::SetupEnvironmentMap(FRenderGraph& Rg)
+	{
+		static auto* Settings = FSettingManager::Get().FecthSettings<USceneSettings>(USceneSettings::StaticGetObjectName());
+		if (Settings->m_bUseSkyBox)
+		{
+			FRenderUtils::RefreshIBL();
+			m_SkyboxPass.AddPass(Rg);
+		}
+	}
+
 	void FDAGRender::OnDraw()
 	{
 		FRenderGraph RenderGraph(m_RGResourcePool);
 		RenderGraph.ImportTexture(RGResourceName::FinalTexture, m_FinalTexture.get());
+
+		
 		m_ForwardLitPass.AddPass(RenderGraph);
+
+		SetupEnvironmentMap(RenderGraph);
+
 		m_CopyToFinalTexturePass.AddPass(RenderGraph);
 		
 	

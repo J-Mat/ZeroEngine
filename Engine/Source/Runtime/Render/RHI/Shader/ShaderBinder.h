@@ -138,7 +138,7 @@ namespace Zero
 	};
 
 	class FTexture2D;
-	class FTextureCubemap;
+	class FTextureCube;
 	class IShaderResourcesBuffer
 	{
 	public:
@@ -147,8 +147,8 @@ namespace Zero
 		virtual FShaderResourcesDesc* GetShaderResourceDesc() = 0;
 		virtual void SetTexture2D(const std::string& Name, FTexture2D* Texture) = 0;
 		virtual void SetTexture2DArray(const std::string& Name, std::vector<Ref<FTexture2D>> Textures) = 0;
-		virtual void SetTextureCubemap(const std::string& Name, Ref<FTextureCubemap> Texture) = 0;
-		virtual void SetTextureCubemapArray(const std::string& Name, const std::vector<Ref<FTextureCubemap>>& TextureCubes) = 0;
+		virtual void SetTextureCubemap(const std::string& Name, Ref<FTextureCube> Texture) = 0;
+		virtual void SetTextureCubemapArray(const std::string& Name, const std::vector<Ref<FTextureCube>>& TextureCubes) = 0;
 
 		virtual void UploadDataIfDirty(FCommandListHandle CommandListHandle) = 0;
 	protected:

@@ -20,7 +20,7 @@ namespace Zero
         friend class FDX12RenderTarget2D;
     private: 
         D3D12_CLEAR_VALUE GetClearValue();
-        void AttachHeapTypeAndResourceState(D3D12_HEAP_TYPE& D3DHeapType, D3D12_RESOURCE_STATES& D3DResourceState, D3D12_RESOURCE_DESC& ResourceDesc);
+        void AttachHeapTypeAndResourceState(D3D12_HEAP_TYPE& D3DHeapType, D3D12_RESOURCE_DESC& ResourceDesc);
 	public:
         FDX12Texture2D(const std::string& TextureName, const FTextureDesc& Desc, bool bCreateTextureView = true);
         FDX12Texture2D(const std::string& TextureName, Ref<FImage> ImageData, bool bNeedMipMap = true);

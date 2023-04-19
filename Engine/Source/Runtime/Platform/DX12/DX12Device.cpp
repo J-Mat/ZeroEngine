@@ -4,7 +4,7 @@
 #include "MemoryManage/Descriptor/DescriptorAllocator.h"
 #include "DX12CommandList.h"
 #include "DX12Texture2D.h"
-#include "DX12TextureCubemap.h"
+#include "DX12TextureCube.h"
 #include "DX12Mesh.h"
 #include "./Shader/DX12Shader.h"
 #include "./PSO/DX12PipelineStateObject.h"
@@ -184,47 +184,16 @@ namespace Zero
 		GetCommandList(Handle)->GetD3D12CommandList()->IASetIndexBuffer(&ib_view);
 	}
 
-	Ref<FTextureCubemap> FDX12Device::GetOrCreateTextureCubemap(FTextureHandle Handles[CUBEMAP_TEXTURE_CNT], std::string TextureCubemapName)
+	Ref<FTextureCube> FDX12Device::GetOrCreateTextureCubemap(FTextureHandle Handles[CUBEMAP_TEXTURE_CNT], std::string TextureCubemapName)
 	{
-		return nullptr;
-		/*
-		auto CreateTextureCubemap = [&]() -> Ref<FTextureCubemap>
+		Ref<FTextureCube> TextureCubemap;
+		Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT]	;
+		for (int i = 0; i < CUBEMAP_TEXTURE_CNT; ++i)
 		{
-			Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT];
-			for (int i = 0; i < CUBEMAP_TEXTURE_CNT; ++i)
-			{
-				std::filesystem::path TexturePath = ZConfig::GetAssestsFullPath(Handles[i]);
-				ImageData[i] = CreateRef<FImage>(TexturePath.string());
-			}
-			return CreateRef<FDX12TextureCubemap>(ImageData);
-		};
-		*/
-
-		std::filesystem::path TextureFileName = TextureCubemapName;
-		Ref<FTextureCubemap> TextureCubemap = TLibrary<FTextureCubemap>::Fetch(TextureCubemapName);
-		if (TextureCubemap == nullptr)
-		{
-			Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT];
-			for (int i = 0; i < CUBEMAP_TEXTURE_CNT; ++i)
-			{
-				Ref<FTexture2D> Texture2D = GetOrCreateTexture2D(Handles[i].TextureName);
-				ImageData[i] = Texture2D->GetImage();
-			}
-			TextureCubemap = CreateRef<FDX12TextureCubemap>(TextureCubemapName, ImageData);
+			Ref<FTexture2D> Texture2D = GetOrCreateTexture2D(Handles[i].TextureName);
+			ImageData[i] = Texture2D->GetImage();
 		}
-		else
-		{
-			TLibrary<FTextureCubemap>::Remove(TextureCubemapName);
-			TextureCubemap.reset();
-			Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT]	;
-			for (int i = 0; i < CUBEMAP_TEXTURE_CNT; ++i)
-			{
-				Ref<FTexture2D> Texture2D = GetOrCreateTexture2D(Handles[i].TextureName);
-				ImageData[i] = Texture2D->GetImage();
-			}
-			TextureCubemap = CreateRef<FDX12TextureCubemap>(TextureCubemapName, ImageData);
-		}
-		TLibrary<FTextureCubemap>::Push(TextureCubemapName, TextureCubemap);
+		TextureCubemap = CreateRef<FDX12TextureCube>(TextureCubemapName, ImageData);
 		return TextureCubemap;
 	}
 
@@ -540,7 +509,6 @@ namespace Zero
 			.Width = Width,
 			.Height = Height,
 			.ResourceBindFlags = EResourceBindFlag::DepthStencil | EResourceBindFlag::ShaderResource,
-			.InitialState = EResourceState::Common,
 			.ClearValue = ClearValue,
 			.Format = EResourceFormat::D24_UNORM_S8_UINT,
 		};
