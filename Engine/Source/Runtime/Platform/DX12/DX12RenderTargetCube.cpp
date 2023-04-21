@@ -35,6 +35,7 @@ namespace Zero
 				.Width = m_Size,
 				.Height = m_Size,
 				.ArraySize = 6,
+				.MipLevels = Desc.MipLevels,
 				.ResourceBindFlags = EResourceBindFlag::ShaderResource | EResourceBindFlag::RenderTarget,
 				.Format = Desc.TextureFormat,
 			};
@@ -99,32 +100,7 @@ namespace Zero
 		auto  CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
 		FDX12TextureCube* DX12TextureCubemap = static_cast<FDX12TextureCube*>(m_TextureColorCubemap.get());
 		FDX12RenderTargetView* RTV = static_cast<FDX12RenderTargetView*>(DX12TextureCubemap->GetRTV(Index));
-		ZMath::vec4 ClearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
-		if (Index == 0)
-		{
-			ClearColor = { 1.0f, 0.0f, 0.0f, 1.0f };
-		}
-		if (Index == 1)
-		{
-			ClearColor = { 0.0f, 1.0f, 0.0f, 1.0f };
-		}
-		if (Index == 2)
-		{
-			ClearColor = { 0.0f, 0.0f, 1.0f, 1.0f };
-		}
-		if (Index == 3)
-		{
-			ClearColor = { 1.0f, 1.0f, 0.0f, 1.0f };
-		}
-		if (Index == 4)
-		{
-			ClearColor = { 1.0f, 0.0f, 1.0f, 1.0f };
-		}
-		if (Index == 5)
-		{
-			ClearColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-		}
-		float Color[4] = { ClearColor[0],ClearColor[1], ClearColor[2], ClearColor[3]};
+		float Color[4] = { 0.0f, 0.0f, 0.0f, 0.0f};
 
 		CommandList->GetD3D12CommandList()->ClearRenderTargetView(RTV->GetDescriptorHandle(),Color, 0, nullptr);
 		CommandList->GetD3D12CommandList()->OMSetRenderTargets(1, &RTV->GetDescriptorHandle(), true, nullptr);

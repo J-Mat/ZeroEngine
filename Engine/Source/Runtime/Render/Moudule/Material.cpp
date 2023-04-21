@@ -55,11 +55,10 @@ namespace Zero
 				UCameraActor* Camera = UWorld::GetCurrentWorld()->GetMainCamera();
 				m_CameraBuffer = Camera->GetConstantBuffer();
 			}
-			else if (m_CameraBuffer == nullptr)
+			if (m_CameraBuffer != nullptr)
 			{
-				m_CameraBuffer = FConstantsBufferManager::Get().GetCameraConstantBuffer();
+				m_ShaderBinder->BindConstantsBuffer(CommandListHandle, BinderDesc.m_CameraIndex, m_CameraBuffer.get());
 			}
-			m_ShaderBinder->BindConstantsBuffer(CommandListHandle, BinderDesc.m_CameraIndex, m_CameraBuffer.get());
 		}
 		
 		if (BinderDesc.m_GloabalConstantIndex != Utils::InvalidIndex)

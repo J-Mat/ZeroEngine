@@ -30,13 +30,13 @@ namespace Zero
         
         virtual void Resize(uint32_t Width, uint32_t Height, uint32_t DepthOrArraySize = 6);
 
-		void CreateViews();
+		void CreateViews(uint32_t MipLevels = 1);
 
 
         /**
         * Get the RTV for the texture.
         */
-        FResourceView* GetRTV(uint32_t ViewID = 0) const;
+        FResourceView* GetRTV(uint32_t CubeIndex = 0, uint32_t SubResourceIndex = 0) const;
 
         /**
         * Get the DSV for the texture.

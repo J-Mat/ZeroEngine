@@ -27,6 +27,7 @@ namespace Zero
 	void UMeshRenderComponent::PostInit()
 	{
 		//m_PerObjConstantsBuffer->SetInt("ShadingMode", m_ShadingMode);
+		UpdateSettings();
 	}
 
 	void UMeshRenderComponent::SetEnableMaterial(bool bEnable)
@@ -142,7 +143,11 @@ namespace Zero
 
 		if (Property->GetPropertyName() == "m_Floats" || Property->GetPropertyName() == "m_TextureHandles" || Property->GetPropertyName() == "m_Colors")
 		{
-			UpdateSettings();
+			m_Textures.clear();
+			for (auto Iter : m_TextureHandles)
+			{ 
+				m_Textures.insert(std::make_pair(Iter.first, FTextureManager::Get().GetTextureByHandle(Iter.second)));
+			}
 			m_bUpdateIfDirty = true;
 		}
 		if (Property->GetPropertyName() == "m_ShadingMode")
@@ -245,11 +250,6 @@ namespace Zero
 					}
 				}
 				UpdateEditorContainerPropertyDetails(TextureProperty);
-			}
-			m_Textures.clear();
-			for (auto Iter : m_TextureHandles)
-			{ 
-				m_Textures.insert(std::make_pair(Iter.first, FTextureManager::Get().GetTextureByHandle(Iter.second)));
 			}
 		}
 		{

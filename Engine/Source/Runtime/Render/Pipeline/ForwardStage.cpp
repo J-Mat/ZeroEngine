@@ -51,7 +51,6 @@ namespace Zero
 
 	void FForwardStage::ForwarLitRender()
 	{
-		/*
 		static auto RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool(ERenderLayer::Opaque);
 		static auto LUTTexture2D = TLibrary<FTexture2D>::Fetch(IBL_BRDF_LUT);
 		static std::string ShadowMapID = std::format("{0}_{1}",  RENDER_STAGE_SHADOWMAP,  0);
@@ -78,13 +77,10 @@ namespace Zero
 
 			RenderItem->Render(m_CommandListHandle);
 		}
-		*/
 	}
 
 	void FForwardStage::OnDraw()
 	{
-		CORE_ASSERT(false, "no");
-		/*
 		m_CommandListHandle = FGraphic::GetDevice()->GetSingleThreadCommadList();
 		static auto* Settings = FSettingManager::Get().FecthSettings<USceneSettings>(USceneSettings::StaticGetObjectName());
 		
@@ -106,6 +102,5 @@ namespace Zero
 		RawRenderLayer(ERenderLayer::Light);
 		ForwarLitRender();
 		m_RenderTarget->UnBind(m_CommandListHandle);
-		*/
 	}
 }

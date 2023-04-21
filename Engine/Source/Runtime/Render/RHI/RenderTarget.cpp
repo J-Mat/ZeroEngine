@@ -1,5 +1,6 @@
 #include "RenderTarget.h"
 #include "Texture.h"
+#include "Render/Moudule/ConstantsBufferManager.h"
 
 namespace Zero
 {
@@ -36,17 +37,19 @@ namespace Zero
 
 		for (int i = 0; i < 6; ++i)
 		{
-			SceneViews[i].ViewPos = Eye;
-			SceneViews[i].View = ZMath::lookAtLH(Eye, Targets[i], Ups[i]);
+			m_SceneViews[i].ViewPos = Eye;
+			m_SceneViews[i].View = ZMath::lookAtLH(Eye, Targets[i], Ups[i]);
 
 			float Fov = ZMath::half_pi<float>();
 			float AspectRatio = 1.0f; //Square
-			SceneViews[i].Proj = ZMath::perspectiveLH(Fov, AspectRatio, 0.1f, 10.0f);
+			m_SceneViews[i].Proj = ZMath::perspectiveLH(Fov, AspectRatio, 0.1f, 10.0f);
 
-			SceneViews[i].ProjectionView = SceneViews[i].Proj * SceneViews[i].View;
+			m_SceneViews[i].ProjectionView = m_SceneViews[i].Proj * m_SceneViews[i].View;
 
-			SceneViews[i].Near = 0.0f;
-			SceneViews[i].Far = 10.0f;
+			m_SceneViews[i].Near = 0.0f;
+			m_SceneViews[i].Far = 10.0f;
+
+			m_ViewkCameraBuffers[i] = FConstantsBufferManager::Get().GetCameraConstantBuffer();
 		}
 	}
 }

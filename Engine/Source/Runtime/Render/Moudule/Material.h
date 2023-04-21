@@ -33,6 +33,7 @@ namespace Zero
 		FMaterial(bool bUseMainCamera = true);
 		~FMaterial();	
 		void Tick();
+		void SetCamera(Ref<IShaderConstantsBuffer> Camera) { m_CameraBuffer = Camera; };
 		void SetPass(FCommandListHandle CommandListHanle);
 		void OnDrawCall(FCommandListHandle CommandListHanle);
 		void SetShader(Ref<FShader> Shader);

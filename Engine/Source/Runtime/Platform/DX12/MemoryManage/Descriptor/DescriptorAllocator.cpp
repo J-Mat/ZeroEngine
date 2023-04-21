@@ -53,7 +53,7 @@ namespace Zero
             size_t Index = *Iter;
             auto AllocatorPage = m_HeapPool[Index];
             
-            auto Allocation = AllocatorPage->Allocate(NumDescriptors);
+            Allocation = AllocatorPage->Allocate(NumDescriptors);
             
             if (AllocatorPage->GetNumFreeHandles() == 0)
             {
@@ -63,7 +63,7 @@ namespace Zero
             {
                 ++Iter;
             }
-            if (Allocation.IsNull())
+            if (!Allocation.IsNull())
             {
                 break;
             }

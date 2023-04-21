@@ -51,15 +51,16 @@ namespace Zero
 			},
 			[=](FRenderGraphContext& Context, FCommandListHandle CommandListHandle)
 			{
-				FRenderUtils::FRenderFunc  RenderFunc = [&](Ref<FRenderItem> RenderItem)
-				{
-					auto& IBLModule = FRenderUtils::GetIBLMoudule();
-					RenderItem->m_Material->SetTextureCubemap("IBLIrradianceMap", IBLModule->GetIrradianceRTCube()->GetColorCubemap());
-					//RenderItem->m_Material->SetTextureCubemapArray("IBLPrefilterMaps", IBLModule->GetPrefilterEnvMapTextureCubes());
-					//RenderItem->m_Material->SetTexture2D("_BrdfLUT", FTextureManager::Get().GetLutTexture().get());
-					RenderItem->m_Material->SetIBL(true);
-				};
-				FRenderUtils::RenderLayer(ERenderLayer::Opaque, CommandListHandle, RenderFunc);
+				FRenderUtils::RenderLayer(ERenderLayer::Opaque, CommandListHandle, 
+					[&](Ref<FRenderItem> RenderItem)
+					{
+						auto& IBLModule = FRenderUtils::GetIBLMoudule();
+						RenderItem->m_Material->SetTextureCubemap("IBLIrradianceMap", IBLModule->GetIrradianceRTCube()->GetColorCubemap());
+						RenderItem->m_Material->SetTextureCubemapArray("IBLPrefilterMaps", IBLModule->GetPrefilterEnvMapTextureCubes());
+						RenderItem->m_Material->SetTexture2D("_BrdfLUT", FTextureManager::Get().GetLutTexture().get());
+						RenderItem->m_Material->SetIBL(true);
+					}
+					);
 			},
 			ERenderPassType::Graphics,
 			ERGPassFlags::ForceNoCull

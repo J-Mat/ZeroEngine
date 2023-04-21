@@ -30,10 +30,7 @@ namespace Zero
 			},
 			[=](FRenderGraphContext& Context, FCommandListHandle CommandListHandle)
 			{
-				FRenderUtils::FRenderFunc RenderFunc = [&](Ref<FRenderItem> RenderItem)
-				{
-				};
-				FRenderUtils::RenderLayer(ERenderLayer::Skybox, CommandListHandle, RenderFunc);
+				FRenderUtils::RenderLayer(ERenderLayer::Skybox, CommandListHandle, [&](Ref<FRenderItem> RenderItem){});
 			},
 			ERenderPassType::Graphics,
 			ERGPassFlags::ForceNoCull

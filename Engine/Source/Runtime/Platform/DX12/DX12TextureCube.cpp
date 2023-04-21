@@ -63,7 +63,7 @@ namespace Zero
 			auto* TextureResourceAllocator = FDX12Device::Get()->GetTextureResourceAllocator();
 			TextureResourceAllocator->AllocTextureResource(TextureName, ResourceDesc, m_ResourceLocation);
 		}
-		CreateViews();
+		CreateViews(m_TextureDesc.MipLevels);
 	}
 
 	FDX12TextureCube::FDX12TextureCube(const std::string& TextureName, Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT], bool bRenderDepth)
@@ -77,7 +77,7 @@ namespace Zero
 		CORE_ASSERT(ImageData[0]->GetData() != nullptr, "Image has no data!");
 
 		FDX12Device::Get()->GetInitWorldCommandList()->AllocateTextureCubemapResource(TextureName, m_TextureDesc, m_ResourceLocation, ImageData);
-		CreateViews();
+		CreateViews(m_TextureDesc.MipLevels);
 	}
 
 
@@ -111,7 +111,7 @@ namespace Zero
 		*/
 	}
 
-	void FDX12TextureCube::CreateViews()
+	void FDX12TextureCube::CreateViews(uint32_t MipLevels)
 	{
 		if (m_ResourceLocation.GetResource()->GetD3DResource())
 		{
@@ -122,22 +122,26 @@ namespace Zero
 			// Create RTV	
 			if ((Desc.Flags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET) != 0 && m_ResourceLocation.GetResource()->CheckRTVSupport())
 			{
-				m_RTVs.resize(6);
+				m_RTVs.resize(6 * MipLevels);
+				uint32_t Index = 0;
 				for (uint32_t i = 0; i < 6; ++i)
 				{
-					D3D12_RENDER_TARGET_VIEW_DESC RtvDesc = {
-						.Format = m_ResourceLocation.GetResource()->GetD3D12ResourceDesc().Format,
-						.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DARRAY,
-						.Texture2DArray =
-						{
-							.MipSlice = 0,
-							.FirstArraySlice = UINT(i),
-							.ArraySize = 1,
-							.PlaneSlice = 0,
-						},
-					};
-					auto Ptr = CreateScope<FDX12RenderTargetView>(m_ResourceLocation.GetResource(), &RtvDesc);
-					m_RTVs[i] = std::move(Ptr);
+					for (uint32_t Mip = 0; Mip < MipLevels; ++Mip)
+					{
+						D3D12_RENDER_TARGET_VIEW_DESC RtvDesc = {
+							.Format = m_ResourceLocation.GetResource()->GetD3D12ResourceDesc().Format,
+							.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DARRAY,
+							.Texture2DArray =
+							{
+								.MipSlice = Mip,
+								.FirstArraySlice = UINT(i),
+								.ArraySize = 1,
+								.PlaneSlice = 0,
+							},
+						};
+						auto Ptr = CreateScope<FDX12RenderTargetView>(m_ResourceLocation.GetResource(), &RtvDesc);
+						m_RTVs[Index++] = std::move(Ptr);
+					}
 				}
 			}
 
@@ -179,9 +183,11 @@ namespace Zero
 		}
 	}
 
-	FResourceView* FDX12TextureCube::GetRTV(uint32_t ViewID /*= 0*/) const
+
+	Zero::FResourceView* FDX12TextureCube::GetRTV(uint32_t CubeIndex /*= 0*/, uint32_t SubResourceIndex/*= 0*/) const
 	{
-		return m_RTVs[ViewID].get();
+		//uint32_t Index = CubeIndex * 6 + SubResourceIndex;
+		return m_RTVs[CubeIndex].get();
 	}
 
 	FResourceView* FDX12TextureCube::GetDSV(uint32_t ViewID /*= 0*/) const

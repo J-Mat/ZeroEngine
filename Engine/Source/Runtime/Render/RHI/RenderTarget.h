@@ -67,10 +67,12 @@ namespace Zero
 	{
 		std::string RenderTargetName = "default";
 		uint32_t Size = 900;
+		uint16_t MipLevels = 1;
 		bool bRenderDepth = false;
 		EResourceFormat TextureFormat = EResourceFormat::R8G8B8A8_UNORM;
 	};
 
+	class IShaderConstantsBuffer;
 	class FRenderTargetCube
 	{
 	public:	
@@ -78,7 +80,8 @@ namespace Zero
 		virtual void SetRenderTarget(uint32_t Index, FCommandListHandle CommandListHandle) = 0;
 		virtual void Bind(FCommandListHandle CommandListHandle) = 0;
 		virtual void UnBind(FCommandListHandle CommandListHandle) = 0;
-		const FSceneView& GetSceneView(uint32_t Index) { return SceneViews[Index]; }
+		const FSceneView& GetSceneView(uint32_t Index) { return m_SceneViews[Index]; }
+		Ref<IShaderConstantsBuffer> GetCamera(uint32_t Index) {	return m_ViewkCameraBuffers[Index];}
 		Ref<FTextureCube> GetColorCubemap() {return m_TextureColorCubemap; }
 		Ref<FTextureCube> GetDepthCubemap() { return m_TextureDepthCubemap; }
 	protected:
@@ -86,6 +89,7 @@ namespace Zero
 		Ref<FTextureCube> m_TextureDepthCubemap;
 		uint32_t m_Size = 0;
 		bool m_bRenderDepth;
-		FSceneView SceneViews[6];
+		FSceneView m_SceneViews[6];
+		Ref<IShaderConstantsBuffer> m_ViewkCameraBuffers[6];
 	};
 }
