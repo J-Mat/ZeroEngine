@@ -120,7 +120,7 @@ namespace Zero
 	void FImageBasedLighting::CreateIBLPrefilterEnvMap()
 	{
 		m_PrefilterEnvMapRTCube->Bind(m_CommandListHandle);
-		for (int32_t Mip = 0; Mip < m_Mips; ++Mip)
+		for (uint32_t Mip = 0; Mip < m_Mips; ++Mip)
 		{
 			float Roughness = (float)Mip / (float)(m_Mips - 1);
 			auto TextureCubmap = FTextureManager::Get().GetCurrentSkybox();

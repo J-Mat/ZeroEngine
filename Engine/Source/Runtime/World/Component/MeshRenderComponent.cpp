@@ -167,6 +167,10 @@ namespace Zero
 	{
 		for (auto& RenderLayer : m_LayerInfo)
 		{
+			if (RenderLayer.first != ERenderLayer::Opaque && RenderLayer.first != ERenderLayer::Transparent)
+			{
+				continue;
+			}
 			for (size_t i = 0; i < m_SubmeshNum; i++)
 			{
 				for (auto Iter : m_Textures)

@@ -171,13 +171,17 @@ namespace Zero
 			if ((Desc.Flags & D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE) == 0 && m_ResourceLocation.GetResource()->CheckSRVSupport())
 			{
 				m_SRVs.resize(1);
-				D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc = {};
-				SrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-				SrvDesc.Format = Desc.Format;
-				SrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
-				SrvDesc.Texture2D.MostDetailedMip = 0;
-				SrvDesc.Texture2D.MipLevels = MipLevels;
-				SrvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+				D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc = {
+					.Format = Desc.Format,
+					.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE,
+					.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
+					.Texture2D = 
+					{
+						.MostDetailedMip = 0,
+						.MipLevels = MipLevels,
+						.ResourceMinLODClamp = 0.0f,
+					}
+				};
 				auto Ptr = CreateScope<FDX12ShaderResourceView>(m_ResourceLocation.GetResource(), &SrvDesc);
 				m_SRVs[0] = std::move(Ptr);
 			}

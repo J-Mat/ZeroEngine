@@ -4,8 +4,6 @@
 #include "Render/RenderGraph/RenderGraphContext.h"
 #include "Render/RHI/RenderItem.h"
 #include "Render/Moudule/Material.h"
-#include "World/World.h"
-#include "World/LightManager.h"
 #include "Render/RenderConfig.h"
 #include "Data/Settings/SceneSettings.h"
 #include "Render/Moudule/ImageBasedLighting.h"
@@ -51,6 +49,7 @@ namespace Zero
 			},
 			[=](FRenderGraphContext& Context, FCommandListHandle CommandListHandle)
 			{
+				FRenderUtils::RenderLayer(ERenderLayer::Light, CommandListHandle);
 				FRenderUtils::RenderLayer(ERenderLayer::Opaque, CommandListHandle, 
 					[&](Ref<FRenderItem> RenderItem)
 					{
