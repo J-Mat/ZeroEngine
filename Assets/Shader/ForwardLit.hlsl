@@ -10,7 +10,8 @@ TextureCube IBLIrradianceMap : register(t5);
 
 Texture2D _BrdfLUT : register(t6);
 
-TextureCube IBLPrefilterMaps[5] : register(t7);
+TextureCube IBLPrefilterMap : register(t7);
+
 
 Texture2D _gShadowMap : register(t0, space1);
 
@@ -144,23 +145,29 @@ PixelOutput PS(VertexOut Pin)
 	PixelOutput Out;
 	float3 FinalColor = 0.0f;
 	float2 UV = float2(Pin.TexC.x, 1.0f - Pin.TexC.y);
-	float3 Albedo = gDiffuseMap.SampleLevel(gSamLinearWarp, UV, MipLevel).rgb;
+	float3 Albedo = gDiffuseMap.SampleLevel(gSamLinearWarp, UV, 0).rgb;
 	float3 EmissiveColor = pow(gEmissionMap.Sample(gSamAnisotropicWarp, UV).rgb, 2.2f);
 	float Metallic = gMetallicMap.Sample(gSamAnisotropicWarp, UV).r; 
 	float Roughness = gRoughnessMap.Sample(gSamAnisotropicWarp, UV).r;
 		//float AO = gAOMap.Sample(gSamAnisotropicWarp, UV).r;
 	float3 NormalMap = gNormalMap.Sample(gSamAnisotropicWarp, UV).xyz;
-	float3 N = NormalSampleToWorldSpace(NormalMap, Pin.Normal, Pin.Tangent);
+	//float3 N = NormalSampleToWorldSpace(NormalMap, Pin.Normal, Pin.Tangent);
+	float3 N = float3(Pin.Normal.x, Pin.Normal.y, Pin.Normal.z);
 
 	if (ShadingMode == 0)
 	{
 		float3 ViewDir = normalize(ViewPos - Pin.WorldPos.xyz);
 		float3 ReflectDir = reflect(-ViewDir, N);
-		float3 PrefilteredColor  = GetPrefilteredColor(Roughness, ReflectDir);
+		//float3 PrefilteredColor  = GetPrefilteredColor(MipLevel, ReflectDir);
+
+
+		float Level = MipLevel * (IBL_PREFILTER_ENVMAP_MIP_LEVEL - 1);   
+    	float3 PrefilteredColor = IBLPrefilterMap.SampleLevel(gSamLinearClamp, ReflectDir, Level).rgb;
+
 		float3 Irradiance = IBLIrradianceMap.Sample(gSamLinearClamp, N).rgb;
 		float NdotV = dot(N, ViewDir);
 		float2 LUT = _BrdfLUT.Sample(gSamAnisotropicWarp, float2(NdotV, Roughness)).rg;
-		FinalColor = AmbientLighting(Metallic, Albedo, Irradiance, PrefilteredColor, LUT) + EmissiveColor;
+		FinalColor =  PrefilteredColor; //PrefilteredColor;//AmbientLighting(Metallic, Albedo, Irradiance, PrefilteredColor, LUT) + EmissiveColor;
 	}
 	else if (ShadingMode == 1)
 	{

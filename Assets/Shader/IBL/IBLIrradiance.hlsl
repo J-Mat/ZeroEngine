@@ -6,7 +6,7 @@ VertexOut VS(VertexIn Vin)
 {
 	VertexOut Vout;
 
-	Vout.WorldPos = float4(Vin.PosL, 1.0f);
+	Vout.WorldPos = Vin.PosL;
 
 	float4 PosW = mul(Model, float4(Vin.PosL, 1.0f));
 	PosW.xyz += ViewPos;

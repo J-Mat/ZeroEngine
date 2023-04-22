@@ -43,13 +43,9 @@ float3 ImportanceSampleGGX(float2 Xi, float3 N, float Roughness)
 float3 GetPrefilteredColor(float Roughness, float3 ReflectDir)
 {
     float Level = Roughness * (IBL_PREFILTER_ENVMAP_MIP_LEVEL - 1);
-    int FloorLevel = floor(Level);
-    int CeilLevel = ceil(Level);
     
-    float3 FloorSample = IBLPrefilterMaps[FloorLevel].Sample(gSamLinearClamp, ReflectDir).rgb;
-	float3 CeilSample = IBLPrefilterMaps[CeilLevel].Sample(gSamLinearClamp, ReflectDir).rgb;
+    float3 PrefilteredColor = IBLPrefilterMap.SampleLevel(gSamLinearClamp, ReflectDir, Level).rgb;
 
-    float3 PrefilteredColor = lerp(FloorSample, CeilSample, (Level - FloorLevel));
     return PrefilteredColor;
 
 }
