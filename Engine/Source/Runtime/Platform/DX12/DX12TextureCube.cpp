@@ -63,6 +63,7 @@ namespace Zero
 			auto* TextureResourceAllocator = FDX12Device::Get()->GetTextureResourceAllocator();
 			TextureResourceAllocator->AllocTextureResource(TextureName, ResourceDesc, m_ResourceLocation);
 		}
+		FResourceStateTracker::AddGlobalResourceState(m_ResourceLocation.GetResource()->GetD3DResource().Get(), D3D12_RESOURCE_STATE_COMMON);
 		CreateViews(m_TextureDesc.MipLevels);
 	}
 
@@ -175,7 +176,7 @@ namespace Zero
 				SrvDesc.Format = Desc.Format;
 				SrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
 				SrvDesc.Texture2D.MostDetailedMip = 0;
-				SrvDesc.Texture2D.MipLevels = 1;
+				SrvDesc.Texture2D.MipLevels = MipLevels;
 				SrvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 				auto Ptr = CreateScope<FDX12ShaderResourceView>(m_ResourceLocation.GetResource(), &SrvDesc);
 				m_SRVs[0] = std::move(Ptr);
@@ -184,10 +185,10 @@ namespace Zero
 	}
 
 
-	Zero::FResourceView* FDX12TextureCube::GetRTV(uint32_t CubeIndex /*= 0*/, uint32_t SubResourceIndex/*= 0*/) const
+	Zero::FResourceView* FDX12TextureCube::GetRTV(uint32_t FaceIndex /*= 0*/, uint32_t SubResourceIndex /*= -1*/) const
 	{
-		//uint32_t Index = CubeIndex * 6 + SubResourceIndex;
-		return m_RTVs[CubeIndex].get();
+		uint32_t Index = SubResourceIndex == -1 ? FaceIndex : m_TextureDesc.MipLevels * FaceIndex + SubResourceIndex;
+		return m_RTVs[Index].get();
 	}
 
 	FResourceView* FDX12TextureCube::GetDSV(uint32_t ViewID /*= 0*/) const

@@ -53,41 +53,34 @@ namespace Zero
 			MeshDatas,
 			FVertexBufferLayout::s_DefaultVertexLayout);
 
-		for (int32_t Mip = 0; Mip < m_Mips; ++Mip)
+		for (uint32_t Mip = 0; Mip < m_Mips; ++Mip)
 		{
-			m_PrefilterMapRenderItem[Mip]->m_Mesh = Mesh;
-			m_PrefilterMapRenderItem[Mip]->m_SubMesh = *m_PrefilterMapRenderItem[Mip]->m_Mesh->begin();
-			m_PrefilterMapRenderItem[Mip]->m_Material = CreateRef<FMaterial>(false);
-			m_PrefilterMapRenderItem[Mip]->m_PsoID = EPsoID::IBLPrefilter;
-			m_PrefilterMapRenderItem[Mip]->m_Material->SetShader(m_PrefilterMapRenderItem[Mip]->GetPsoObj()->GetPSODescriptor().Shader);
-			m_PrefilterMapRenderItem[Mip]->m_PerObjectBuffer = FConstantsBufferManager::Get().GetPerObjectConstantsBuffer();
-			m_PrefilterMapRenderItem[Mip]->m_PerObjectBuffer->PreDrawCall();
-			m_PrefilterMapRenderItem[Mip]->SetModelMatrix(ZMath::mat4(1.0f));
+			m_PrefilterMapRenderItems[Mip]->m_Mesh = Mesh;
+			m_PrefilterMapRenderItems[Mip]->m_SubMesh = *m_PrefilterMapRenderItems[Mip]->m_Mesh->begin();
+			m_PrefilterMapRenderItems[Mip]->m_Material = CreateRef<FMaterial>(false);
+			m_PrefilterMapRenderItems[Mip]->m_PsoID = EPsoID::IBLPrefilter;
+			m_PrefilterMapRenderItems[Mip]->m_Material->SetShader(m_PrefilterMapRenderItems[Mip]->GetPsoObj()->GetPSODescriptor().Shader);
+			m_PrefilterMapRenderItems[Mip]->m_PerObjectBuffer = FConstantsBufferManager::Get().GetPerObjectConstantsBuffer();
+			m_PrefilterMapRenderItems[Mip]->m_PerObjectBuffer->PreDrawCall();
+			m_PrefilterMapRenderItems[Mip]->SetModelMatrix(ZMath::mat4(1.0f));
 		}
-		uint32_t PrefilterMapSize = 128;
-		m_PrefilterEnvMapRTCubes.resize(m_Mips);
-		m_PrefilterEnvMapTextureCubes.resize(m_Mips);
 
-		for (int32_t Mip = 0; Mip < m_Mips; ++Mip)
+		uint32_t PrefilterMapSize = 128;
+		FRenderTargetCubeDesc PrefilterMapRTCubeDesc =
 		{
-			FRenderTargetCubeDesc PrefilterMapRTCubeDesc =
-			{
-				.RenderTargetName = std::format("PrefilterMap_Mip_{0}", Mip),
-				.Size = PrefilterMapSize,
-				.MipLevels = 1
-			};
-			m_PrefilterEnvMapRTCubes[Mip] = FGraphic::GetDevice()->CreateRenderTargetCube(PrefilterMapRTCubeDesc);
-			m_PrefilterEnvMapTextureCubes[Mip] = m_PrefilterEnvMapRTCubes[Mip]->GetColorCubemap();
-			PrefilterMapSize /= 2;
-		}
+			.RenderTargetName = std::format("PrefilterMap"),
+			.Size = PrefilterMapSize,
+			.MipLevels = 5
+		};
+		m_PrefilterEnvMapRTCube = FGraphic::GetDevice()->CreateRenderTargetCube(PrefilterMapRTCubeDesc);
 	}
 
-	FImageBasedLighting::FImageBasedLighting(Ref<FRenderItem> IrradianceMapRenderItem, Ref<FRenderItem> PrefilterMapRenderItem[5])
+	FImageBasedLighting::FImageBasedLighting(Ref<FRenderItem> IrradianceMapRenderItem, Ref<FRenderItem> PrefilterMapRenderItems[5])
 		: m_IrradianceMapRenderItem(IrradianceMapRenderItem)
 	{
-		for (int i = 0; i < 5; ++i)
+		for (uint32_t i = 0; i < 5; ++i)
 		{
-			m_PrefilterMapRenderItem[i] = PrefilterMapRenderItem[i];
+			m_PrefilterMapRenderItems[i] = PrefilterMapRenderItems[i];
 		}
 		InitIrradianceMap();
 		InitPrefilerMap();
@@ -104,13 +97,13 @@ namespace Zero
 	{
 		m_IBLIrradianceMapRTCube->Bind(m_CommandListHandle);
 		auto TextureCubmap = FTextureManager::Get().GetCurrentSkybox();
-		for (uint32_t i = 0; i < 6;++i)
+		for (uint32_t FaceIndex = 0; FaceIndex < 6;++FaceIndex)
 		{ 
-			const FSceneView& SceneView = m_IBLIrradianceMapRTCube->GetSceneView(i);
-			Ref<IShaderConstantsBuffer> Camera = m_IBLIrradianceMapRTCube->GetCamera(i);
-			m_IBLIrradianceMapRTCube->SetRenderTarget(i, m_CommandListHandle);
+			const FSceneView& SceneView = m_IBLIrradianceMapRTCube->GetSceneView(FaceIndex);
+			Ref<IShaderConstantsBuffer> Camera = m_IBLIrradianceMapRTCube->GetCamera(FaceIndex);
 			m_IrradianceMapRenderItem->m_Material->SetCamera(Camera);
 
+			m_IBLIrradianceMapRTCube->SetRenderTarget(m_CommandListHandle, FaceIndex);
 			FRenderUtils::DrawRenderItem(m_IrradianceMapRenderItem, m_CommandListHandle, 
 				[&](Ref<FRenderItem> RenderItem)
 				{
@@ -121,37 +114,37 @@ namespace Zero
 					m_IrradianceMapRenderItem->m_Material->SetTextureCubemap("gSkyboxMap", TextureCubmap);
 				});
 		}
-		m_IBLIrradianceMapRTCube->UnBind(m_CommandListHandle);
+		m_IBLIrradianceMapRTCube->UnBind(m_CommandListHandle, 0);
 	}
 
 	void FImageBasedLighting::CreateIBLPrefilterEnvMap()
 	{
+		m_PrefilterEnvMapRTCube->Bind(m_CommandListHandle);
 		for (int32_t Mip = 0; Mip < m_Mips; ++Mip)
 		{
 			float Roughness = (float)Mip / (float)(m_Mips - 1);
-			m_PrefilterEnvMapRTCubes[Mip]->Bind(m_CommandListHandle);
 			auto TextureCubmap = FTextureManager::Get().GetCurrentSkybox();
-			for (uint32_t i = 0; i < 6;++i)
+			for (uint32_t FaceIndex = 0; FaceIndex < 6;++FaceIndex)
 			{ 
-				const FSceneView& SceneView = m_PrefilterEnvMapRTCubes[Mip]->GetSceneView(i);
-				Ref<IShaderConstantsBuffer> Camera = m_PrefilterEnvMapRTCubes[Mip]->GetCamera(i);
-				m_PrefilterMapRenderItem[Mip]->m_Material->SetCamera(Camera);
+				m_PrefilterEnvMapRTCube->SetRenderTarget(m_CommandListHandle, FaceIndex, Mip);
+				const FSceneView& SceneView = m_PrefilterEnvMapRTCube->GetSceneView(FaceIndex);
+				Ref<IShaderConstantsBuffer> Camera = m_PrefilterEnvMapRTCube->GetCamera(FaceIndex);
+				m_PrefilterMapRenderItems[Mip]->m_Material->SetCamera(Camera);
 
-				m_PrefilterEnvMapRTCubes[Mip]->SetRenderTarget(i, m_CommandListHandle);
-				FRenderUtils::DrawRenderItem(m_PrefilterMapRenderItem[Mip], m_CommandListHandle,
+				FRenderUtils::DrawRenderItem(m_PrefilterMapRenderItems[Mip], m_CommandListHandle,
 					[&](Ref<FRenderItem> RenderItem)
 					{
-						m_PrefilterMapRenderItem[Mip]->m_Material->SetCameraViewMat("View", SceneView.View);
-						m_PrefilterMapRenderItem[Mip]->m_Material->SetFloat("Roughness", Roughness);
-						m_PrefilterMapRenderItem[Mip]->m_Material->SetCameraViewPos("ViewPos", SceneView.ViewPos);
-						m_PrefilterMapRenderItem[Mip]->m_Material->SetCameraProjectMat("Projection", SceneView.Proj);
-						m_PrefilterMapRenderItem[Mip]->m_Material->SetCameraProjectViewMat("ProjectionView", SceneView.ProjectionView);
-						m_PrefilterMapRenderItem[Mip]->m_Material->SetTextureCubemap("gSkyboxMap", TextureCubmap);
+						m_PrefilterMapRenderItems[Mip]->m_Material->SetCameraViewMat("View", SceneView.View);
+						m_PrefilterMapRenderItems[Mip]->m_Material->SetFloat("Roughness", Roughness);
+						m_PrefilterMapRenderItems[Mip]->m_Material->SetCameraViewPos("ViewPos", SceneView.ViewPos);
+						m_PrefilterMapRenderItems[Mip]->m_Material->SetCameraProjectMat("Projection", SceneView.Proj);
+						m_PrefilterMapRenderItems[Mip]->m_Material->SetCameraProjectViewMat("ProjectionView", SceneView.ProjectionView);
+						m_PrefilterMapRenderItems[Mip]->m_Material->SetTextureCubemap("gSkyboxMap", TextureCubmap);
 					}
 				);
 			}
-			m_PrefilterEnvMapRTCubes[Mip]->UnBind(m_CommandListHandle);
 		}
+		m_PrefilterEnvMapRTCube->UnBind(m_CommandListHandle, 0);
 	}
 
 }

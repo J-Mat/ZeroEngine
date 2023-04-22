@@ -15,6 +15,7 @@ namespace Zero
 	void FForwardStage::OnAttach()
 	{
 		CORE_ASSERT(false, "no");
+		/*
 		FRenderTarget2DDesc Desc
 		{
 			.RenderTargetName = "ForwardLit",
@@ -26,12 +27,8 @@ namespace Zero
 		TLibrary<FRenderTarget2D>::Push(RENDER_STAGE_FORWARD, m_RenderTarget);
 
 		Ref<FRenderItemPool> RenderItemPool = UWorld::GetCurrentWorld()->GetDIYRenderItemPool();
-		Ref<FRenderItem> Items[5];
-		for (int i = 0; i < 5; ++i)
-		{
-			Items[i] = RenderItemPool->Request();
-		}
-		m_IBLMoudule = CreateRef<FImageBasedLighting>(RenderItemPool->Request(), Items);
+		m_IBLMoudule = CreateRef<FImageBasedLighting>(RenderItemPool->Request(), RenderItemPool->Request());
+		*/
 	}
 
 	void FForwardStage::OnDetach()
@@ -51,6 +48,7 @@ namespace Zero
 
 	void FForwardStage::ForwarLitRender()
 	{
+		/*
 		static auto RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool(ERenderLayer::Opaque);
 		static auto LUTTexture2D = TLibrary<FTexture2D>::Fetch(IBL_BRDF_LUT);
 		static std::string ShadowMapID = std::format("{0}_{1}",  RENDER_STAGE_SHADOWMAP,  0);
@@ -77,6 +75,7 @@ namespace Zero
 
 			RenderItem->Render(m_CommandListHandle);
 		}
+		*/
 	}
 
 	void FForwardStage::OnDraw()

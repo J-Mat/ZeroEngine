@@ -14,8 +14,7 @@ namespace Zero
 		FImageBasedLighting(Ref<FRenderItem> IrradianceMapRenderItem, Ref<FRenderItem> PrefilterMapRenderItem[5]);
 		void PreCaculate();
 		Ref<FRenderTargetCube> GetIrradianceRTCube() { return m_IBLIrradianceMapRTCube; }
-		const std::vector<Ref<FTextureCube>>& GetPrefilterEnvMapTextureCubes() {return m_PrefilterEnvMapTextureCubes; }
-		const Ref<FTextureCube> GetPrefilterEnvMapTextureCubeIndex(int32_t Index) {return m_PrefilterEnvMapTextureCubes[Index]; }
+		Ref<FRenderTargetCube> GetPrefilterEnvMapRTCube() { return m_PrefilterEnvMapRTCube; }
 	private:
 		void InitIrradianceMap();
 		void InitPrefilerMap();
@@ -24,10 +23,9 @@ namespace Zero
 	private:
 		FCommandListHandle m_CommandListHandle;
 		Ref<FRenderItem> m_IrradianceMapRenderItem = nullptr;
-		Ref<FRenderItem> m_PrefilterMapRenderItem[5];
+		Ref<FRenderItem> m_PrefilterMapRenderItems[5];
 		Ref<FRenderTargetCube> m_IBLIrradianceMapRTCube = nullptr;
-		std::vector<Ref<FRenderTargetCube>> m_PrefilterEnvMapRTCubes;
-		std::vector<Ref<FTextureCube>> m_PrefilterEnvMapTextureCubes;
-		const int32_t m_Mips = 5;
+		Ref<FRenderTargetCube> m_PrefilterEnvMapRTCube = nullptr;
+		const uint32_t m_Mips = 5;
 	};
 }

@@ -56,7 +56,7 @@ namespace Zero
 					{
 						auto& IBLModule = FRenderUtils::GetIBLMoudule();
 						RenderItem->m_Material->SetTextureCubemap("IBLIrradianceMap", IBLModule->GetIrradianceRTCube()->GetColorCubemap());
-						RenderItem->m_Material->SetTextureCubemapArray("IBLPrefilterMaps", IBLModule->GetPrefilterEnvMapTextureCubes());
+						RenderItem->m_Material->SetTextureCubemap("IBLPrefilterMap", IBLModule->GetPrefilterEnvMapRTCube()->GetColorCubemap());
 						RenderItem->m_Material->SetTexture2D("_BrdfLUT", FTextureManager::Get().GetLutTexture().get());
 						RenderItem->m_Material->SetIBL(true);
 					}

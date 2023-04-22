@@ -36,7 +36,7 @@ namespace Zero
         /**
         * Get the RTV for the texture.
         */
-        FResourceView* GetRTV(uint32_t CubeIndex = 0, uint32_t SubResourceIndex = 0) const;
+        FResourceView* GetRTV(uint32_t FaceIndex = 0, uint32_t SubResourceIndex = -1) const;
 
         /**
         * Get the DSV for the texture.

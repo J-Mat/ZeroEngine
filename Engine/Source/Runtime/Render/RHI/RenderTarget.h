@@ -77,18 +77,17 @@ namespace Zero
 	{
 	public:	
 		FRenderTargetCube(const FRenderTargetCubeDesc& Desc);
-		virtual void SetRenderTarget(uint32_t Index, FCommandListHandle CommandListHandle) = 0;
 		virtual void Bind(FCommandListHandle CommandListHandle) = 0;
-		virtual void UnBind(FCommandListHandle CommandListHandle) = 0;
+		virtual void SetRenderTarget(FCommandListHandle CommandListHandle, uint32_t FaceIndex, uint32_t SubResource = -1) = 0;
+		virtual void UnBind(FCommandListHandle CommandListHandle, uint32_t FaceIndex, uint32_t SubResource = -1) = 0;
 		const FSceneView& GetSceneView(uint32_t Index) { return m_SceneViews[Index]; }
 		Ref<IShaderConstantsBuffer> GetCamera(uint32_t Index) {	return m_ViewkCameraBuffers[Index];}
 		Ref<FTextureCube> GetColorCubemap() {return m_TextureColorCubemap; }
 		Ref<FTextureCube> GetDepthCubemap() { return m_TextureDepthCubemap; }
 	protected:
+		FRenderTargetCubeDesc m_RenderTargetCubeDesc;
 		Ref<FTextureCube> m_TextureColorCubemap;
 		Ref<FTextureCube> m_TextureDepthCubemap;
-		uint32_t m_Size = 0;
-		bool m_bRenderDepth;
 		FSceneView m_SceneViews[6];
 		Ref<IShaderConstantsBuffer> m_ViewkCameraBuffers[6];
 	};

@@ -10,8 +10,7 @@ namespace Zero
 	}
 
 	FRenderTargetCube::FRenderTargetCube(const FRenderTargetCubeDesc& Desc)
-		: m_Size(Desc.Size)
-		, m_bRenderDepth(Desc.bRenderDepth)
+		: m_RenderTargetCubeDesc(Desc)
 	{
 		ZMath::vec3 Eye = {0.0f, 0.0f, 0.0f};
 		ZMath::vec3 Targets[6] =
