@@ -12,8 +12,7 @@ Texture2D _BrdfLUT : register(t6);
 
 TextureCube IBLPrefilterMap : register(t7);
 
-
-Texture2D _gShadowMap : register(t0, space1);
+Texture2D _ShadowMaps[2] : register(t0, space1);
 
 #include "./PBRLighting.hlsl"
 //#include "./Shadow/ShdowUtils.hlsl"
@@ -75,7 +74,7 @@ float2 ComputeDepthDerivative(float3 projCoords)
 	return ddist_duv;
 }
 
-float CalcShadowFactor(float4 ShadowPos)
+float CalcShadowFactor(int LightIndex, float4 ShadowPos)
 {
 	/*
 	float4 ProjCoords = ShadowPos;
@@ -118,7 +117,7 @@ float CalcShadowFactor(float4 ShadowPos)
 	float3 ReceiverPos = float3(ShadowTexCoord.xy, ProjCoords.z);
 	float2 ddist_duv = ComputeDepthDerivative(ReceiverPos);
     uint Width, Height, NumMips;
-    _gShadowMap.GetDimensions(0, Width, Height, NumMips);
+    _gShadowMaps[LightIndex].GetDimensions(0, Width, Height, NumMips);
 
     // Texel size.
     float dx = 1.0f / (float)Width;
@@ -133,7 +132,7 @@ float CalcShadowFactor(float4 ShadowPos)
 		const float FixedBias = 0.003f;
 		float ReceiverDepthBias = ReceiverPos.z + dot(ddist_duv, UVOffset) - FixedBias;
 		
-		Visibility += _gShadowMap.SampleCmpLevelZero(gSamShadow, SampleUV, ReceiverDepthBias).r;
+		Visibility += _gShadowMaps[LightIndex].SampleCmpLevelZero(gSamShadow, SampleUV, ReceiverDepthBias).r;
 	}
     
 	return Visibility / SampleCount;
@@ -158,16 +157,11 @@ PixelOutput PS(VertexOut Pin)
 	{
 		float3 ViewDir = normalize(ViewPos - Pin.WorldPos.xyz);
 		float3 ReflectDir = reflect(-ViewDir, N);
-		//float3 PrefilteredColor  = GetPrefilteredColor(MipLevel, ReflectDir);
-
-
-		float Level = MipLevel * (IBL_PREFILTER_ENVMAP_MIP_LEVEL - 1);   
-    	float3 PrefilteredColor = IBLPrefilterMap.SampleLevel(gSamLinearClamp, ReflectDir, Level).rgb;
-
+		float3 PrefilteredColor  = GetPrefilteredColor(MipLevel, ReflectDir);
 		float3 Irradiance = IBLIrradianceMap.Sample(gSamLinearClamp, N).rgb;
 		float NdotV = dot(N, ViewDir);
 		float2 LUT = _BrdfLUT.Sample(gSamAnisotropicWarp, float2(NdotV, Roughness)).rg;
-		FinalColor =  PrefilteredColor; //PrefilteredColor;//AmbientLighting(Metallic, Albedo, Irradiance, PrefilteredColor, LUT) + EmissiveColor;
+		FinalColor =  AmbientLighting(Metallic, Albedo, Irradiance, PrefilteredColor, LUT) + EmissiveColor;
 	}
 	else if (ShadingMode == 1)
 	{
@@ -184,7 +178,7 @@ PixelOutput PS(VertexOut Pin)
 		float3 ReflectDir = reflect(-V, N);
 		Spec = pow(max(dot(V, ReflectDir), 0.0f), 35.0f) * LightColor;
 
-		float ShadowFactor = CalcShadowFactor(Pin.ShadowPosH);
+		float ShadowFactor = CalcShadowFactor(0, Pin.ShadowPosH);
 		FinalColor =  Ambient + (Diffuse + Spec) * ShadowFactor * Albedo;
 		//FinalColor =  float3(ShadowFactor, ShadowFactor, ShadowFactor); //Ambient + (Diffuse + Spec) * ShadowFactor * Albedo;
 		//FinalColor = Albedo;
