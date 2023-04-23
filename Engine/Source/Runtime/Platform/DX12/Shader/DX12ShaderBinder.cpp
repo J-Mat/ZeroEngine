@@ -246,7 +246,7 @@ namespace Zero
 		}
 	}
 
-	void FDX12ShaderResourcesBuffer::SetTexture2DArray(const std::string& Name, std::vector<Ref<FTexture2D>> Textures)
+	void FDX12ShaderResourcesBuffer::SetTexture2DArray(const std::string& Name, std::vector<FTexture2D*> Textures)
 	{
 		FShaderResourceItem Item;
 		if (m_Desc.Mapper.FetchResource(Name, Item))
@@ -254,7 +254,7 @@ namespace Zero
 			uint32_t Offset = 0;
 			for (auto Texture : Textures)
 			{
-				FDX12Texture2D* D3DTexture = static_cast<FDX12Texture2D*>(Texture.get());
+				FDX12Texture2D* D3DTexture = static_cast<FDX12Texture2D*>(Texture);
 				FDX12ShaderResourceView* Srv = static_cast<FDX12ShaderResourceView*>(D3DTexture->GetSRV());
 				m_SrvDynamicDescriptorHeap->StageDescriptors(Item.SRTIndex, Offset++, 1, Srv->GetDescriptorHandle());
 			}
@@ -263,12 +263,12 @@ namespace Zero
 		}
 	}
 
-	void FDX12ShaderResourcesBuffer::SetTextureCubemap(const std::string& Name, Ref<FTextureCube> Texture)
+	void FDX12ShaderResourcesBuffer::SetTextureCubemap(const std::string& Name, FTextureCube* Texture)
 	{
 		FShaderResourceItem Item;
 		if (m_Desc.Mapper.FetchResource(Name, Item))
 		{
-			FDX12TextureCube* D3DTexture = static_cast<FDX12TextureCube*>(Texture.get());
+			FDX12TextureCube* D3DTexture = static_cast<FDX12TextureCube*>(Texture);
 			FDX12ShaderResourceView* Srv = static_cast<FDX12ShaderResourceView*>(D3DTexture->GetSRV());
 			m_SrvDynamicDescriptorHeap->StageDescriptors(Item.SRTIndex, Item.Offset, 1, Srv->GetDescriptorHandle());
 			m_Desc.Mapper.SetTextureID(Name); 

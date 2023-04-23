@@ -9,6 +9,7 @@
 #include "Render/Moudule/ImageBasedLighting.h"
 #include "Render/RHI/Texture.h"
 #include "Render/RenderUtils.h"
+#include "World/LightManager.h"
 
 namespace Zero
 {
@@ -20,8 +21,9 @@ namespace Zero
 
 	void FForwardLitPass::AddPass(FRenderGraph& RenderGraph)
 	{
-		RenderGraph.AddPass<void>("ForwardLit Pass",
-			[=](FRenderGraphBuilder& Builder)
+		RenderGraph.AddPass<void>(
+			"ForwardLit Pass",
+			[&](FRenderGraphBuilder& Builder)
 			{
 				{
 					FRGTextureDesc DepthDesc = {
@@ -47,17 +49,29 @@ namespace Zero
 
 				Builder.SetViewport(m_Width, m_Height);
 			},
-			[=](FRenderGraphContext& Context, FCommandListHandle CommandListHandle)
+			[&](FRenderGraphContext& Context, FCommandListHandle CommandListHandle)
 			{
+				const std::vector<UDirectLightActor*>& DirectLights = FLightManager::Get().GetDirectLights();
+				std::vector<FTexture2D*> ShadowMaps;
+				for (uint32_t LightIndex = 0; LightIndex < DirectLights.size(); ++LightIndex)
+				{
+					FRGTextureID RGTextureID =  RenderGraph.GetTextureID(RGResourceName::ShadowMaps[LightIndex]);
+					ShadowMaps.push_back(RenderGraph.GetTexture(RGTextureID));
+				}
+
 				FRenderUtils::RenderLayer(ERenderLayer::Light, CommandListHandle);
 				FRenderUtils::RenderLayer(ERenderLayer::Opaque, CommandListHandle, 
 					[&](Ref<FRenderItem> RenderItem)
 					{
 						auto& IBLModule = FRenderUtils::GetIBLMoudule();
-						RenderItem->m_Material->SetTextureCubemap("IBLIrradianceMap", IBLModule->GetIrradianceRTCube()->GetColorCubemap());
-						RenderItem->m_Material->SetTextureCubemap("IBLPrefilterMap", IBLModule->GetPrefilterEnvMapRTCube()->GetColorCubemap());
+						RenderItem->m_Material->SetTextureCubemap("IBLIrradianceMap", IBLModule->GetIrradianceRTCube()->GetColorCubemap().get());
+						RenderItem->m_Material->SetTextureCubemap("IBLPrefilterMap", IBLModule->GetPrefilterEnvMapRTCube()->GetColorCubemap().get());
 						RenderItem->m_Material->SetTexture2D("_BrdfLUT", FTextureManager::Get().GetLutTexture().get());
 						RenderItem->m_Material->SetIBL(true);
+						if (ShadowMaps.size() > 0)
+						{
+							RenderItem->m_Material->SetTexture2DArray("_ShadowMaps", ShadowMaps);
+						}
 					}
 					);
 			},

@@ -111,7 +111,7 @@ namespace Zero
 					m_IrradianceMapRenderItem->m_Material->SetCameraViewPos("ViewPos", SceneView.ViewPos);
 					m_IrradianceMapRenderItem->m_Material->SetCameraProjectMat("Projection", SceneView.Proj);
 					m_IrradianceMapRenderItem->m_Material->SetCameraProjectViewMat("ProjectionView", SceneView.ProjectionView);
-					m_IrradianceMapRenderItem->m_Material->SetTextureCubemap("gSkyboxMap", TextureCubmap);
+					m_IrradianceMapRenderItem->m_Material->SetTextureCubemap("gSkyboxMap", TextureCubmap.get());
 				});
 		}
 		m_IBLIrradianceMapRTCube->UnBind(m_CommandListHandle, 0);
@@ -139,7 +139,7 @@ namespace Zero
 						m_PrefilterMapRenderItems[Mip]->m_Material->SetCameraViewPos("ViewPos", SceneView.ViewPos);
 						m_PrefilterMapRenderItems[Mip]->m_Material->SetCameraProjectMat("Projection", SceneView.Proj);
 						m_PrefilterMapRenderItems[Mip]->m_Material->SetCameraProjectViewMat("ProjectionView", SceneView.ProjectionView);
-						m_PrefilterMapRenderItems[Mip]->m_Material->SetTextureCubemap("gSkyboxMap", TextureCubmap);
+						m_PrefilterMapRenderItems[Mip]->m_Material->SetTextureCubemap("gSkyboxMap", TextureCubmap.get());
 					}
 				);
 			}

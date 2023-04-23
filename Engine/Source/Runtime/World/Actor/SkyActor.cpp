@@ -35,7 +35,7 @@ namespace Zero
 		for (FSubMesh& SubMesh : *m_MeshVertexComponent->m_Mesh.get())
 		{
 			Ref<FMaterial> Material = m_MeshRenderComponent->GetPassMaterials(ERenderLayer::Skybox)[MaterialIndex];
-			Material->SetTextureCubemap(m_TextureCubeMapName, m_TextureCubeMap);
+			Material->SetTextureCubemap(m_TextureCubeMapName, m_TextureCubeMap.get());
 			MaterialIndex++;
 		}
 	}

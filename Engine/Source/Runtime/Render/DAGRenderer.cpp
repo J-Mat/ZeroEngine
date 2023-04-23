@@ -11,7 +11,8 @@ namespace Zero
 	FDAGRender::FDAGRender(uint32_t Width, uint32_t Height)
 		: m_Width(Width), 
 		m_Height(Height),
-		m_ForwardLitPass(Width, Height)
+		m_ForwardLitPass(Width, Height),
+		m_ShadowPass(2048, 2048)
 	{
 		CreateSizeDependentResources();
 	}
@@ -69,6 +70,7 @@ namespace Zero
 		RenderGraph.ImportTexture(RGResourceName::FinalTexture, m_FinalTexture.get());
 
 		
+		m_ShadowPass.AddPass(RenderGraph);
 		m_ForwardLitPass.AddPass(RenderGraph);
 
 		SetupEnvironmentMap(RenderGraph);

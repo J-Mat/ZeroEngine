@@ -196,12 +196,12 @@ namespace Zero
 		}
 	}
 
-	void FMaterial::SetTexture2DArray(const std::string& Name, const std::vector<Ref<FTexture2D>> Textures)
+	void FMaterial::SetTexture2DArray(const std::string& Name, const std::vector<FTexture2D*> Textures)
 	{
 		m_ResourcesBuffer->SetTexture2DArray(Name, Textures);
 	}
 
-	void FMaterial::SetTextureCubemap(const std::string& Name, Ref<FTextureCube> Texture)
+	void FMaterial::SetTextureCubemap(const std::string& Name, FTextureCube* Texture)
 	{
 		if (m_ResourcesBuffer != nullptr)
 		{

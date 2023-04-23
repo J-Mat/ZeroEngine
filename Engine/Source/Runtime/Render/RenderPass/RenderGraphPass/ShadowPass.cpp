@@ -23,13 +23,14 @@ namespace Zero
 	{
 	}
 
-	void FShadowPass::SetupDirectLightShadow(FRenderGraph & RenderGraph)
+	void FShadowPass::SetupDirectLightShadow(FRenderGraph& RenderGraph)
 	{
-		uint32_t DirectLightNum = FLightManager::Get().GetMaxDirectLightsNum();
-		for (uint32_t DirectLightIndex = 0; DirectLightIndex < DirectLightNum; ++DirectLightIndex)
+		const std::vector<UDirectLightActor*>& DirectLights = FLightManager::Get().GetDirectLights();
+		for (uint32_t LightIndex = 0; LightIndex < DirectLights.size(); ++LightIndex)
 		{
-			RenderGraph.AddPass<void>("Shadow Pass",
-				[=](FRenderGraphBuilder& Builder)
+			RenderGraph.AddPass<void>(
+				"Shadow Pass",
+				[&](FRenderGraphBuilder& Builder)
 				{
 					FRGTextureDesc ShadowMapDesc = {
 						.Width = m_Width,
@@ -38,16 +39,21 @@ namespace Zero
 						.Format = EResourceFormat::D24_UNORM_S8_UINT,
 					};
 
-					Builder.DeclareTexture(RGResourceName::ShadowMaps[DirectLightIndex], ShadowMapDesc);
-					Builder.WriteDepthStencil(RGResourceName::ShadowMaps[DirectLightIndex], ERGLoadStoreAccessOp::Clear_Preserve);
+					Builder.DeclareTexture(RGResourceName::ShadowMaps[LightIndex], ShadowMapDesc);
+					Builder.WriteDepthStencil(RGResourceName::ShadowMaps[LightIndex], ERGLoadStoreAccessOp::Clear_Preserve);
 				},
-				[=](FRenderGraphContext& Context, FCommandListHandle CommandListHandle)
+				[&](FRenderGraphContext& Context, FCommandListHandle CommandListHandle)
 				{
-					FRenderUtils::RenderLayer(ERenderLayer::Shadow, CommandListHandle);
+					FRenderUtils::RenderLayer(ERenderLayer::Shadow, CommandListHandle,
+					[&](Ref<FRenderItem> RenderItem)
+						{
+							RenderItem->m_Material->SetInt("DirectLightIndex", LightIndex);
+						}
+				);
 				},
-				ERenderPassType::Graphics,
-				ERGPassFlags::ForceNoCull
-			);
+					ERenderPassType::Graphics,
+					ERGPassFlags::ForceNoCull
+					);
 		}
 	}
 
@@ -66,6 +72,4 @@ namespace Zero
 		m_Width = Width;
 		m_Height = Height;
 	}
-
-
 }

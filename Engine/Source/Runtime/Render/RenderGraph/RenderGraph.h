@@ -64,6 +64,16 @@ namespace Zero
 		void Build();
 		void Execute();
 
+		bool IsTextureDeclared(FRGResourceName ResourceName);
+		bool IsBufferDeclared(FRGResourceName ResourceName);
+
+		inline FRGTexture* GetRGTexture(FRGTextureID RGTextureID) const;
+		FTexture2D* GetTexture(FRGTextureID RGTextureID);
+		inline FRGBuffer* GetRGBuffer(FRGBufferID RGBufferID) const;
+		FBuffer* GetBuffer(FRGBufferID RGBufferID);
+		FRGTextureID GetTextureID(FRGResourceName Name);
+		FRGBufferID GetBufferID(FRGResourceName Name);
+
 		FRGResourcePool& GetResourcePool() { return m_ResourcePool; };
 
 	private:
@@ -95,8 +105,6 @@ namespace Zero
 		std::map<FRGBufferID, std::vector<FBufferSubresourceDesc>> m_UAVBufferDescMap;
 
 	private:
-		FRGTextureID GetTextureID(FRGResourceName Name);
-		FRGBufferID GetBufferID(FRGResourceName Name);
 		void AddBufferBindFlags(FRGResourceName Name,  EResourceBindFlag Flags);
 		void AddTextureBindFlags(FRGResourceName Name, EResourceBindFlag Flags);
 
@@ -110,8 +118,6 @@ namespace Zero
 		FRGTextureID DeclareTexture(FRGResourceName Name, const FRGTextureDesc& Desc);
 		FRGBufferID DeclareBuffer(FRGResourceName Name, const FRGBufferDesc& Desc);
 		
-		bool IsTextureDeclared(FRGResourceName ResourceName);
-		bool IsBufferDeclared(FRGResourceName ResourceName);
 
 		bool IsValidTextureHandle(FRGTextureID RGTextureID) const;
 		bool IsValidBufferHandle(FRGBufferID RGBufferID) const;
@@ -120,10 +126,6 @@ namespace Zero
 		void CreateBufferViews(FRGBufferID RGBufferID);
 		
 		
-		inline FRGTexture* GetRGTexture(FRGTextureID RGTextureID) const;
-		FTexture2D* GetTexture(FRGTextureID RGTextureID);
-		inline FRGBuffer* GetRGBuffer(FRGBufferID RGBufferID) const;
-		FBuffer* GetBuffer(FRGBufferID RGBufferID);
 
 
 		FRGTextureCopySrcID ReadCopySrcTexture(FRGResourceName Name);
