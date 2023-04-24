@@ -117,7 +117,7 @@ float CalcShadowFactor(int LightIndex, float4 ShadowPos)
 	float3 ReceiverPos = float3(ShadowTexCoord.xy, ProjCoords.z);
 	float2 ddist_duv = ComputeDepthDerivative(ReceiverPos);
     uint Width, Height, NumMips;
-    _gShadowMaps[LightIndex].GetDimensions(0, Width, Height, NumMips);
+    _ShadowMaps[LightIndex].GetDimensions(0, Width, Height, NumMips);
 
     // Texel size.
     float dx = 1.0f / (float)Width;
@@ -132,7 +132,7 @@ float CalcShadowFactor(int LightIndex, float4 ShadowPos)
 		const float FixedBias = 0.003f;
 		float ReceiverDepthBias = ReceiverPos.z + dot(ddist_duv, UVOffset) - FixedBias;
 		
-		Visibility += _gShadowMaps[LightIndex].SampleCmpLevelZero(gSamShadow, SampleUV, ReceiverDepthBias).r;
+		Visibility += _ShadowMaps[LightIndex].SampleCmpLevelZero(gSamShadow, SampleUV, ReceiverDepthBias).r;
 	}
     
 	return Visibility / SampleCount;

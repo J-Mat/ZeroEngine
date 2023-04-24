@@ -21,9 +21,14 @@ namespace Zero
 
 	void FForwardLitPass::AddPass(FRenderGraph& RenderGraph)
 	{
-		RenderGraph.AddPass<void>(
+		struct FForwardLitPassData
+		{
+			FRGTextureReadOnlyID DirectLightShadowMaps[2];
+		};
+
+		RenderGraph.AddPass<FForwardLitPassData>(
 			"ForwardLit Pass",
-			[&](FRenderGraphBuilder& Builder)
+			[=](FForwardLitPassData& Data, FRenderGraphBuilder& Builder)
 			{
 				{
 					FRGTextureDesc DepthDesc = {
@@ -47,16 +52,25 @@ namespace Zero
 					Builder.WriteRenderTarget(RGResourceName::GBufferColor, ERGLoadStoreAccessOp::Clear_Preserve);
 				}
 
+				// Shadow Maps
+				const std::vector<UDirectLightActor*>& DirectLights = FLightManager::Get().GetDirectLights();
+				std::vector<FTexture2D*> ShadowMaps;
+				for (uint32_t LightIndex = 0; LightIndex < DirectLights.size(); ++LightIndex)
+				{
+					FRGTextureReadOnlyID RGTextureReadOnlyID =  Builder.ReadTexture(RGResourceName::ShadowMaps[LightIndex]);
+					Data.DirectLightShadowMaps[LightIndex] = RGTextureReadOnlyID;
+				}
+
 				Builder.SetViewport(m_Width, m_Height);
 			},
-			[&](FRenderGraphContext& Context, FCommandListHandle CommandListHandle)
+			[=](const FForwardLitPassData& Data, FRenderGraphContext& Context, FCommandListHandle CommandListHandle)
 			{
 				const std::vector<UDirectLightActor*>& DirectLights = FLightManager::Get().GetDirectLights();
 				std::vector<FTexture2D*> ShadowMaps;
 				for (uint32_t LightIndex = 0; LightIndex < DirectLights.size(); ++LightIndex)
 				{
-					FRGTextureID RGTextureID =  RenderGraph.GetTextureID(RGResourceName::ShadowMaps[LightIndex]);
-					ShadowMaps.push_back(RenderGraph.GetTexture(RGTextureID));
+					FTexture2D* Texture = Context.GetTexture(Data.DirectLightShadowMaps[LightIndex].GetResourceID());
+					ShadowMaps.push_back(Texture);
 				}
 
 				FRenderUtils::RenderLayer(ERenderLayer::Light, CommandListHandle);

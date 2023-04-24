@@ -41,9 +41,11 @@ namespace Zero
 		constexpr FRGResourceName GBufferColor = RG_RES_NAME(GBufferColor);
 		constexpr FRGResourceName ShadowMap_0 =  RG_RES_NAME(ShadowMap_0);
 		constexpr FRGResourceName ShadowMap_1 =  RG_RES_NAME(ShadowMap_1);
-		constexpr FRGResourceName ShadowMap_2 =  RG_RES_NAME(ShadowMap_2);
-		constexpr FRGResourceName ShadowMap_3 =  RG_RES_NAME(ShadowMap_3);
-		constexpr FRGResourceName ShadowMaps[4] = {ShadowMap_0 , ShadowMap_1 ,ShadowMap_2 , ShadowMap_3};
+		constexpr FRGResourceName ShadowMaps[2] = {ShadowMap_0 , ShadowMap_1};
+
+		constexpr FRGResourceName ShadowMap_Debug_0 =  RG_RES_NAME(ShadowMap_Debug_0);
+		constexpr FRGResourceName ShadowMap_Debug_1 =  RG_RES_NAME(ShadowMap_Debug_1);
+		constexpr FRGResourceName ShadowMaps_Debug[2] = {ShadowMap_Debug_0 , ShadowMap_Debug_1};
 	}
 }
 

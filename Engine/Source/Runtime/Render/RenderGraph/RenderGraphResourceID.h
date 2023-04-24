@@ -79,6 +79,7 @@ namespace Zero
 	struct FRGResourceDescriptorID
 	{
 		inline constexpr static uint64_t InvalidID = uint64_t(-1);
+		FRGResourceDescriptorID() : ID(InvalidID) {}
 		FRGResourceDescriptorID(uint32_t ViewID, FRGResourceID ResourceHandle) 
 			: ID(InvalidID) 
 		{

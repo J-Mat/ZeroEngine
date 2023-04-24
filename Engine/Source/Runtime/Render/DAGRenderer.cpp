@@ -4,6 +4,7 @@
 #include "Data/Settings/SettingsManager.h"
 #include "Data/Settings/SceneSettings.h"
 #include "Render/RenderUtils.h"
+#include "World/LightManager.h"
 
 
 namespace Zero
@@ -27,7 +28,6 @@ namespace Zero
 
 	void FDAGRender::CreateSizeDependentResources()
 	{
-		
 		FTextureDesc TextureDesc =
 		{
 			.Width = m_Width,
@@ -39,6 +39,21 @@ namespace Zero
 		m_FinalTexture.reset(FGraphic::GetDevice()->CreateTexture2D("FinalTexture", TextureDesc, false));
 		m_FinalTexture->RegistGuiShaderResource();
 
+		
+		m_DirectLightShadowMapDebugs.resize(FLightManager::Get().GetMaxDirectLightsNum());
+		FTextureDesc ShadowMapDesc = {
+			.Width = m_Width,
+			.Height = m_Height,
+			.ResourceBindFlags = EResourceBindFlag::RenderTarget | EResourceBindFlag::ShaderResource,
+			.ClearValue = FTextureClearValue(1.0f, 0),
+			.Format = EResourceFormat::R8G8B8A8_UNORM
+		};
+		for (uint32_t LightIndex = 0; LightIndex < FLightManager::Get().GetMaxDirectLightsNum(); ++LightIndex)
+		{
+			std::string Name = "DirectLightShadowMapDebug" + std::to_string(LightIndex);
+			m_DirectLightShadowMapDebugs[LightIndex].reset(FGraphic::GetDevice()->CreateTexture2D(Name, ShadowMapDesc, false));
+			m_DirectLightShadowMapDebugs[LightIndex]->RegistGuiShaderResource();
+		}
 	}
 
 	void FDAGRender::OnResize(uint32_t Width, uint32_t Height)
@@ -62,21 +77,31 @@ namespace Zero
 			FRenderUtils::RefreshIBL();
 			m_SkyboxPass.AddPass(Rg);
 		}
+		m_ShadowPass.AddPass(Rg);
+	}
+
+	void FDAGRender::ImportResource(FRenderGraph& RenderGraph)
+	{
+		RenderGraph.ImportTexture(RGResourceName::FinalTexture, m_FinalTexture.get());
+
+		for (uint32_t LightIndex = 0; LightIndex < FLightManager::Get().GetMaxDirectLightsNum(); ++LightIndex)
+		{
+			std::string Name = "DirectLightShadowMapDebug" + std::to_string(LightIndex);
+			RenderGraph.ImportTexture(RGResourceName::ShadowMaps_Debug[LightIndex], m_DirectLightShadowMapDebugs[LightIndex].get());
+		}
 	}
 
 	void FDAGRender::OnDraw()
 	{
 		FRenderGraph RenderGraph(m_RGResourcePool);
-		RenderGraph.ImportTexture(RGResourceName::FinalTexture, m_FinalTexture.get());
-
+		ImportResource(RenderGraph);
 		
-		m_ShadowPass.AddPass(RenderGraph);
-		m_ForwardLitPass.AddPass(RenderGraph);
-
 		SetupEnvironmentMap(RenderGraph);
 
+		m_ForwardLitPass.AddPass(RenderGraph);
+
+
 		m_CopyToFinalTexturePass.AddPass(RenderGraph);
-		
 	
 		RenderGraph.Build();
 		RenderGraph.Execute();

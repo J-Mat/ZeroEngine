@@ -1,10 +1,10 @@
 #include "ShadowStage.h"
 #include "Render/RHI/RenderTarget.h"
 #include "Render/RendererAPI.h"
-#include "Render/Moudule/Material.h"
 #include "World/World.h"
 #include "World/LightManager.h"
 #include "Render/Moudule/PSOCache.h"
+#include "Render/Moudule/Material.h"
 
 namespace Zero
 {
@@ -22,6 +22,7 @@ namespace Zero
 		};
 		m_ShadowMapDebugRenderTarget = FGraphic::GetDevice()->CreateRenderTarget2D(Desc);
 		TLibrary<FRenderTarget2D>::Push(RENDER_STAGE_SHADOWMAP_DEBUG, m_ShadowMapDebugRenderTarget);
+
 		Ref<FRenderItemPool> RenderItemPool = UWorld::GetCurrentWorld()->GetDIYRenderItemPool();
 			
 		std::vector<FMeshData> MeshDatas;

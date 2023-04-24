@@ -93,7 +93,6 @@ namespace Zero
 	void FEditorLayer::OnAttach()
 	{
 		CLIENT_LOG_INFO("FEditorLayer::OnAttach");
-		FGraphic::GetDevice()->FlushInitCommandList();
 		
 	//	auto MainViewportRenderTarget = TLibrary<FRenderTarget2D>::Fetch(RENDER_STAGE_FORWARD);
 	//  m_ViewportPanel->SetRenderTarget(MainViewportRenderTarget);
@@ -103,6 +102,8 @@ namespace Zero
 
 		auto ShadowMapRenderTarget = TLibrary<FRenderTarget2D>::Fetch(RENDER_STAGE_SHADOWMAP_DEBUG);
 		m_DebugViewportPanel->SetRenderTarget(ShadowMapRenderTarget);
+
+		FGraphic::GetDevice()->FlushInitCommandList();
 	}
 	
 	void FEditorLayer::OnDetach()

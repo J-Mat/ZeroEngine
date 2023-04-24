@@ -22,14 +22,22 @@ namespace Zero
 		void OnResize(uint32_t Width, uint32_t Height);
 		void OnUpdate();
 		void SetupEnvironmentMap(FRenderGraph& Rg);
+		void ImportResource(FRenderGraph& RenderGraph);
 		void OnDraw();
 
 		Ref<FTexture2D> GetFinalTexture()
 		{
 			return m_FinalTexture;
 		}
+		
+		std::vector<Ref<FTexture2D>>& GetDirectLightShadowMapDebugs()
+		{
+			return m_DirectLightShadowMapDebugs;
+		}
+
 	private:
 		Ref<FTexture2D> m_FinalTexture;
+		std::vector<Ref<FTexture2D>> m_DirectLightShadowMapDebugs;
 		FRGResourcePool m_RGResourcePool;
 		uint32_t m_Width;
 		uint32_t m_Height;

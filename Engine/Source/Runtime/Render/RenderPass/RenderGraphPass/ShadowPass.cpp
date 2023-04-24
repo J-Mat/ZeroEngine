@@ -7,11 +7,11 @@
 #include "Render/RHI/Texture.h"
 #include "Render/RHI/CommandList.h"
 #include "Render/RenderUtils.h"
-#include "Render/RHI/RenderItem.h"
 #include "Render/Moudule/Material.h"
 #include "Render/Moudule/ImageBasedLighting.h"
 #include "Render/Moudule/Texture/TextureManager.h"
 #include "World/LightManager.h"
+#include "Render/Moudule/PSOCache.h"
 
 
 
@@ -21,6 +21,26 @@ namespace Zero
 		: m_Width(Width)
 		, m_Height(Height)
 	{
+		Ref<FRenderItemPool> RenderItemPool = UWorld::GetCurrentWorld()->GetDIYRenderItemPool();
+			
+		std::vector<FMeshData> MeshDatas;
+		FMeshData MeshData;
+		FMeshGenerator::Get().CreateRect(MeshData);
+		MeshDatas.push_back(MeshData);
+
+		Ref<FMesh> Rect = FGraphic::GetDevice()->CreateMesh(
+			MeshDatas,
+			FVertexBufferLayout::s_DefaultVertexLayout
+		);
+		for (uint32_t LightIndex = 0; LightIndex < FLightManager::Get().GetMaxDirectLightsNum(); ++LightIndex)
+		{
+			m_ShadowMapDebugItems[LightIndex] = RenderItemPool->Request();
+			m_ShadowMapDebugItems[LightIndex]->m_Mesh = Rect;
+			m_ShadowMapDebugItems[LightIndex]->m_SubMesh = *m_ShadowMapDebugItems[LightIndex]->m_Mesh->begin();
+			m_ShadowMapDebugItems[LightIndex]->m_Material = CreateRef<FMaterial>(false);
+			m_ShadowMapDebugItems[LightIndex]->m_PsoID = EPsoID::ShadowDebug;
+			m_ShadowMapDebugItems[LightIndex]->m_Material->SetShader(m_ShadowMapDebugItems[LightIndex]->GetPsoObj()->GetPSODescriptor().Shader);
+		}
 	}
 
 	void FShadowPass::SetupDirectLightShadow(FRenderGraph& RenderGraph)
@@ -29,7 +49,7 @@ namespace Zero
 		for (uint32_t LightIndex = 0; LightIndex < DirectLights.size(); ++LightIndex)
 		{
 			RenderGraph.AddPass<void>(
-				"Shadow Pass",
+				"DirectLightShadowMap Pass",
 				[&](FRenderGraphBuilder& Builder)
 				{
 					FRGTextureDesc ShadowMapDesc = {
@@ -51,9 +71,35 @@ namespace Zero
 						}
 				);
 				},
-					ERenderPassType::Graphics,
-					ERGPassFlags::ForceNoCull
+				ERenderPassType::Graphics,
+				ERGPassFlags::ForceNoCull
+			);
+
+
+			struct FShadowPassDebugData
+			{
+				FRGTextureReadOnlyID ShadowMapID;
+			};
+			RenderGraph.AddPass<FShadowPassDebugData>(
+				"ShadowMap Debug Pass",
+				[=](FShadowPassDebugData& Data, FRenderGraphBuilder& Builder)
+				{
+					Data.ShadowMapID = Builder.ReadTexture(RGResourceName::ShadowMaps[LightIndex]);
+					Builder.WriteRenderTarget(RGResourceName::ShadowMaps_Debug[LightIndex], ERGLoadStoreAccessOp::Clear_Preserve);
+				},
+				[=](const FShadowPassDebugData& Data, FRenderGraphContext& Context, FCommandListHandle CommandListHandle)
+				{
+					FTexture2D* ShadowMap = Context.GetTexture(Data.ShadowMapID.GetResourceID());
+					FRenderUtils::DrawRenderItem(m_ShadowMapDebugItems[LightIndex], CommandListHandle,
+						[&](Ref<FRenderItem> RenderItem)
+						{
+							RenderItem->m_Material->SetTexture2D("gShadowMap", ShadowMap);
+						}
 					);
+				},
+				ERenderPassType::Graphics,
+				ERGPassFlags::ForceNoCull
+			);
 		}
 	}
 
