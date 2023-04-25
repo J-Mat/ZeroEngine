@@ -10,10 +10,10 @@ Actors:
         Properties:
           m_Position:UTransformComponent:
             Type: ZMath::vec3
-            Value: [-1.52731681, 4.95644903, 14.2340975]
+            Value: [-7.08915901, 13.1615944, -13.2673254]
           m_Rotation:UTransformComponent:
             Type: ZMath::FRotation
-            Value: [0.174532861, -4.13642931, 0]
+            Value: [0.54977864, -4.90612078, 0]
           m_Scale:UTransformComponent:
             Type: ZMath::vec3
             Value: [1, 1, 1]
@@ -62,7 +62,7 @@ Actors:
           m_ShaderFile:UMeshRenderComponent:
             Type: FShaderFileHandle
             Value: Shader\ForwardLit.hlsl
-          m_Textures:UMeshRenderComponent:
+          m_TextureHandles:UMeshRenderComponent:
             Type: std::map
             KeyType: std::string
             ValueType: FTextureHandle
@@ -75,28 +75,22 @@ Actors:
                   Value: Obj\mary\MC003_Kozakura_Mari.png
               - Map-Key:
                   Type: std::string
-                  Value: gNormalMap
-                Map-Value:
-                  Type: FTextureHandle
-                  Value: Texture\DefaultTexture.png
-              - Map-Key:
-                  Type: std::string
                   Value: gMetallicMap
                 Map-Value:
                   Type: FTextureHandle
-                  Value: Texture\DefaultTexture.png
+                  Value: ""
               - Map-Key:
                   Type: std::string
                   Value: gRoughnessMap
                 Map-Value:
                   Type: FTextureHandle
-                  Value: Texture\DefaultTexture.png
+                  Value: ""
               - Map-Key:
                   Type: std::string
                   Value: gEmissionMap
                 Map-Value:
                   Type: FTextureHandle
-                  Value: Texture\DefaultTexture.png
+                  Value: ""
           m_Floats:UMeshRenderComponent:
             Type: std::map
             KeyType: std::string
@@ -151,7 +145,7 @@ Actors:
           m_ShaderFile:UMeshRenderComponent:
             Type: FShaderFileHandle
             Value: Shader\ForwardLit.hlsl
-          m_Textures:UMeshRenderComponent:
+          m_TextureHandles:UMeshRenderComponent:
             Type: std::map
             KeyType: std::string
             ValueType: FTextureHandle
@@ -214,7 +208,7 @@ Actors:
           m_ShaderFile:UMeshRenderComponent:
             Type: FShaderFileHandle
             Value: Shader\ForwardLit.hlsl
-          m_Textures:UMeshRenderComponent:
+          m_TextureHandles:UMeshRenderComponent:
             Type: std::map
             KeyType: std::string
             ValueType: FTextureHandle
@@ -222,12 +216,6 @@ Actors:
               - Map-Key:
                   Type: std::string
                   Value: gDiffuseMap
-                Map-Value:
-                  Type: FTextureHandle
-                  Value: ""
-              - Map-Key:
-                  Type: std::string
-                  Value: gNormalMap
                 Map-Value:
                   Type: FTextureHandle
                   Value: ""
