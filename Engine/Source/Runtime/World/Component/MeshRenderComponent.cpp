@@ -144,16 +144,12 @@ namespace Zero
 		if (Property->GetPropertyName() == "m_Floats" || Property->GetPropertyName() == "m_TextureHandles" || Property->GetPropertyName() == "m_Colors")
 		{
 			m_Textures.clear();
-			for (auto Iter : m_TextureHandles)
-			{ 
-				m_Textures.insert(std::make_pair(Iter.first, FTextureManager::Get().GetTextureByHandle(Iter.second)));
-			}
 			m_bUpdateIfDirty = true;
 		}
 		if (Property->GetPropertyName() == "m_ShadingMode")
 		{
 			m_PerObjConstantsBuffer->SetInt("ShadingMode", m_ShadingMode);
-			
+			m_bUpdateIfDirty = true;
 		}
 	}
 
@@ -165,6 +161,15 @@ namespace Zero
 
 	void UMeshRenderComponent::AttachParametersToShader()
 	{
+		if (m_bUpdateIfDirty)
+		{
+			for (auto Iter : m_TextureHandles)
+			{ 
+				m_Textures.insert(std::make_pair(Iter.first, FTextureManager::Get().GetTextureByHandle(Iter.second)));
+			}
+			m_bUpdateIfDirty = false;
+		}
+
 		for (auto& RenderLayer : m_LayerInfo)
 		{
 			if (RenderLayer.first != ERenderLayer::Opaque && RenderLayer.first != ERenderLayer::Transparent)

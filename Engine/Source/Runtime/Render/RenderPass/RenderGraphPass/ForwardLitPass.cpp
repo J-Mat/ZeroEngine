@@ -82,10 +82,12 @@ namespace Zero
 						RenderItem->m_Material->SetTextureCubemap("IBLPrefilterMap", IBLModule->GetPrefilterEnvMapRTCube()->GetColorCubemap().get());
 						RenderItem->m_Material->SetTexture2D("_BrdfLUT", FTextureManager::Get().GetLutTexture().get());
 						RenderItem->m_Material->SetIBL(true);
-						if (ShadowMaps.size() > 0)
+						int32_t EmptyLightsNum = FLightManager::Get().GetMaxDirectLightsNum() - ShadowMaps.size();
+						while (EmptyLightsNum--)
 						{
-							RenderItem->m_Material->SetTexture2DArray("_ShadowMaps", ShadowMaps);
+							ShadowMaps.push_back(FTextureManager::Get().GetDefaultTexture().get());
 						}
+						RenderItem->m_Material->SetTexture2DArray("_ShadowMaps", ShadowMaps);
 					}
 					);
 			},

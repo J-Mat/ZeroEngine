@@ -70,6 +70,7 @@ namespace Zero
 			{
 				PoolRenderTarget.LastUsedFrame = m_FrameIndex;
 				bActive = true;
+				PoolRenderTarget.RenderTarget->Reset();
 				return PoolRenderTarget.RenderTarget.get();
 			}
 		}

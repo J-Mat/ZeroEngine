@@ -43,11 +43,7 @@ namespace Zero
 		virtual void AttachColorTexture(uint32_t AttachmentIndex, const FRenderTexAttachment& Attachment) = 0;
 		virtual void AttachDepthTexture(const FRenderTexAttachment& Attachment) = 0;
 
-		virtual void Reset()
-		{
-			m_ColoTexture.clear();
-			m_ColoTexture.resize(7, FRenderTexAttachment());
-		}
+		virtual void Reset();
 		virtual FTexture2D* GetColorTexture(uint32_t AttachmentIndex) const { return m_ColoTexture[AttachmentIndex].Texture; }
 		virtual FTexture2D* GetDepthTexture() const { return m_DepthTexture.Texture; }
 		

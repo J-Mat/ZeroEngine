@@ -10,7 +10,7 @@ namespace Zero
 	{
 	public:
 		FDebugViewportPanel() = default;
-		void SetRenderTarget(Ref<FRenderTarget2D> RenderTarget, uint32_t Index = 0);
+		void SetTextures(Ref<FTexture2D> Texture);
 		bool IsViewportFocusd() { return m_bWindowsFocused; }
 		bool IsViewportHovered() { return m_bWindowsHoverd; }
 		virtual void OnGuiRender();
@@ -18,7 +18,7 @@ namespace Zero
 		bool m_bWindowsFocused;
 		bool m_bWindowsHoverd;
 		
-		Ref<FRenderTarget2D> m_RenderTarget;
+		Ref<FTexture2D> m_Texture;
 		uint32_t m_RenderTargetIndex = 0;
 	};
 }

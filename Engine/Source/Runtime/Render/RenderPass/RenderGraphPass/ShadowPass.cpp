@@ -50,7 +50,7 @@ namespace Zero
 		{
 			RenderGraph.AddPass<void>(
 				"DirectLightShadowMap Pass",
-				[&](FRenderGraphBuilder& Builder)
+				[=](FRenderGraphBuilder& Builder)
 				{
 					FRGTextureDesc ShadowMapDesc = {
 						.Width = m_Width,
@@ -61,8 +61,9 @@ namespace Zero
 
 					Builder.DeclareTexture(RGResourceName::ShadowMaps[LightIndex], ShadowMapDesc);
 					Builder.WriteDepthStencil(RGResourceName::ShadowMaps[LightIndex], ERGLoadStoreAccessOp::Clear_Preserve);
+					Builder.SetViewport(m_Width, m_Height);
 				},
-				[&](FRenderGraphContext& Context, FCommandListHandle CommandListHandle)
+				[=](FRenderGraphContext& Context, FCommandListHandle CommandListHandle)
 				{
 					FRenderUtils::RenderLayer(ERenderLayer::Shadow, CommandListHandle,
 					[&](Ref<FRenderItem> RenderItem)
@@ -86,6 +87,7 @@ namespace Zero
 				{
 					Data.ShadowMapID = Builder.ReadTexture(RGResourceName::ShadowMaps[LightIndex]);
 					Builder.WriteRenderTarget(RGResourceName::ShadowMaps_Debug[LightIndex], ERGLoadStoreAccessOp::Clear_Preserve);
+					Builder.SetViewport(m_Width, m_Height);
 				},
 				[=](const FShadowPassDebugData& Data, FRenderGraphContext& Context, FCommandListHandle CommandListHandle)
 				{

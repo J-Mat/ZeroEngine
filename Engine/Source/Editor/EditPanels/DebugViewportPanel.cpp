@@ -3,14 +3,13 @@
 
 namespace Zero
 {
-	void FDebugViewportPanel::SetRenderTarget(Ref<FRenderTarget2D> RenderTarget, uint32_t Index)
+	void FDebugViewportPanel::SetTextures(Ref<FTexture2D> Texture)
 	{
-		m_RenderTarget = RenderTarget;
-		m_RenderTargetIndex = Index;
+		m_Texture = Texture;
 	}
+
 	void FDebugViewportPanel::OnGuiRender()
 	{
-		return;
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2({ 0,0 }));
 		ImGui::Begin("Debug", 0, ImGuiWindowFlags_MenuBar);
 		
@@ -33,8 +32,7 @@ namespace Zero
 		}
 		*/
 		
-		FTexture2D* Texture = m_RenderTarget->GetColorTexture(m_RenderTargetIndex);
-		ImGui::Image((ImTextureID)Texture->GetGuiShaderReseource(), ViewportPanelSize);
+		ImGui::Image((ImTextureID)m_Texture->GetGuiShaderReseource(), ViewportPanelSize);
 
 		ImGui::End();
 		ImGui::PopStyleVar();

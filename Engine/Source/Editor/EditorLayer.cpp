@@ -100,9 +100,6 @@ namespace Zero
 		m_DAGRender = CreateScope<FDAGRender>(WindowSize.x, WindowSize.y);
 		m_ViewportPanel->GetResizeViewportEvent().AddFunction(m_DAGRender.get(), &FDAGRender::OnResize);
 
-		auto ShadowMapRenderTarget = TLibrary<FRenderTarget2D>::Fetch(RENDER_STAGE_SHADOWMAP_DEBUG);
-		m_DebugViewportPanel->SetRenderTarget(ShadowMapRenderTarget);
-
 		FGraphic::GetDevice()->FlushInitCommandList();
 	}
 	
@@ -123,6 +120,7 @@ namespace Zero
 		//m_ScriptablePipeline->Run();
 		m_DAGRender->OnDraw();
 		m_ViewportPanel->SetRenderTexture(m_DAGRender->GetFinalTexture());
+		m_DebugViewportPanel->SetTextures(m_DAGRender->GetDirectLightShadowMapDebugs()[0]);
 	}
 
 

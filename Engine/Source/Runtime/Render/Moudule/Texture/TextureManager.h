@@ -42,6 +42,7 @@ namespace Zero
 		FTextureHandle LoadTexture(std::string const& FileName, bool bNeedMip = true);
 		Ref<FTexture2D> GetTextureByHandle(FTextureHandle Handle);
 		FTextureHandle GetDefaultTextureHandle() { return m_DefaultHandle; };
+		Ref<FTexture2D> GetDefaultTexture() { return GetTextureByHandle(m_DefaultHandle); };
 		Ref<FTextureCube> GetCurrentSkybox();
 		Ref<FTextureCube> CreateTextureCubemap(const std::string& TextureName, std::string* FileNames);
 	public:

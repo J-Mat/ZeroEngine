@@ -9,6 +9,16 @@ namespace Zero
 		Reset();
 	}
 
+	void FRenderTarget2D::Reset()
+	{
+		m_ColoTexture.resize(7);
+		for (uint32_t i = 0; i < 7; ++i)
+		{
+			m_ColoTexture[i] = FRenderTexAttachment();
+		}
+		m_DepthTexture = FRenderTexAttachment();
+	}
+
 	FRenderTargetCube::FRenderTargetCube(const FRenderTargetCubeDesc& Desc)
 		: m_RenderTargetCubeDesc(Desc)
 	{

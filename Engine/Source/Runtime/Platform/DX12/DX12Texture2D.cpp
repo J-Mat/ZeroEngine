@@ -415,9 +415,13 @@ namespace Zero
 	void FDX12Texture2D::MakeSRVs(const std::vector<FTextureSubresourceDesc>& Descs)
 	{
 		bool bCheckSRVSupport = m_ResourceLocation.GetResource()->CheckSRVSupport();
-		CORE_ASSERT(bCheckSRVSupport, "Check SRVSupport");
+		CD3DX12_RESOURCE_DESC Desc(m_ResourceLocation.GetResource()->GetD3DResource()->GetDesc());
+		m_SRVFormat = GetSRVFormat(Desc.Format);
 
-		m_SRVs.clear();
+		if (m_SRVs.size() == Descs.size())
+		{
+			return;
+		}
 		m_SRVs.resize(Descs.size());
 		
 		for (uint32_t i = 0; i < Descs.size(); ++i)
@@ -425,6 +429,8 @@ namespace Zero
 			auto& SubresourceDesc = Descs[i];
 			D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc
 			{
+				.Format = m_SRVFormat == DXGI_FORMAT_UNKNOWN ?
+				m_ResourceLocation.GetResource()->GetD3DResource()->GetDesc().Format : m_SRVFormat,
 				.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D,
 				.Texture2D = {
 					.MostDetailedMip = SubresourceDesc.FirstMip,
@@ -433,6 +439,20 @@ namespace Zero
 					.ResourceMinLODClamp = 0.0f,
 				},
 			};
+			if (m_ImageData != nullptr)
+			{
+				std::uint8_t srv_srcs[4];
+				for (size_t i = 0; i < m_ImageData->GetChannel(); i++)
+					srv_srcs[i] = static_cast<std::uint8_t>(i);
+				for (size_t i = m_ImageData->GetChannel(); i < 4; i++)
+					srv_srcs[i] = D3D12_SHADER_COMPONENT_MAPPING_FORCE_VALUE_1;
+				SrvDesc.Shader4ComponentMapping =
+					D3D12_ENCODE_SHADER_4_COMPONENT_MAPPING(srv_srcs[0], srv_srcs[1], srv_srcs[2], srv_srcs[3]);
+			}
+			else
+			{
+				SrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+			}
 			auto Srv = CreateScope<FDX12ShaderResourceView>(m_ResourceLocation.GetResource(), &SrvDesc);
 			m_SRVs[i] = std::move(Srv);
 		}
@@ -443,7 +463,10 @@ namespace Zero
 		bool bCheckRTVSupport = m_ResourceLocation.GetResource()->CheckRTVSupport();
 		CORE_ASSERT(bCheckRTVSupport, "Check RTVSupport");
 
-		m_RTVs.clear();
+		if (m_RTVs.size() == Descs.size())
+		{
+			return;
+		}
 		m_RTVs.resize(Descs.size());
 
 		for (uint32_t i = 0; i < Descs.size();++i)
@@ -507,6 +530,10 @@ namespace Zero
 		bool bCheckDSVSupport = m_ResourceLocation.GetResource()->CheckDSVSupport();
 		CORE_ASSERT(bCheckDSVSupport, "Check DSVSutrue, pport");
 
+		if (m_DSVs.size() == Descs.size())
+		{
+			return;
+		}
 		m_DSVs.clear();
 		m_DSVs.resize(Descs.size());
 

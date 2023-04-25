@@ -10,6 +10,7 @@ namespace Zero
 		m_Height(Desc.Height)
 	{
 		m_RenderTarget = m_RenderGrpah.GetResourcePool().AllocateRenderTarget();
+		m_RenderTarget->Resize(m_Width, m_Height);
 		for (uint32_t i = 0; i < Desc.RtvAttachments.size(); ++i)
 		{
 			const FRtvAttachmentDesc& RtvAttachmentDesc = Desc.RtvAttachments[i];
