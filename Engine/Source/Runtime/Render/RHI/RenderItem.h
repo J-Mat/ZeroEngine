@@ -48,8 +48,8 @@ namespace Zero
 		void Render(FCommandListHandle ComamndListHandle);
 		void Reset();
 		
-		FPipelineStateObject*  GetPsoObj();
+		Ref<FPipelineStateObject> GetPsoObj();
 	private:
-		FPipelineStateObject* m_PipelineStateObject = nullptr;
+		Ref<FPipelineStateObject> m_PipelineStateObject = nullptr;
 	};
 }

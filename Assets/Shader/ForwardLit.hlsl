@@ -1,4 +1,5 @@
 #include "Common.hlsl"
+#include "Sampler.hlsl"
 
 
 Texture2D gDiffuseMap: register(t0);
@@ -12,11 +13,10 @@ Texture2D _BrdfLUT : register(t6);
 
 TextureCube IBLPrefilterMap : register(t7);
 
-Texture2D _ShadowMaps[2] : register(t0, space1);
+Texture2D _gShadowMaps[2] : register(t0, space1);
 
-#include "./PBRLighting.hlsl"
-//#include "./Shadow/ShdowUtils.hlsl"
-
+#include "./Utils.hlsl"
+#include "./Shadow/ShadowUtils.hlsl"
 
 cbuffer cbMaterial : register(b3)
 {
@@ -44,99 +44,8 @@ VertexOut VS(VertexIn vin)
 };
 
 
-#define PCF_SAMPLE_PIXLE_RADIUS    2
-#define PCF_SAMPLE_COUNT           6
-
-float2 ComputeDepthDerivative(float3 projCoords)
-{
-	float2 ddist_duv = 0.0f;
-    
-	// Packing derivatives of u,v, and distance to light source w.r.t. screen space x, and y
-	float3 duvdist_dx = ddx(projCoords);
-	float3 duvdist_dy = ddy(projCoords);
-	
-	// Invert texture Jacobian and use chain rule to compute ddist/du and ddist/dv
-	// |ddist/du| = |du/dx du/dy|-T * |ddist/dx|
-	// |ddist/dv| |dv/dx dv/dy| |ddist/dy|
-
-	// Multiply ddist/dx and ddist/dy by inverse transpose of Jacobian
-	float invDet = 1 / ((duvdist_dx.x * duvdist_dy.y) - (duvdist_dx.y * duvdist_dy.x));
-
-	// Top row of 2x2
-	ddist_duv.x = duvdist_dy.y * duvdist_dx.z; 
-	ddist_duv.x -= duvdist_dx.y * duvdist_dy.z; 
-
-	// Bottom row of 2x2
-	ddist_duv.y = duvdist_dx.x * duvdist_dy.z; 
-	ddist_duv.y -= duvdist_dy.x * duvdist_dx.z; 
-	ddist_duv *= invDet;
-    
-	return ddist_duv;
-}
-
-float CalcShadowFactor(int LightIndex, float4 ShadowPos)
-{
-	/*
-	float4 ProjCoords = ShadowPos;
-	ProjCoords.xyz /= ProjCoords.w;
-
-    float2 ShadowTexCoord = 0.5f * ProjCoords.xy + 0.5f;
-	ShadowTexCoord.y = 1.0f - ShadowTexCoord.y;
-
-    uint Width, Height, NumMips;
-    _gShadowMap.GetDimensions(0, Width, Height, NumMips);
-
-    // Texel size.
-    float dx = 1.0f / (float)Width;
-
-	float PercentLit = 0.0f;
-    const float2 Offsets[9] =
-    {
-        float2(-dx,  -dx), float2(0.0f,  -dx), float2(dx,  -dx),
-        float2(-dx, 0.0f), float2(0.0f, 0.0f), float2(dx, 0.0f),
-        float2(-dx,  +dx), float2(0.0f,  +dx), float2(dx,  +dx)
-    };
-
-	float Depth = ProjCoords.z;
-
-    [unroll]
-    for(int i = 0; i < 9; ++i)
-    {
-        PercentLit += _gShadowMap.SampleCmpLevelZero(gSamShadow,
-            ShadowTexCoord.xy + Offsets[i], Depth).r;
-    }
-    
-    return PercentLit / 9.0f;
-	*/
-	float4 ProjCoords = ShadowPos;
-	ProjCoords.xyz /= ProjCoords.w;
-
-    float2 ShadowTexCoord = 0.5f * ProjCoords.xy + 0.5f;
-	ShadowTexCoord.y = 1.0f - ShadowTexCoord.y;
-
-	float3 ReceiverPos = float3(ShadowTexCoord.xy, ProjCoords.z);
-	float2 ddist_duv = ComputeDepthDerivative(ReceiverPos);
-    uint Width, Height, NumMips;
-    _ShadowMaps[LightIndex].GetDimensions(0, Width, Height, NumMips);
-
-    // Texel size.
-    float dx = 1.0f / (float)Width;
-    float UVRadius = PCF_SAMPLE_PIXLE_RADIUS * dx; 
-	const int SampleCount = PCF_SAMPLE_COUNT;
-	float Visibility = 0.0f;
-    for (int i = 0; i < SampleCount; i++)
-    {
-		float2 UVOffset = (Hammersley(i, SampleCount) * 2.0f - 1.0f) * UVRadius;
-		float2 SampleUV = ReceiverPos.xy + UVOffset;
-		
-		const float FixedBias = 0.003f;
-		float ReceiverDepthBias = ReceiverPos.z + dot(ddist_duv, UVOffset) - FixedBias;
-		
-		Visibility += _ShadowMaps[LightIndex].SampleCmpLevelZero(gSamShadow, SampleUV, ReceiverDepthBias).r;
-	}
-    
-	return Visibility / SampleCount;
-}
+#define DIRECTIONAL_LIGHT_PIXEL_WIDTH       10.0f
+#define SPOT_LIGHT_PIXEL_WIDTH              10.0f
 
 
 PixelOutput PS(VertexOut Pin)
@@ -157,7 +66,7 @@ PixelOutput PS(VertexOut Pin)
 	{
 		float3 ViewDir = normalize(ViewPos - Pin.WorldPos.xyz);
 		float3 ReflectDir = reflect(-ViewDir, N);
-		float3 PrefilteredColor  = GetPrefilteredColor(MipLevel, ReflectDir);
+		float3 PrefilteredColor  = GetPrefilteredColor(IBLPrefilterMap, MipLevel, ReflectDir);
 		float3 Irradiance = IBLIrradianceMap.Sample(gSamLinearClamp, N).rgb;
 		float NdotV = dot(N, ViewDir);
 		float2 LUT = _BrdfLUT.Sample(gSamAnisotropicWarp, float2(NdotV, Roughness)).rg;
@@ -178,10 +87,9 @@ PixelOutput PS(VertexOut Pin)
 		float3 ReflectDir = reflect(-V, N);
 		Spec = pow(max(dot(V, ReflectDir), 0.0f), 35.0f) * LightColor;
 
-		float ShadowFactor = CalcShadowFactor(0, Pin.ShadowPosH);
+		float ShadowFactor = CalcShadowFactor(0, Pin.ShadowPosH, MipLevel);
 		FinalColor =  Ambient + (Diffuse + Spec) * ShadowFactor * Albedo;
 		//FinalColor =  float3(ShadowFactor, ShadowFactor, ShadowFactor); //Ambient + (Diffuse + Spec) * ShadowFactor * Albedo;
-		//FinalColor = Albedo;
 	}
 
     // gamma correct

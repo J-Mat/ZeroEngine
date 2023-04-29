@@ -33,6 +33,12 @@ namespace Zero
 		std::string EntryPoint[int32_t(EShaderStage::ShaderCount)] = { "VS", "PS", "CS"};
 		bool bCreatePS = true;
 		EShaderCompilerFlagBit Flags = ShaderCompilerFlag_Debug;
+		std::unordered_map<std::string, std::string> DefinesMap;
+		
+		void SetDefine(const std::string& Name, const std::string& Value)
+		{
+			DefinesMap.insert_or_assign(Name , Value);
+		}
 	};
 
 		

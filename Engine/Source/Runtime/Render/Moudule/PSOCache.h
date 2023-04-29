@@ -17,15 +17,16 @@ namespace Zero
 		void RegisterErrorPSO();
 		void RegisterDefaultPSO();
 		void RegisterSkyboxPSO();
+		void RegsiterForwardLitPSO();
 		void RegisterIBLPSO();
 		void RegisterShadowPSO();
 		void RegisterComputeShader();
 		void OnReCreatePso(Ref<FShader> Shader);
 	public:
 		FPsoRecreateEvent& GetPsoRecreateEvent() { return m_PsoRecreateEvent; };
-		FPipelineStateObject* Fetch(uint32_t PsoID);
+		Ref<FPipelineStateObject> Fetch(uint32_t PsoID);
 	private:
-		std::vector<Scope<FPipelineStateObject>> m_PsoCache;
+		std::vector<Ref<FPipelineStateObject>> m_PsoCache;
 
 		FPsoRecreateEvent m_PsoRecreateEvent;
 	};

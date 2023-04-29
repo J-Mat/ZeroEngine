@@ -3,6 +3,8 @@
 #ifndef UTILS_HLSL
 #define UTILS_HLSL
 
+#include "./Sampler.hlsl"
+
 float RadicalInverse_VdC(uint bits)
 {
 	bits = (bits << 16u) | (bits >> 16u);
@@ -38,6 +40,38 @@ float3 ImportanceSampleGGX(float2 Xi, float3 N, float Roughness)
 	float3 TangentY = cross(N, TangentX);
 
 	return TangentX * H.x + TangentY * H.y + N * H.z;
+}
+
+#define IBL_PREFILTER_ENVMAP_MIP_LEVEL 5
+
+float3 GetPrefilteredColor(TextureCube IBLPrefilterMap, float Roughness, float3 ReflectDir)
+{
+    float Level = Roughness * (IBL_PREFILTER_ENVMAP_MIP_LEVEL - 1);
+    
+    float3 PrefilteredColor = IBLPrefilterMap.SampleLevel(gSamLinearClamp, ReflectDir, Level).rgb;
+
+    return PrefilteredColor;
+
+}
+
+float3 EnvBRDF(float Metallic, float3 BaseColor, float2 LUT)
+{
+	float3 F0_DIELECTRIC = float3(0.04f, 0.04f, 0.04f);
+    float3 F0 = lerp(F0_DIELECTRIC, BaseColor, Metallic); 
+    return F0 * LUT.x + LUT.y;
+}
+
+float3 AmbientLighting(float Metallic, float3 BaseColor, float3 Irradiance, float3 PrefilteredColor, float2 LUT)
+{
+    // IBL diffuse   
+    float3 DiffuseColor = (1.0f - Metallic) * BaseColor; // Metallic surfaces have no diffuse reflections
+    float3 DiffuseContribution = DiffuseColor  * Irradiance;
+    
+    // IBL specular
+    float3 SpecularContribution = PrefilteredColor * EnvBRDF(Metallic, BaseColor, LUT);
+
+    float3 Ambient = ( DiffuseContribution + SpecularContribution);
+    return Ambient;
 }
 
 #endif

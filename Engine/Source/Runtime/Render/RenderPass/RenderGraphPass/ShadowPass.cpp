@@ -95,7 +95,7 @@ namespace Zero
 					FRenderUtils::DrawRenderItem(m_ShadowMapDebugItems[LightIndex], CommandListHandle,
 						[&](Ref<FRenderItem> RenderItem)
 						{
-							RenderItem->m_Material->SetTexture2D("gShadowMap", ShadowMap);
+							RenderItem->m_Material->SetTexture2D("_gShadowMap", ShadowMap);
 						}
 					);
 				},

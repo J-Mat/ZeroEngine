@@ -70,7 +70,7 @@ namespace Zero
 
 			if (ShadowMapRenderTarget != nullptr)
 			{
-				//RenderItem->m_Material->SetTexture2D("_gShadowMap", ShadowMapRenderTarget->GetDepthTexture());
+				//RenderItem->m_Material->SetTexture2D("_gShadowMaps", ShadowMapRenderTarget->GetDepthTexture());
 			}
 
 			RenderItem->Render(m_CommandListHandle);

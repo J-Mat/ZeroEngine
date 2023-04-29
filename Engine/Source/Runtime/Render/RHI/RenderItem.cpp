@@ -68,8 +68,8 @@ namespace Zero
 		m_PerObjectBuffer->SetMatrix4x4("Model", Transform);
 	}
 	
-	FPipelineStateObject* FRenderItem::GetPsoObj()
-	{
+	Ref<Zero::FPipelineStateObject> FRenderItem::GetPsoObj()
+{
 		if (!m_PipelineStateObject)
 		{
 			m_PipelineStateObject = FPSOCache::Get().Fetch(m_PsoID);

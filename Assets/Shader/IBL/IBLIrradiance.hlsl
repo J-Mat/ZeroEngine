@@ -1,4 +1,5 @@
 #include "../Common.hlsl"
+#include "../Sampler.hlsl"
 
 TextureCube gSkyboxMap : register(t0);
 

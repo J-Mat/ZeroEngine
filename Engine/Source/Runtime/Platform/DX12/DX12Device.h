@@ -117,7 +117,7 @@ namespace Zero
 		D3D12MA::Allocator* GetMemAllocator() const;
 
 	public:
-		virtual Scope<FPipelineStateObject> CreatePSO(const FPSODescriptor& PSODescriptor) override;
+		virtual Ref<FPipelineStateObject> CreatePSO(const FPSODescriptor& PSODescriptor) override;
 		virtual FTexture2D* CreateTexture2D(const std::string& TextureName, const FTextureDesc& Desc, bool bCreateTextureView = true) override;
 		virtual Ref<FTexture2D> GetOrCreateTexture2D(const std::string& Filename, bool bNeedMipMap = false) override;
 		virtual Ref<FTextureCube> GetOrCreateTextureCubemap(FTextureHandle Handles[CUBEMAP_TEXTURE_CNT], std::string TextureCubemapName) override;

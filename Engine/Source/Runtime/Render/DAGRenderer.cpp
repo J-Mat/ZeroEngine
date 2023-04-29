@@ -13,7 +13,7 @@ namespace Zero
 		: m_Width(Width), 
 		m_Height(Height),
 		m_ForwardLitPass(Width, Height),
-		m_ShadowPass(2048, 2048)
+		m_ShadowPass(1024, 1024)
 	{
 		CreateSizeDependentResources();
 	}

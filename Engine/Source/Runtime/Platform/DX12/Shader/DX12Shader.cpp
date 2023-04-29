@@ -71,24 +71,6 @@ namespace Zero
 		m_UAVParams.clear();
 		m_SamplerParams.clear();
 
-		/*
-		if (m_ShaderDesc.bCreateVS)
-		{
-			auto VSBlob  = FDX12ShaderCompiler::Get().CompileShader(Utils::String2WString(FileName), nullptr, m_ShaderDesc.EntryPoint[uint32_t(EShaderStage::VS)], "vs_5_1");
-			m_ShaderPass[EShaderStage::VS] = VSBlob;
-			std::cout << "ShaderStage : VS" << std::endl;
-			GetShaderParameters(VSBlob, EShaderStage::VS);
-		}
-
-		if (m_ShaderDesc.bCreatePS)
-		{
-			auto PSBlob  = FDX12ShaderCompiler::Get().CompileShader(Utils::String2WString(FileName), nullptr, m_ShaderDesc.EntryPoint[uint32_t(EShaderStage::PS)], "ps_5_1");
-			m_ShaderPass[EShaderStage::PS] = PSBlob;
-			std::cout << "ShaderStage : PS" << std::endl;
-			GetShaderParameters(PSBlob, EShaderStage::PS);
-		}
-		*/
-		
 		// Test
 		{
 				m_CBVParams.clear();

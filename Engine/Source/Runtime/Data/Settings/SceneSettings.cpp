@@ -5,6 +5,7 @@
 #include "World/Actor/SkyActor.h"
 #include "Render/Moudule/Texture/TextureManager.h"
 #include "Render/RenderUtils.h"
+#include "Render/Moudule/PSOCache.h"
 
 
 namespace Zero
@@ -21,6 +22,10 @@ namespace Zero
 		if (Property->GetPropertyName() == "m_bUseSkyBox" && m_bUseSkyBox)
 		{
 			GenrerateTextureCubemapHandle();
+		}
+		if (Property->GetPropertyName() == "m_ShadowType")
+		{	
+			FPSOCache::Get().RegsiterForwardLitPSO();
 		}
 	}
 

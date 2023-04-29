@@ -7,6 +7,8 @@
 #include "Platform/DX12/PSO/GenerateMipsPSO.h"
 #include "Render/RHI/GraphicDevice.h"
 #include "Render/Moudule/ShaderCache.h"
+#include "Data/Settings/SettingsManager.h"
+#include "Data/Settings/SceneSettings.h"
 
 namespace Zero
 {
@@ -35,20 +37,6 @@ namespace Zero
 
 	void FPSOCache::RegisterDefaultPSO()
 	{
-		{
-			FShaderDesc ShaderDesc 
-			{
-				.FileName = "Shader\\ForwardLit.hlsl",
-				.ShaderID = EShaderID::ForwardLit,
-			};
-
-			FPSODescriptor ForwadLitDesc{
-				.PSOType =	EPSOType::PT_Normal
-			};
-
-			ForwadLitDesc.Shader = FShaderCache::Get().CreateShader(ShaderDesc);
-		 	m_PsoCache[EPsoID::ForwadLit] = FGraphic::GetDevice()->CreatePSO(ForwadLitDesc);
-		}
 
 		{
 			FShaderDesc ShaderDesc 
@@ -87,6 +75,36 @@ namespace Zero
 			.CullMode = ECullMode::CULL_MODE_FRONT
 		};
 		 m_PsoCache[EPsoID::Skybox] = FGraphic::GetDevice()->CreatePSO(SkyboxPSODesc);
+	}
+
+	void FPSOCache::RegsiterForwardLitPSO()
+	{
+		{
+			FShaderDesc ShaderDesc 
+			{
+				.FileName = "Shader\\ForwardLit.hlsl",
+				.ShaderID = EShaderID::ForwardLit,
+				.DefinesMap = {}
+			};
+			
+			auto* SceneSettings = FSettingManager::Get().FecthSettings<USceneSettings>(USceneSettings::StaticGetObjectName());
+			switch (SceneSettings->m_ShadowType)
+			{
+			case EShadowType::PCF:
+				break;
+			case EShadowType::PCSS:
+				ShaderDesc.SetDefine("USE_PCSS", "1");
+				break;
+			default:
+				break;
+			}
+
+			FPSODescriptor ForwadLitDesc{
+				.PSOType =	EPSOType::PT_Normal
+			};
+			ForwadLitDesc.Shader = FShaderCache::Get().CreateShader(ShaderDesc);
+		 	m_PsoCache[EPsoID::ForwadLit] = FGraphic::GetDevice()->CreatePSO(ForwadLitDesc);
+		}
 	}
 
 	void FPSOCache::RegisterIBLPSO()
@@ -206,9 +224,9 @@ namespace Zero
 		}
 	}
 
-	FPipelineStateObject* Zero::FPSOCache::Fetch(uint32_t PsoID)
+	Ref<FPipelineStateObject> Zero::FPSOCache::Fetch(uint32_t PsoID)
 	{
-		return m_PsoCache[PsoID].get();
+		return m_PsoCache[PsoID];
 	}
 
 }

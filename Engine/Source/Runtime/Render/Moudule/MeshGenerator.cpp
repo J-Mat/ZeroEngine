@@ -233,8 +233,8 @@ namespace Zero
 				Vertices[i * N + j].TangentU = ZMath::vec3(1.0f, 0.0f, 0.0f);
 
 				// Stretch texture over grid.
-				Vertices[i * N + j].TexC.x = j * du;
-				Vertices[i * N + j].TexC.y = i * dv;
+				Vertices[i * N + j].TexC.x = float(j);
+				Vertices[i * N + j].TexC.y = float(i);
 			}
 		}
 

@@ -6,6 +6,16 @@
 
 namespace Zero
 {
+	UENUM()
+	enum EShadowType
+	{
+		UPROPERTY()
+		PCF,
+
+		UPROPERTY()
+		PCSS,
+	};
+
 	class USkyActor;
 	UCLASS()
 	class USceneSettings : public USettings
@@ -16,6 +26,9 @@ namespace Zero
 		virtual void PostInit() override;
 		virtual void PostEdit(UProperty* Property) override;
 	public:
+		UPROPERTY()
+		EShadowType m_ShadowType = EShadowType::PCF;
+
 		UPROPERTY()
 		bool m_bUseSkyBox = false;
 

@@ -112,9 +112,9 @@ namespace Zero
 		return m_MemAllocator.get();
 	}
 
-	Scope<FPipelineStateObject> FDX12Device::CreatePSO(const FPSODescriptor& PSODescriptor)
+	Ref<FPipelineStateObject> FDX12Device::CreatePSO(const FPSODescriptor& PSODescriptor)
 	{
-		return CreateScope<FDX12PipelineStateObject>(PSODescriptor);
+		return CreateRef<FDX12PipelineStateObject>(PSODescriptor);
 	}
 
 	FTexture2D* FDX12Device::CreateTexture2D(const std::string& TextureName, const FTextureDesc& Desc, bool bCreateTextureView /*= true*/)

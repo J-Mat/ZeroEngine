@@ -69,7 +69,7 @@ namespace Zero
 		m_ShadowMapDebugItem->PreRender(CommandListHandle);
 		if (FLightManager::Get().GetDirectLights().size() > 0)
 		{
-			m_ShadowMapDebugItem->m_Material->SetTexture2D("gShadowMap", m_ShadowMapRenderTargets[0]->GetDepthTexture());
+			m_ShadowMapDebugItem->m_Material->SetTexture2D("_gShadowMaps", m_ShadowMapRenderTargets[0]->GetDepthTexture());
 		}
 		m_ShadowMapDebugItem->Render(CommandListHandle);
 		m_ShadowMapDebugRenderTarget->UnBind(CommandListHandle);

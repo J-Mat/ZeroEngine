@@ -4,14 +4,6 @@
 
 #define PI 3.14159265359
 
-SamplerState gSamPointWrap : register(s0);
-SamplerState gSamPointClamp : register(s1);
-SamplerState gSamLinearWarp : register(s2);
-SamplerState gSamLinearClamp : register(s3);
-SamplerState gSamAnisotropicWarp : register(s4);
-SamplerState gSamAnisotropicClamp : register(s5);
-SamplerComparisonState gSamShadow : register(s6);
-
 
 struct VertexIn
 {

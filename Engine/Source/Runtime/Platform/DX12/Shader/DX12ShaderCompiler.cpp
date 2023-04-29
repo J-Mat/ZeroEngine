@@ -228,6 +228,23 @@ namespace Zero
 		CompileArgs.push_back(L"-I"); // Add directory to include search path
 		CompileArgs.push_back(Path.c_str());
 
+
+		std::vector<std::wstring> Macros;
+		Macros.reserve(Desc.DefinesMap.size());
+		for (auto const& Define : Desc.DefinesMap)
+		{
+			CompileArgs.push_back(L"-D");
+			if (Define.second.empty())
+			{
+				Macros.push_back(Utils::String2WString(Define.first) + L"=1");
+			}
+			else
+			{
+				Macros.push_back(Utils::String2WString(Define.first) + L"=" + Utils::String2WString(Define.second));
+			}
+			CompileArgs.push_back(Macros.back().c_str());
+		}
+
 		FCustomIncludeHandler CustomIncludeHandler{};
 		DxcBuffer SourceBuffer;
 		SourceBuffer.Ptr = SourceBlob->GetBufferPointer();
