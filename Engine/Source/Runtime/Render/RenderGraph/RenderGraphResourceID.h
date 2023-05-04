@@ -6,7 +6,8 @@ namespace Zero
 	enum class ERGResourceType : uint8_t
 	{
 		Buffer,
-		Texture
+		Texture2D,
+		TextureCube,
 	};
 
 	enum class ERGResourceMode : uint8_t
@@ -40,17 +41,29 @@ namespace Zero
 	};
 
 	using FRGBufferID = FTypedRGResourceId<ERGResourceType::Buffer>;
-	using FRGTextureID = FTypedRGResourceId<ERGResourceType::Texture>;
+	using FRGTexture2DID = FTypedRGResourceId<ERGResourceType::Texture2D>;
+	using FRGTextureCubeID = FTypedRGResourceId<ERGResourceType::TextureCube>;
 
 	template<ERGResourceMode Mode>
-	struct FRGTextureModeID : FRGTextureID
+	struct FRGTextureMode2DID : FRGTexture2DID
 	{
-		using FRGTextureID::FRGTextureID;
+		using FRGTextureID::FRGTexture2DID;
 	private:
 		friend class FRenderGraphBuilder;
 		friend class FRenderGraph;
 
-		FRGTextureModeID(FRGTextureID const& ID) : FRGTextureID(ID) {}
+		FRGTextureMode2DID(FRGTexture2DID const& ID) : FRGTexture2DID(ID) {}
+	};
+
+	template<ERGResourceMode Mode>
+	struct FRGTextureModeCubeID : FRGTextureCubeID
+	{
+		using FRGTexture2DID::FRGTexture2DID;
+	private:
+		friend class FRenderGraphBuilder;
+		friend class FRenderGraph;
+
+		FRGTextureModeCubeID(FRGTextureCubeID const& ID) : FRGTextureCubeID(ID) {}
 	};
 
 	template<ERGResourceMode Mode>
@@ -64,8 +77,8 @@ namespace Zero
 		FRGBufferModeID(FRGBufferID const& id) : FRGBufferID(id) {}
 	};
 
-	using FRGTextureCopySrcID = FRGTextureModeID<ERGResourceMode::CopySrc>;
-	using FRGTextureCopyDstID = FRGTextureModeID<ERGResourceMode::CopyDst>;
+	using FRGTexture2DCopySrcID = FRGTextureMode2DID<ERGResourceMode::CopySrc>;
+	using FRGTexture2DCopyDstID = FRGTextureMode2DID<ERGResourceMode::CopyDst>;
 
 	using FRGBufferCopySrcID = FRGBufferModeID<ERGResourceMode::CopySrc>;
 	using FRGBufferCopyDstID = FRGBufferModeID<ERGResourceMode::CopyDst>;
@@ -103,7 +116,7 @@ namespace Zero
 	};
 
 	template<ERGResourceType ResourceType, ERGDescriptorType ResourceViewType>
-	struct FTypedRGResourceDescriptorId : FRGResourceDescriptorID
+	struct FTypedRGResourceDescriptorID : FRGResourceDescriptorID
 	{
 		using FRGResourceDescriptorID::FRGResourceDescriptorID;
 		
@@ -113,27 +126,45 @@ namespace Zero
 			{
 				return FRGBufferID(FRGResourceDescriptorID::GetResourceID());
 			}
-			else if constexpr(ResourceType == ERGResourceType::Texture)
+			else if constexpr(ResourceType == ERGResourceType::Texture2D)
 			{
-				return FRGTextureID(FRGResourceDescriptorID::GetResourceID());
+				return FRGTexture2DID(FRGResourceDescriptorID::GetResourceID());
+			}
+			else if constexpr (ResourceType == ERGResourceType::TextureCube)
+			{
+				return FRGTextureCubeID(FRGResourceDescriptorID::GetResourceID());
 			}
 		}
 	};
 
-	using FRGRenderTargetID = FTypedRGResourceDescriptorId<ERGResourceType::Texture, ERGDescriptorType::RenderTarget>;
-	using FRGDepthStencilID = FTypedRGResourceDescriptorId<ERGResourceType::Texture, ERGDescriptorType::DepthStencil>;
-	using FRGTextureReadOnlyID = FTypedRGResourceDescriptorId<ERGResourceType::Texture, ERGDescriptorType::ReadOnly>;
-	using FRGTextureReadWriteID = FTypedRGResourceDescriptorId<ERGResourceType::Texture, ERGDescriptorType::ReadWrite>;
+	using FRGTex2DRenderTargetID = FTypedRGResourceDescriptorID<ERGResourceType::Texture2D, ERGDescriptorType::RenderTarget>;
+	using FRGTex2DDepthStencilID = FTypedRGResourceDescriptorID<ERGResourceType::Texture2D, ERGDescriptorType::DepthStencil>;
+	using FRGTex2DReadOnlyID = FTypedRGResourceDescriptorID<ERGResourceType::Texture2D, ERGDescriptorType::ReadOnly>;
+	using FRGTex2DReadWriteID = FTypedRGResourceDescriptorID<ERGResourceType::Texture2D, ERGDescriptorType::ReadWrite>;
 
-	using FRGBufferReadOnlyID = FTypedRGResourceDescriptorId<ERGResourceType::Buffer, ERGDescriptorType::ReadOnly>;
-	using FRGBufferReadWriteID = FTypedRGResourceDescriptorId<ERGResourceType::Buffer, ERGDescriptorType::ReadWrite>;
+	using FRGTexCubeRenderTargetID = FTypedRGResourceDescriptorID<ERGResourceType::TextureCube, ERGDescriptorType::RenderTarget>;
+	using FRGTexCubeDepthStencilID = FTypedRGResourceDescriptorID<ERGResourceType::TextureCube, ERGDescriptorType::DepthStencil>;
+	using FRGTexCubeReadOnlyID = FTypedRGResourceDescriptorID<ERGResourceType::TextureCube, ERGDescriptorType::ReadOnly>;
+
+	using FRGTexCubesReadWriteID = FTypedRGResourceDescriptorID<ERGResourceType::TextureCube, ERGDescriptorType::ReadWrite>;
+
+	using FRGBufferReadOnlyID = FTypedRGResourceDescriptorID<ERGResourceType::Buffer, ERGDescriptorType::ReadOnly>;
+	using FRGBufferReadWriteID = FTypedRGResourceDescriptorID<ERGResourceType::Buffer, ERGDescriptorType::ReadWrite>;
 }
 
 namespace std
 {
-	template <> struct hash<Zero::FRGTextureID>
+	template <> struct hash<Zero::FRGTexture2DID>
 	{
-		size_t operator()(Zero::FRGTextureID const& h) const
+		size_t operator()(Zero::FRGTexture2DID const& h) const
+		{
+			return hash<decltype(h.ID)>()(h.ID);
+		}
+	};
+
+	template <> struct hash<Zero::FRGTextureCubeID>
+	{
+		size_t operator()(Zero::FRGTextureCubeID const& h) const
 		{
 			return hash<decltype(h.ID)>()(h.ID);
 		}
@@ -145,30 +176,30 @@ namespace std
 			return hash<decltype(h.ID)>()(h.ID);
 		}
 	};
-	template <> struct hash<Zero::FRGTextureReadOnlyID>
+	template <> struct hash<Zero::FRGTex2DReadOnlyID>
 	{
-		size_t operator()(Zero::FRGTextureReadOnlyID const& h) const
+		size_t operator()(Zero::FRGTex2DReadOnlyID const& h) const
 		{
 			return hash<decltype(h.ID)>()(h.ID);
 		}
 	};
-	template <> struct hash<Zero::FRGTextureReadWriteID>
+	template <> struct hash<Zero::FRGTex2DReadWriteID>
 	{
-		size_t operator()(Zero::FRGTextureReadWriteID const& h) const
+		size_t operator()(Zero::FRGTex2DReadWriteID const& h) const
 		{
 			return hash<decltype(h.ID)>()(h.ID);
 		}
 	};
-	template <> struct hash<Zero::FRGRenderTargetID>
+	template <> struct hash<Zero::FRGTex2DRenderTargetID>
 	{
-		size_t operator()(Zero::FRGRenderTargetID const& h) const
+		size_t operator()(Zero::FRGTex2DRenderTargetID const& h) const
 		{
 			return hash<decltype(h.ID)>()(h.ID);
 		}
 	};
-	template <> struct hash<Zero::FRGDepthStencilID>
+	template <> struct hash<Zero::FRGTex2DDepthStencilID>
 	{
-		size_t operator()(Zero::FRGDepthStencilID const& h) const
+		size_t operator()(Zero::FRGTex2DDepthStencilID const& h) const
 		{
 			return hash<decltype(h.ID)>()(h.ID);
 		}

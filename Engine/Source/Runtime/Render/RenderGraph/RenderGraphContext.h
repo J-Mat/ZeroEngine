@@ -12,12 +12,19 @@ namespace Zero
 	struct FRGResourceTraits;
 	
 	template<>
-	struct FRGResourceTraits<ERGResourceType::Texture>
+	struct FRGResourceTraits<ERGResourceType::Texture2D>
 	{
 		using FResource = FTexture2D;
 		using FResourceDesc = FTextureDesc;
 	};
 	
+	template<>
+	struct FRGResourceTraits<ERGResourceType::TextureCube>
+	{
+		using FResource = FTextureCube;
+		using FResourceDesc = FTextureDesc;
+	};
+
 	template<>
 	struct FRGResourceTraits<ERGResourceType::Buffer>
 	{
@@ -61,7 +68,8 @@ namespace Zero
 			Resource = nullptr;
 		}
 	};
-	using FRGTexture = FTypedRGResource<ERGResourceType::Texture>;
+	using FRGTexture2D = FTypedRGResource<ERGResourceType::Texture2D>;
+	using FRGTextureCube = FTypedRGResource<ERGResourceType::TextureCube>;
 	using FRGBuffer = FTypedRGResource<ERGResourceType::Buffer>;	
 	
 	class FRenderGraphContext
@@ -71,7 +79,7 @@ namespace Zero
 		FRenderGraphContext(FRenderGraphContext const&) = delete;
 		FRenderGraphContext& operator=(FRenderGraphContext const&) = delete;
 
-		FTexture2D* GetTexture(FRGTextureID ResID) const;
+		FTexture2D* GetTexture2D(FRGTexture2DID ResID) const;
 		FBuffer* GetBuffer(FRGBufferID ResID) const;
 		FRenderGraphContext(FRenderGraph& RenderGraph, FRGPassBase& RGPass);
 	private:
