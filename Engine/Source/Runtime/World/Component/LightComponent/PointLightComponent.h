@@ -2,6 +2,7 @@
 
 #include "LightComponent.h"
 #include "../TransformComponent.h"
+#include "Render/Moudule/SceneCapture.h"
 
 namespace Zero
 {
@@ -10,15 +11,16 @@ namespace Zero
 	public:
 		UPointLightComponnet() = default;
 		virtual void PostInit();
-		
-		ZMath::mat4 GetViewProject();
-	
+
+		UPROPERTY()
+		float m_Far = 10.0f;	
+			
+		const FSceneCaptureCube& GetSceneCaptureCube() { return m_SceneCaptureCube; }
 	private:
 		void OnTransfromChanged(UTransformComponent* TransformComponent);
 	private: 
+		float m_Near = 0.01f;	
 		float m_Width = 1024;
-		ZMath::mat4 m_Projection = ZMath::orthoLH_NO(m_Width, m_Width, -m_Width, m_Width, -m_Width, m_Width);
-		ZMath::mat4 m_View;
-		ZMath::mat4 m_ViewProject;
+		FSceneCaptureCube m_SceneCaptureCube;
 	};
 }

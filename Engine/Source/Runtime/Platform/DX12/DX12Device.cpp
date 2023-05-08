@@ -122,6 +122,11 @@ namespace Zero
 		return new FDX12Texture2D(TextureName, Desc, bCreateTextureView);
 	}
 
+	FTextureCube* FDX12Device::CreateTextureCube(const std::string& TextureName, const FTextureDesc& Desc, bool bCreateTextureView /*= true*/)
+	{
+		return new FDX12TextureCube(TextureName, Desc, bCreateTextureView);
+	}
+
 	Ref<FTexture2D> FDX12Device::GetOrCreateTexture2D(const std::string& Filename, bool bNeedMipMap)
 	{
 		std::filesystem::path TextureFileName = Filename;
@@ -207,10 +212,16 @@ namespace Zero
 		return new FDX12RenderTarget2D();
 	}
 
+	FRenderTargetCube* FDX12Device::CreateRenderTargetCube()
+	{
+		return new FDX12RenderTargetCube();
+	}
+
 	Ref<FRenderTargetCube> FDX12Device::CreateRenderTargetCube(const FRenderTargetCubeDesc& Desc)
 	{
 		return CreateRef<FDX12RenderTargetCube>(Desc);
 	}
+
 
 	void FDX12Device::EnableDebugLayer()
 	{

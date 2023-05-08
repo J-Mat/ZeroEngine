@@ -59,15 +59,7 @@ namespace Zero
 			ERenderLayer RenderLayer = Iter.first;
 			for (size_t i = 0; i < m_SubmeshNum; i++)
 			{
-				Ref<FMaterial> Material;
-				if (RenderLayer == ERenderLayer::Shadow)
-				{
-					Material = CreateRef<FMaterial>(false);
-				}
-				else
-				{
-					Material = CreateRef<FMaterial>();
-				}
+				Ref<FMaterial> Material = CreateRef<FMaterial>();
 				//Material->SetShader(Iter.second->PipelineStateObject->GetPSODescriptor().Shader);
 				Iter.second->Materials.push_back(Material);
 			}

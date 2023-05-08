@@ -28,11 +28,17 @@ namespace Zero
 		private:
 			std::vector<Ref<FRGPassBase>> m_Passes;
 
-			std::set<FRGTexture2DID> m_TextureCreates;
-			std::set<FRGTexture2DID> m_TextureReads;
-			std::set<FRGTexture2DID> m_TextureWrites;
-			std::set<FRGTexture2DID> m_TextureDestroys;
-			std::map<FRGTexture2DID, EResourceState> m_TextureStateMap;
+			std::set<FRGTexture2DID> m_Texture2DCreates;
+			std::set<FRGTexture2DID> m_Texture2DReads;
+			std::set<FRGTexture2DID> m_Texture2DWrites;
+			std::set<FRGTexture2DID> m_Texture2DDestroys;
+			std::map<FRGTexture2DID, EResourceState> m_Texture2DStateMap;
+
+			std::set<FRGTextureCubeID> m_TextureCubeCreates;
+			std::set<FRGTextureCubeID> m_TextureCubeReads;
+			std::set<FRGTextureCubeID> m_TextureCubeWrites;
+			std::set<FRGTextureCubeID> m_TextureCubeDestroys;
+			std::map<FRGTextureCubeID, EResourceState> m_TextureCubeStateMap;
 
 			std::set<FRGBufferID> m_BufferCreates;
 			std::set<FRGBufferID> m_BufferReads;
@@ -66,13 +72,17 @@ namespace Zero
 		void Execute();
 
 		bool IsTexture2DDeclared(FRGResourceName ResourceName);
+		bool IsTextureCubeDeclared(FRGResourceName ResourceName);
 		bool IsBufferDeclared(FRGResourceName ResourceName);
 
-		inline FRGTexture* GetRGTexture2D(FRGTexture2DID RGTextureID) const;
+		inline FRGTexture2D* GetRGTexture2D(FRGTexture2DID RGTextureID) const;
+		inline FRGTextureCube* GetRGTextureCube(FRGTextureCubeID RGTextureID) const;
 		FTexture2D* GetTexture2D(FRGTexture2DID RGTextureID);
+		FTextureCube* GetTextureCube(FRGTextureCubeID RGTextureID);
 		inline FRGBuffer* GetRGBuffer(FRGBufferID RGBufferID) const;
 		FBuffer* GetBuffer(FRGBufferID RGBufferID);
 		FRGTexture2DID GetTexture2DID(FRGResourceName Name);
+		FRGTextureCubeID GetTextureCubeID(FRGResourceName Name);
 		FRGBufferID GetBufferID(FRGResourceName Name);
 
 		FRGResourcePool& GetResourcePool() { return m_ResourcePool; };
@@ -80,7 +90,8 @@ namespace Zero
 	private:
 		FRGResourcePool& m_ResourcePool;
 		std::vector<Ref<FRGPassBase>> m_Passes;
-		std::vector<Scope<FRGTexture>> m_Texture2Ds;
+		std::vector<Scope<FRGTexture2D>> m_Texture2Ds;
+		std::vector<Scope<FRGTextureCube>> m_TextureCubes;
 		std::vector<Scope<FRGBuffer>> m_Buffers;
 
 		std::vector<std::vector<size_t>> m_AdjacencyList;
@@ -89,15 +100,20 @@ namespace Zero
 
 
 		std::map<FRGResourceName, FRGTexture2DID> m_Texture2DNameIDMap;
+		std::map<FRGResourceName, FRGTextureCubeID> m_TextureCubeNameIDMap;
 		std::map<FRGResourceName, FRGBufferID>  m_BufferNameIDMap;
 		std::map<FRGBufferReadWriteID, FRGBufferID> m_BufferUavCounterMap;
 
-		// mutable std::map<FRGTextureID, std::vector<std::pair<FTextureSubresourceDesc, ERGDescriptorType>>> m_TextureViewDescMap;
-		std::map<FRGTexture2DID, std::vector<FTextureSubresourceDesc>> m_SRVTexDescMap;
-		std::map<FRGTexture2DID, std::vector<FTextureSubresourceDesc>> m_DSVTexDescMap;
-		std::map<FRGTexture2DID, std::vector<FTextureSubresourceDesc>> m_RTVTexDescMap;
-		std::map<FRGTexture2DID, std::vector<FTextureSubresourceDesc>> m_UAVTexDescMap;
+		// mutable std::map<FRGTexture2DID, std::vector<std::pair<FTextureSubresourceDesc, ERGDescriptorType>>> m_TextureViewDescMap;
+		std::map<FRGTexture2DID, std::vector<FTextureSubresourceDesc>> m_SRVTex2DDescMap;
+		std::map<FRGTexture2DID, std::vector<FTextureSubresourceDesc>> m_DSV2DTexDescMap;
+		std::map<FRGTexture2DID, std::vector<FTextureSubresourceDesc>> m_RTVTex2DDescMap;
+		std::map<FRGTexture2DID, std::vector<FTextureSubresourceDesc>> m_UAVTex2DDescMap;
 		
+		std::map<FRGTextureCubeID, std::vector<FTextureSubresourceDesc>> m_SRVTexCubeDescMap;
+		std::map<FRGTextureCubeID, std::vector<FTextureSubresourceDesc>> m_DSVTexCubeDescMap;
+		std::map<FRGTextureCubeID, std::vector<FTextureSubresourceDesc>> m_RTVTexCubeDescMap;
+		std::map<FRGTextureCubeID, std::vector<FTextureSubresourceDesc>> m_UAVTexCubeDescMap;
 		//mutable std::map<FRGBufferID, std::vector<std::pair<FBufferSubresourceDesc, ERGDescriptorType>>> m_BufferViewDescMap;
 
 		std::map<FRGBufferID, std::vector<FBufferSubresourceDesc>> m_SRVBufferDescMap;
@@ -107,7 +123,8 @@ namespace Zero
 
 	private:
 		void AddBufferBindFlags(FRGResourceName Name,  EResourceBindFlag Flags);
-		void AddTextureBindFlags(FRGResourceName Name, EResourceBindFlag Flags);
+		void AddTexture2DBindFlags(FRGResourceName Name, EResourceBindFlag Flags);
+		void AddTextureCubeBindFlags(FRGResourceName Name, EResourceBindFlag Flags);
 
 		void BuildAdjacencyLists();
 		void TopologicalSort();
@@ -116,26 +133,35 @@ namespace Zero
 		void CalculateResourcesLifetime();
 		void DepthFirstSearch(size_t i, std::vector<bool>& visited, std::stack<size_t>& Stack);
 		
-		FRGTexture2DID DeclareTexture(FRGResourceName Name, const FRGTextureDesc& Desc);
+		FRGTexture2DID DeclareTexture2D(FRGResourceName Name, const FRGTextureDesc& Desc);
+		FRGTextureCubeID DeclareTextureCube(FRGResourceName Name, const FRGTextureDesc& Desc);
 		FRGBufferID DeclareBuffer(FRGResourceName Name, const FRGBufferDesc& Desc);
 		
 
-		bool IsValidTextureHandle(FRGTexture2DID RGTextureID) const;
+		bool IsValidTexture2DHandle(FRGTexture2DID RGTextureID) const;
+		bool IsValidTextureCubeHandle(FRGTextureCubeID RGTextureID) const;
 		bool IsValidBufferHandle(FRGBufferID RGBufferID) const;
 		
-		void CreateTextureViews(FRGTexture2DID RGTextureID);
+		void CreateTexture2DViews(FRGTexture2DID RGTextureID);
+		void CreateTextureCubeViews(FRGTextureCubeID RGTextureCubeID);
 		void CreateBufferViews(FRGBufferID RGBufferID);
 		
 		
 
 
-		FRGTexture2DCopySrcID ReadCopySrcTexture(FRGResourceName Name);
-		FRGTexture2DCopyDstID WriteCopyDstTexture(FRGResourceName Name);
+		FRGTexture2DCopySrcID ReadCopySrcTexture2D(FRGResourceName Name);
+		FRGTexture2DCopyDstID WriteCopyDstTexture2D(FRGResourceName Name);
 		
-		FRGTex2DRenderTargetID RenderTarget(FRGResourceName name, const FTextureSubresourceDesc& desc);
-		FRGTex2DDepthStencilID DepthStencil(FRGResourceName name, const FTextureSubresourceDesc& desc);
-		FRGTex2DReadOnlyID ReadTexture(FRGResourceName Name, const FTextureSubresourceDesc& Desc); 
-		FRGTex2DReadWriteID WriteTexture(FRGResourceName Name, const FTextureSubresourceDesc& Desc);
+		FRGTex2DRenderTargetID RenderTarget2D(FRGResourceName name, const FTextureSubresourceDesc& desc);
+		FRGTex2DDepthStencilID DepthStencil2D(FRGResourceName name, const FTextureSubresourceDesc& desc);
+		FRGTex2DReadOnlyID ReadTexture2D(FRGResourceName Name, const FTextureSubresourceDesc& Desc); 
+		FRGTex2DReadWriteID WriteTexture2D(FRGResourceName Name, const FTextureSubresourceDesc& Desc);
+
+		FRGTexCubeRenderTargetID RenderTargetCube(FRGResourceName Name, const FTextureSubresourceDesc& Desc);
+		FRGTexCubeDepthStencilID DepthStencilCube(FRGResourceName Name, const FTextureSubresourceDesc& Desc);
+		FRGTexCubeReadOnlyID ReadTextureCube(FRGResourceName Name, const FTextureSubresourceDesc& Desc); 
+		FRGTexCubeReadWriteID WriteTextureCube(FRGResourceName Name, const FTextureSubresourceDesc& Desc);
+
 		FRGBufferReadOnlyID ReadBuffer(FRGResourceName Name, const FBufferSubresourceDesc& Desc);
 		FRGBufferReadWriteID WriteBuffer(FRGResourceName Name, const FBufferSubresourceDesc& Desc);
 	};

@@ -25,8 +25,8 @@ namespace Zero
 		RenderGraph.AddPass<void>("Skybox Pass",
 			[=](FRenderGraphBuilder& Builder)
 			{
-				Builder.WriteDepthStencil(RGResourceName::DepthStencil, ERGLoadStoreAccessOp::Preserve_Preserve);
-				Builder.WriteRenderTarget(RGResourceName::GBufferColor, ERGLoadStoreAccessOp::Preserve_Preserve);
+				Builder.WriteDepthStencil2D(RGResourceName::DepthStencil, ERGLoadStoreAccessOp::Preserve_Preserve);
+				Builder.WriteRenderTarget2D(RGResourceName::GBufferColor, ERGLoadStoreAccessOp::Preserve_Preserve);
 			},
 			[=](FRenderGraphContext& Context, FCommandListHandle CommandListHandle)
 			{

@@ -22,27 +22,6 @@ namespace Zero
 
 	void UCameraComponent::UpdateCameraSettings()
 	{
-		switch (m_CameraType)
-		{
-		case ECameraType::CT_PERSPECT:
-			m_Projection = ZMath::perspectiveLH(
-				ZMath::radians(m_Fov),
-				m_Aspect,
-				m_Near, 
-				m_Far
-			);
-			break;
-		case ECameraType::CT_ORI:
-			m_Projection = ZMath::orthoLH(
-				-1000.0f,
-				+1000.0f,
-				-1000.0f,
-				+1000.0f,
-				m_Near, 
-				m_Far
-			);
-			break;
-		}
 	}
 
 	void UCameraComponent::UpdateMat()

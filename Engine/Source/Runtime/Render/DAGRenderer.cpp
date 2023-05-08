@@ -82,12 +82,12 @@ namespace Zero
 
 	void FDAGRender::ImportResource(FRenderGraph& RenderGraph)
 	{
-		RenderGraph.ImportTexture(RGResourceName::FinalTexture, m_FinalTexture.get());
+		RenderGraph.ImportTexture2D(RGResourceName::FinalTexture, m_FinalTexture.get());
 
 		for (uint32_t LightIndex = 0; LightIndex < FLightManager::Get().GetMaxDirectLightsNum(); ++LightIndex)
 		{
 			std::string Name = "DirectLightShadowMapDebug" + std::to_string(LightIndex);
-			RenderGraph.ImportTexture(RGResourceName::ShadowMaps_Debug[LightIndex], m_DirectLightShadowMapDebugs[LightIndex].get());
+			RenderGraph.ImportTexture2D(RGResourceName::ShadowMaps_Debug[LightIndex], m_DirectLightShadowMapDebugs[LightIndex].get());
 		}
 	}
 

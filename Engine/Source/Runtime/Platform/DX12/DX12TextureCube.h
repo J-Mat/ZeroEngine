@@ -18,7 +18,7 @@ namespace Zero
 	class FDX12TextureCube :public FTextureCube
 	{
 	public:
-        FDX12TextureCube(const std::string& TextureName, const FTextureDesc& Desc);
+        FDX12TextureCube(const std::string& TextureName, const FTextureDesc& Desc, bool bCreateTextureView = true);
         FDX12TextureCube(const std::string& TextureName, Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT], bool bRenderDepth = false);
 
 
@@ -32,6 +32,7 @@ namespace Zero
 
 		void CreateViews(uint32_t MipLevels = 1);
 
+        virtual void SetName(const std::string& Name) override;
 
         /**
         * Get the RTV for the texture.
@@ -51,6 +52,11 @@ namespace Zero
 
 		Ref<FDX12Resource> GetResource() { return m_ResourceLocation.GetResource(); }
 		virtual void* GetNative() override { return m_ResourceLocation.GetResource()->GetD3DResource().Get(); };
+
+        virtual void MakeSRVs(const std::vector<FTextureSubresourceDesc>& Descs) override;
+		virtual void MakeRTVs(const std::vector<FTextureSubresourceDesc>& Descs) override;
+		virtual void MakeDSVs(const std::vector<FTextureSubresourceDesc>& Descs) override;
+		virtual void MakeUAVs(const std::vector<FTextureSubresourceDesc>& Descs) override;
 	private:
 
         uint32_t m_EachFaceSize = 0;

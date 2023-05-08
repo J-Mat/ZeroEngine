@@ -25,8 +25,6 @@ namespace Zero
 
 		uint64_t HashedName;
 		char const* Name;
-
-		
 	};
 
 	inline bool operator==(FRGResourceName const& name1, FRGResourceName const& name2)
@@ -39,9 +37,15 @@ namespace Zero
 		constexpr FRGResourceName FinalTexture = RG_RES_NAME(FinalTexture);
 		constexpr FRGResourceName DepthStencil = RG_RES_NAME(DepthStencil);
 		constexpr FRGResourceName GBufferColor = RG_RES_NAME(GBufferColor);
-		constexpr FRGResourceName ShadowMap_0 =  RG_RES_NAME(ShadowMap_0);
-		constexpr FRGResourceName ShadowMap_1 =  RG_RES_NAME(ShadowMap_1);
-		constexpr FRGResourceName ShadowMaps[2] = {ShadowMap_0 , ShadowMap_1};
+		constexpr FRGResourceName DirectLigthShadowMap_0 =  RG_RES_NAME(DirectLigthShadowMap_0);
+		constexpr FRGResourceName DirectLightShadowMap_1 =  RG_RES_NAME(DirectLightShadowMap_1);
+		constexpr FRGResourceName DirectLightShadowMaps[2] = {DirectLigthShadowMap_0 , DirectLightShadowMap_1};
+
+		constexpr FRGResourceName PointLigthShadowMap_0 =  RG_RES_NAME(PointLigthShadowMap_0);
+		constexpr FRGResourceName PointLightShadowMap_1 =  RG_RES_NAME(PointLightShadowMap_1);
+		constexpr FRGResourceName PointLigthShadowMap_2 =  RG_RES_NAME(PointLigthShadowMap_2);
+		constexpr FRGResourceName PointLightShadowMap_3 =  RG_RES_NAME(PointLightShadowMap_3);
+		constexpr FRGResourceName PointLightShadowMaps[4] = { PointLigthShadowMap_0 , PointLigthShadowMap_1, PointLigthShadowMap_2 ,PointLightShadowMap_3  };
 
 		constexpr FRGResourceName ShadowMap_Debug_0 =  RG_RES_NAME(ShadowMap_Debug_0);
 		constexpr FRGResourceName ShadowMap_Debug_1 =  RG_RES_NAME(ShadowMap_Debug_1);

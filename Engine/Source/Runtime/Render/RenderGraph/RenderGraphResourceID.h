@@ -47,7 +47,7 @@ namespace Zero
 	template<ERGResourceMode Mode>
 	struct FRGTextureMode2DID : FRGTexture2DID
 	{
-		using FRGTextureID::FRGTexture2DID;
+		using FRGTexture2DID::FRGTexture2DID;
 	private:
 		friend class FRenderGraphBuilder;
 		friend class FRenderGraph;
@@ -145,8 +145,7 @@ namespace Zero
 	using FRGTexCubeRenderTargetID = FTypedRGResourceDescriptorID<ERGResourceType::TextureCube, ERGDescriptorType::RenderTarget>;
 	using FRGTexCubeDepthStencilID = FTypedRGResourceDescriptorID<ERGResourceType::TextureCube, ERGDescriptorType::DepthStencil>;
 	using FRGTexCubeReadOnlyID = FTypedRGResourceDescriptorID<ERGResourceType::TextureCube, ERGDescriptorType::ReadOnly>;
-
-	using FRGTexCubesReadWriteID = FTypedRGResourceDescriptorID<ERGResourceType::TextureCube, ERGDescriptorType::ReadWrite>;
+	using FRGTexCubeReadWriteID = FTypedRGResourceDescriptorID<ERGResourceType::TextureCube, ERGDescriptorType::ReadWrite>;
 
 	using FRGBufferReadOnlyID = FTypedRGResourceDescriptorID<ERGResourceType::Buffer, ERGDescriptorType::ReadOnly>;
 	using FRGBufferReadWriteID = FTypedRGResourceDescriptorID<ERGResourceType::Buffer, ERGDescriptorType::ReadWrite>;
@@ -183,9 +182,23 @@ namespace std
 			return hash<decltype(h.ID)>()(h.ID);
 		}
 	};
+	template <> struct hash<Zero::FRGTexCubeReadOnlyID>
+	{
+		size_t operator()(Zero::FRGTexCubeReadOnlyID const& h) const
+		{
+			return hash<decltype(h.ID)>()(h.ID);
+		}
+	};
 	template <> struct hash<Zero::FRGTex2DReadWriteID>
 	{
 		size_t operator()(Zero::FRGTex2DReadWriteID const& h) const
+		{
+			return hash<decltype(h.ID)>()(h.ID);
+		}
+	};
+	template <> struct hash<Zero::FRGTexCubeReadWriteID>
+	{
+		size_t operator()(Zero::FRGTexCubeReadWriteID const& h) const
 		{
 			return hash<decltype(h.ID)>()(h.ID);
 		}
@@ -197,6 +210,13 @@ namespace std
 			return hash<decltype(h.ID)>()(h.ID);
 		}
 	};
+	template <> struct hash<Zero::FRGTexCubeRenderTargetID>
+	{
+		size_t operator()(Zero::FRGTexCubeRenderTargetID const& h) const
+		{
+			return hash<decltype(h.ID)>()(h.ID);
+		}
+	};
 	template <> struct hash<Zero::FRGTex2DDepthStencilID>
 	{
 		size_t operator()(Zero::FRGTex2DDepthStencilID const& h) const
@@ -204,7 +224,13 @@ namespace std
 			return hash<decltype(h.ID)>()(h.ID);
 		}
 	};
-
+	template <> struct hash<Zero::FRGTexCubeDepthStencilID>
+	{
+		size_t operator()(Zero::FRGTexCubeDepthStencilID const& h) const
+		{
+			return hash<decltype(h.ID)>()(h.ID);
+		}
+	};
 	template <> struct hash<Zero::FRGBufferReadOnlyID>
 	{
 		size_t operator()(Zero::FRGBufferReadOnlyID const& h) const

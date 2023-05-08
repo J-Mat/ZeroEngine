@@ -43,6 +43,7 @@ namespace Zero
 		virtual Ref<FPipelineStateObject> CreatePSO(const FPSODescriptor& PSODescriptor) = 0;
 		virtual Ref<FTexture2D> GetOrCreateTexture2D(const std::string& Filename, bool bNeedMipMap = false) = 0;
 		virtual FTexture2D* CreateTexture2D(const std::string& TextureName, const FTextureDesc& Desc, bool bCreateTextureView) = 0;
+		virtual FTextureCube* CreateTextureCube(const std::string& TextureName, const FTextureDesc& Desc, bool bCreateTextureView) = 0;
 		virtual Ref<FTextureCube> GetOrCreateTextureCubemap(FTextureHandle Handles[CUBEMAP_TEXTURE_CNT], std::string TextureCubemapName) = 0;
 		virtual Ref<FShader> CreateShader(const FShaderBinderDesc& BinderDesc, const FShaderDesc& ShaderDesc) = 0;
 		virtual Ref<FShader> CreateShader(const FShaderDesc& ShaderDesc) = 0;
@@ -53,6 +54,7 @@ namespace Zero
 		virtual void BindIndexBuffer(FCommandListHandle Handle, FBuffer* IndexBuffer) = 0;
 		virtual Ref<FRenderTarget2D> CreateRenderTarget2D(const FRenderTarget2DDesc& Desc) = 0;
 		virtual FRenderTarget2D* CreateRenderTarget2D() = 0;
+		virtual FRenderTargetCube* CreateRenderTargetCube() = 0;
 		virtual Ref<FRenderTargetCube> CreateRenderTargetCube(const FRenderTargetCubeDesc& Desc) = 0;
 	};
 }

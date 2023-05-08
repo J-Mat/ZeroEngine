@@ -155,6 +155,10 @@ namespace Zero
 		virtual void Bind(uint32_t Slot) {};
 		FTextureDesc const& GetDesc() const { return m_TextureDesc; }
 		virtual void* GetNative() { return nullptr; };
+		virtual void MakeSRVs(const std::vector<FTextureSubresourceDesc>& Descs) = 0;
+		virtual void MakeRTVs(const std::vector<FTextureSubresourceDesc>& Descs) = 0;
+		virtual void MakeDSVs(const std::vector<FTextureSubresourceDesc>& Descs) = 0;
+		virtual void MakeUAVs(const std::vector<FTextureSubresourceDesc>& Descs) = 0;
 	protected:
 		FTextureDesc m_TextureDesc;
 	}; 
@@ -176,10 +180,6 @@ namespace Zero
 		virtual void Resize(uint32_t Width, uint32_t Height, uint32_t DepthOrArraySize = 1) = 0;
 		virtual ZMath::uvec2 GetSize() = 0;
 		virtual UINT64 GetGuiShaderReseource() = 0;
-		virtual void MakeSRVs(const std::vector<FTextureSubresourceDesc>& Descs) = 0;
-		virtual void MakeRTVs(const std::vector<FTextureSubresourceDesc>& Descs) = 0;
-		virtual void MakeDSVs(const std::vector<FTextureSubresourceDesc>& Descs) = 0;
-		virtual void MakeUAVs(const std::vector<FTextureSubresourceDesc>& Descs) = 0;
 		virtual void GenerateMip() = 0;
 		virtual void ReleaseSRVs() = 0;
 		virtual void ReleaseRTVs() = 0;
@@ -201,6 +201,7 @@ namespace Zero
 			ITexture()
 		{}
 		virtual ~FTextureCube() = default;
+		virtual void SetName(const std::string& Name) = 0;
 		virtual void Resize(uint32_t Width, uint32_t Height, uint32_t DepthOrArraySize = 1) = 0;
 		virtual ZMath::uvec2 GetSize() = 0;
 	};

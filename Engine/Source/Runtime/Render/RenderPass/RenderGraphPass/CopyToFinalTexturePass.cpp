@@ -18,8 +18,8 @@ namespace Zero
 	{
 		struct FCopyToBackbufferPassData
 		{
-			FRGTextureCopySrcID Src;
-			FRGTextureCopyDstID Dst;
+			FRGTexture2DCopySrcID Src;
+			FRGTexture2DCopyDstID Dst;
 		};
 
 		RenderGraph.AddPass<FCopyToBackbufferPassData>("CopyToFinalTexture Pass",

@@ -80,6 +80,7 @@ namespace Zero
 		FRenderGraphContext& operator=(FRenderGraphContext const&) = delete;
 
 		FTexture2D* GetTexture2D(FRGTexture2DID ResID) const;
+		FTextureCube* GetTextureCube(FRGTextureCubeID ResID) const;
 		FBuffer* GetBuffer(FRGBufferID ResID) const;
 		FRenderGraphContext(FRenderGraph& RenderGraph, FRGPassBase& RGPass);
 	private:

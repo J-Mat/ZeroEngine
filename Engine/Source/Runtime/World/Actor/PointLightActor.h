@@ -7,6 +7,7 @@
 
 namespace Zero
 {
+	class FSceneCaptureCube;
 	UCLASS()
 	class UPointLightActor : public UMeshActor
 	{
@@ -15,9 +16,9 @@ namespace Zero
 		UPointLightActor();
 		void PostInit();
 		virtual void BuildMesh() override;
-		
 
+		const FSceneCaptureCube& GetSceneCaptureCube() { return m_LightComponnet->GetSceneCaptureCube(); }
 	private:
-		ULightComponent* m_LightComponnet = nullptr;
+		UPointLightComponnet* m_LightComponnet = nullptr;
 	};
 }

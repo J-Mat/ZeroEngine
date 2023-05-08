@@ -40,6 +40,13 @@ namespace Zero
 		TypeNum,
 	};
 
+	enum ERenderPassRTType
+	{
+		Texuture2D,
+		TexutureCube,
+		None,
+	};
+
 	enum class ERayTracerAPI
 	{
 		CpuSoftware,
@@ -72,15 +79,6 @@ namespace Zero
 		CULL_MODE_BACK,
 	};
 
-	struct FSceneView
-	{
-		ZMath::vec3 ViewPos = ZMath::vec3(0.0f);
-		ZMath::mat4 View = ZMath::identity<ZMath::mat4>();
-		ZMath::mat4 Proj = ZMath::identity<ZMath::mat4>();
-		ZMath::mat4 ProjectionView = ZMath::identity<ZMath::mat4>();
-		float Near;
-		float Far;
-	};
 
 	namespace EShaderID
 	{

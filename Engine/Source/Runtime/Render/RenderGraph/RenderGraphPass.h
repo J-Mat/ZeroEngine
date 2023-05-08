@@ -75,12 +75,14 @@ namespace Zero
 	
 		struct FRenderTargetInfo
 		{
-			FRGRenderTargetID RGRenderTargetID;
+			std::optional<FRGTex2DRenderTargetID> RGRenderTarget2DID;
+			std::optional<FRGTexCubeRenderTargetID> RGRenderTargetCubeID;
 			ERGLoadStoreAccessOp RenderTargetAccess;
 		};
 		struct FDepthStencilInfo
 		{
-			FRGDepthStencilID RGDepthStencilID;
+			std::optional<FRGTex2DDepthStencilID> RGTex2DDepthStencilID;
+			std::optional<FRGTexCubeDepthStencilID> RGTexCubeDepthStencilID;
 			ERGLoadStoreAccessOp DepthAccess;
 			ERGLoadStoreAccessOp StencilAccess;
 			bool bReadOnly;
@@ -91,6 +93,7 @@ namespace Zero
 		{}
 		virtual ~FRGPassBase() = default;
 		ERenderPassType GetPassType() const { return m_Type; }
+		ERenderPassRTType GetRenderPassRTType() const { return m_RenderPassRTType; }
 	protected:
 		virtual void Setup(FRenderGraphBuilder&) = 0;
 		virtual void Execute(FRenderGraphContext&, FCommandListHandle CommandListHandle) const = 0;
@@ -105,13 +108,19 @@ namespace Zero
 	private:
 		std::string m_Name;
 		ERenderPassType m_Type;
+		ERenderPassRTType m_RenderPassRTType = ERenderPassRTType::None;
 		ERGPassFlags m_Flags;
 		size_t m_RefCount = 0ull;
 		
-		std::set<FRGTextureID> m_TextureCreates;
-		std::set<FRGTextureID> m_TextureReads;
-		std::set<FRGTextureID> m_TextureWrites;
-		std::set<FRGTextureID> m_TextureDestroys;
+		std::set<FRGTexture2DID> m_Texture2DCreates;
+		std::set<FRGTexture2DID> m_Texture2DReads;
+		std::set<FRGTexture2DID> m_Texture2DWrites;
+		std::set<FRGTexture2DID> m_Texture2DDestroys;
+
+		std::set<FRGTextureCubeID> m_TextureCubeCreates;
+		std::set<FRGTextureCubeID> m_TextureCubeReads;
+		std::set<FRGTextureCubeID> m_TextureCubeWrites;
+		std::set<FRGTextureCubeID> m_TextureCubeDestroys;
 
 		std::set<FRGBufferID> m_BufferCreates;
 		std::set<FRGBufferID> m_BufferReads;
@@ -122,6 +131,7 @@ namespace Zero
 		std::optional<FDepthStencilInfo> m_DepthStencil = std::nullopt;
 		uint32_t m_VieportWidth = 0;
 		uint32_t m_VieportHeight = 0;
+		uint32_t m_VieportDepth = 0;
 	};
 	
 	template<typename FPassData>

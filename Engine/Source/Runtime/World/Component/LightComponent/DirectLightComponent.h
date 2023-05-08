@@ -2,6 +2,7 @@
 
 #include "LightComponent.h"
 #include "../TransformComponent.h"
+#include "Render/Moudule/SceneCapture.h"
 #include "Render/RenderConfig.h"
 
 namespace Zero

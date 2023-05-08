@@ -14,27 +14,51 @@ namespace Zero
 
 	FRenderGraph::~FRenderGraph()
 	{
-        for (auto& [RGTextureID, _] : m_SRVTexDescMap)
+        for (auto& [RGTextureID, _] : m_SRVTex2DDescMap)
         { 
-            FTexture2D* Texture = GetTexture(RGTextureID);
+            FTexture2D* Texture = GetTexture2D(RGTextureID);
             Texture->ReleaseSRVs();
         }
 
-        for (auto& [RGTextureID, _] : m_UAVTexDescMap)
+        for (auto& [RGTextureID, _] : m_UAVTex2DDescMap)
         { 
-            FTexture2D* Texture = GetTexture(RGTextureID);
+            FTexture2D* Texture = GetTexture2D(RGTextureID);
             Texture->ReleaseUAVs();
         }
 
-        for (auto& [RGTextureID, _] : m_RTVTexDescMap)
+        for (auto& [RGTextureID, _] : m_RTVTex2DDescMap)
         { 
-            FTexture2D* Texture = GetTexture(RGTextureID);
+            FTexture2D* Texture = GetTexture2D(RGTextureID);
             Texture->ReleaseRTVs();
         }
 
-        for (auto& [RGTextureID, _] : m_DSVTexDescMap)
+        for (auto& [RGTextureID, _] : m_DSV2DTexDescMap)
         { 
-            FTexture2D* Texture = GetTexture(RGTextureID);
+            FTexture2D* Texture = GetTexture2D(RGTextureID);
+            Texture->ReleaseDSVs();
+        }
+
+        for (auto& [RGTextureID, _] : m_SRVTexCubeDescMap)
+        { 
+            FTextureCube* Texture = GetTextureCube(RGTextureID);
+            Texture->ReleaseSRVs();
+        }
+
+        for (auto& [RGTextureID, _] : m_UAVTex2DDescMap)
+        { 
+            FTexture2D* Texture = GetTexture2D(RGTextureID);
+            Texture->ReleaseUAVs();
+        }
+
+        for (auto& [RGTextureID, _] : m_RTVTex2DDescMap)
+        { 
+            FTexture2D* Texture = GetTexture2D(RGTextureID);
+            Texture->ReleaseRTVs();
+        }
+
+        for (auto& [RGTextureID, _] : m_DSV2DTexDescMap)
+        { 
+            FTexture2D* Texture = GetTexture2D(RGTextureID);
             Texture->ReleaseDSVs();
         }
 	}
@@ -42,8 +66,10 @@ namespace Zero
 	void FRenderGraph::FDependencyLevel::AddPass(Ref<FRGPassBase> Pass)
     {
         m_Passes.push_back(Pass);
-        m_TextureReads.insert(Pass->m_TextureReads.begin(), Pass->m_TextureReads.end());
-        m_TextureWrites.insert(Pass->m_TextureWrites.begin(), Pass->m_TextureWrites.end());
+        m_Texture2DReads.insert(Pass->m_Texture2DReads.begin(), Pass->m_Texture2DReads.end());
+        m_Texture2DWrites.insert(Pass->m_Texture2DWrites.begin(), Pass->m_Texture2DWrites.end());
+        m_TextureCubeReads.insert(Pass->m_TextureCubeReads.begin(), Pass->m_TextureCubeReads.end());
+        m_TextureCubeWrites.insert(Pass->m_TextureCubeWrites.begin(), Pass->m_TextureCubeWrites.end());
         m_BufferReads.insert(Pass->m_BufferReads.begin(), Pass->m_BufferReads.end());
         m_BufferWrites.insert(Pass->m_BufferWrites.begin(), Pass->m_BufferWrites.end());
     }
@@ -54,8 +80,10 @@ namespace Zero
         { 
             if (Pass->IsCulled())
                 continue;
-            m_TextureCreates.insert(Pass->m_TextureCreates.begin(), Pass->m_TextureCreates.end());
-            m_TextureDestroys.insert(Pass->m_TextureDestroys.begin(), Pass->m_TextureDestroys.end());
+            m_Texture2DCreates.insert(Pass->m_Texture2DCreates.begin(), Pass->m_Texture2DCreates.end());
+            m_Texture2DDestroys.insert(Pass->m_Texture2DDestroys.begin(), Pass->m_Texture2DDestroys.end());
+            m_TextureCubeCreates.insert(Pass->m_TextureCubeCreates.begin(), Pass->m_TextureCubeCreates.end());
+            m_TextureCubeDestroys.insert(Pass->m_TextureCubeDestroys.begin(), Pass->m_TextureCubeDestroys.end());
             m_BufferCreates.insert(Pass->m_BufferCreates.begin(), Pass->m_BufferCreates.end());
             m_BufferDestroys.insert(Pass->m_BufferDestroys.begin(), Pass->m_BufferDestroys.end());
         }
@@ -80,28 +108,53 @@ namespace Zero
                 }
                 for (auto const& RenderTargetInfo : Pass->m_RenderTergetInfo)
                 {
-                    FRGTextureID RGTextureID = RenderTargetInfo.RGRenderTargetID.GetResourceID();
-                    FTexture2D* Texture = m_RenderGrpah.GetTexture(RGTextureID);
-
-					ERGLoadAccessOp LoadAccess = ERGLoadAccessOp::NoAccess;
-					ERGStoreAccessOp StoreAccess = ERGStoreAccessOp::NoAccess;
-                    SplitAccessOp(RenderTargetInfo.RenderTargetAccess, LoadAccess, StoreAccess);
-
-                    const FTextureDesc& TexDesc = Texture->GetDesc();
-                    FRtvAttachmentDesc RtvDesc = 
+                    if (Pass->GetRenderPassRTType() == ERenderPassRTType::Texuture2D)
                     {
-                        .RTTexture = Texture,
-                        .BeginningAccess = LoadAccess,
-                        .EndingAccess = StoreAccess,
-                        .ClearValue = TexDesc.ClearValue,
-                    };
-                    RenderPassDesc.RtvAttachments.push_back(RtvDesc);
+                        FRGTexture2DID RGTextureID = RenderTargetInfo.RGRenderTarget2DID->GetResourceID();
+                        FTexture2D* Texture = m_RenderGrpah.GetTexture2D(RGTextureID);
+
+                        ERGLoadAccessOp LoadAccess = ERGLoadAccessOp::NoAccess;
+                        ERGStoreAccessOp StoreAccess = ERGStoreAccessOp::NoAccess;
+                        SplitAccessOp(RenderTargetInfo.RenderTargetAccess, LoadAccess, StoreAccess);
+
+                        const FTextureDesc& TexDesc = Texture->GetDesc();
+                        FRtvAttachmentDesc RtvDesc =
+                        {
+                            .RTTexture2D = Texture,
+                            .BeginningAccess = LoadAccess,
+                            .EndingAccess = StoreAccess,
+                            .ClearValue = TexDesc.ClearValue,
+                        };
+                        RenderPassDesc.RtvAttachments.push_back(RtvDesc);
+                    }
+                    else
+                    {
+                        CORE_ASSERT(Pass->GetRenderPassRTType() == ERenderPassRTType::TexutureCube, "RGCubeRenderTargetCubeID must have value");
+                        FRGTextureCubeID RGTextureID = RenderTargetInfo.RGRenderTargetCubeID->GetResourceID();
+                        FTextureCube* Texture = m_RenderGrpah.GetTextureCube(RGTextureID);
+
+                        ERGLoadAccessOp LoadAccess = ERGLoadAccessOp::NoAccess;
+                        ERGStoreAccessOp StoreAccess = ERGStoreAccessOp::NoAccess;
+                        SplitAccessOp(RenderTargetInfo.RenderTargetAccess, LoadAccess, StoreAccess);
+
+                        const FTextureDesc& TexDesc = Texture->GetDesc();
+                        FRtvAttachmentDesc RtvDesc =
+                        {
+                            .RTTextureCube = Texture,
+                            .BeginningAccess = LoadAccess,
+                            .EndingAccess = StoreAccess,
+                            .ClearValue = TexDesc.ClearValue,
+                        };
+                        RenderPassDesc.RtvAttachments.push_back(RtvDesc);
+
+                    }
                 }
+
                 if (Pass->m_DepthStencil.has_value())
                 {
                     auto DepthStencilInfo = Pass->m_DepthStencil.value();
-                    FRGTextureID RGTextureID = DepthStencilInfo.RGDepthStencilID.GetResourceID();
-                    FTexture2D* Texture = m_RenderGrpah.GetTexture(RGTextureID);
+                    FRGTexture2DID RGTextureID = DepthStencilInfo.RGTex2DDepthStencilID->GetResourceID();
+                    FTexture2D* Texture = m_RenderGrpah.GetTexture2D(RGTextureID);
 
 					ERGLoadAccessOp LoadAccess = ERGLoadAccessOp::NoAccess;
 					ERGStoreAccessOp StoreAccess = ERGStoreAccessOp::NoAccess;
@@ -111,7 +164,7 @@ namespace Zero
 
                     FDsvAttachmentDesc DsvDesc = 
                     {
-                        .DSTexture = Texture,
+                        .DSTexture2D = Texture,
                         .DepthBeginningAccess = LoadAccess,
                         .DepthEndingAccess = StoreAccess,
                         .ClearValue = TexDesc.ClearValue,
@@ -121,6 +174,7 @@ namespace Zero
                 //CORE_ASSERT(Pass->m_VieportWidth != 0 && Pass->m_VieportHeight != 0, "Viewport Width/Height is 0! The call to builder.SetViewport is probably missing...");
                 RenderPassDesc.Width = Pass->m_VieportWidth;
                 RenderPassDesc.Height = Pass->m_VieportHeight;
+                RenderPassDesc.Depth = Pass->m_VieportDepth;
                 FRenderPass RenderPass(m_RenderGrpah, RenderPassDesc);
                 RenderPass.Begin(CommandListHandle);
                 Pass->Execute(RenderGraphContexts, CommandListHandle);
@@ -164,30 +218,54 @@ namespace Zero
         CalculateResourcesLifetime();
     }
 
-    void FRenderGraph::CreateTextureViews(FRGTextureID RGTextureID)
+    void FRenderGraph::CreateTexture2DViews(FRGTexture2DID RGTextureID)
     {
-        FTexture2D* Texture = GetTexture(RGTextureID);
-        if (auto Iter = m_SRVTexDescMap.find(RGTextureID); Iter != m_SRVTexDescMap.end())
+        FTexture2D* Texture = GetTexture2D(RGTextureID);
+        if (auto Iter = m_SRVTex2DDescMap.find(RGTextureID); Iter != m_SRVTex2DDescMap.end())
         {
             Texture->MakeSRVs(Iter->second);
         }
 
-        if (auto Iter = m_UAVTexDescMap.find(RGTextureID); Iter != m_UAVTexDescMap.end())
+        if (auto Iter = m_UAVTex2DDescMap.find(RGTextureID); Iter != m_UAVTex2DDescMap.end())
         { 
             Texture->MakeUAVs(Iter->second);
         }
 
-        if (auto Iter = m_RTVTexDescMap.find(RGTextureID); Iter != m_RTVTexDescMap.end())
+        if (auto Iter = m_RTVTex2DDescMap.find(RGTextureID); Iter != m_RTVTex2DDescMap.end())
         {
             Texture->MakeRTVs(Iter->second);
         }
 
-        if (auto Iter = m_DSVTexDescMap.find(RGTextureID); Iter !=  m_DSVTexDescMap.end())
+        if (auto Iter = m_DSV2DTexDescMap.find(RGTextureID); Iter !=  m_DSV2DTexDescMap.end())
         { 
             Texture->MakeDSVs(Iter->second);
         }
     }
 
+
+	void FRenderGraph::CreateTextureCubeViews(FRGTextureCubeID RGTextureCubeID)
+	{
+        FTextureCube* Texture = GetTextureCube(RGTextureCubeID);
+        if (auto Iter = m_SRVTexCubeDescMap.find(RGTextureCubeID); Iter != m_SRVTexCubeDescMap.end())
+        {
+            Texture->MakeSRVs(Iter->second);
+        }
+
+        if (auto Iter = m_UAVTexCubeDescMap.find(RGTextureCubeID); Iter != m_UAVTexCubeDescMap.end())
+        { 
+            Texture->MakeUAVs(Iter->second);
+        }
+
+        if (auto Iter = m_RTVTexCubeDescMap.find(RGTextureCubeID); Iter != m_RTVTexCubeDescMap.end())
+        {
+            Texture->MakeRTVs(Iter->second);
+        }
+
+        if (auto Iter = m_DSVTexCubeDescMap.find(RGTextureCubeID); Iter !=  m_DSVTexCubeDescMap.end())
+        { 
+            Texture->MakeDSVs(Iter->second);
+        }
+	}
 
 	void FRenderGraph::CreateBufferViews(FRGBufferID RGBufferID)
 	{
@@ -196,13 +274,13 @@ namespace Zero
 
 	void FRenderGraph::DestroyTexture(FDependencyLevel& DependencyLevel)
 	{
-        for (FRGTextureID RGTextureID : DependencyLevel.m_TextureDestroys)
+        for (FRGTexture2DID RGTextureID : DependencyLevel.m_Texture2DDestroys)
         {
-            FRGTexture* RGTexture = GetRGTexture(RGTextureID);
+            FRGTexture2D* RGTexture = GetRGTexture2D(RGTextureID);
             FTexture2D* Texture = RGTexture->Resource;
             if (!RGTexture->bImported)
             {
-                m_ResourcePool.ReleaseTexture(Texture);
+                m_ResourcePool.ReleaseTexture2D(Texture);
             }
         }
 	}
@@ -232,11 +310,11 @@ namespace Zero
         for (size_t i = 0; i < m_DependencyLevels.size(); ++i)
         {
             auto& DependencyLevel = m_DependencyLevels[i];
-            for (auto RGTextureID : DependencyLevel.m_TextureCreates)
+            for (auto RGTextureID : DependencyLevel.m_Texture2DCreates)
             {
-                FRGTexture* RGTexture = GetRGTexture(RGTextureID);
-                RGTexture->Resource = m_ResourcePool.AllocateTexture(RGTexture->Desc, RGTexture->Name);
-                CreateTextureViews(RGTextureID);
+                FRGTexture2D* RGTexture = GetRGTexture2D(RGTextureID);
+                RGTexture->Resource = m_ResourcePool.AllocateTexture2D(RGTexture->Desc, RGTexture->Name);
+                CreateTexture2DViews(RGTextureID);
             }
 
             for (auto RGBufferID : DependencyLevel.m_BufferCreates)
@@ -252,13 +330,19 @@ namespace Zero
 
     }
 
-    FRGTextureID FRenderGraph::GetTextureID(FRGResourceName Name)
+    FRGTexture2DID FRenderGraph::GetTexture2DID(FRGResourceName Name)
     {
-        CORE_ASSERT(!IsTextureDeclared(Name), std::format("{0} is not Declared!", Name.Name));
-        return m_TextureNameIDMap[Name];
+        CORE_ASSERT(!IsTexture2DDeclared(Name), std::format("{0} is not Declared!", Name.Name));
+        return m_Texture2DNameIDMap[Name];
     }
 
-    FRGBufferID FRenderGraph::GetBufferID(FRGResourceName Name)
+	FRGTextureCubeID FRenderGraph::GetTextureCubeID(FRGResourceName Name)
+	{
+        CORE_ASSERT(!IsTextureCubeDeclared(Name), std::format("{0} is not Declared!", Name.Name));
+        return m_TextureCubeNameIDMap[Name];
+	}
+
+	FRGBufferID FRenderGraph::GetBufferID(FRGResourceName Name)
     {
         CORE_ASSERT(!IsBufferDeclared(Name), std::format("{0} is not Declared!", Name.Name));
         return m_BufferNameIDMap[Name];
@@ -272,15 +356,23 @@ namespace Zero
         RGBuffer->Desc.ResourceBindFlag |= Flags;
     }
 
-    void FRenderGraph::AddTextureBindFlags(FRGResourceName Name, EResourceBindFlag Flags)
+    void FRenderGraph::AddTexture2DBindFlags(FRGResourceName Name, EResourceBindFlag Flags)
     {
-        FRGTextureID Handle = m_TextureNameIDMap[Name];
-        CORE_ASSERT(IsValidTextureHandle(Handle), "Resource has not been declared!");
-        auto RGTexture = GetRGTexture(Handle);
+        FRGTexture2DID Handle = m_Texture2DNameIDMap[Name];
+        CORE_ASSERT(IsValidTexture2DHandle(Handle), "Resource has not been declared!");
+        auto RGTexture = GetRGTexture2D(Handle);
         RGTexture->Desc.ResourceBindFlags |= Flags;
     }
 
-    void FRenderGraph::BuildAdjacencyLists()
+	void FRenderGraph::AddTextureCubeBindFlags(FRGResourceName Name, EResourceBindFlag Flags)
+	{
+        FRGTextureCubeID Handle = m_TextureCubeNameIDMap[Name];
+        CORE_ASSERT(IsValidTextureCubeHandle(Handle), "Resource has not been declared!");
+        auto RGTexture = GetRGTextureCube(Handle);
+        RGTexture->Desc.ResourceBindFlags |= Flags;
+	}
+
+	void FRenderGraph::BuildAdjacencyLists()
     {
         m_AdjacencyList.resize(m_Passes.size());
         for (size_t i = 0; i < m_Passes.size(); ++i)
@@ -291,9 +383,9 @@ namespace Zero
             {
                 auto& OtherPass = m_Passes[j];
                 bool bDepends = false;
-                for (auto OtherNodeRead : OtherPass->m_TextureReads)
+                for (auto OtherNodeRead : OtherPass->m_Texture2DReads)
                 {
-                    if (CurPass->m_TextureWrites.find(OtherNodeRead) != CurPass->m_TextureWrites.end())
+                    if (CurPass->m_Texture2DWrites.find(OtherNodeRead) != CurPass->m_Texture2DWrites.end())
                     {
                         PassAdjacencyList.push_back(j);
                         bDepends = true;
@@ -304,6 +396,19 @@ namespace Zero
                 if (bDepends)
                     continue;
                 
+                for (auto OtherNodeRead : OtherPass->m_TextureCubeReads)
+                {
+                    if (CurPass->m_TextureCubeWrites.find(OtherNodeRead) != CurPass->m_TextureCubeWrites.end())
+                    {
+                        PassAdjacencyList.push_back(j);
+                        bDepends = true;
+                        break;
+                    }
+                }
+
+                if (bDepends)
+                    continue;
+
                 for (auto OtherNodeRead : OtherPass->m_BufferReads)
                 {
                     if (CurPass->m_BufferWrites.find(OtherNodeRead) != CurPass->m_BufferWrites.end())
@@ -372,35 +477,63 @@ namespace Zero
             {
                 continue;
             }
-            for (auto ID : Pass->m_TextureWrites)
             {
-                FRGTexture* RGTexture = GetRGTexture(ID);
-                RGTexture->LastPassUsedBy = Pass.get();
-            }
-            for (auto ID : Pass->m_TextureReads)
-            {
-                FRGTexture* RGTexture = GetRGTexture(ID);
-                RGTexture->LastPassUsedBy = Pass.get();
-            }
-            for (auto ID : Pass->m_BufferWrites)
-            {
-                FRGBuffer* RGBuffer= GetRGBuffer(ID);
-                RGBuffer->LastPassUsedBy = Pass.get();
-            }
-			for (auto ID : Pass->m_BufferReads)
-			{
-				FRGBuffer* RGBuffer = GetRGBuffer(ID);
-				RGBuffer->LastPassUsedBy = Pass.get();
-			}
-        }
-        for (uint32_t i = 0; i < m_Textures.size(); ++i)
-        {
-            if (m_Textures[i]->LastPassUsedBy != nullptr)
-            {
-                m_Textures[i]->LastPassUsedBy->m_TextureDestroys.insert(FRGTextureID(i));
-                if (m_Textures[i]->bImported)
+                for (auto ID : Pass->m_Texture2DWrites)
                 {
-                    CreateTextureViews(FRGTextureID(i));
+                    FRGTexture2D* RGTexture = GetRGTexture2D(ID);
+                    RGTexture->LastPassUsedBy = Pass.get();
+                }
+                for (auto ID : Pass->m_Texture2DReads)
+                {
+                    FRGTexture2D* RGTexture = GetRGTexture2D(ID);
+                    RGTexture->LastPassUsedBy = Pass.get();
+                }
+            }
+
+            {
+                for (auto ID : Pass->m_TextureCubeWrites)
+                {
+                    FRGTextureCube* RGTexture = GetRGTextureCube(ID);
+                    RGTexture->LastPassUsedBy = Pass.get();
+                }
+                for (auto ID : Pass->m_TextureCubeReads)
+                {
+                    FRGTextureCube* RGTexture = GetRGTextureCube(ID);
+                    RGTexture->LastPassUsedBy = Pass.get();
+                }
+            }
+            {
+                for (auto ID : Pass->m_BufferWrites)
+                {
+                    FRGBuffer* RGBuffer = GetRGBuffer(ID);
+                    RGBuffer->LastPassUsedBy = Pass.get();
+                }
+                for (auto ID : Pass->m_BufferReads)
+                {
+                    FRGBuffer* RGBuffer = GetRGBuffer(ID);
+                    RGBuffer->LastPassUsedBy = Pass.get();
+                }
+            }
+        }
+        for (uint32_t i = 0; i < m_Texture2Ds.size(); ++i)
+        {
+            if (m_Texture2Ds[i]->LastPassUsedBy != nullptr)
+            {
+                m_Texture2Ds[i]->LastPassUsedBy->m_Texture2DDestroys.insert(FRGTexture2DID(i));
+                if (m_Texture2Ds[i]->bImported)
+                {
+                    CreateTexture2DViews(FRGTexture2DID(i));
+                }
+            }
+        }
+        for (uint32_t i = 0; i < m_TextureCubes.size(); ++i)
+        {
+            if (m_TextureCubes[i]->LastPassUsedBy != nullptr)
+            {
+                m_TextureCubes[i]->LastPassUsedBy->m_TextureCubeDestroys.insert(FRGTextureCubeID(i));
+                if (m_TextureCubes[i]->bImported)
+                {
+                    CreateTextureCubeViews(FRGTextureCubeID(i));
                 }
             }
         }
@@ -428,18 +561,29 @@ namespace Zero
         Stack.push(i);
     }
 
-    FRGTextureID FRenderGraph::DeclareTexture(FRGResourceName Name, const FRGTextureDesc& Desc)
+    FRGTexture2DID FRenderGraph::DeclareTexture2D(FRGResourceName Name, const FRGTextureDesc& Desc)
     {
-        CORE_ASSERT(m_TextureNameIDMap.find(Name) == m_TextureNameIDMap.end(), "Texture with that name has already been declared");
+        CORE_ASSERT(m_Texture2DNameIDMap.find(Name) == m_Texture2DNameIDMap.end(), "Texture2D with that name has already been declared");
         FTextureDesc TextureDesc{};
         FillTextureDesc(Desc, TextureDesc);
-        m_Textures.emplace_back(new FRGTexture(uint32_t(m_Textures.size()), TextureDesc, Name));
-        auto RGTextureID = FRGTextureID(uint32_t(m_Textures.size() - 1));
-        m_TextureNameIDMap[Name] = RGTextureID;
+        m_Texture2Ds.emplace_back(new FRGTexture2D(uint32_t(m_Texture2Ds.size()), TextureDesc, Name));
+        auto RGTextureID = FRGTexture2DID(uint32_t(m_Texture2Ds.size() - 1));
+        m_Texture2DNameIDMap[Name] = RGTextureID;
         return RGTextureID;
     }
 
-    FRGBufferID FRenderGraph::DeclareBuffer(FRGResourceName Name, const FRGBufferDesc& Desc)
+	FRGTextureCubeID FRenderGraph::DeclareTextureCube(FRGResourceName Name, const FRGTextureDesc& Desc)
+	{
+        CORE_ASSERT(m_TextureCubeNameIDMap.find(Name) == m_TextureCubeNameIDMap.end(), "TextureCube with that name has already been declared");
+        FTextureDesc TextureDesc{};
+        FillTextureDesc(Desc, TextureDesc);
+        m_TextureCubes.emplace_back(new FRGTextureCube(uint32_t(m_TextureCubes.size()), TextureDesc, Name));
+        auto RGTextureID = FRGTextureCubeID(uint32_t(m_TextureCubes.size() - 1));
+        m_TextureCubeNameIDMap[Name] = RGTextureID;
+        return RGTextureID;
+	}
+
+	FRGBufferID FRenderGraph::DeclareBuffer(FRGResourceName Name, const FRGBufferDesc& Desc)
     {
         CORE_ASSERT(m_BufferNameIDMap.find(Name) == m_BufferNameIDMap.end(), "Buffer with that name has already been declared");
         FBufferDesc BufferDesc{};
@@ -450,31 +594,41 @@ namespace Zero
         return RGBufferID;
     }
 
-    bool FRenderGraph::IsTextureDeclared(FRGResourceName ResourceName)
+    bool FRenderGraph::IsTexture2DDeclared(FRGResourceName ResourceName)
     {
-        return  m_TextureNameIDMap.find(ResourceName) == m_TextureNameIDMap.end();
+        return  m_Texture2DNameIDMap.find(ResourceName) == m_Texture2DNameIDMap.end();
     }
 
-    bool FRenderGraph::IsBufferDeclared(FRGResourceName ResourceName)
+	bool FRenderGraph::IsTextureCubeDeclared(FRGResourceName ResourceName)
+	{
+        return  m_TextureCubeNameIDMap.find(ResourceName) == m_TextureCubeNameIDMap.end();
+	}
+
+	bool FRenderGraph::IsBufferDeclared(FRGResourceName ResourceName)
     {
         return m_BufferNameIDMap.find(ResourceName) == m_BufferNameIDMap.end();
     }
 
-    bool FRenderGraph::IsValidTextureHandle(FRGTextureID RGTextureID) const
+    bool FRenderGraph::IsValidTexture2DHandle(FRGTexture2DID RGTextureID) const
     {
-        return RGTextureID.IsValid() && RGTextureID.ID < uint32_t(m_Textures.size());
+        return RGTextureID.IsValid() && RGTextureID.ID < uint32_t(m_Texture2Ds.size());
     }
 
-    bool FRenderGraph::IsValidBufferHandle(FRGBufferID RGBufferID) const
+	bool FRenderGraph::IsValidTextureCubeHandle(FRGTextureCubeID RGTextureID) const
+	{
+        return RGTextureID.IsValid() && RGTextureID.ID < uint32_t(m_TextureCubes.size());
+	}
+
+	bool FRenderGraph::IsValidBufferHandle(FRGBufferID RGBufferID) const
     {
         return RGBufferID.IsValid() && RGBufferID.ID < uint32_t(m_Buffers.size());
     }
 
 
-    void FRenderGraph::ImportTexture(FRGResourceName Name, FTexture2D* Texture)
+    void FRenderGraph::ImportTexture2D(FRGResourceName Name, FTexture2D* Texture)
     {
-        m_Textures.emplace_back(new FRGTexture(uint32_t(m_Textures.size()), Texture, Name));
-        m_TextureNameIDMap[Name] = FRGTextureID(uint32_t(m_Textures.size() - 1));
+        m_Texture2Ds.emplace_back(new FRGTexture2D(uint32_t(m_Texture2Ds.size()), Texture, Name));
+        m_Texture2DNameIDMap[Name] = FRGTexture2DID(uint32_t(m_Texture2Ds.size() - 1));
     }
 
     void FRenderGraph::ImportBuffer(FRGResourceName Name, FBuffer* Buffer)
@@ -483,17 +637,27 @@ namespace Zero
         m_BufferNameIDMap[Name] = FRGBufferID(uint32_t(m_Buffers.size() - 1));
     }
 
-    FRGTexture* FRenderGraph::GetRGTexture(FRGTextureID RGTextureID) const
+    FRGTexture2D* FRenderGraph::GetRGTexture2D(FRGTexture2DID RGTextureID) const
     {
-        return m_Textures[RGTextureID.ID].get();
+        return m_Texture2Ds[RGTextureID.ID].get();
     }
 
-    FTexture2D* FRenderGraph::GetTexture(FRGTextureID RGTextureID)
+	FRGTextureCube* FRenderGraph::GetRGTextureCube(FRGTextureCubeID RGTextureID) const
+	{
+        return m_TextureCubes[RGTextureID.ID].get();
+	}
+
+	FTexture2D* FRenderGraph::GetTexture2D(FRGTexture2DID RGTextureID)
     {
-        return GetRGTexture(RGTextureID)->Resource;
+        return GetRGTexture2D(RGTextureID)->Resource;
     }
 
-    FRGBuffer* FRenderGraph::GetRGBuffer(FRGBufferID RGBufferID) const
+	FTextureCube* FRenderGraph::GetTextureCube(FRGTextureCubeID RGTextureID)
+	{
+        return GetRGTextureCube(RGTextureID)->Resource;
+	}
+
+	FRGBuffer* FRenderGraph::GetRGBuffer(FRGBufferID RGBufferID) const
     {
         return m_Buffers[RGBufferID.ID].get();
     }
@@ -503,101 +667,181 @@ namespace Zero
         return GetRGBuffer(RGBufferID)->Resource;
     }
 
-	FRGTextureCopySrcID FRenderGraph::ReadCopySrcTexture(FRGResourceName Name)
+	FRGTexture2DCopySrcID FRenderGraph::ReadCopySrcTexture2D(FRGResourceName Name)
 	{
-        FRGTextureID Handle = m_TextureNameIDMap[Name];
-        CORE_ASSERT(IsValidTextureHandle(Handle), "Resource has not been declared!");
-        return FRGTextureCopySrcID(Handle);
+        FRGTexture2DID Handle = m_Texture2DNameIDMap[Name];
+        CORE_ASSERT(IsValidTexture2DHandle(Handle), "Resource has not been declared!");
+        return FRGTexture2DCopySrcID(Handle);
 	}
 
-	FRGTextureCopyDstID FRenderGraph::WriteCopyDstTexture(FRGResourceName Name)
+	FRGTexture2DCopyDstID FRenderGraph::WriteCopyDstTexture2D(FRGResourceName Name)
 	{
-        FRGTextureID Handle = m_TextureNameIDMap[Name];
-        CORE_ASSERT(IsValidTextureHandle(Handle), "Resource has not been declared!");
-        return FRGTextureCopyDstID(Handle);
+        FRGTexture2DID Handle = m_Texture2DNameIDMap[Name];
+        CORE_ASSERT(IsValidTexture2DHandle(Handle), "Resource has not been declared!");
+        return FRGTexture2DCopyDstID(Handle);
 	}
 
-	FRGRenderTargetID FRenderGraph::RenderTarget(FRGResourceName Name, const FTextureSubresourceDesc& Desc)
+    FRGTex2DRenderTargetID FRenderGraph::RenderTarget2D(FRGResourceName Name, const FTextureSubresourceDesc& Desc)
     {
-        FRGTextureID Handle = m_TextureNameIDMap[Name];
-        CORE_ASSERT(IsValidTextureHandle(Handle), "Resource has not been declared!");
-        FRGTexture* RGTexture = GetRGTexture(Handle);
+        FRGTexture2DID Handle = m_Texture2DNameIDMap[Name];
+        CORE_ASSERT(IsValidTexture2DHandle(Handle), "Resource has not been declared!");
+        FRGTexture2D* RGTexture = GetRGTexture2D(Handle);
         RGTexture->Desc.ResourceBindFlags |= EResourceBindFlag::RenderTarget;
         
-        std::vector <FTextureSubresourceDesc>& ViewDescs = m_RTVTexDescMap[Handle]; // m_TextureViewDescMap[Handle];
+        std::vector <FTextureSubresourceDesc>& ViewDescs = m_RTVTex2DDescMap[Handle]; // m_TextureViewDescMap[Handle];
         for (uint32_t i = 0; i < ViewDescs.size(); ++i)
         { 
             if (ViewDescs[i] == Desc)
             { 
-                return FRGRenderTargetID(i, Handle);
+                return FRGTex2DRenderTargetID(i, Handle);
             }
         }
         ViewDescs.emplace_back(Desc);
         uint32_t ViewID = uint32_t(ViewDescs.size() - 1);
-        return FRGRenderTargetID(ViewID, Handle);
+        return FRGTex2DRenderTargetID(ViewID, Handle);
     }
 
-    FRGDepthStencilID FRenderGraph::DepthStencil(FRGResourceName Name, const FTextureSubresourceDesc& Desc)
+    FRGTex2DDepthStencilID FRenderGraph::DepthStencil2D(FRGResourceName Name, const FTextureSubresourceDesc& Desc)
     {
-        FRGTextureID Handle = m_TextureNameIDMap[Name];
-        CORE_ASSERT(IsValidTextureHandle(Handle), "Resource has not been declared!");
-        FRGTexture* RGTexture = GetRGTexture(Handle);
+        FRGTexture2DID Handle = m_Texture2DNameIDMap[Name];
+        CORE_ASSERT(IsValidTexture2DHandle(Handle), "Resource has not been declared!");
+        FRGTexture2D* RGTexture = GetRGTexture2D(Handle);
         RGTexture->Desc.ResourceBindFlags |= EResourceBindFlag::DepthStencil;
         
-        std::vector<FTextureSubresourceDesc>& ViewDescs = m_DSVTexDescMap[Handle]; //m_TextureViewDescMap[Handle];
+        std::vector<FTextureSubresourceDesc>& ViewDescs = m_DSV2DTexDescMap[Handle]; //m_TextureViewDescMap[Handle];
         for (uint32_t i = 0; i < ViewDescs.size(); ++i)
         { 
             if (ViewDescs[i] == Desc)
             { 
-                return FRGDepthStencilID(i, Handle);
+                return FRGTex2DDepthStencilID(i, Handle);
             }
         }
         ViewDescs.emplace_back(Desc);
         uint32_t ViewID = uint32_t(ViewDescs.size() - 1);
-        return FRGDepthStencilID(ViewID, Handle);
+        return FRGTex2DDepthStencilID(ViewID, Handle);
     }
 
-    FRGTextureReadOnlyID FRenderGraph::ReadTexture(FRGResourceName Name, const FTextureSubresourceDesc& Desc)
+    FRGTex2DReadOnlyID FRenderGraph::ReadTexture2D(FRGResourceName Name, const FTextureSubresourceDesc& Desc)
     {
-        FRGTextureID Handle = m_TextureNameIDMap[Name];
-        CORE_ASSERT(IsValidTextureHandle(Handle), "Resource has not been declared!");
-        FRGTexture* RGTexture = GetRGTexture(Handle);
+        FRGTexture2DID Handle = m_Texture2DNameIDMap[Name];
+        CORE_ASSERT(IsValidTexture2DHandle(Handle), "Resource has not been declared!");
+        FRGTexture2D* RGTexture = GetRGTexture2D(Handle);
         RGTexture->Desc.ResourceBindFlags |= EResourceBindFlag::ShaderResource;
 
-        std::vector<FTextureSubresourceDesc>& ViewDescs = m_SRVTexDescMap[Handle];
+        std::vector<FTextureSubresourceDesc>& ViewDescs = m_SRVTex2DDescMap[Handle];
         for (uint32_t i = 0; i < ViewDescs.size(); ++i)
         { 
             if (ViewDescs[i] == Desc) 
             { 
-                return FRGTextureReadOnlyID(i, Handle);
+                return FRGTex2DReadOnlyID(i, Handle);
             }
         }
         ViewDescs.emplace_back(Desc);
         uint32_t ViewID = uint32_t(ViewDescs.size() - 1);
-        return FRGTextureReadOnlyID(ViewID, Handle);
+        return FRGTex2DReadOnlyID(ViewID, Handle);
     }
 
-    FRGTextureReadWriteID FRenderGraph::WriteTexture(FRGResourceName Name, const FTextureSubresourceDesc& Desc)
+    FRGTex2DReadWriteID FRenderGraph::WriteTexture2D(FRGResourceName Name, const FTextureSubresourceDesc& Desc)
     {
-        FRGTextureID Handle = m_TextureNameIDMap[Name];
-        CORE_ASSERT(IsValidTextureHandle(Handle), "Resource has not been declared!");
-        FRGTexture* RGTexture = GetRGTexture(Handle);
+        FRGTexture2DID Handle = m_Texture2DNameIDMap[Name];
+        CORE_ASSERT(IsValidTexture2DHandle(Handle), "Resource has not been declared!");
+        FRGTexture2D* RGTexture = GetRGTexture2D(Handle);
         RGTexture->Desc.ResourceBindFlags |= EResourceBindFlag::ShaderResource;
-        std::vector<FTextureSubresourceDesc>& ViewDescs = m_UAVTexDescMap[Handle]; // m_TextureViewDescMap[Handle];
+        std::vector<FTextureSubresourceDesc>& ViewDescs = m_UAVTex2DDescMap[Handle]; // m_TextureViewDescMap[Handle];
         for (uint32_t i = 0; i < ViewDescs.size(); ++i)
         { 
             if (ViewDescs[i] == Desc) 
             { 
-                return FRGTextureReadWriteID(i, Handle);
+                return FRGTex2DReadWriteID(i, Handle);
             }
         }
 
         ViewDescs.emplace_back(Desc);
         uint32_t ViewID = uint32_t(ViewDescs.size() - 1);
-        return FRGTextureReadWriteID(ViewID, Handle);
+        return FRGTex2DReadWriteID(ViewID, Handle);
     }
 
-    FRGBufferReadOnlyID FRenderGraph::ReadBuffer(FRGResourceName Name, const FBufferSubresourceDesc& Desc)
+	FRGTexCubeRenderTargetID FRenderGraph::RenderTargetCube(FRGResourceName Name, const FTextureSubresourceDesc& Desc)
+	{
+        FRGTextureCubeID Handle = m_TextureCubeNameIDMap[Name];
+        CORE_ASSERT(IsValidTextureCubeHandle(Handle), "Resource has not been declared!");
+        FRGTextureCube* RGTexture = GetRGTextureCube(Handle);
+        RGTexture->Desc.ResourceBindFlags |= EResourceBindFlag::RenderTarget;
+        
+        std::vector <FTextureSubresourceDesc>& ViewDescs = m_RTVTexCubeDescMap[Handle]; // m_TextureViewDescMap[Handle];
+        for (uint32_t i = 0; i < ViewDescs.size(); ++i)
+        { 
+            if (ViewDescs[i] == Desc)
+            { 
+                return FRGTexCubeRenderTargetID(i, Handle);
+            }
+        }
+        ViewDescs.emplace_back(Desc);
+        uint32_t ViewID = uint32_t(ViewDescs.size() - 1);
+        return FRGTexCubeRenderTargetID(ViewID, Handle);
+	}
+
+	FRGTexCubeDepthStencilID FRenderGraph::DepthStencilCube(FRGResourceName Name, const FTextureSubresourceDesc& Desc)
+	{
+        FRGTextureCubeID Handle = m_TextureCubeNameIDMap[Name];
+        CORE_ASSERT(IsValidTextureCubeHandle(Handle), "Resource has not been declared!");
+        FRGTextureCube* RGTexture = GetRGTextureCube(Handle);
+        RGTexture->Desc.ResourceBindFlags |= EResourceBindFlag::DepthStencil;
+        
+        std::vector<FTextureSubresourceDesc>& ViewDescs = m_DSV2DTexDescMap[Handle]; //m_TextureViewDescMap[Handle];
+        for (uint32_t i = 0; i < ViewDescs.size(); ++i)
+        { 
+            if (ViewDescs[i] == Desc)
+            { 
+                return FRGTexCubeDepthStencilID(i, Handle);
+            }
+        }
+        ViewDescs.emplace_back(Desc);
+        uint32_t ViewID = uint32_t(ViewDescs.size() - 1);
+        return FRGTexCubeDepthStencilID(ViewID, Handle);
+	}
+
+	FRGTexCubeReadOnlyID FRenderGraph::ReadTextureCube(FRGResourceName Name, const FTextureSubresourceDesc& Desc)
+	{
+        FRGTextureCubeID Handle = m_TextureCubeNameIDMap[Name];
+        CORE_ASSERT(IsValidTextureCubeHandle(Handle), "Resource has not been declared!");
+        FRGTextureCube* RGTexture = GetRGTextureCube(Handle);
+        RGTexture->Desc.ResourceBindFlags |= EResourceBindFlag::ShaderResource;
+
+        std::vector<FTextureSubresourceDesc>& ViewDescs = m_SRVTex2DDescMap[Handle];
+        for (uint32_t i = 0; i < ViewDescs.size(); ++i)
+        { 
+            if (ViewDescs[i] == Desc) 
+            { 
+                return FRGTexCubeReadOnlyID(i, Handle);
+            }
+        }
+        ViewDescs.emplace_back(Desc);
+        uint32_t ViewID = uint32_t(ViewDescs.size() - 1);
+        return FRGTexCubeReadOnlyID(ViewID, Handle);
+	}
+
+	FRGTexCubeReadWriteID FRenderGraph::WriteTextureCube(FRGResourceName Name, const FTextureSubresourceDesc& Desc)
+	{
+        FRGTextureCubeID Handle = m_TextureCubeNameIDMap[Name];
+        CORE_ASSERT(IsValidTextureCubeHandle(Handle), "Resource has not been declared!");
+        FRGTextureCube* RGTexture = GetRGTextureCube(Handle);
+        RGTexture->Desc.ResourceBindFlags |= EResourceBindFlag::ShaderResource;
+        std::vector<FTextureSubresourceDesc>& ViewDescs = m_UAVTexCubeDescMap[Handle]; // m_TextureViewDescMap[Handle];
+        for (uint32_t i = 0; i < ViewDescs.size(); ++i)
+        { 
+            if (ViewDescs[i] == Desc) 
+            { 
+                return FRGTexCubeReadWriteID(i, Handle);
+            }
+        }
+
+        ViewDescs.emplace_back(Desc);
+        uint32_t ViewID = uint32_t(ViewDescs.size() - 1);
+        return FRGTexCubeReadWriteID(ViewID, Handle);
+	}
+
+	FRGBufferReadOnlyID FRenderGraph::ReadBuffer(FRGResourceName Name, const FBufferSubresourceDesc& Desc)
     {
         FRGBufferID Handle = m_BufferNameIDMap[Name];
         CORE_ASSERT(IsValidBufferHandle(Handle), "Resource has not been declared!");

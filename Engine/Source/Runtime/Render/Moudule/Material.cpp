@@ -13,8 +13,7 @@
 namespace Zero
 {
 
-	FMaterial::FMaterial(bool bUseMainCamera)
-		: m_bUseMainCamera(bUseMainCamera)
+	FMaterial::FMaterial()
 	{	
 		m_OnSetFloat.Bind<FMaterial>(this, &FMaterial::SetFloatPtr);
 		m_OnSetInt.Bind<FMaterial>(this, &FMaterial::SetIntPtr);
@@ -26,17 +25,23 @@ namespace Zero
 		);
 	}
 
-
 	FMaterial::~FMaterial()
 	{
-		if (m_bUseMainCamera)
-		{
-			FConstantsBufferManager::Get().PushCameraConstantsBufferToPool(m_CameraBuffer);
-		}
 	}
 
 	void FMaterial::Tick()
 	{
+	}
+
+	void FMaterial::SetCamera(Ref<IShaderConstantsBuffer> Camera)
+	{
+		m_CameraBuffer = Camera;
+		const auto& BinderDesc = m_ShaderBinder->GetBinderDesc();
+		m_ShaderBinder->BindConstantsBuffer(m_CommandListHandle, BinderDesc.m_CameraIndex, m_CameraBuffer.get());
+		if (BinderDesc.m_CameraIndex != Utils::InvalidIndex)
+		{
+			m_ShaderBinder->BindConstantsBuffer(m_CommandListHandle, BinderDesc.m_CameraIndex, m_CameraBuffer.get());
+		}
 	}
 
 	void FMaterial::SetPass(FCommandListHandle CommandListHandle)
@@ -47,18 +52,6 @@ namespace Zero
 		{
 			m_MaterialBuffer->PreDrawCall();
 			m_ShaderBinder->BindConstantsBuffer(CommandListHandle, BinderDesc.m_MaterialIndex, m_MaterialBuffer.get());
-		}
-		if (BinderDesc.m_CameraIndex != Utils::InvalidIndex)
-		{
-			if (m_bUseMainCamera)
-			{
-				UCameraActor* Camera = UWorld::GetCurrentWorld()->GetMainCamera();
-				m_CameraBuffer = Camera->GetConstantBuffer();
-			}
-			if (m_CameraBuffer != nullptr)
-			{
-				m_ShaderBinder->BindConstantsBuffer(CommandListHandle, BinderDesc.m_CameraIndex, m_CameraBuffer.get());
-			}
 		}
 		
 		if (BinderDesc.m_GloabalConstantIndex != Utils::InvalidIndex)
@@ -83,6 +76,11 @@ namespace Zero
 			m_CameraBuffer->UploadDataIfDirty();
 		}
 		FConstantsBufferManager::Get().GetGlobalConstantBuffer()->UploadDataIfDirty();
+	}
+
+	void FMaterial::PostDrawCall()
+	{
+		m_CommandListHandle = ZERO_INVALID_ID;
 	}
 
 	void FMaterial::SetShader(Ref<FShader> Shader)
@@ -170,21 +168,29 @@ namespace Zero
 
 	void FMaterial::SetCameraProjectMat(const std::string& Name, const ZMath::mat4& Value)
 	{
+		if (m_CameraBuffer == nullptr)
+			SetCamera();
 		m_CameraBuffer->SetMatrix4x4(Name, Value);
 	}
 
 	void FMaterial::SetCameraViewMat(const std::string& Name, const ZMath::mat4& Value)
 	{
+		if (m_CameraBuffer == nullptr)
+			SetCamera();
 		m_CameraBuffer->SetMatrix4x4(Name, Value);
 	}
 
 	void FMaterial::SetCameraProjectViewMat(const std::string& Name, const ZMath::mat4& Value)
 	{
+		if (m_CameraBuffer == nullptr)
+			SetCamera();
 		m_CameraBuffer->SetMatrix4x4(Name, Value);
 	}
 
 	void FMaterial::SetCameraViewPos(const std::string& Name, const ZMath::vec3& Value)
 	{
+		if (m_CameraBuffer == nullptr)
+			SetCamera();
 		m_CameraBuffer->SetFloat3(Name, Value);
 	}
 

@@ -8,6 +8,11 @@
 
 namespace Zero
 {
+	FDX12RenderTargetCube::FDX12RenderTargetCube()
+		: FRenderTargetCube()
+	{
+	}
+
 	FDX12RenderTargetCube::FDX12RenderTargetCube(const FRenderTargetCubeDesc& Desc)
 		: FRenderTargetCube(Desc)
 	{
@@ -40,7 +45,13 @@ namespace Zero
 				.Format = Desc.TextureFormat,
 			};
 			std::string ColorTexturName = std::format("{0}_Color", Desc.RenderTargetName);
-			m_TextureColorCubemap = CreateRef<FDX12TextureCube>(ColorTexturName, TextureDesc);
+			m_TextureColorCubemap = 
+			{
+				.Texture = new FDX12TextureCube(ColorTexturName, TextureDesc),
+				.ViewID = 0,
+				.ClearValue = FTextureClearValue{},
+				.bClearColor = true
+			};
 		}
 
 
@@ -74,9 +85,16 @@ namespace Zero
 			};
 
 			std::string DepthTexturName = std::format("{0}_Depth", Desc.RenderTargetName);
-			m_TextureDepthCubemap = CreateRef<FDX12TextureCube>(DepthTexturName, TextureDesc);
+			m_TextureDepthCubemap = {
+				.Texture = new FDX12TextureCube(DepthTexturName, TextureDesc),
+				.ViewID = 0,
+				.ClearValue = FTextureClearValue{},
+				.bClearColor = true
+			}
 		}
 	}
+
+
 	void FDX12RenderTargetCube::SetViewportRect(uint32_t Mip)
 	{
 		// Set Viewport
@@ -99,7 +117,7 @@ namespace Zero
 	void FDX12RenderTargetCube::Bind(FCommandListHandle CommandListHandle)
 	{
 		auto  CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
-		FDX12TextureCube* DX12TextureCubemap = static_cast<FDX12TextureCube*>(m_TextureColorCubemap.get());
+		FDX12TextureCube* DX12TextureCubemap = static_cast<FDX12TextureCube*>(m_TextureColorCubemap.Texture);
 
 		CommandList->TransitionBarrier(DX12TextureCubemap->GetResource()->GetD3DResource(), D3D12_RESOURCE_STATE_RENDER_TARGET);
 	}
@@ -107,7 +125,7 @@ namespace Zero
 	void FDX12RenderTargetCube::SetRenderTarget(FCommandListHandle CommandListHandle, uint32_t FaceIndex, uint32_t SubResource /*= -1*/)
 	{
 		auto  CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
-		FDX12TextureCube* DX12TextureCubemap = static_cast<FDX12TextureCube*>(m_TextureColorCubemap.get());
+		FDX12TextureCube* DX12TextureCubemap = static_cast<FDX12TextureCube*>(m_TextureColorCubemap.Texture);
 		SetViewportRect(SubResource == -1 ? 0 : SubResource);
 		FDX12RenderTargetView* RTV = static_cast<FDX12RenderTargetView*>(DX12TextureCubemap->GetRTV(FaceIndex, SubResource));
 		float Color[4] = { 0.0f, 0.0f, 0.0f, 0.0f};
@@ -120,7 +138,7 @@ namespace Zero
 	void FDX12RenderTargetCube::UnBind(FCommandListHandle CommandListHandle, uint32_t FaceIndex, uint32_t SubResource /*= -1*/)
 	{
 		auto  CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
-		FDX12TextureCube* DX12TextureCubemap = static_cast<FDX12TextureCube*>(m_TextureColorCubemap.get());
+		FDX12TextureCube* DX12TextureCubemap = static_cast<FDX12TextureCube*>(m_TextureColorCubemap.Texture);
 		
 		uint32_t SubResourceIndex = SubResource == -1 ? -1 : m_RenderTargetCubeDesc.MipLevels * FaceIndex + SubResource;
 

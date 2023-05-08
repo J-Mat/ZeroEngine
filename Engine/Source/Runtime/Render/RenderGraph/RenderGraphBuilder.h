@@ -63,21 +63,25 @@ namespace Zero
 		FRenderGraphBuilder& operator=(FRenderGraphBuilder const&) = delete;
 
 
-		bool IsTextureDeclared(FRGResourceName Name);
+		bool IsTexture2DDeclared(FRGResourceName Name);
+		bool IsTextureCubeDeclared(FRGResourceName Name);
 		bool IsBufferDeclared(FRGResourceName Name);
-		void DeclareTexture(FRGResourceName Name, const FRGTextureDesc& desc);
+		void DeclareTexture2D(FRGResourceName Name, const FRGTextureDesc& desc);
+		void DeclareTextureCube(FRGResourceName Name, const FRGTextureDesc& desc);
 		void DeclareBuffer(FRGResourceName Name, const FRGBufferDesc& desc);
 		
 
-		void DummyWriteTexture(FRGResourceName Name);
-		void DummyReadTexture(FRGResourceName Name);
+		void DummyWriteTexture2D(FRGResourceName Name);
+		void DummyReadTexture2D(FRGResourceName Name);
+		void DummyWriteTextureCube(FRGResourceName Name);
+		void DummyReadTextureCube(FRGResourceName Name);
 		void DummyReadBuffer(FRGResourceName Name);
 		void DummyWriteBuffer(FRGResourceName Name);
 
-		FRGTextureCopySrcID ReadCopySrcTexture(FRGResourceName Name);
-		FRGTextureCopyDstID WriteCopyDstTexture(FRGResourceName Name);
+		FRGTexture2DCopySrcID ReadCopySrcTexture(FRGResourceName Name);
+		FRGTexture2DCopyDstID WriteCopyDstTexture(FRGResourceName Name);
 
-		FRGTextureReadOnlyID ReadTexture(FRGResourceName Name, ERGReadAccess RGReadAccess = ERGReadAccess::ReadAccess_AllShader,
+		FRGTex2DReadOnlyID ReadTexture2D(FRGResourceName Name, ERGReadAccess RGReadAccess = ERGReadAccess::ReadAccess_AllShader,
 			uint32_t FirstMip = 0, uint32_t MipCount = -1, uint32_t FirstSlice = 0, uint32_t SliceCount = -1)
 		{
 			FTextureSubresourceDesc Desc;
@@ -85,10 +89,10 @@ namespace Zero
 			Desc.SliceCount = SliceCount;
 			Desc.FirstMip = FirstMip;
 			Desc.MipCount = MipCount;
-			return ReadTextureImpl(Name, RGReadAccess, Desc);
+			return ReadTexture2DImpl(Name, RGReadAccess, Desc);
 		}
 
-		FRGTextureReadWriteID WriteTexture(FRGResourceName Name,
+		FRGTexCubeReadOnlyID ReadTextureCube(FRGResourceName Name, ERGReadAccess RGReadAccess = ERGReadAccess::ReadAccess_AllShader,
 			uint32_t FirstMip = 0, uint32_t MipCount = -1, uint32_t FirstSlice = 0, uint32_t SliceCount = -1)
 		{
 			FTextureSubresourceDesc Desc;
@@ -96,31 +100,82 @@ namespace Zero
 			Desc.SliceCount = SliceCount;
 			Desc.FirstMip = FirstMip;
 			Desc.MipCount = MipCount;
-			return WriteTextureImpl(Name, Desc);
+			return ReadTextureCubeImpl(Name, RGReadAccess, Desc);
 		}
 
-		FRGRenderTargetID WriteRenderTarget(FRGResourceName Name, ERGLoadStoreAccessOp LoadStoreAccessOp,
+		FRGTex2DReadWriteID WriteTexture2D(FRGResourceName Name,
 			uint32_t FirstMip = 0, uint32_t MipCount = -1, uint32_t FirstSlice = 0, uint32_t SliceCount = -1)
 		{
+			m_RgPass.m_RenderPassRTType = ERenderPassRTType::Texuture2D;
 			FTextureSubresourceDesc Desc;
 			Desc.FirstSlice = FirstSlice;
 			Desc.SliceCount = SliceCount;
 			Desc.FirstMip = FirstMip;
 			Desc.MipCount = MipCount;
-			return WriteRenderTargetImpl(Name, LoadStoreAccessOp, Desc);
+			return WriteTexture2DImpl(Name, Desc);
 		}
 
-		FRGDepthStencilID WriteDepthStencil(FRGResourceName Name, ERGLoadStoreAccessOp LoadStoreAccessOp,
+		FRGTexCubeReadWriteID WriteTextureCube(FRGResourceName Name,
 			uint32_t FirstMip = 0, uint32_t MipCount = -1, uint32_t FirstSlice = 0, uint32_t SliceCount = -1)
 		{
+			m_RgPass.m_RenderPassRTType = ERenderPassRTType::TexutureCube;
+			FTextureSubresourceDesc Desc;
+			Desc.FirstSlice = FirstSlice;
+			Desc.SliceCount = SliceCount;
+			Desc.FirstMip = FirstMip;
+			Desc.MipCount = MipCount;
+			return WriteTextureCubeImpl(Name, Desc);
+		}
+
+		FRGTex2DRenderTargetID WriteRenderTarget2D(FRGResourceName Name, ERGLoadStoreAccessOp LoadStoreAccessOp,
+			uint32_t FirstMip = 0, uint32_t MipCount = -1, uint32_t FirstSlice = 0, uint32_t SliceCount = -1)
+		{
+			m_RgPass.m_RenderPassRTType = ERenderPassRTType::Texuture2D;
+			FTextureSubresourceDesc Desc;
+			Desc.FirstSlice = FirstSlice;
+			Desc.SliceCount = SliceCount;
+			Desc.FirstMip = FirstMip;
+			Desc.MipCount = MipCount;
+			return WriteRenderTarget2DImpl(Name, LoadStoreAccessOp, Desc);
+		}
+
+		FRGTexCubeRenderTargetID WriteRenderTargetCube(FRGResourceName Name, ERGLoadStoreAccessOp LoadStoreAccessOp,
+			uint32_t FirstMip = 0, uint32_t MipCount = -1, uint32_t FirstSlice = 0, uint32_t SliceCount = -1)
+		{
+			m_RgPass.m_RenderPassRTType = ERenderPassRTType::TexutureCube;
+			FTextureSubresourceDesc Desc;
+			Desc.FirstSlice = FirstSlice;
+			Desc.SliceCount = SliceCount;
+			Desc.FirstMip = FirstMip;
+			Desc.MipCount = MipCount;
+			return WriteRenderTargetCubeImpl(Name, LoadStoreAccessOp, Desc);
+		}
+
+		FRGTex2DDepthStencilID WriteDepthStencil2D(FRGResourceName Name, ERGLoadStoreAccessOp LoadStoreAccessOp,
+			uint32_t FirstMip = 0, uint32_t MipCount = -1, uint32_t FirstSlice = 0, uint32_t SliceCount = -1)
+		{
+			m_RgPass.m_RenderPassRTType = ERenderPassRTType::Texuture2D;
 			FTextureSubresourceDesc Desc;
 			Desc.FirstSlice = FirstSlice;
 			Desc.SliceCount = SliceCount;
 			Desc.FirstMip = FirstMip,
 			Desc.MipCount = MipCount;
-			return WriteDepthStencilImpl(Name, LoadStoreAccessOp, ERGLoadStoreAccessOp::NoAccess_NoAccess, Desc);
+			return WriteDepthStencil2DImpl(Name, LoadStoreAccessOp, ERGLoadStoreAccessOp::NoAccess_NoAccess, Desc);
 		}
-		FRGDepthStencilID ReadDepthStencil(FRGResourceName Name, ERGLoadStoreAccessOp LoadStoreAccessOp, ERGLoadStoreAccessOp StencilLoadStoreOp,
+
+		FRGTexCubeDepthStencilID WriteDepthStencilCube(FRGResourceName Name, ERGLoadStoreAccessOp LoadStoreAccessOp,
+			uint32_t FirstMip = 0, uint32_t MipCount = -1, uint32_t FirstSlice = 0, uint32_t SliceCount = -1)
+		{
+			m_RgPass.m_RenderPassRTType = ERenderPassRTType::TexutureCube;
+			FTextureSubresourceDesc Desc;
+			Desc.FirstSlice = FirstSlice;
+			Desc.SliceCount = SliceCount;
+			Desc.FirstMip = FirstMip,
+			Desc.MipCount = MipCount;
+			return WriteDepthStencilCubeImpl(Name, LoadStoreAccessOp, ERGLoadStoreAccessOp::NoAccess_NoAccess, Desc);
+		}
+
+		FRGTex2DDepthStencilID ReadDepthStencil2D(FRGResourceName Name, ERGLoadStoreAccessOp LoadStoreAccessOp, ERGLoadStoreAccessOp StencilLoadStoreOp,
 			uint32_t FirstMip = 0, uint32_t MipCount = -1, uint32_t FirstSlice = 0, uint32_t SliceCount = -1)
 		{
 			FTextureSubresourceDesc Desc;
@@ -128,9 +183,20 @@ namespace Zero
 			Desc.SliceCount = SliceCount;
 			Desc.FirstMip = FirstMip;
 			Desc.MipCount = MipCount;
-			return ReadDepthStencilImpl(Name, LoadStoreAccessOp, StencilLoadStoreOp, Desc);
+			return ReadDepthStencil2DImpl(Name, LoadStoreAccessOp, StencilLoadStoreOp, Desc);
 		}
 		
+		FRGTexCubeDepthStencilID ReadDepthStencilCube(FRGResourceName Name, ERGLoadStoreAccessOp LoadStoreAccessOp, ERGLoadStoreAccessOp StencilLoadStoreOp,
+			uint32_t FirstMip = 0, uint32_t MipCount = -1, uint32_t FirstSlice = 0, uint32_t SliceCount = -1)
+		{
+			FTextureSubresourceDesc Desc;
+			Desc.FirstSlice = FirstSlice;
+			Desc.SliceCount = SliceCount;
+			Desc.FirstMip = FirstMip;
+			Desc.MipCount = MipCount;
+			return ReadDepthStencilCubeImpl(Name, LoadStoreAccessOp, StencilLoadStoreOp, Desc);
+		}
+
 		FRGBufferReadOnlyID ReadBuffer(FRGResourceName Name, ERGReadAccess ReadAccess = ERGReadAccess::ReadAccess_AllShader, uint32_t Offset = 0, uint32_t Size = -1)
 		{
 			FBufferSubresourceDesc Desc;
@@ -147,7 +213,7 @@ namespace Zero
 			return WriteBufferImpl(Name, Desc);
 		}
 		
-		void SetViewport(uint32_t Width, uint32_t Height);
+		void SetViewport(uint32_t Width, uint32_t Height, uint32_t Depth = 0);
 		void AddBufferBindFlags(FRGResourceName Name, EResourceBindFlag Flags);
 		void AddTextureBindFlags(FRGResourceName Name, EResourceBindFlag Flags);
 
@@ -157,11 +223,18 @@ namespace Zero
 	private:
 		FRenderGraphBuilder(FRenderGraph&, FRGPassBase&);
 
-		FRGTextureReadOnlyID ReadTextureImpl(FRGResourceName Name, ERGReadAccess ReadAcess, const FTextureSubresourceDesc& Desc);
-		FRGTextureReadWriteID WriteTextureImpl(FRGResourceName Name, const FTextureSubresourceDesc& Desc);
-		FRGRenderTargetID WriteRenderTargetImpl(FRGResourceName Name,  ERGLoadStoreAccessOp LoadStoreOp, const FTextureSubresourceDesc& Desc);
-		FRGDepthStencilID WriteDepthStencilImpl(FRGResourceName Name,  ERGLoadStoreAccessOp LoadStoreOp,  ERGLoadStoreAccessOp StencilLoadStoreOp, const FTextureSubresourceDesc& Desc);
-		FRGDepthStencilID ReadDepthStencilImpl(FRGResourceName Name, ERGLoadStoreAccessOp LoadStoreOp, ERGLoadStoreAccessOp StencilLoadStoreOps, const FTextureSubresourceDesc& Desc);
+		FRGTex2DReadOnlyID ReadTexture2DImpl(FRGResourceName Name, ERGReadAccess ReadAcess, const FTextureSubresourceDesc& Desc);
+		FRGTex2DReadWriteID WriteTexture2DImpl(FRGResourceName Name, const FTextureSubresourceDesc& Desc);
+		FRGTex2DRenderTargetID WriteRenderTarget2DImpl(FRGResourceName Name,  ERGLoadStoreAccessOp LoadStoreOp, const FTextureSubresourceDesc& Desc);
+		FRGTex2DDepthStencilID WriteDepthStencil2DImpl(FRGResourceName Name,  ERGLoadStoreAccessOp LoadStoreOp,  ERGLoadStoreAccessOp StencilLoadStoreOp, const FTextureSubresourceDesc& Desc);
+		FRGTex2DDepthStencilID ReadDepthStencil2DImpl(FRGResourceName Name, ERGLoadStoreAccessOp LoadStoreOp, ERGLoadStoreAccessOp StencilLoadStoreOps, const FTextureSubresourceDesc& Desc);
+
+		FRGTexCubeReadOnlyID ReadTextureCubeImpl(FRGResourceName Name, ERGReadAccess ReadAcess, const FTextureSubresourceDesc& Desc);
+		FRGTexCubeReadWriteID WriteTextureCubeImpl(FRGResourceName Name, const FTextureSubresourceDesc& Desc);
+		FRGTexCubeRenderTargetID WriteRenderTargetCubeImpl(FRGResourceName Name,  ERGLoadStoreAccessOp LoadStoreOp, const FTextureSubresourceDesc& Desc);
+		FRGTexCubeDepthStencilID WriteDepthStencilCubeImpl(FRGResourceName Name,  ERGLoadStoreAccessOp LoadStoreOp,  ERGLoadStoreAccessOp StencilLoadStoreOp, const FTextureSubresourceDesc& Desc);
+		FRGTexCubeDepthStencilID ReadDepthStencilCubeImpl(FRGResourceName Name, ERGLoadStoreAccessOp LoadStoreOp, ERGLoadStoreAccessOp StencilLoadStoreOps, const FTextureSubresourceDesc& Desc);
+
 		FRGBufferReadOnlyID	ReadBufferImpl(FRGResourceName Name, ERGReadAccess ReadAccess, const FBufferSubresourceDesc& Desc);
 		FRGBufferReadWriteID WriteBufferImpl(FRGResourceName Name, const FBufferSubresourceDesc& Desc);
 		FRGBufferReadWriteID WriteBufferImpl(FRGResourceName Name, FRGResourceName CounterName, const FBufferSubresourceDesc& Desc);

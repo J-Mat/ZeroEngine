@@ -12,6 +12,7 @@
 #include "Render/Moudule/Texture/TextureManager.h"
 #include "World/LightManager.h"
 #include "Render/Moudule/PSOCache.h"
+#include "Render/Moudule/SceneCapture.h"
 
 
 
@@ -48,7 +49,7 @@ namespace Zero
 		const std::vector<UDirectLightActor*>& DirectLights = FLightManager::Get().GetDirectLights();
 		for (uint32_t LightIndex = 0; LightIndex < DirectLights.size(); ++LightIndex)
 		{
-			RenderGraph.AddPass<void>(
+			auto& Pass = RenderGraph.AddPass<void>(
 				"DirectLightShadowMap Pass",
 				[=](FRenderGraphBuilder& Builder)
 				{
@@ -59,8 +60,8 @@ namespace Zero
 						.Format = EResourceFormat::D24_UNORM_S8_UINT,
 					};
 
-					Builder.DeclareTexture(RGResourceName::ShadowMaps[LightIndex], ShadowMapDesc);
-					Builder.WriteDepthStencil(RGResourceName::ShadowMaps[LightIndex], ERGLoadStoreAccessOp::Clear_Preserve);
+					Builder.DeclareTexture2D(RGResourceName::DirectLightShadowMaps[LightIndex], ShadowMapDesc);
+					Builder.WriteDepthStencil2D(RGResourceName::DirectLightShadowMaps[LightIndex], ERGLoadStoreAccessOp::Clear_Preserve);
 					Builder.SetViewport(m_Width, m_Height);
 				},
 				[=](FRenderGraphContext& Context, FCommandListHandle CommandListHandle)
@@ -79,19 +80,19 @@ namespace Zero
 
 			struct FShadowPassDebugData
 			{
-				FRGTextureReadOnlyID ShadowMapID;
+				FRGTex2DReadOnlyID ShadowMapID;
 			};
 			RenderGraph.AddPass<FShadowPassDebugData>(
 				"ShadowMap Debug Pass",
 				[=](FShadowPassDebugData& Data, FRenderGraphBuilder& Builder)
 				{
-					Data.ShadowMapID = Builder.ReadTexture(RGResourceName::ShadowMaps[LightIndex]);
-					Builder.WriteRenderTarget(RGResourceName::ShadowMaps_Debug[LightIndex], ERGLoadStoreAccessOp::Clear_Preserve);
+					Data.ShadowMapID = Builder.ReadTexture2D(RGResourceName::DirectLightShadowMaps[LightIndex]);
+					Builder.WriteRenderTarget2D(RGResourceName::ShadowMaps_Debug[LightIndex], ERGLoadStoreAccessOp::Clear_Preserve);
 					Builder.SetViewport(m_Width, m_Height);
 				},
 				[=](const FShadowPassDebugData& Data, FRenderGraphContext& Context, FCommandListHandle CommandListHandle)
 				{
-					FTexture2D* ShadowMap = Context.GetTexture(Data.ShadowMapID.GetResourceID());
+					FTexture2D* ShadowMap = Context.GetTexture2D(Data.ShadowMapID.GetResourceID());
 					FRenderUtils::DrawRenderItem(m_ShadowMapDebugItems[LightIndex], CommandListHandle,
 						[&](Ref<FRenderItem> RenderItem)
 						{
@@ -107,6 +108,53 @@ namespace Zero
 
 	void FShadowPass::SetupPointLightShadow(FRenderGraph& RenderGraph)
 	{
+		const std::vector<UPointLightActor*>& PointLights = FLightManager::Get().GetPointLights();
+		for (uint32_t LightIndex = 0; LightIndex < PointLights.size(); ++LightIndex)
+		{
+			for (uint32_t FaceIndex = 0; FaceIndex < 6; ++FaceIndex)
+			{
+				RenderGraph.AddPass<void>(
+					"PointLightShadowMap Pass",
+					[=](FRenderGraphBuilder& Builder)
+					{
+						FRGTextureDesc ShadowMapDesc = {
+							.Width = m_Width,
+							.Height = m_Height,
+							.ArraySize = 6,
+							.ClearValue = FTextureClearValue(1.0f, 0),
+							.Format = EResourceFormat::D24_UNORM_S8_UINT,
+						};
+
+						if (FaceIndex == 0)
+						{ 
+							Builder.DeclareTextureCube(RGResourceName::PointLightShadowMaps[LightIndex], ShadowMapDesc);
+						}
+						Builder.WriteDepthStencilCube(RGResourceName::PointLightShadowMaps[LightIndex], ERGLoadStoreAccessOp::Clear_Preserve);
+						Builder.SetViewport(m_Width, m_Height, FaceIndex);
+					},
+					[=](FRenderGraphContext& Context, FCommandListHandle CommandListHandle)
+					{
+
+						FRenderUtils::RenderLayer(ERenderLayer::Shadow, CommandListHandle,
+						[=](Ref<FRenderItem> RenderItem)
+							{
+								UPointLightActor* PointLight = FLightManager::Get().GetPointLights()[LightIndex];
+								const FSceneCaptureCube& SceneCaptureCube = PointLight->GetSceneCaptureCube();
+								const FSceneView& SceneView = SceneCaptureCube.GetSceneView(FaceIndex); 
+								const Ref<IShaderConstantsBuffer> Camera = SceneCaptureCube.GetCamera(FaceIndex);
+								RenderItem->m_Material->SetCamera(Camera);
+								RenderItem->m_Material->SetCameraViewMat("View", SceneView.View);
+								RenderItem->m_Material->SetCameraViewPos("ViewPos", SceneView.ViewPos);
+								RenderItem->m_Material->SetCameraProjectMat("Projection", SceneView.Proj);
+								RenderItem->m_Material->SetCameraProjectViewMat("ProjectionView", SceneView.ProjectionView);
+							}
+					);
+					},
+					ERenderPassType::Graphics,
+					ERGPassFlags::ForceNoCull
+				);
+			}
+		}
 	}
 
 	void FShadowPass::AddPass(FRenderGraph& RenderGraph)

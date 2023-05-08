@@ -30,12 +30,13 @@ namespace Zero
 	class FMaterial
 	{
 	public:
-		FMaterial(bool bUseMainCamera = true);
+		FMaterial();
 		~FMaterial();	
 		void Tick();
-		void SetCamera(Ref<IShaderConstantsBuffer> Camera) { m_CameraBuffer = Camera; };
+		void SetCamera(Ref<IShaderConstantsBuffer> Camera = UWorld::GetCurrentWorld()->GetMainCamera()->GetConstantBuffer());
 		void SetPass(FCommandListHandle CommandListHanle);
 		void OnDrawCall(FCommandListHandle CommandListHanle);
+		void PostDrawCall();
 		void SetShader(Ref<FShader> Shader);
 		Ref<FShader> GetShader() { return m_Shader; }
 
@@ -87,5 +88,6 @@ namespace Zero
 	private:
 		FOnSetParameter m_OnSetFloat;
 		FOnSetParameter m_OnSetInt;
+		FCommandListHandle m_CommandListHandle = ZERO_INVALID_ID;
 	};
 }

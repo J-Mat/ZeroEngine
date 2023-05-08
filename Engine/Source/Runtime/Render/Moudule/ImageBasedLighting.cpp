@@ -129,7 +129,7 @@ namespace Zero
 				m_PrefilterEnvMapRTCube->SetRenderTarget(m_CommandListHandle, FaceIndex, Mip);
 				const FSceneView& SceneView = m_PrefilterEnvMapRTCube->GetSceneView(FaceIndex);
 				Ref<IShaderConstantsBuffer> Camera = m_PrefilterEnvMapRTCube->GetCamera(FaceIndex);
-				m_PrefilterMapRenderItems[Mip]->m_Material->SetCamera(Camera);
+return 				m_PrefilterMapRenderItems[Mip]->m_Material->SetCamera(Camera);
 
 				FRenderUtils::DrawRenderItem(m_PrefilterMapRenderItems[Mip], m_CommandListHandle,
 					[&](Ref<FRenderItem> RenderItem)

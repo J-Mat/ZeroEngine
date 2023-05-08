@@ -6,14 +6,14 @@ namespace Zero
 {
 	void FRGResourcePool::Tick()
 	{
-		for (size_t i = 0; i < m_TexturePool.size();)
+		for (size_t i = 0; i < m_Texture2DPool.size();)
 		{
-			FPooledTexture& Resource = m_TexturePool[i].first;
-			bool bActive = m_TexturePool[i].second;
+			FPooledTexture2D& Resource = m_Texture2DPool[i].first;
+			bool bActive = m_Texture2DPool[i].second;
 			if (!bActive && Resource.LastUsedFrame + 4 < m_FrameIndex)
 			{
-				std::swap(m_TexturePool[i], m_TexturePool.back());
-				m_TexturePool.pop_back();
+				std::swap(m_Texture2DPool[i], m_Texture2DPool.back());
+				m_Texture2DPool.pop_back();
 			}
 			else
 			{
@@ -23,10 +23,10 @@ namespace Zero
 		++m_FrameIndex;
 	}
 
-	FTexture2D* FRGResourcePool::AllocateTexture(const FTextureDesc& Desc, char const* Name)
+	FTexture2D* FRGResourcePool::AllocateTexture2D(const FTextureDesc& Desc, char const* Name)
 	{
-		std::string TextureName = std::format("PoolTexture_{0}_{1}", m_TexturePool.size(), Name);
-		for (auto& [PoolTexture, bActive] : m_TexturePool)
+		std::string TextureName = std::format("PoolTexture2D_{0}_{1}", m_Texture2DPool.size(), Name);
+		for (auto& [PoolTexture, bActive] : m_Texture2DPool)
 		{
 			if (!bActive && PoolTexture.Texture->GetDesc().IsCompatible(Desc))
 			{
@@ -38,9 +38,29 @@ namespace Zero
 		}
 		Scope<FTexture2D> Texture;
 		Texture.reset(FGraphic::GetDevice()->CreateTexture2D(TextureName, Desc, false));
-		std::pair<FPooledTexture, bool> Pair = { FPooledTexture(std::move(Texture), m_FrameIndex), true };
-		m_TexturePool.emplace_back(std::move(Pair));
-		return m_TexturePool.back().first.Texture.get();
+		std::pair<FPooledTexture2D, bool> Pair = { FPooledTexture2D(std::move(Texture), m_FrameIndex), true };
+		m_Texture2DPool.emplace_back(std::move(Pair));
+		return m_Texture2DPool.back().first.Texture.get();
+	}
+
+	FTextureCube* FRGResourcePool::AllocateTextureCube(const FTextureDesc& Desc, char const* Name)
+	{
+		std::string TextureName = std::format("PoolTextureCube_{0}_{1}", m_TextureCubePool.size(), Name);
+		for (auto& [PoolTexture, bActive] : m_TextureCubePool)
+		{
+			if (!bActive && PoolTexture.Texture->GetDesc().IsCompatible(Desc))
+			{
+				PoolTexture.Texture->SetName(TextureName);
+				PoolTexture.LastUsedFrame = m_FrameIndex;
+				bActive = true;
+				return PoolTexture.Texture.get();
+			}
+		}
+		Scope<FTextureCube> Texture;
+		Texture.reset(FGraphic::GetDevice()->CreateTextureCube(TextureName, Desc, false));
+		std::pair<FPooledTextureCube, bool> Pair = { FPooledTextureCube(std::move(Texture), m_FrameIndex), true };
+		m_TextureCubePool.emplace_back(std::move(Pair));
+		return m_TextureCubePool.back().first.Texture.get();
 	}
 
 	FBuffer* FRGResourcePool::AllocateBuffer(const FBufferDesc& Desc)
@@ -62,9 +82,10 @@ namespace Zero
 		return Buffer.get();
 	}
 
-	FRenderTarget2D* FRGResourcePool::AllocateRenderTarget()
+
+	FRenderTarget2D* FRGResourcePool::AllocateRenderTarget2D()
 	{
-		for (auto& [PoolRenderTarget, bActive] : m_RenderTargetPool)
+		for (auto& [PoolRenderTarget, bActive] : m_RenderTarget2DPool)
 		{ 
 			if (!bActive)
 			{
@@ -76,17 +97,48 @@ namespace Zero
 		}
 		Ref<FRenderTarget2D> RenderTarget; 
 		RenderTarget.reset(FGraphic::GetDevice()->CreateRenderTarget2D());
-		std::pair<FPoolRenderTarget, bool> Pair = { FPoolRenderTarget(RenderTarget, false), true};
-		m_RenderTargetPool.emplace_back(Pair);
+		std::pair<FPoolRenderTarget2D, bool> Pair = { FPoolRenderTarget2D(RenderTarget, false), true};
+		m_RenderTarget2DPool.emplace_back(Pair);
 		return RenderTarget.get();
 	}
 
 
-	void FRGResourcePool::ReleaseTexture(FTexture2D* Texture)
+	FRenderTargetCube* FRGResourcePool::AllocateRenderTargetCube()
 	{
-		for (auto& [PooledTexture, bActive] : m_TexturePool)
+		for (auto& [PoolRenderTarget, bActive] : m_RenderTargetCubePool)
+		{ 
+			if (!bActive)
+			{
+				PoolRenderTarget.LastUsedFrame = m_FrameIndex;
+				bActive = true;
+				//PoolRenderTarget.RenderTarget->Reset();
+				return PoolRenderTarget.RenderTarget.get();
+			}
+		}
+		Ref<FRenderTargetCube> RenderTargetCube; 
+		RenderTargetCube.reset(FGraphic::GetDevice()->CreateRenderTargetCube());
+		std::pair<FPoolRenderTargetCube, bool> Pair = { FPoolRenderTargetCube(RenderTargetCube, false), true};
+		m_RenderTargetCubePool.emplace_back(Pair);
+		return RenderTargetCube.get();
+	}
+
+	void FRGResourcePool::ReleaseTexture2D(FTexture2D* Texture)
+	{
+		for (auto& [PooledTexture2D, bActive] : m_Texture2DPool)
 		{
-			if (bActive && PooledTexture.Texture.get() == Texture)
+			if (bActive && PooledTexture2D.Texture.get() == Texture)
+			{
+				bActive = false;
+				return;
+			}
+		}
+	}
+
+	void FRGResourcePool::ReleaseTextureCube(FTextureCube* Texture)
+	{
+		for (auto& [PooledTextureCube, bActive] : m_TextureCubePool)
+		{
+			if (bActive && PooledTextureCube.Texture.get() == Texture)
 			{
 				bActive = false;
 				return;
@@ -106,9 +158,21 @@ namespace Zero
 		}
 	}
 
-	void FRGResourcePool::ReleaseRenderTarget(FRenderTarget2D* RenderTarget)
+	void FRGResourcePool::ReleaseRenderTarget2D(FRenderTarget2D* RenderTarget)
 	{
-		for (auto& [PoolRenderTarget, bActive] : m_RenderTargetPool)
+		for (auto& [PoolRenderTarget, bActive] : m_RenderTarget2DPool)
+		{
+			if (bActive && PoolRenderTarget.RenderTarget.get() == RenderTarget)
+			{
+				bActive = false;
+				return;
+			}
+		}
+	}
+
+	void FRGResourcePool::ReleaseRenderTargetCube(FRenderTargetCube* RenderTarget)
+	{
+		for (auto& [PoolRenderTarget, bActive] : m_RenderTargetCubePool)
 		{
 			if (bActive && PoolRenderTarget.RenderTarget.get() == RenderTarget)
 			{

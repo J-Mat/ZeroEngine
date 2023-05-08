@@ -7,7 +7,7 @@
 
 namespace Zero
 {
-	FDX12TextureCube::FDX12TextureCube(const std::string& TextureName, const FTextureDesc& Desc)
+	FDX12TextureCube::FDX12TextureCube(const std::string& TextureName, const FTextureDesc& Desc, bool bCreateTextureView /*= true*/)
 		:FTextureCube(Desc)
 	{
 		if (HasAnyFlag(m_TextureDesc.ResourceBindFlags, EResourceBindFlag::RenderTarget | EResourceBindFlag::DepthStencil))
@@ -64,7 +64,11 @@ namespace Zero
 			TextureResourceAllocator->AllocTextureResource(TextureName, ResourceDesc, m_ResourceLocation);
 		}
 		FResourceStateTracker::AddGlobalResourceState(m_ResourceLocation.GetResource()->GetD3DResource().Get(), D3D12_RESOURCE_STATE_COMMON);
-		CreateViews(m_TextureDesc.MipLevels);
+
+		if (bCreateTextureView)
+		{
+			CreateViews(m_TextureDesc.MipLevels);
+		}
 	}
 
 	FDX12TextureCube::FDX12TextureCube(const std::string& TextureName, Ref<FImage> ImageData[CUBEMAP_TEXTURE_CNT], bool bRenderDepth)
@@ -80,6 +84,7 @@ namespace Zero
 		FDX12Device::Get()->GetInitWorldCommandList()->AllocateTextureCubemapResource(TextureName, m_TextureDesc, m_ResourceLocation, ImageData);
 		CreateViews(m_TextureDesc.MipLevels);
 	}
+
 
 
 	void FDX12TextureCube::Resize(uint32_t Width, uint32_t Height, uint32_t DepthOrArraySize)
@@ -189,6 +194,11 @@ namespace Zero
 	}
 
 
+	void FDX12TextureCube::SetName(const std::string& Name)
+	{
+		m_ResourceLocation.GetResource()->SetName(Utils::String2WString(Name));
+	}
+
 	Zero::FResourceView* FDX12TextureCube::GetRTV(uint32_t FaceIndex /*= 0*/, uint32_t SubResourceIndex /*= -1*/) const
 	{
 		uint32_t Index = SubResourceIndex == -1 ? FaceIndex : m_TextureDesc.MipLevels * FaceIndex + SubResourceIndex;
@@ -203,6 +213,80 @@ namespace Zero
 	FResourceView* FDX12TextureCube::GetSRV(uint32_t ViewID /*= 0*/) const
 	{
 		return m_SRVs[ViewID].get();
+	}
+
+	void FDX12TextureCube::MakeSRVs(const std::vector<FTextureSubresourceDesc>& Descs)
+	{
+		auto D3DDevice = FDX12Device::Get()->GetDevice();
+		CD3DX12_RESOURCE_DESC Desc(m_ResourceLocation.GetResource()->GetD3DResource()->GetDesc());
+
+		m_SRVs.resize(Descs.size());
+		uint32_t Index = 0;
+		for (auto& SubDesc : Descs)
+		{
+			D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc = {
+				.Format = Desc.Format,
+				.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE,
+				.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
+				.Texture2D =
+				{
+					.MostDetailedMip = 0,
+					.MipLevels = SubDesc.MipCount,
+					.ResourceMinLODClamp = 0.0f,
+				}
+			};
+			auto Ptr = CreateScope<FDX12ShaderResourceView>(m_ResourceLocation.GetResource(), &SrvDesc);
+			m_SRVs[Index++] = std::move(Ptr);
+		}
+	}
+
+	void FDX12TextureCube::MakeRTVs(const std::vector<FTextureSubresourceDesc>& Descs)
+	{
+		m_RTVs.resize(Descs.size());
+		uint32_t Index = 0;
+		for (auto& SubDesc : Descs)
+		{
+			D3D12_RENDER_TARGET_VIEW_DESC RtvDesc = {
+				.Format = m_ResourceLocation.GetResource()->GetD3D12ResourceDesc().Format,
+				.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DARRAY,
+				.Texture2DArray =
+				{
+					.MipSlice = SubDesc.FirstMip,
+					.FirstArraySlice = UINT(SubDesc.FirstSlice),
+					.ArraySize = 1,
+					.PlaneSlice = 0,
+				},
+			};
+			auto Ptr = CreateScope<FDX12RenderTargetView>(m_ResourceLocation.GetResource(), &RtvDesc);
+			m_RTVs[Index++] = std::move(Ptr);
+		}
+	}
+
+	void FDX12TextureCube::MakeDSVs(const std::vector<FTextureSubresourceDesc>& Descs)
+	{
+		m_DSVs.resize(Descs.size());
+		uint32_t Index = 0;
+		for (auto& SubDesc : Descs)
+		{
+			m_DSVs.resize(6);
+			D3D12_DEPTH_STENCIL_VIEW_DESC DsvDesc = {
+				.Format = DXGI_FORMAT_D24_UNORM_S8_UINT,
+				.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2DARRAY,
+				.Flags = D3D12_DSV_FLAG_NONE,
+				.Texture2DArray =
+				{
+					.MipSlice = 0,
+					.FirstArraySlice = UINT(SubDesc.FirstSlice),
+					.ArraySize = 1,
+				},
+			};
+			auto Ptr = CreateScope<FDX12DepthStencilView>(m_ResourceLocation.GetResource(), &DsvDesc);
+			m_DSVs[Index++] = std::move(Ptr);
+		}
+	}
+
+	void FDX12TextureCube::MakeUAVs(const std::vector<FTextureSubresourceDesc>& Descs)
+	{
 	}
 
 }

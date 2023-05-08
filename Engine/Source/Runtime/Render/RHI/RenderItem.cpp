@@ -103,6 +103,7 @@ namespace Zero
 		{
 			m_Mesh->DrawSubMesh(m_SubMesh, ComamndListHandle);
 		}
+		m_Material->PostDrawCall();
 	}
 
 

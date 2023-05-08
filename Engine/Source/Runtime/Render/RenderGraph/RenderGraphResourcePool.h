@@ -8,9 +8,15 @@ namespace Zero
 {
 	class FRGResourcePool
 	{
-		struct FPooledTexture
+		struct FPooledTexture2D
 		{
 			Scope<FTexture2D> Texture;
+			uint64_t LastUsedFrame;
+		};
+
+		struct FPooledTextureCube
+		{
+			Scope<FTextureCube> Texture;
 			uint64_t LastUsedFrame;
 		};
 
@@ -20,25 +26,37 @@ namespace Zero
 			uint64_t LastUsedFrame;
 		};
 
-		struct FPoolRenderTarget
+		struct FPoolRenderTarget2D
 		{
 			Ref<FRenderTarget2D> RenderTarget;
+			uint64_t LastUsedFrame;
+		};
+
+		struct FPoolRenderTargetCube
+		{
+			Ref<FRenderTargetCube> RenderTarget;
 			uint64_t LastUsedFrame;
 		};
 
 	public:
 		FRGResourcePool() = default;
 		void Tick();
-		FTexture2D* AllocateTexture(const FTextureDesc& Desc, char const* Name);
+		FTexture2D* AllocateTexture2D(const FTextureDesc& Desc, char const* Name);
+		FTextureCube* AllocateTextureCube(const FTextureDesc& Desc, char const* Name);
 		FBuffer* AllocateBuffer(const FBufferDesc& Desc);
-		FRenderTarget2D* AllocateRenderTarget();
-		void ReleaseTexture(FTexture2D* Texture);
+		FRenderTarget2D* AllocateRenderTarget2D();
+		FRenderTargetCube* AllocateRenderTargetCube();
+		void ReleaseTexture2D(FTexture2D* Texture);
+		void ReleaseTextureCube(FTextureCube* Texture);
 		void ReleaseBuffer(FBuffer* Buffer);
-		void ReleaseRenderTarget(FRenderTarget2D* RenderTarget);
+		void ReleaseRenderTarget2D(FRenderTarget2D* RenderTarget);
+		void ReleaseRenderTargetCube(FRenderTargetCube* RenderTarget);
 	private:
 		uint64_t m_FrameIndex = 0;
-		std::vector<std::pair<FPooledTexture, bool>> m_TexturePool;
+		std::vector<std::pair<FPooledTexture2D, bool>> m_Texture2DPool;
+		std::vector<std::pair<FPooledTextureCube, bool>> m_TextureCubePool;
 		std::vector<std::pair<FPooledBuffer, bool>> m_BufferPool;
-		std::vector<std::pair<FPoolRenderTarget, bool>> m_RenderTargetPool;
+		std::vector<std::pair<FPoolRenderTarget2D, bool>> m_RenderTarget2DPool;
+		std::vector<std::pair<FPoolRenderTargetCube, bool>> m_RenderTargetCubePool;
 	};
 }

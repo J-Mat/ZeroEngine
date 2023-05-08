@@ -23,7 +23,7 @@ namespace Zero
 	{
 		struct FForwardLitPassData
 		{
-			FRGTextureReadOnlyID DirectLightShadowMaps[2];
+			FRGTex2DReadOnlyID DirectLightShadowMaps[2];
 		};
 
 		RenderGraph.AddPass<FForwardLitPassData>(
@@ -37,8 +37,8 @@ namespace Zero
 						.ClearValue = FTextureClearValue(1.0f, 0),
 						.Format = EResourceFormat::D24_UNORM_S8_UINT
 					};
-					Builder.DeclareTexture(RGResourceName::DepthStencil, DepthDesc);
-					Builder.WriteDepthStencil(RGResourceName::DepthStencil, ERGLoadStoreAccessOp::Clear_Preserve);
+					Builder.DeclareTexture2D(RGResourceName::DepthStencil, DepthDesc);
+					Builder.WriteDepthStencil2D(RGResourceName::DepthStencil, ERGLoadStoreAccessOp::Clear_Preserve);
 				}
 
 				{
@@ -48,8 +48,8 @@ namespace Zero
 						.ClearValue = FTextureClearValue(0.0f, 0.0f, 0.0f, 0.0f),
 						.Format = EResourceFormat::R8G8B8A8_UNORM
 					};
-					Builder.DeclareTexture(RGResourceName::GBufferColor, ColorDesc);
-					Builder.WriteRenderTarget(RGResourceName::GBufferColor, ERGLoadStoreAccessOp::Clear_Preserve);
+					Builder.DeclareTexture2D(RGResourceName::GBufferColor, ColorDesc);
+					Builder.WriteRenderTarget2D(RGResourceName::GBufferColor, ERGLoadStoreAccessOp::Clear_Preserve);
 				}
 
 				// Shadow Maps
@@ -57,7 +57,7 @@ namespace Zero
 				std::vector<FTexture2D*> ShadowMaps;
 				for (uint32_t LightIndex = 0; LightIndex < DirectLights.size(); ++LightIndex)
 				{
-					FRGTextureReadOnlyID RGTextureReadOnlyID =  Builder.ReadTexture(RGResourceName::ShadowMaps[LightIndex]);
+					FRGTex2DReadOnlyID RGTextureReadOnlyID =  Builder.ReadTexture2D(RGResourceName::DirectLightShadowMaps[LightIndex]);
 					Data.DirectLightShadowMaps[LightIndex] = RGTextureReadOnlyID;
 				}
 
@@ -69,7 +69,7 @@ namespace Zero
 				std::vector<FTexture2D*> ShadowMaps;
 				for (size_t LightIndex = 0; LightIndex < DirectLights.size(); ++LightIndex)
 				{
-					FTexture2D* Texture = Context.GetTexture(Data.DirectLightShadowMaps[LightIndex].GetResourceID());
+					FTexture2D* Texture = Context.GetTexture2D(Data.DirectLightShadowMaps[LightIndex].GetResourceID());
 					ShadowMaps.push_back(Texture);
 				}
 
@@ -78,8 +78,8 @@ namespace Zero
 					[&](Ref<FRenderItem> RenderItem)
 					{
 						auto& IBLModule = FRenderUtils::GetIBLMoudule();
-						RenderItem->m_Material->SetTextureCubemap("IBLIrradianceMap", IBLModule->GetIrradianceRTCube()->GetColorCubemap().get());
-						RenderItem->m_Material->SetTextureCubemap("IBLPrefilterMap", IBLModule->GetPrefilterEnvMapRTCube()->GetColorCubemap().get());
+						RenderItem->m_Material->SetTextureCubemap("IBLIrradianceMap", IBLModule->GetIrradianceRTCube()->GetColorTexCube());
+						RenderItem->m_Material->SetTextureCubemap("IBLPrefilterMap", IBLModule->GetPrefilterEnvMapRTCube()->GetColorTexCube());
 						RenderItem->m_Material->SetTexture2D("_BrdfLUT", FTextureManager::Get().GetLutTexture().get());
 						RenderItem->m_Material->SetIBL(true);
 						uint32_t EmptyLightsNum = FLightManager::Get().GetMaxDirectLightsNum() - ShadowMaps.size();

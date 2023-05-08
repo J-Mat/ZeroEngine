@@ -2,6 +2,7 @@
 #include "Core.h"
 #include "Texture.h"
 #include "Render/RenderConfig.h"
+#include "Render/Moudule/SceneCapture.h"
 
 namespace Zero
 {
@@ -16,7 +17,7 @@ namespace Zero
 		std::strong_ordering operator<=>(FRenderTarget2DDesc const& Other) const = default;
 	};
 
-	struct FRenderTexAttachment
+	struct FRenderTex2DAttachment
 	{
 		FTexture2D* Texture = nullptr;
 		uint32_t ViewID = 0;
@@ -24,6 +25,13 @@ namespace Zero
 		bool bClearColor = true;
 	};
 
+	struct FRenderTexCubeAttachment
+	{
+		FTextureCube* Texture = nullptr;
+		uint32_t ViewID = 0;
+		std::optional<FTextureClearValue> ClearValue = std::nullopt;
+		bool bClearColor = true;
+	};
 
 	class FRenderTarget2D
 	{
@@ -40,8 +48,8 @@ namespace Zero
 		virtual void Bind(FCommandListHandle CommanListHandle) = 0;
 		virtual void UnBind(FCommandListHandle CommandListHandle) = 0;
 		virtual void UnBindDepth(FCommandListHandle CommandListHandle) = 0;
-		virtual void AttachColorTexture(uint32_t AttachmentIndex, const FRenderTexAttachment& Attachment) = 0;
-		virtual void AttachDepthTexture(const FRenderTexAttachment& Attachment) = 0;
+		virtual void AttachColorTexture(uint32_t AttachmentIndex, const FRenderTex2DAttachment& Attachment) = 0;
+		virtual void AttachDepthTexture(const FRenderTex2DAttachment& Attachment) = 0;
 
 		virtual void Reset();
 		virtual FTexture2D* GetColorTexture(uint32_t AttachmentIndex) const { return m_ColoTexture[AttachmentIndex].Texture; }
@@ -52,8 +60,8 @@ namespace Zero
 		uint32_t GetHeight() { return m_Height; }
 		
 	protected:
-		std::vector<FRenderTexAttachment> m_ColoTexture;
-		FRenderTexAttachment m_DepthTexture;
+		std::vector<FRenderTex2DAttachment> m_ColoTexture;
+		FRenderTex2DAttachment m_DepthTexture;
 		uint32_t m_Width = 0;
 		uint32_t m_Height = 0;
 	};
@@ -68,23 +76,25 @@ namespace Zero
 		EResourceFormat TextureFormat = EResourceFormat::R8G8B8A8_UNORM;
 	};
 
-	class IShaderConstantsBuffer;
 	class FRenderTargetCube
 	{
 	public:	
+		FRenderTargetCube();
 		FRenderTargetCube(const FRenderTargetCubeDesc& Desc);
+		void InitParams();
 		virtual void Bind(FCommandListHandle CommandListHandle) = 0;
 		virtual void SetRenderTarget(FCommandListHandle CommandListHandle, uint32_t FaceIndex, uint32_t SubResource = -1) = 0;
 		virtual void UnBind(FCommandListHandle CommandListHandle, uint32_t FaceIndex, uint32_t SubResource = -1) = 0;
-		const FSceneView& GetSceneView(uint32_t Index) { return m_SceneViews[Index]; }
-		Ref<IShaderConstantsBuffer> GetCamera(uint32_t Index) {	return m_ViewkCameraBuffers[Index];}
-		Ref<FTextureCube> GetColorCubemap() {return m_TextureColorCubemap; }
-		Ref<FTextureCube> GetDepthCubemap() { return m_TextureDepthCubemap; }
+		const FSceneView& GetSceneView(uint32_t Index) { return m_SceneCaptureCube.GetSceneView(Index); }
+		Ref<IShaderConstantsBuffer> GetCamera(uint32_t Index) {	return m_SceneCaptureCube.GetCamera(Index);}
+		void AttachColorTexture(const FRenderTexCubeAttachment& Attachment) { m_TextureColorCubemap = Attachment; }
+		void AttachDepthTexture(const FRenderTexCubeAttachment& Attachment) { m_TextureDepthCubemap = Attachment; }
+		FTextureCube* GetColorTexCube() {return m_TextureColorCubemap.Texture;}
+		FTextureCube* GetDepthTexCube() {return m_TextureDepthCubemap.Texture;}
 	protected:
+		FSceneCaptureCube m_SceneCaptureCube;
 		FRenderTargetCubeDesc m_RenderTargetCubeDesc;
-		Ref<FTextureCube> m_TextureColorCubemap;
-		Ref<FTextureCube> m_TextureDepthCubemap;
-		FSceneView m_SceneViews[6];
-		Ref<IShaderConstantsBuffer> m_ViewkCameraBuffers[6];
+		FRenderTexCubeAttachment m_TextureColorCubemap;
+		FRenderTexCubeAttachment m_TextureDepthCubemap;
 	};
 }

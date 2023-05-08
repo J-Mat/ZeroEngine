@@ -2,16 +2,11 @@
 #include "Core.h"
 #include "TransformComponent.h"
 #include "Render/RHI/Shader/ShaderBinder.h"
+#include "Render/Moudule/SceneCapture.h"
 #include "CameraComponent.reflection.h"
 
 namespace Zero
 {
-	UENUM()
-	enum ECameraType
-	{
-		CT_PERSPECT,
-		CT_ORI,
-	};
 
 	UCLASS()
 	class UCameraComponent : public UComponent
@@ -33,6 +28,7 @@ namespace Zero
 	private:
 		UTransformComponent* m_TransformCompent;
 		
+		FSceneCapture2D m_SceneCapture2D;
 
 		ZMath::vec3 m_LookAt = {0, 0, 0};
 		ZMath::mat4 m_Projection;
@@ -43,17 +39,5 @@ namespace Zero
 
 		float m_Fov = 90.0f;
 
-		float m_Aspect = 16.0f / 9.0f;
-		ZMath::vec3 m_WorldUp = { 0.0f, 1.0f, 0.0f };
-
-		UPROPERTY()
-		ECameraType m_CameraType = ECameraType::CT_PERSPECT;
-
-		float m_Near = 0.01f;
-		float m_Far = 1000.0f;
-		float m_Left = 0.0f;
-		float m_Right = 0.0f;
-		float m_Bottom = 0.0f;
-		float m_Top = 0.0f;
 	};
 }
