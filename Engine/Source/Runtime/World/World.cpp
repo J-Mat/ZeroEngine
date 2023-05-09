@@ -81,7 +81,8 @@ namespace Zero
 	{
 		float MinT = std::numeric_limits<float>::max();
 		UActor* Result = nullptr;
-		const auto& ViewMat = m_MainCamera->GetComponent<UCameraComponent>()->GetView();
+		const FSceneView& SceneView = m_MainCamera->GetComponent<UCameraComponent>()->GetSceneView();
+		const auto& ViewMat = SceneView.View;
 		const auto& InvView = ZMath::inverse(ViewMat);
 		ZMath::FRay ViewRay =  Ray.TransformRay(InvView);
 		const auto& GuidList_1 = m_RenderItemPool[ERenderLayer::Opaque]->GetRenderGuids();
@@ -91,7 +92,8 @@ namespace Zero
 	}
 	ZMath::vec3 UWorld::GetRayWorldPos(ZMath::FRay& Ray, float Distance)
 	{
-		const auto& ViewMat = m_MainCamera->GetComponent<UCameraComponent>()->GetView();
+		const FSceneView& SceneView = m_MainCamera->GetComponent<UCameraComponent>()->GetSceneView();
+		const auto& ViewMat = SceneView.View;
 		const auto& InvView = ZMath::inverse(ViewMat);
 		ZMath::FRay ViewRay =  Ray.TransformRay(InvView);
 		return ViewRay.GetPos(Distance);

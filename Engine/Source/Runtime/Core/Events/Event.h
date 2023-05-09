@@ -15,7 +15,7 @@ namespace Zero
 
 	enum EEventCategory
 	{
-		None = 0,
+		EventNone = 0,
 		EventCategoryApplication = BIT(0),
 		EventCategoryInput = BIT(1),
 		EventCategoryKeyboard = BIT(2),

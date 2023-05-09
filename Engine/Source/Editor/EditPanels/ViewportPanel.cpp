@@ -70,8 +70,9 @@ namespace Zero
 		UCameraActor* CameraActor = UWorld::GetCurrentWorld()->GetMainCamera();
 		UCameraComponent* CameraComponent = CameraActor->GetComponent<UCameraComponent>();
 		CLIENT_ASSERT(CameraComponent != nullptr, "CameraActor shoule be has CameraComponent");
-		ZMath::mat4 CameraProjection = CameraComponent->GetProjection();
-		ZMath::mat4 CameraView = CameraComponent->GetView();
+		const auto& SceneView = CameraComponent->GetSceneView();
+		ZMath::mat4 CameraProjection = SceneView.Proj;
+		ZMath::mat4 CameraView = SceneView.View;
 		ZMath::mat4 Transform = FEditor::SelectedActor->GetTransform();
 
 		static std::vector<ImGuizmo::OPERATION> VecOperation =
@@ -142,7 +143,8 @@ namespace Zero
 		UCameraActor* CameraActor = UWorld::GetCurrentWorld()->GetMainCamera();
 		UCameraComponent* CameraComponent = CameraActor->GetComponent<UCameraComponent>();
 		CLIENT_ASSERT(CameraComponent != nullptr, "CameraActor shoule be has CameraComponent");
-		ZMath::mat4 Projection = CameraComponent->GetProjection();
+		const auto& SceneView = CameraComponent->GetSceneView();
+		ZMath::mat4 Projection = SceneView.Proj;
 
 		float ViewX = (+2.0f * m_MouseLocalPos.x / m_WindowsSize.x - 1.0f) / Projection[0][0];
 		float ViewY = (-2.0f * m_MouseLocalPos.y / m_WindowsSize.y + 1.0f) / Projection[1][1];

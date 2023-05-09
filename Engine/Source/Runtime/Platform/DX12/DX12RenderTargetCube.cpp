@@ -90,7 +90,7 @@ namespace Zero
 				.ViewID = 0,
 				.ClearValue = FTextureClearValue{},
 				.bClearColor = true
-			}
+			};
 		}
 	}
 

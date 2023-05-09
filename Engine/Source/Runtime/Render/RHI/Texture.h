@@ -159,6 +159,10 @@ namespace Zero
 		virtual void MakeRTVs(const std::vector<FTextureSubresourceDesc>& Descs) = 0;
 		virtual void MakeDSVs(const std::vector<FTextureSubresourceDesc>& Descs) = 0;
 		virtual void MakeUAVs(const std::vector<FTextureSubresourceDesc>& Descs) = 0;
+		virtual void ReleaseSRVs() = 0;
+		virtual void ReleaseRTVs() = 0;
+		virtual void ReleaseDSVs() = 0;
+		virtual void ReleaseUAVs() = 0;
 	protected:
 		FTextureDesc m_TextureDesc;
 	}; 
@@ -181,10 +185,6 @@ namespace Zero
 		virtual ZMath::uvec2 GetSize() = 0;
 		virtual UINT64 GetGuiShaderReseource() = 0;
 		virtual void GenerateMip() = 0;
-		virtual void ReleaseSRVs() = 0;
-		virtual void ReleaseRTVs() = 0;
-		virtual void ReleaseDSVs() = 0;
-		virtual void ReleaseUAVs() = 0;
 		virtual void RegistGuiShaderResource() = 0;
 	protected:	
 		Ref<FImage> m_ImageData;

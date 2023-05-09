@@ -3,6 +3,8 @@
 #include "Delegate.h"
 #include "Render/RHI/Shader/ShaderData.h"
 #include "Render/RenderConfig.h"
+#include "World/World.h"
+#include "World/Actor/CameraActor.h"
 
 namespace Zero
 {
@@ -33,7 +35,7 @@ namespace Zero
 		FMaterial();
 		~FMaterial();	
 		void Tick();
-		void SetCamera(Ref<IShaderConstantsBuffer> Camera = UWorld::GetCurrentWorld()->GetMainCamera()->GetConstantBuffer());
+		void SetCamera(Ref<IShaderConstantsBuffer> Camera);
 		void SetPass(FCommandListHandle CommandListHanle);
 		void OnDrawCall(FCommandListHandle CommandListHanle);
 		void PostDrawCall();

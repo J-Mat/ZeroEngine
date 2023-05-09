@@ -16,28 +16,14 @@ namespace Zero
 		UCameraComponent();
 		virtual ~UCameraComponent();
 		virtual void PostInit();
-		void UpdateCameraSettings();
-		void UpdateMat();
-		void UploadBuffer();
-		Ref<IShaderConstantsBuffer> GetConstantBuffer() { return m_CameraBuffer; }
+		Ref<IShaderConstantsBuffer> GetConstantBuffer() { return m_SceneCapture2D.GetCamera(); }
+		const FSceneView& GetSceneView() const { return m_SceneCapture2D.GetSceneView(); }
 		void OnResizeViewport(uint32_t Width, uint32_t Height);
 		virtual void Tick();
-		ZMath::mat4 GetProjection() { return m_Projection;}
-		ZMath::mat4 GetView() { return m_View; }
 
 	private:
 		UTransformComponent* m_TransformCompent;
 		
 		FSceneCapture2D m_SceneCapture2D;
-
-		ZMath::vec3 m_LookAt = {0, 0, 0};
-		ZMath::mat4 m_Projection;
-		ZMath::mat4 m_ProjectionDither;
-		ZMath::mat4 m_View;
-		ZMath::mat4 m_ProjectionView;
-		Ref<IShaderConstantsBuffer> m_CameraBuffer = nullptr;
-
-		float m_Fov = 90.0f;
-
 	};
 }

@@ -27,7 +27,7 @@ namespace Zero
 			FVertexBufferLayout::s_DefaultVertexLayout
 		);
 		m_IrradianceMapRenderItem->m_SubMesh = *m_IrradianceMapRenderItem->m_Mesh->begin();
-		m_IrradianceMapRenderItem->m_Material = CreateRef<FMaterial>(false);
+		m_IrradianceMapRenderItem->m_Material = CreateRef<FMaterial>();
 		m_IrradianceMapRenderItem->m_PsoID = EPsoID::IBLIrradiance;
 		m_IrradianceMapRenderItem->m_Material->SetShader(m_IrradianceMapRenderItem->GetPsoObj()->GetPSODescriptor().Shader);
 		m_IrradianceMapRenderItem->m_PerObjectBuffer = FConstantsBufferManager::Get().GetPerObjectConstantsBuffer();
@@ -57,7 +57,7 @@ namespace Zero
 		{
 			m_PrefilterMapRenderItems[Mip]->m_Mesh = Mesh;
 			m_PrefilterMapRenderItems[Mip]->m_SubMesh = *m_PrefilterMapRenderItems[Mip]->m_Mesh->begin();
-			m_PrefilterMapRenderItems[Mip]->m_Material = CreateRef<FMaterial>(false);
+			m_PrefilterMapRenderItems[Mip]->m_Material = CreateRef<FMaterial>();
 			m_PrefilterMapRenderItems[Mip]->m_PsoID = EPsoID::IBLPrefilter;
 			m_PrefilterMapRenderItems[Mip]->m_Material->SetShader(m_PrefilterMapRenderItems[Mip]->GetPsoObj()->GetPSODescriptor().Shader);
 			m_PrefilterMapRenderItems[Mip]->m_PerObjectBuffer = FConstantsBufferManager::Get().GetPerObjectConstantsBuffer();
@@ -129,7 +129,7 @@ namespace Zero
 				m_PrefilterEnvMapRTCube->SetRenderTarget(m_CommandListHandle, FaceIndex, Mip);
 				const FSceneView& SceneView = m_PrefilterEnvMapRTCube->GetSceneView(FaceIndex);
 				Ref<IShaderConstantsBuffer> Camera = m_PrefilterEnvMapRTCube->GetCamera(FaceIndex);
-return 				m_PrefilterMapRenderItems[Mip]->m_Material->SetCamera(Camera);
+				m_PrefilterMapRenderItems[Mip]->m_Material->SetCamera(Camera);
 
 				FRenderUtils::DrawRenderItem(m_PrefilterMapRenderItems[Mip], m_CommandListHandle,
 					[&](Ref<FRenderItem> RenderItem)

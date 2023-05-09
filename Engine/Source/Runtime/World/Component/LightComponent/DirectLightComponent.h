@@ -3,7 +3,7 @@
 #include "LightComponent.h"
 #include "../TransformComponent.h"
 #include "Render/Moudule/SceneCapture.h"
-#include "Render/RenderConfig.h"
+
 
 namespace Zero
 {
@@ -14,14 +14,17 @@ namespace Zero
 		virtual void PostInit();
 		
 		ZMath::mat4 GetProjectView();
-		ZMath::mat4 GetProject() { return m_SceneView.Proj; }
-		ZMath::mat4 GetView() { return m_SceneView.View; }
+		ZMath::mat4 GetProject() { return m_SceneCapture2D.GetSceneView().Proj; }
+		ZMath::mat4 GetView() { return m_SceneCapture2D.GetSceneView().View; }
 	
-		FSceneView& GetSceneView() { return m_SceneView; }
+		FSceneCapture2D& GetSceneView() { return m_SceneCapture2D; }
+
+		Ref<IShaderConstantsBuffer> GetCamera() { return m_SceneCapture2D.GetCamera();}
+		
 	private:
 		void OnTransfromChanged(UTransformComponent* TransformComponent);
 	private: 
 		float m_Width = 80.0f;
-		FSceneView m_SceneView;
+		FSceneCapture2D m_SceneCapture2D;
 	};
 }

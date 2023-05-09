@@ -44,15 +44,15 @@ namespace Zero
             Texture->ReleaseSRVs();
         }
 
-        for (auto& [RGTextureID, _] : m_UAVTex2DDescMap)
+        for (auto& [RGTextureID, _] : m_UAVTexCubeDescMap)
         { 
-            FTexture2D* Texture = GetTexture2D(RGTextureID);
+            FTextureCube* Texture = GetTextureCube(RGTextureID);
             Texture->ReleaseUAVs();
         }
 
-        for (auto& [RGTextureID, _] : m_RTVTex2DDescMap)
+        for (auto& [RGTextureID, _] : m_RTVTexCubeDescMap)
         { 
-            FTexture2D* Texture = GetTexture2D(RGTextureID);
+            FTextureCube* Texture = GetTextureCube(RGTextureID);
             Texture->ReleaseRTVs();
         }
 
@@ -175,6 +175,7 @@ namespace Zero
                 RenderPassDesc.Width = Pass->m_VieportWidth;
                 RenderPassDesc.Height = Pass->m_VieportHeight;
                 RenderPassDesc.Depth = Pass->m_VieportDepth;
+                RenderPassDesc.RenderPassRTType = Pass->m_RenderPassRTType;
                 FRenderPass RenderPass(m_RenderGrpah, RenderPassDesc);
                 RenderPass.Begin(CommandListHandle);
                 Pass->Execute(RenderGraphContexts, CommandListHandle);
@@ -788,7 +789,7 @@ namespace Zero
         FRGTextureCube* RGTexture = GetRGTextureCube(Handle);
         RGTexture->Desc.ResourceBindFlags |= EResourceBindFlag::DepthStencil;
         
-        std::vector<FTextureSubresourceDesc>& ViewDescs = m_DSV2DTexDescMap[Handle]; //m_TextureViewDescMap[Handle];
+        std::vector<FTextureSubresourceDesc>& ViewDescs = m_DSVTexCubeDescMap[Handle]; //m_TextureViewDescMap[Handle];
         for (uint32_t i = 0; i < ViewDescs.size(); ++i)
         { 
             if (ViewDescs[i] == Desc)
@@ -808,7 +809,7 @@ namespace Zero
         FRGTextureCube* RGTexture = GetRGTextureCube(Handle);
         RGTexture->Desc.ResourceBindFlags |= EResourceBindFlag::ShaderResource;
 
-        std::vector<FTextureSubresourceDesc>& ViewDescs = m_SRVTex2DDescMap[Handle];
+        std::vector<FTextureSubresourceDesc>& ViewDescs = m_SRVTexCubeDescMap[Handle];
         for (uint32_t i = 0; i < ViewDescs.size(); ++i)
         { 
             if (ViewDescs[i] == Desc) 

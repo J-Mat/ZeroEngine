@@ -289,4 +289,24 @@ namespace Zero
 	{
 	}
 
+	void FDX12TextureCube::ReleaseSRVs()
+	{
+
+	}
+
+	void FDX12TextureCube::ReleaseRTVs()
+	{
+
+	}
+
+	void FDX12TextureCube::ReleaseDSVs()
+	{
+
+	}
+
+	void FDX12TextureCube::ReleaseUAVs()
+	{
+
+	}
+
 }

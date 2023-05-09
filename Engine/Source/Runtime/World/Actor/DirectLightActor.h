@@ -15,9 +15,9 @@ namespace Zero
 		void PostInit();
 		UDirectLightActor();
 		virtual void BuildMesh() override;
-		
 
+		FSceneCapture2D& GetSceneCapture2D() { return m_LightComponnet->GetSceneView(); }
 	private:
-		ULightComponent* m_LightComponnet = nullptr;
+		UDirectLightComponnet* m_LightComponnet = nullptr;
 	};
 }

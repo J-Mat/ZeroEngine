@@ -13,9 +13,9 @@ namespace Zero
 		m_ColoTexture.resize(7);
 		for (uint32_t i = 0; i < 7; ++i)
 		{
-			m_ColoTexture[i] = FRenderTexAttachment();
+			m_ColoTexture[i] = FRenderTex2DAttachment();
 		}
-		m_DepthTexture = FRenderTexAttachment();
+		m_DepthTexture = FRenderTex2DAttachment();
 	}
 
 	void FRenderTargetCube::InitParams()

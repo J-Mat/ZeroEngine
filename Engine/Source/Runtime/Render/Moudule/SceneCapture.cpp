@@ -1,41 +1,55 @@
 #include "SceneCapture.h"
 #include "Render/Moudule/ConstantsBufferManager.h"
+#include "Math/ZMath.h"
 
 namespace Zero
 { 
 	FSceneCapture2D::FSceneCapture2D()
 	{
-
+		m_CameraBuffer = FConstantsBufferManager::Get().GetCameraConstantBuffer();
 	}
+
 	void FSceneCapture2D::UpdateParams()
 	{
 		switch (m_SceneView.CameraType)
 		{
 		case ECameraType::CT_PERSPECT:
 			m_SceneView.Proj = ZMath::perspectiveLH(
-				ZMath::radians(m_SceneView.Proj),
+				ZMath::radians(m_SceneView.Fov),
 				m_SceneView.Aspect,
 				m_SceneView.Near,
 				m_SceneView.Far
 			);
 			break;
 		case ECameraType::CT_ORI:
-			m_SceneView.Proj = ZMath::orthoLH(
-				-1000.0f,
-				+1000.0f,
-				-1000.0f,
-				+1000.0f,
-				m_Near, 
-				m_Far
+			m_SceneView.Proj = ZMath::orthoLH_ZO(
+				m_SceneView.Left,
+				m_SceneView.Right,
+				m_SceneView.Bottom,
+				m_SceneView.Top,
+				m_SceneView.Near, 
+				m_SceneView.Far
 			);
 			break;
 		}
+		m_SceneView.View = ZMath::lookAtLH(m_SceneView.ViewPos, m_SceneView.Target, m_SceneView.UpDir);
+		m_SceneView.ProjectionView = m_SceneView.Proj * m_SceneView.View;
+
+		UploadBuffer();
+	}
+
+	void FSceneCapture2D::UploadBuffer()
+	{
+		m_CameraBuffer->SetMatrix4x4("Projection", m_SceneView.Proj);
+		m_CameraBuffer->SetMatrix4x4("View", m_SceneView.View);
+		m_CameraBuffer->SetMatrix4x4("ProjectionView", m_SceneView.ProjectionView);
+		m_CameraBuffer->SetFloat3("ViewPos", m_SceneView.ViewPos);
+
 	}
 
 	FSceneCaptureCube::FSceneCaptureCube()
 	{
 		UpdateParams();
-		
 	}
 
 	void FSceneCaptureCube::SetViewPos(ZMath::vec3 ViewPos)

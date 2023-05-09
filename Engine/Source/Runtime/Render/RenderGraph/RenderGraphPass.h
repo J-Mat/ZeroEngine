@@ -108,7 +108,7 @@ namespace Zero
 	private:
 		std::string m_Name;
 		ERenderPassType m_Type;
-		ERenderPassRTType m_RenderPassRTType = ERenderPassRTType::None;
+		ERenderPassRTType m_RenderPassRTType = ERenderPassRTType::RenderPass_None;
 		ERGPassFlags m_Flags;
 		size_t m_RefCount = 0ull;
 		

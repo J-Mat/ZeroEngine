@@ -45,7 +45,7 @@ namespace Zero
 		constexpr FRGResourceName PointLightShadowMap_1 =  RG_RES_NAME(PointLightShadowMap_1);
 		constexpr FRGResourceName PointLigthShadowMap_2 =  RG_RES_NAME(PointLigthShadowMap_2);
 		constexpr FRGResourceName PointLightShadowMap_3 =  RG_RES_NAME(PointLightShadowMap_3);
-		constexpr FRGResourceName PointLightShadowMaps[4] = { PointLigthShadowMap_0 , PointLigthShadowMap_1, PointLigthShadowMap_2 ,PointLightShadowMap_3  };
+		constexpr FRGResourceName PointLightShadowMaps[4] = { PointLigthShadowMap_0 , PointLightShadowMap_1, PointLigthShadowMap_2 ,PointLightShadowMap_3  };
 
 		constexpr FRGResourceName ShadowMap_Debug_0 =  RG_RES_NAME(ShadowMap_Debug_0);
 		constexpr FRGResourceName ShadowMap_Debug_1 =  RG_RES_NAME(ShadowMap_Debug_1);

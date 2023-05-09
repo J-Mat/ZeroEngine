@@ -55,7 +55,7 @@ namespace Zero
 				// Shadow Maps
 				const std::vector<UDirectLightActor*>& DirectLights = FLightManager::Get().GetDirectLights();
 				std::vector<FTexture2D*> ShadowMaps;
-				for (uint32_t LightIndex = 0; LightIndex < DirectLights.size(); ++LightIndex)
+				for (size_t LightIndex = 0; LightIndex < DirectLights.size(); ++LightIndex)
 				{
 					FRGTex2DReadOnlyID RGTextureReadOnlyID =  Builder.ReadTexture2D(RGResourceName::DirectLightShadowMaps[LightIndex]);
 					Data.DirectLightShadowMaps[LightIndex] = RGTextureReadOnlyID;
@@ -82,7 +82,7 @@ namespace Zero
 						RenderItem->m_Material->SetTextureCubemap("IBLPrefilterMap", IBLModule->GetPrefilterEnvMapRTCube()->GetColorTexCube());
 						RenderItem->m_Material->SetTexture2D("_BrdfLUT", FTextureManager::Get().GetLutTexture().get());
 						RenderItem->m_Material->SetIBL(true);
-						uint32_t EmptyLightsNum = FLightManager::Get().GetMaxDirectLightsNum() - ShadowMaps.size();
+						uint32_t EmptyLightsNum = FLightManager::Get().GetMaxDirectLightsNum() - uint32_t(ShadowMaps.size());
 						while (EmptyLightsNum--)
 						{
 							ShadowMaps.push_back(FTextureManager::Get().GetDefaultTexture().get());

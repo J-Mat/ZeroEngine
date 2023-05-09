@@ -30,7 +30,7 @@ namespace Zero
 
 	struct FRenderPassDesc
 	{
-		ERenderPassRTType RenderPassRTType = ERenderPassRTType::None;
+		ERenderPassRTType RenderPassRTType = ERenderPassRTType::RenderPass_None;
 		std::vector<FRtvAttachmentDesc> RtvAttachments{};
 		std::optional<FDsvAttachmentDesc> DsvAttachment = std::nullopt;
 		uint32_t Width;
@@ -56,6 +56,6 @@ namespace Zero
 		uint32_t m_Width;
 		uint32_t m_Height;
 		uint32_t m_Depth;
-		ERenderPassRTType m_RenderPassRTType = ERenderPassRTType::None;
+		ERenderPassRTType m_RenderPassRTType = ERenderPassRTType::RenderPass_None;
 	};
 }

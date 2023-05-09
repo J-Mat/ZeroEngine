@@ -131,7 +131,7 @@ namespace Zero
 	const Ref<FRenderTarget2D> FDX12SwapChain::GetRenderTarget()
 	{
 		{
-			FRenderTexAttachment ColorAttachment =
+			FRenderTex2DAttachment ColorAttachment =
 			{
 				.Texture = m_BackBufferTextures[m_CurrentBackBufferIndex].get(),
 				.ViewID = 0,
@@ -142,7 +142,7 @@ namespace Zero
 		}
 
 		{
-			FRenderTexAttachment DepthAttachment =
+			FRenderTex2DAttachment DepthAttachment =
 			{
 				.Texture = m_DepthStencilTexture.get(),
 				.ViewID = 0,

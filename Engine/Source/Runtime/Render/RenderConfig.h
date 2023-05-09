@@ -44,7 +44,7 @@ namespace Zero
 	{
 		Texuture2D,
 		TexutureCube,
-		None,
+		RenderPass_None,
 	};
 
 	enum class ERayTracerAPI

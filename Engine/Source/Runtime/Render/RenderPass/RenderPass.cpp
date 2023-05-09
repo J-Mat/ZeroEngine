@@ -11,6 +11,7 @@ namespace Zero
 		m_Depth(Desc.Depth),
 		m_RenderPassRTType(Desc.RenderPassRTType)
 	{
+		CORE_ASSERT(m_RenderPassRTType != ERenderPassRTType::RenderPass_None, "m_RenderPassRTType must have value");
 		if (m_RenderPassRTType == ERenderPassRTType::Texuture2D)
 		{
 			AttachRenderTarget2D(Desc);

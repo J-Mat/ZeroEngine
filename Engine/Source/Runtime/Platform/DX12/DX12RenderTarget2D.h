@@ -16,8 +16,8 @@ namespace Zero
 		FDX12RenderTarget2D(FRenderTarget2DDesc Desc);
 		virtual void ClearBuffer(FCommandListHandle CommandListHandle) override;
 		virtual void Resize(uint32_t Width, uint32_t Height, uint32_t Depth);
-		virtual void AttachColorTexture(uint32_t AttachmentIndex, const FRenderTexAttachment& Attachment) override;
-		virtual void AttachDepthTexture(const FRenderTexAttachment& Attachment) override;
+		virtual void AttachColorTexture(uint32_t AttachmentIndex, const FRenderTex2DAttachment& Attachment) override;
+		virtual void AttachDepthTexture(const FRenderTex2DAttachment& Attachment) override;
 		virtual void Bind(FCommandListHandle CommanListHandle) override;
 		virtual void UnBind(FCommandListHandle CommandListHandle);
 		virtual void UnBindDepth(FCommandListHandle CommandListHandle) override;

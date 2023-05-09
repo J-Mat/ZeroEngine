@@ -46,7 +46,7 @@ namespace Zero
 				.Format = RTDesc.ColorFormat[Index],
 			};
 			FTexture2D* Texture = new FDX12Texture2D(TextureName, Desc, &ClearValue);
-			FRenderTexAttachment ColorAttachment =
+			FRenderTex2DAttachment ColorAttachment =
 			{
 				.Texture = Texture,
 				.ViewID = 0,
@@ -60,7 +60,7 @@ namespace Zero
 		{
 			std::string TextureName = std::format("{0}_Depth", RTDesc.RenderTargetName);
 			FDX12Texture2D* DepthTexture = FDX12Device::Get()->CreateDepthTexture(TextureName, m_Width, m_Height);
-			FRenderTexAttachment DepthAttachment =
+			FRenderTex2DAttachment DepthAttachment =
 			{
 				.Texture = DepthTexture,
 				.ViewID = 0,
@@ -114,7 +114,7 @@ namespace Zero
 		SetViewportRect();
 	}
 
-	void FDX12RenderTarget2D::AttachColorTexture(uint32_t AttachmentIndex, const FRenderTexAttachment& Attachment)
+	void FDX12RenderTarget2D::AttachColorTexture(uint32_t AttachmentIndex, const FRenderTex2DAttachment& Attachment)
 	{
 		m_ColoTexture[AttachmentIndex] = Attachment;
 		if (m_ColoTexture[AttachmentIndex].Texture != nullptr)
@@ -126,7 +126,7 @@ namespace Zero
 		}
 	}
 
-	void FDX12RenderTarget2D::AttachDepthTexture(const FRenderTexAttachment& Attachment)
+	void FDX12RenderTarget2D::AttachDepthTexture(const FRenderTex2DAttachment& Attachment)
 	{
 		m_DepthTexture = Attachment;
 	}

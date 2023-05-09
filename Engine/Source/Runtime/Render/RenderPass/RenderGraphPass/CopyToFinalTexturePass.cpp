@@ -31,8 +31,8 @@ namespace Zero
 			[=](const FCopyToBackbufferPassData& Data, FRenderGraphContext& Context, FCommandListHandle CommandListHandle)
 			{
 				Ref<FCommandList> RHICommandList = FGraphic::GetDevice()->GetRHICommandList(CommandListHandle);
-				FTexture2D* DstTexture = Context.GetTexture(Data.Dst);
-				FTexture2D* SrcTexture = Context.GetTexture(Data.Src);
+				FTexture2D* DstTexture = Context.GetTexture2D(Data.Dst);
+				FTexture2D* SrcTexture = Context.GetTexture2D(Data.Src);
 				RHICommandList->CopyResource(DstTexture->GetNative(), SrcTexture->GetNative());
 				RHICommandList->TransitionBarrier(DstTexture->GetNative(), EResourceState::Common);
 			},

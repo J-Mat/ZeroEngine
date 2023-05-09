@@ -38,7 +38,7 @@ namespace Zero
 			m_ShadowMapDebugItems[LightIndex] = RenderItemPool->Request();
 			m_ShadowMapDebugItems[LightIndex]->m_Mesh = Rect;
 			m_ShadowMapDebugItems[LightIndex]->m_SubMesh = *m_ShadowMapDebugItems[LightIndex]->m_Mesh->begin();
-			m_ShadowMapDebugItems[LightIndex]->m_Material = CreateRef<FMaterial>(false);
+			m_ShadowMapDebugItems[LightIndex]->m_Material = CreateRef<FMaterial>();
 			m_ShadowMapDebugItems[LightIndex]->m_PsoID = EPsoID::ShadowDebug;
 			m_ShadowMapDebugItems[LightIndex]->m_Material->SetShader(m_ShadowMapDebugItems[LightIndex]->GetPsoObj()->GetPSODescriptor().Shader);
 		}
@@ -49,6 +49,8 @@ namespace Zero
 		const std::vector<UDirectLightActor*>& DirectLights = FLightManager::Get().GetDirectLights();
 		for (uint32_t LightIndex = 0; LightIndex < DirectLights.size(); ++LightIndex)
 		{
+			FSceneCapture2D& SceneCapture2D = DirectLights[LightIndex]->GetSceneCapture2D();
+			auto LightCamera = SceneCapture2D.GetCamera();
 			auto& Pass = RenderGraph.AddPass<void>(
 				"DirectLightShadowMap Pass",
 				[=](FRenderGraphBuilder& Builder)
@@ -67,9 +69,9 @@ namespace Zero
 				[=](FRenderGraphContext& Context, FCommandListHandle CommandListHandle)
 				{
 					FRenderUtils::RenderLayer(ERenderLayer::Shadow, CommandListHandle,
-					[&](Ref<FRenderItem> RenderItem)
+					[=](Ref<FRenderItem> RenderItem)
 						{
-							RenderItem->m_Material->SetInt("DirectLightIndex", LightIndex);
+							RenderItem->m_Material->SetCamera(LightCamera);
 						}
 				);
 				},
@@ -134,7 +136,6 @@ namespace Zero
 					},
 					[=](FRenderGraphContext& Context, FCommandListHandle CommandListHandle)
 					{
-
 						FRenderUtils::RenderLayer(ERenderLayer::Shadow, CommandListHandle,
 						[=](Ref<FRenderItem> RenderItem)
 							{
@@ -148,7 +149,7 @@ namespace Zero
 								RenderItem->m_Material->SetCameraProjectMat("Projection", SceneView.Proj);
 								RenderItem->m_Material->SetCameraProjectViewMat("ProjectionView", SceneView.ProjectionView);
 							}
-					);
+						);
 					},
 					ERenderPassType::Graphics,
 					ERGPassFlags::ForceNoCull

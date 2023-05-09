@@ -29,7 +29,7 @@
 #define CUBEMAP_TEXTURE_CNT 6
 #define DEFAULT_TEXTURE_HANDLE "default"
 
-#define INVALID_ID -1
+#define ZERO_INVALID_ID -1
 
 namespace Zero
 {
@@ -89,7 +89,7 @@ namespace Zero
 	struct FTextureHandleType
 	{
 		std::string TextureName = "";
-		uint32_t ID = INVALID_ID;
+		uint32_t ID = ZERO_INVALID_ID;
 		FTextureHandleType() = default;
 		FTextureHandleType(std::string _TextureName)
 			: TextureName(_TextureName)

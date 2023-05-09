@@ -57,6 +57,11 @@ namespace Zero
 		virtual void MakeRTVs(const std::vector<FTextureSubresourceDesc>& Descs) override;
 		virtual void MakeDSVs(const std::vector<FTextureSubresourceDesc>& Descs) override;
 		virtual void MakeUAVs(const std::vector<FTextureSubresourceDesc>& Descs) override;
+
+        virtual void ReleaseSRVs() override;
+        virtual void ReleaseRTVs() override;
+		virtual void ReleaseDSVs() override;
+        virtual void ReleaseUAVs() override;
 	private:
 
         uint32_t m_EachFaceSize = 0;
