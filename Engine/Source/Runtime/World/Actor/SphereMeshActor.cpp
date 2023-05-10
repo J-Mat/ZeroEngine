@@ -10,7 +10,7 @@ namespace Zero
 		: UMeshActor()
 	{
 		m_MeshRenderComponent->AttachRenderLayer(ERenderLayer::Opaque, EPsoID::ForwadLit);
-		m_MeshRenderComponent->AttachRenderLayer(ERenderLayer::Shadow, EPsoID::ShadowMap);
+		m_MeshRenderComponent->AttachRenderLayer(ERenderLayer::Shadow);
 	}
 
 	USphereMeshActor::USphereMeshActor(float Radius, uint32_t NumSubdivisions)
@@ -19,7 +19,7 @@ namespace Zero
 		, m_NumSubdivisions(NumSubdivisions)
 	{
 		m_MeshRenderComponent->AttachRenderLayer(ERenderLayer::Opaque, EPsoID::ForwadLit);
-		m_MeshRenderComponent->AttachRenderLayer(ERenderLayer::Shadow, EPsoID::ShadowMap);
+		m_MeshRenderComponent->AttachRenderLayer(ERenderLayer::Shadow);
 	}
 	
 

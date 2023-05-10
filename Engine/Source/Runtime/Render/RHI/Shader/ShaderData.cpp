@@ -36,6 +36,8 @@ namespace Zero
 			{EShaderDataType::Mat4, "Projection" },
 			{EShaderDataType::Mat4, "ProjectionView" },
 			{EShaderDataType::Float3, "ViewPos" },
+			{EShaderDataType::Float, "gNearZ" },
+			{EShaderDataType::Float, "gFarZ" },
 		},
 		false
 	};

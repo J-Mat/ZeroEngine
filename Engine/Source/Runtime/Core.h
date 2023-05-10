@@ -29,7 +29,7 @@
 #define CUBEMAP_TEXTURE_CNT 6
 #define DEFAULT_TEXTURE_HANDLE "default"
 
-#define ZERO_INVALID_ID -1
+#define ZERO_INVALID_ID uint32_t(-1)
 
 namespace Zero
 {

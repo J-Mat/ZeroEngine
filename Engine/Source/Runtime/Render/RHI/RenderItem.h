@@ -10,6 +10,7 @@ namespace Zero
 	class FRenderItem;
 	class FPipelineStateObject;
 	
+
 	class FRenderItemPool
 	{
 	public:
@@ -39,15 +40,16 @@ namespace Zero
 		~FRenderItem();
 		void SetModelMatrix(const ZMath::mat4& Transform);
 		Ref<FMaterial> m_Material = nullptr;
-		uint32_t m_PsoID;
+		uint32_t m_PsoID = ZERO_INVALID_ID;
 		Ref<FMesh> m_Mesh = nullptr;
 		FSubMesh m_SubMesh;
 		Ref<IShaderConstantsBuffer> m_PerObjectBuffer = nullptr;
 		ZMath::mat4 m_Transform;
-		void PreRender(FCommandListHandle ComamndListHandle);
+		bool CanRender(FCommandListHandle ComamndListHandle, const FRenderSettings& RenderSettings);
 		void Render(FCommandListHandle ComamndListHandle);
 		void Reset();
 		
+		Ref<FPipelineStateObject> GetPsoObj(const FRenderSettings& RenderSettings);
 		Ref<FPipelineStateObject> GetPsoObj();
 	private:
 		Ref<FPipelineStateObject> m_PipelineStateObject = nullptr;

@@ -55,25 +55,26 @@ namespace Zero
 				"DirectLightShadowMap Pass",
 				[=](FRenderGraphBuilder& Builder)
 				{
-					FRGTextureDesc ShadowMapDesc = {
-						.Width = m_Width,
-						.Height = m_Height,
-						.ClearValue = FTextureClearValue(1.0f, 0),
-						.Format = EResourceFormat::D24_UNORM_S8_UINT,
-					};
-
-					Builder.DeclareTexture2D(RGResourceName::DirectLightShadowMaps[LightIndex], ShadowMapDesc);
+					Builder.DeclareTexture2D(RGResourceName::DirectLightShadowMaps[LightIndex], FRGTextureDesc::MakeShadow2DDesc(m_Width, m_Height));
 					Builder.WriteDepthStencil2D(RGResourceName::DirectLightShadowMaps[LightIndex], ERGLoadStoreAccessOp::Clear_Preserve);
 					Builder.SetViewport(m_Width, m_Height);
 				},
 				[=](FRenderGraphContext& Context, FCommandListHandle CommandListHandle)
 				{
-					FRenderUtils::RenderLayer(ERenderLayer::Shadow, CommandListHandle,
-					[=](Ref<FRenderItem> RenderItem)
+					{
+						FRenderSettings ShadowRenderSettings =
 						{
-							RenderItem->m_Material->SetCamera(LightCamera);
-						}
-				);
+							.RenderLayer = ERenderLayer::Shadow,
+							.PiplineStateMode = EPiplineStateMode::AllSpecific,
+							.PsoID = EPsoID::DirectLightShadowMap,
+						};
+						FRenderUtils::RenderLayer(ShadowRenderSettings, CommandListHandle,
+							[=](Ref<FRenderItem> RenderItem)
+							{
+								RenderItem->m_Material->SetCamera(LightCamera);
+							}
+						);
+					}
 				},
 				ERenderPassType::Graphics,
 				ERGPassFlags::ForceNoCull
@@ -95,12 +96,20 @@ namespace Zero
 				[=](const FShadowPassDebugData& Data, FRenderGraphContext& Context, FCommandListHandle CommandListHandle)
 				{
 					FTexture2D* ShadowMap = Context.GetTexture2D(Data.ShadowMapID.GetResourceID());
-					FRenderUtils::DrawRenderItem(m_ShadowMapDebugItems[LightIndex], CommandListHandle,
-						[&](Ref<FRenderItem> RenderItem)
+					{
+						FRenderSettings ShadowDebugRenderSettings =
 						{
-							RenderItem->m_Material->SetTexture2D("_gShadowMap", ShadowMap);
-						}
-					);
+							.RenderLayer = ERenderLayer::Unknown,
+							.PiplineStateMode = EPiplineStateMode::AllSpecific,
+							.PsoID = EPsoID::DirectLightShadowMap,
+						};
+						FRenderUtils::DrawRenderItem(m_ShadowMapDebugItems[LightIndex], ShadowDebugRenderSettings, CommandListHandle,
+							[&](Ref<FRenderItem> RenderItem)
+							{
+								RenderItem->m_Material->SetTexture2D("_gShadowMap", ShadowMap);
+							}
+						);
+					}
 				},
 				ERenderPassType::Graphics,
 				ERGPassFlags::ForceNoCull
@@ -115,41 +124,37 @@ namespace Zero
 		{
 			for (uint32_t FaceIndex = 0; FaceIndex < 6; ++FaceIndex)
 			{
+				UPointLightActor* PointLight = FLightManager::Get().GetPointLights()[LightIndex];
+				const FSceneCaptureCube& SceneCaptureCube = PointLight->GetSceneCaptureCube();
+				const FSceneView& SceneView = SceneCaptureCube.GetSceneView(FaceIndex); 
+				const Ref<IShaderConstantsBuffer> Camera = SceneCaptureCube.GetCamera(FaceIndex);
 				RenderGraph.AddPass<void>(
 					"PointLightShadowMap Pass",
 					[=](FRenderGraphBuilder& Builder)
 					{
-						FRGTextureDesc ShadowMapDesc = {
-							.Width = m_Width,
-							.Height = m_Height,
-							.ArraySize = 6,
-							.ClearValue = FTextureClearValue(1.0f, 0),
-							.Format = EResourceFormat::D24_UNORM_S8_UINT,
-						};
-
 						if (FaceIndex == 0)
 						{ 
-							Builder.DeclareTextureCube(RGResourceName::PointLightShadowMaps[LightIndex], ShadowMapDesc);
+							Builder.DeclareTextureCube(RGResourceName::PointLightShadowMaps[LightIndex], FRGTextureDesc::MakeShadowCubeDesc(m_Width, m_Height));
 						}
 						Builder.WriteDepthStencilCube(RGResourceName::PointLightShadowMaps[LightIndex], ERGLoadStoreAccessOp::Clear_Preserve);
 						Builder.SetViewport(m_Width, m_Height, FaceIndex);
 					},
 					[=](FRenderGraphContext& Context, FCommandListHandle CommandListHandle)
 					{
-						FRenderUtils::RenderLayer(ERenderLayer::Shadow, CommandListHandle,
-						[=](Ref<FRenderItem> RenderItem)
+						{
+							FRenderSettings ShadowRenderSettings =
 							{
-								UPointLightActor* PointLight = FLightManager::Get().GetPointLights()[LightIndex];
-								const FSceneCaptureCube& SceneCaptureCube = PointLight->GetSceneCaptureCube();
-								const FSceneView& SceneView = SceneCaptureCube.GetSceneView(FaceIndex); 
-								const Ref<IShaderConstantsBuffer> Camera = SceneCaptureCube.GetCamera(FaceIndex);
-								RenderItem->m_Material->SetCamera(Camera);
-								RenderItem->m_Material->SetCameraViewMat("View", SceneView.View);
-								RenderItem->m_Material->SetCameraViewPos("ViewPos", SceneView.ViewPos);
-								RenderItem->m_Material->SetCameraProjectMat("Projection", SceneView.Proj);
-								RenderItem->m_Material->SetCameraProjectViewMat("ProjectionView", SceneView.ProjectionView);
-							}
-						);
+								.RenderLayer = ERenderLayer::Shadow,
+								.PiplineStateMode = EPiplineStateMode::AllSpecific,
+								.PsoID = EPsoID::PointLight,
+							};
+							FRenderUtils::RenderLayer(ShadowRenderSettings, CommandListHandle,
+								[=](Ref<FRenderItem> RenderItem)
+								{
+									RenderItem->m_Material->SetCamera(Camera);
+								}
+							);
+						}
 					},
 					ERenderPassType::Graphics,
 					ERGPassFlags::ForceNoCull

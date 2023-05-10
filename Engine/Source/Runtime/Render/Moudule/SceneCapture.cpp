@@ -55,7 +55,6 @@ namespace Zero
 	void FSceneCaptureCube::SetViewPos(ZMath::vec3 ViewPos)
 	{
 		m_ViewPos = ViewPos;
-		UpdateParams();
 	}
 
 	void FSceneCaptureCube::UpdateParams()
@@ -101,6 +100,7 @@ namespace Zero
 				m_ViewCameraBuffers[i] = FConstantsBufferManager::Get().GetCameraConstantBuffer();
 			}
 		}
+		UploadBuffer();
 	}
 
 	void FSceneCaptureCube::SetFarAndNear(float Far, float Near)
@@ -110,6 +110,18 @@ namespace Zero
 		UpdateParams();
 	}
 
+	void FSceneCaptureCube::UploadBuffer()
+	{
+		for (int i = 0; i < 6; ++i)
+		{
+			m_ViewCameraBuffers[i]->SetMatrix4x4("Projection", m_SceneViews[i].Proj);
+			m_ViewCameraBuffers[i]->SetMatrix4x4("View", m_SceneViews[i].View);
+			m_ViewCameraBuffers[i]->SetMatrix4x4("ProjectionView", m_SceneViews[i].ProjectionView);
+			m_ViewCameraBuffers[i]->SetFloat3("ViewPos", m_SceneViews[i].ViewPos);
+			m_ViewCameraBuffers[i]->SetFloat("gNearZ", m_SceneViews[i].Near);
+			m_ViewCameraBuffers[i]->SetFloat("gFarZ", m_SceneViews[i].Far);
+		}
+	}
 
 }
 

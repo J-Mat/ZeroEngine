@@ -68,23 +68,50 @@ namespace Zero
 		m_PerObjectBuffer->SetMatrix4x4("Model", Transform);
 	}
 	
-	Ref<Zero::FPipelineStateObject> FRenderItem::GetPsoObj()
+	Zero::Ref<Zero::FPipelineStateObject> FRenderItem::GetPsoObj(const FRenderSettings& RenderSettings)
 {
-		if (!m_PipelineStateObject)
+		switch (RenderSettings.PiplineStateMode)
 		{
+		case EPiplineStateMode::Dependent:
 			m_PipelineStateObject = FPSOCache::Get().Fetch(m_PsoID);
+			break;
+		case EPiplineStateMode::AllSpecific:
+			m_PipelineStateObject = FPSOCache::Get().Fetch(RenderSettings.PsoID);
+			break;
+		case EPiplineStateMode::Only:
+			if (m_PsoID == RenderSettings.PsoID)
+			{
+				return nullptr;
+			}
+			m_PipelineStateObject = FPSOCache::Get().Fetch(m_PsoID);
+			break;
+		default:
+			break;
 		}
 		return m_PipelineStateObject;
 	}
 
-	void FRenderItem::PreRender(FCommandListHandle ComamndListHandle)
+	Ref<Zero::FPipelineStateObject> FRenderItem::GetPsoObj()
 	{
-		auto PsoObj = GetPsoObj();
+		m_PipelineStateObject = FPSOCache::Get().Fetch(m_PsoID);
+		return m_PipelineStateObject;
+	}
+
+	bool FRenderItem::CanRender(FCommandListHandle ComamndListHandle, const FRenderSettings& RenderSettings)
+	{
+		auto PsoObj = GetPsoObj(RenderSettings);
+		if (PsoObj == nullptr)
+		{
+			return false;
+		}
 		PsoObj->Bind(ComamndListHandle);
 		m_Material->SetShader(PsoObj->GetPSODescriptor().Shader);
 		m_Material->Tick();
 		m_Material->SetPass(ComamndListHandle);
+		return true;
 	}
+
+
 
 	void FRenderItem::Render(FCommandListHandle ComamndListHandle)
 	{

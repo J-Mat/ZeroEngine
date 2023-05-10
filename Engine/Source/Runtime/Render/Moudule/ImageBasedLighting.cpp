@@ -104,15 +104,25 @@ namespace Zero
 			m_IrradianceMapRenderItem->m_Material->SetCamera(Camera);
 
 			m_IBLIrradianceMapRTCube->SetRenderTarget(m_CommandListHandle, FaceIndex);
-			FRenderUtils::DrawRenderItem(m_IrradianceMapRenderItem, m_CommandListHandle, 
-				[&](Ref<FRenderItem> RenderItem)
+
+
+			{
+				FRenderSettings RenderSettings =
 				{
-					m_IrradianceMapRenderItem->m_Material->SetCameraViewMat("View", SceneView.View);
-					m_IrradianceMapRenderItem->m_Material->SetCameraViewPos("ViewPos", SceneView.ViewPos);
-					m_IrradianceMapRenderItem->m_Material->SetCameraProjectMat("Projection", SceneView.Proj);
-					m_IrradianceMapRenderItem->m_Material->SetCameraProjectViewMat("ProjectionView", SceneView.ProjectionView);
-					m_IrradianceMapRenderItem->m_Material->SetTextureCubemap("gSkyboxMap", TextureCubmap.get());
-				});
+					.RenderLayer = ERenderLayer::Unknown,
+					.PiplineStateMode = EPiplineStateMode::AllSpecific,
+					.PsoID = EPsoID::IBLIrradiance,
+				};
+				FRenderUtils::DrawRenderItem(m_IrradianceMapRenderItem, RenderSettings, m_CommandListHandle,
+					[&](Ref<FRenderItem> RenderItem)
+					{
+						m_IrradianceMapRenderItem->m_Material->SetCameraViewMat("View", SceneView.View);
+						m_IrradianceMapRenderItem->m_Material->SetCameraViewPos("ViewPos", SceneView.ViewPos);
+						m_IrradianceMapRenderItem->m_Material->SetCameraProjectMat("Projection", SceneView.Proj);
+						m_IrradianceMapRenderItem->m_Material->SetCameraProjectViewMat("ProjectionView", SceneView.ProjectionView);
+						m_IrradianceMapRenderItem->m_Material->SetTextureCubemap("gSkyboxMap", TextureCubmap.get());
+					});
+			}
 		}
 		m_IBLIrradianceMapRTCube->UnBind(m_CommandListHandle, 0);
 	}
@@ -131,7 +141,13 @@ namespace Zero
 				Ref<IShaderConstantsBuffer> Camera = m_PrefilterEnvMapRTCube->GetCamera(FaceIndex);
 				m_PrefilterMapRenderItems[Mip]->m_Material->SetCamera(Camera);
 
-				FRenderUtils::DrawRenderItem(m_PrefilterMapRenderItems[Mip], m_CommandListHandle,
+				FRenderSettings RenderSettings =
+				{
+					.RenderLayer = ERenderLayer::Unknown,
+					.PiplineStateMode = EPiplineStateMode::AllSpecific,
+					.PsoID = EPsoID::IBLPrefilter
+				};
+				FRenderUtils::DrawRenderItem(m_PrefilterMapRenderItems[Mip], RenderSettings, m_CommandListHandle,
 					[&](Ref<FRenderItem> RenderItem)
 					{
 						m_PrefilterMapRenderItems[Mip]->m_Material->SetCameraViewMat("View", SceneView.View);

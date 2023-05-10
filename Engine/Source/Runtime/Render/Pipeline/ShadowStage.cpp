@@ -64,19 +64,22 @@ namespace Zero
 
 	void FShadowStage::RenderShadowMapDebug()
 	{
+		/*
 		m_ShadowMapDebugRenderTarget->Bind(CommandListHandle);
 
-		m_ShadowMapDebugItem->PreRender(CommandListHandle);
+		m_ShadowMapDebugItem->CanRender(CommandListHandle, EPsoID::ShadowDebug);
 		if (FLightManager::Get().GetDirectLights().size() > 0)
 		{
 			m_ShadowMapDebugItem->m_Material->SetTexture2D("_gShadowMaps", m_ShadowMapRenderTargets[0]->GetDepthTexture());
 		}
 		m_ShadowMapDebugItem->Render(CommandListHandle);
 		m_ShadowMapDebugRenderTarget->UnBind(CommandListHandle);
+		*/
 	}
 
 	void FShadowStage::RenderShadowMap()
 	{
+		/*
 		const auto& DirectLights = FLightManager::Get().GetDirectLights();
 		for (int32_t Index = 0; Index < DirectLights.size(); ++Index)
 		{
@@ -86,11 +89,12 @@ namespace Zero
 			UDirectLightComponnet*  DirectLightComponent = DirectLight->GetComponent<UDirectLightComponnet>();
 			for (Ref<FRenderItem> RenderItem : *RenderItemPool.get())
 			{
-				RenderItem->PreRender(CommandListHandle);
+				RenderItem->CanRender(CommandListHandle, EPsoID::DirectLightShadowMap);
 				RenderItem->Render(CommandListHandle);
 			}
 			m_ShadowMapRenderTargets[Index]->UnBind(CommandListHandle);
 		}
+		*/
 	}
 
 	void FShadowStage::OnAttach()

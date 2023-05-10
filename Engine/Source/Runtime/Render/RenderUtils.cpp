@@ -5,35 +5,39 @@ namespace Zero
 {
 	Ref<FImageBasedLighting> FRenderUtils::s_IBLMoudule = nullptr;
 	bool FRenderUtils::s_bNeedRefreshIBL = false;
-	void FRenderUtils::RenderLayer(ERenderLayer RenderLayerType, FCommandListHandle CommandListHandle, FRenderFunc&& RenderFunc)
+	void FRenderUtils::RenderLayer(const FRenderSettings& RenderSettings, FCommandListHandle CommandListHandle, FRenderFunc&& RenderFunc)
 	{
-		auto RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool(RenderLayerType);
+		auto RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool(RenderSettings.RenderLayer);
 		for (Ref<FRenderItem> RenderItem : *RenderItemPool.get())
 		{
-			DrawRenderItem(RenderItem, CommandListHandle, std::forward<FRenderFunc>( RenderFunc));
+			DrawRenderItem(RenderItem, RenderSettings, CommandListHandle, std::forward<FRenderFunc>( RenderFunc));
 		}
 	}
 
-	void FRenderUtils::RenderLayer(ERenderLayer RenderLayerType, FCommandListHandle CommandListHandle)
+	void FRenderUtils::RenderLayer(const FRenderSettings& RenderSettings, FCommandListHandle CommandListHandle)
 	{
-		auto RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool(RenderLayerType);
+		auto RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool(RenderSettings.RenderLayer);
 		for (Ref<FRenderItem> RenderItem : *RenderItemPool.get())
 		{
-			DrawRenderItem(RenderItem, CommandListHandle);
+			DrawRenderItem(RenderItem, RenderSettings, CommandListHandle);
 		}
 	}
 
-	void FRenderUtils::DrawRenderItem(Ref<FRenderItem> RenderItem, FCommandListHandle CommandListHandle, FRenderFunc&& RenderFunc)
+	void FRenderUtils::DrawRenderItem(Ref<FRenderItem> RenderItem, const FRenderSettings& RenderSettings, FCommandListHandle CommandListHandle, FRenderFunc&& RenderFunc)
 	{
-		RenderItem->PreRender(CommandListHandle);
-		RenderFunc(RenderItem);
-		RenderItem->Render(CommandListHandle);
+		if (RenderItem->CanRender(CommandListHandle, RenderSettings))
+		{
+			RenderFunc(RenderItem);
+			RenderItem->Render(CommandListHandle);
+		}
 	}
 
-	void FRenderUtils::DrawRenderItem(Ref<FRenderItem> RenderItem, FCommandListHandle CommandListHandle)
+	void FRenderUtils::DrawRenderItem(Ref<FRenderItem> RenderItem, const FRenderSettings& RenderSettings, FCommandListHandle CommandListHandle)
 	{
-		RenderItem->PreRender(CommandListHandle);
-		RenderItem->Render(CommandListHandle);
+		if (RenderItem->CanRender(CommandListHandle, RenderSettings))
+		{ 
+			RenderItem->Render(CommandListHandle);
+		}
 	}
 
 	Ref<FImageBasedLighting> FRenderUtils::GetIBLMoudule()

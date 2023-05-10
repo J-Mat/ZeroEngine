@@ -37,7 +37,7 @@ namespace Zero
 		void SetEnableMaterial(bool bEnable);
 		std::vector<Ref<FMaterial>>& GetPassMaterials(ERenderLayer LayerLayer);
 		void SetSubmeshNum(uint32_t Num);
-		void AttachRenderLayer(ERenderLayer RenderLayer, uint32_t PsoID);
+		void AttachRenderLayer(ERenderLayer RenderLayer, uint32_t PsoID = ZERO_INVALID_ID);
 		void SetParameter(const std::string& ParameterName, EShaderDataType ShaderDataType, void* ValuePtr, ERenderLayer RenderLayer = ERenderLayer::Opaque);
 
 		uint32_t GetPsoID(ERenderLayer RenderLayer);

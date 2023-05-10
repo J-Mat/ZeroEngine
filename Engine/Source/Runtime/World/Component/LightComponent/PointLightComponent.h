@@ -11,6 +11,7 @@ namespace Zero
 	public:
 		UPointLightComponnet() = default;
 		virtual void PostInit();
+		virtual void Tick() override;
 
 		UPROPERTY()
 		float m_Far = 10.0f;	

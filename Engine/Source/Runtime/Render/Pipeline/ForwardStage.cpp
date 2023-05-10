@@ -38,12 +38,15 @@ namespace Zero
 	void FForwardStage::RawRenderLayer(ERenderLayer RenderLayerType)
 	{
 		CORE_ASSERT(false, "no");
+		/*
+	
 		auto RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool(RenderLayerType);
 		for (Ref<FRenderItem> RenderItem : *RenderItemPool.get())
 		{
-			RenderItem->PreRender(m_CommandListHandle);
+			RenderItem->CanRender(m_CommandListHandle, TODO);
 			RenderItem->Render(m_CommandListHandle);
 		}
+		*/
 	}
 
 	void FForwardStage::ForwarLitRender()

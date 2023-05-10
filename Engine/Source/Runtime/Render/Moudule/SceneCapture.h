@@ -54,8 +54,8 @@ namespace Zero
 		Ref<IShaderConstantsBuffer> GetCamera(uint32_t Index) const {	return m_ViewCameraBuffers[Index];}
 		void SetFarAndNear(float Far, float Near);
 		void SetViewPos(ZMath::vec3 ViewPos);
-	private:
 		void UpdateParams();
+		void UploadBuffer();
 	private:
 		ZMath::vec3 m_ViewPos = { 0.0f, 0.0f, 0.0f };
 		float m_Near = 0.01f;

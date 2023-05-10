@@ -160,7 +160,7 @@ namespace Zero
 				.PSOType = EPSOType::PT_Depth,
 				.Shader = FShaderCache::Get().CreateShader(ShaderDesc),
 			};
-			m_PsoCache[EPsoID::ShadowMap] = FGraphic::GetDevice()->CreatePSO(ShadowDesc);
+			m_PsoCache[EPsoID::DirectLightShadowMap] = FGraphic::GetDevice()->CreatePSO(ShadowDesc);
 		}
 
 		{
@@ -175,6 +175,19 @@ namespace Zero
 				.bDepthEnable = false,
 			};
 			m_PsoCache[EPsoID::ShadowDebug] = FGraphic::GetDevice()->CreatePSO(ShadowDesc);
+		}
+
+		{
+			FShaderDesc ShaderDesc
+			{
+				.FileName = "Shader\\Shadow\\OmniShadowMap.hlsl",
+				.ShaderID = EShaderID::PointLightShadowMap,
+			};
+			FPSODescriptor ShadowDesc{
+				.PSOType = EPSOType::PT_Depth,
+				.Shader = FShaderCache::Get().CreateShader(ShaderDesc),
+			};
+			m_PsoCache[EPsoID::PointLightShadowMap] = FGraphic::GetDevice()->CreatePSO(ShadowDesc);
 		}
 	}
 

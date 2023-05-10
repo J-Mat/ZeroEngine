@@ -30,7 +30,13 @@ namespace Zero
 			},
 			[=](FRenderGraphContext& Context, FCommandListHandle CommandListHandle)
 			{
-				FRenderUtils::RenderLayer(ERenderLayer::Skybox, CommandListHandle, [&](Ref<FRenderItem> RenderItem){});
+				
+				FRenderSettings SkyboxRenderSettings =
+				{
+					.RenderLayer = ERenderLayer::Skybox,
+					.PiplineStateMode = EPiplineStateMode::Dependent,
+				};
+				FRenderUtils::RenderLayer(SkyboxRenderSettings, CommandListHandle, [&](Ref<FRenderItem> RenderItem){});
 			},
 			ERenderPassType::Graphics,
 			ERGPassFlags::ForceNoCull

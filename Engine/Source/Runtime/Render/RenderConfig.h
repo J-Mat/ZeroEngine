@@ -1,4 +1,5 @@
 #pragma once
+#include "Core.h"
 #include "Math/ZMath.h"
 
 namespace Zero
@@ -10,6 +11,21 @@ namespace Zero
 		 Light,
 		 Skybox,
 		 Shadow,
+		 Unknown,
+	};
+
+	enum class EPiplineStateMode
+	{
+		Dependent,
+		AllSpecific,
+		Only,
+	};
+
+	struct FRenderSettings
+	{
+		ERenderLayer RenderLayer;
+		EPiplineStateMode PiplineStateMode = EPiplineStateMode::Dependent;
+		uint32_t PsoID = ZERO_INVALID_ID;
 	};
 
 	#define RENDER_STAGE_FORWARD "ForwardLit"
@@ -95,6 +111,7 @@ namespace Zero
 			ShadowMap,
 			ShadowDebug,
 			DirectLightShadowMap,
+			PointLightShadowMap,
 			ShaderCount,
 		};
 	}
@@ -105,7 +122,8 @@ namespace Zero
 		{
 			GlobalPso,
 			Skybox,
-			ShadowMap,
+			DirectLightShadowMap,
+			PointLightShadowMap,
 			ShadowDebug,
 			ForwadLit,
 			DirectLight,

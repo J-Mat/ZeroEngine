@@ -19,7 +19,36 @@ namespace Zero
 		EResourceUsage HeapType = EResourceUsage::Default;
 		FTextureClearValue ClearValue{};
 		EResourceFormat Format = EResourceFormat::UNKNOWN;
+		
+		static FRGTextureDesc MakeShadow2DDesc(uint32_t Width, uint32_t Height)
+		{
+			FRGTextureDesc Desc = 
+			{
+				.Type = ETextureType::TextureType_2D,
+				.Width = Width,
+				.Height = Height,
+				.ArraySize = 1,
+				.ClearValue = FTextureClearValue(1.0f, 0),
+				.Format = EResourceFormat::D24_UNORM_S8_UINT,
+			};
+			return Desc;
+		}
+
+		static FRGTextureDesc MakeShadowCubeDesc(uint32_t Width, uint32_t Height)
+		{
+			FRGTextureDesc Desc = 
+			{
+				.Type = ETextureType::TextureType_2D,
+				.Width = Width,
+				.Height = Height,
+				.ArraySize = 6,
+				.ClearValue = FTextureClearValue(1.0f, 0),
+				.Format = EResourceFormat::D24_UNORM_S8_UINT,
+			};
+			return Desc;
+		}
 	};
+
 	struct FRGBufferDesc
 	{
 		uint32_t Size = 0;

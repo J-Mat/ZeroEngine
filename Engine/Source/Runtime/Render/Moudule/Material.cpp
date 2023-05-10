@@ -33,7 +33,15 @@ namespace Zero
 
 	void FMaterial::SetCamera(Ref<IShaderConstantsBuffer> Camera)
 	{
-		m_CameraBuffer = Camera;
+		if (Camera != m_CameraBuffer)
+		{
+			const auto& BinderDesc = m_ShaderBinder->GetBinderDesc();
+			if (BinderDesc.m_CameraIndex != Utils::InvalidIndex)
+			{
+				m_CameraBuffer = Camera;
+				m_ShaderBinder->BindConstantsBuffer(m_CommandListHandle, BinderDesc.m_CameraIndex, m_CameraBuffer.get());
+			}
+		}
 	}
 
 	void FMaterial::SetPass(FCommandListHandle CommandListHandle)
@@ -57,24 +65,14 @@ namespace Zero
 		{
 			m_ShaderBinder->BindConstantsBuffer(CommandListHandle, BinderDesc.m_GloabalConstantIndex, FConstantsBufferManager::Get().GetGlobalConstantBuffer().get());
 		}
-		//m_Shader->Use();
 	}
 
 	void FMaterial::OnDrawCall(FCommandListHandle CommandListHanle)
 	{
-		if (m_MaterialBuffer != nullptr)
-		{
-			m_MaterialBuffer->UploadDataIfDirty();
-		}
 		if (m_ResourcesBuffer != nullptr)
 		{
 			m_ResourcesBuffer->UploadDataIfDirty(CommandListHanle);
 		}
-		if (m_CameraBuffer == nullptr)
-		{
-			m_CameraBuffer->UploadDataIfDirty();
-		}
-		FConstantsBufferManager::Get().GetGlobalConstantBuffer()->UploadDataIfDirty();
 	}
 
 	void FMaterial::PostDrawCall()

@@ -11,10 +11,10 @@ namespace Zero
 	{
 	public:
 		using FRenderFunc = std::function<void(Ref<FRenderItem>)>;
-		static void RenderLayer(ERenderLayer RenderLayerType, FCommandListHandle CommandListHandle, FRenderFunc&& RenderFunc);
-		static void RenderLayer(ERenderLayer RenderLayerType, FCommandListHandle CommandListHandle);
-		static void DrawRenderItem(Ref<FRenderItem> RenderItem, FCommandListHandle CommandListHandle, FRenderFunc&& RenderFunc);
-		static void DrawRenderItem(Ref<FRenderItem> RenderItem, FCommandListHandle CommandListHandle);
+		static void RenderLayer(const FRenderSettings& RenderSettings, FCommandListHandle CommandListHandle, FRenderFunc&& RenderFunc);
+		static void RenderLayer(const FRenderSettings& RenderSettings, FCommandListHandle CommandListHandle);
+		static void DrawRenderItem(Ref<FRenderItem> RenderItem, const FRenderSettings& RenderSettings, FCommandListHandle CommandListHandle, FRenderFunc&& RenderFunc);
+		static void DrawRenderItem(Ref<FRenderItem> RenderItem, const FRenderSettings& RenderSettings, FCommandListHandle CommandListHandle);
 		static Ref<FImageBasedLighting> GetIBLMoudule();
 		static void SetNeedRefreshIBL() { s_bNeedRefreshIBL = true; };
 		static void RefreshIBL();

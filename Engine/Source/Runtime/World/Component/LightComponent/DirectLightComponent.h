@@ -12,6 +12,7 @@ namespace Zero
 	public:
 		UDirectLightComponnet();
 		virtual void PostInit();
+		virtual void Tick() override;
 		
 		ZMath::mat4 GetProjectView();
 		ZMath::mat4 GetProject() { return m_SceneCapture2D.GetSceneView().Proj; }

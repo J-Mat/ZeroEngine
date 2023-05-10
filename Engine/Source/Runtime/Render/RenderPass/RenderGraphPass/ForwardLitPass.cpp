@@ -73,23 +73,39 @@ namespace Zero
 					ShadowMaps.push_back(Texture);
 				}
 
-				FRenderUtils::RenderLayer(ERenderLayer::Light, CommandListHandle);
-				FRenderUtils::RenderLayer(ERenderLayer::Opaque, CommandListHandle, 
-					[&](Ref<FRenderItem> RenderItem)
+
+				{
+					FRenderSettings LightRenderSettings =
 					{
-						auto& IBLModule = FRenderUtils::GetIBLMoudule();
-						RenderItem->m_Material->SetTextureCubemap("IBLIrradianceMap", IBLModule->GetIrradianceRTCube()->GetColorTexCube());
-						RenderItem->m_Material->SetTextureCubemap("IBLPrefilterMap", IBLModule->GetPrefilterEnvMapRTCube()->GetColorTexCube());
-						RenderItem->m_Material->SetTexture2D("_BrdfLUT", FTextureManager::Get().GetLutTexture().get());
-						RenderItem->m_Material->SetIBL(true);
-						uint32_t EmptyLightsNum = FLightManager::Get().GetMaxDirectLightsNum() - uint32_t(ShadowMaps.size());
-						while (EmptyLightsNum--)
+						.RenderLayer = ERenderLayer::Light,
+						.PiplineStateMode = EPiplineStateMode::Dependent,
+					};
+					FRenderUtils::RenderLayer(LightRenderSettings, CommandListHandle);
+				}
+				
+				{
+					FRenderSettings ForwardRenderSettings =
+					{
+						.RenderLayer = ERenderLayer::Opaque,
+						.PiplineStateMode = EPiplineStateMode::Dependent,
+					};
+					FRenderUtils::RenderLayer(ForwardRenderSettings, CommandListHandle,
+						[&](Ref<FRenderItem> RenderItem)
 						{
-							ShadowMaps.push_back(FTextureManager::Get().GetDefaultTexture().get());
+							auto& IBLModule = FRenderUtils::GetIBLMoudule();
+							RenderItem->m_Material->SetTextureCubemap("IBLIrradianceMap", IBLModule->GetIrradianceRTCube()->GetColorTexCube());
+							RenderItem->m_Material->SetTextureCubemap("IBLPrefilterMap", IBLModule->GetPrefilterEnvMapRTCube()->GetColorTexCube());
+							RenderItem->m_Material->SetTexture2D("_BrdfLUT", FTextureManager::Get().GetLutTexture().get());
+							RenderItem->m_Material->SetIBL(true);
+							uint32_t EmptyLightsNum = FLightManager::Get().GetMaxDirectLightsNum() - uint32_t(ShadowMaps.size());
+							while (EmptyLightsNum--)
+							{
+								ShadowMaps.push_back(FTextureManager::Get().GetDefaultTexture().get());
+							}
+							RenderItem->m_Material->SetTexture2DArray("_gShadowMaps", ShadowMaps);
 						}
-						RenderItem->m_Material->SetTexture2DArray("_gShadowMaps", ShadowMaps);
-					}
 					);
+				}
 			},
 			ERenderPassType::Graphics,
 			ERGPassFlags::ForceNoCull
