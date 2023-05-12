@@ -107,7 +107,7 @@ namespace Zero
 
 
 			{
-				FRenderSettings RenderSettings =
+				FRenderParams RenderSettings =
 				{
 					.RenderLayer = ERenderLayer::Unknown,
 					.PiplineStateMode = EPiplineStateMode::AllSpecific,
@@ -141,7 +141,7 @@ namespace Zero
 				Ref<IShaderConstantsBuffer> Camera = m_PrefilterEnvMapRTCube->GetCamera(FaceIndex);
 				m_PrefilterMapRenderItems[Mip]->m_Material->SetCamera(Camera);
 
-				FRenderSettings RenderSettings =
+				FRenderParams RenderSettings =
 				{
 					.RenderLayer = ERenderLayer::Unknown,
 					.PiplineStateMode = EPiplineStateMode::AllSpecific,

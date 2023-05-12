@@ -62,7 +62,7 @@ namespace Zero
 				[=](FRenderGraphContext& Context, FCommandListHandle CommandListHandle)
 				{
 					{
-						FRenderSettings ShadowRenderSettings =
+						FRenderParams ShadowRenderSettings =
 						{
 							.RenderLayer = ERenderLayer::Shadow,
 							.PiplineStateMode = EPiplineStateMode::AllSpecific,
@@ -97,13 +97,13 @@ namespace Zero
 				{
 					FTexture2D* ShadowMap = Context.GetTexture2D(Data.ShadowMapID.GetResourceID());
 					{
-						FRenderSettings ShadowDebugRenderSettings =
+						FRenderParams ShadowDebugRenderParams =
 						{
 							.RenderLayer = ERenderLayer::Unknown,
 							.PiplineStateMode = EPiplineStateMode::AllSpecific,
 							.PsoID = EPsoID::DirectLightShadowMap,
 						};
-						FRenderUtils::DrawRenderItem(m_ShadowMapDebugItems[LightIndex], ShadowDebugRenderSettings, CommandListHandle,
+						FRenderUtils::DrawRenderItem(m_ShadowMapDebugItems[LightIndex], ShadowDebugRenderParams, CommandListHandle,
 							[&](Ref<FRenderItem> RenderItem)
 							{
 								RenderItem->m_Material->SetTexture2D("_gShadowMap", ShadowMap);
@@ -142,13 +142,13 @@ namespace Zero
 					[=](FRenderGraphContext& Context, FCommandListHandle CommandListHandle)
 					{
 						{
-							FRenderSettings ShadowRenderSettings =
+							FRenderParams ShadowRenderParams =
 							{
 								.RenderLayer = ERenderLayer::Shadow,
 								.PiplineStateMode = EPiplineStateMode::AllSpecific,
 								.PsoID = EPsoID::PointLight,
 							};
-							FRenderUtils::RenderLayer(ShadowRenderSettings, CommandListHandle,
+							FRenderUtils::RenderLayer(ShadowRenderParams, CommandListHandle,
 								[=](Ref<FRenderItem> RenderItem)
 								{
 									RenderItem->m_Material->SetCamera(Camera);

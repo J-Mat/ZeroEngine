@@ -68,7 +68,7 @@ namespace Zero
 		m_PerObjectBuffer->SetMatrix4x4("Model", Transform);
 	}
 	
-	Zero::Ref<Zero::FPipelineStateObject> FRenderItem::GetPsoObj(const FRenderSettings& RenderSettings)
+	Zero::Ref<Zero::FPipelineStateObject> FRenderItem::GetPsoObj(const FRenderParams& RenderSettings)
 {
 		switch (RenderSettings.PiplineStateMode)
 		{
@@ -97,7 +97,7 @@ namespace Zero
 		return m_PipelineStateObject;
 	}
 
-	bool FRenderItem::CanRender(FCommandListHandle ComamndListHandle, const FRenderSettings& RenderSettings)
+	bool FRenderItem::CanRender(FCommandListHandle ComamndListHandle, const FRenderParams& RenderSettings)
 	{
 		auto PsoObj = GetPsoObj(RenderSettings);
 		if (PsoObj == nullptr)

@@ -418,15 +418,25 @@ namespace Zero
 		CD3DX12_RESOURCE_DESC Desc(m_ResourceLocation.GetResource()->GetD3DResource()->GetDesc());
 		m_SRVFormat = GetSRVFormat(Desc.Format);
 
-		if (m_SRVs.size() == Descs.size())
+		if (m_SRVs.size() != Descs.size())
 		{
-			return;
+			m_SRVs.resize(Descs.size());
+			m_SRVDescs.clear();
 		}
-		m_SRVs.resize(Descs.size());
+
 		
 		for (uint32_t i = 0; i < Descs.size(); ++i)
 		{
 			auto& SubresourceDesc = Descs[i];
+			if (m_SRVDescs.size() == i)
+			{
+				m_SRVDescs.push_back(SubresourceDesc);
+			}
+			else if (m_SRVDescs[i] == SubresourceDesc)
+			{
+				continue;
+			}
+
 			D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc
 			{
 				.Format = m_SRVFormat == DXGI_FORMAT_UNKNOWN ?
@@ -463,15 +473,23 @@ namespace Zero
 		bool bCheckRTVSupport = m_ResourceLocation.GetResource()->CheckRTVSupport();
 		CORE_ASSERT(bCheckRTVSupport, "Check RTVSupport");
 
-		if (m_RTVs.size() == Descs.size())
+		if (m_RTVs.size() != Descs.size())
 		{
-			return;
+			m_RTVs.resize(Descs.size());
+			m_RTVDescs.clear();
 		}
-		m_RTVs.resize(Descs.size());
 
 		for (uint32_t i = 0; i < Descs.size();++i)
 		{ 
 			auto& SubresourceDesc = Descs[i];
+			if (m_RTVDescs.size() == i)
+			{
+				m_RTVDescs.push_back(SubresourceDesc);
+			}
+			else if (m_RTVDescs[i] == SubresourceDesc)
+			{
+				continue;
+			}
 			D3D12_RENDER_TARGET_VIEW_DESC RTVDesc;
 			switch (m_TextureDesc.Format)
 			{ 
@@ -530,9 +548,10 @@ namespace Zero
 		bool bCheckDSVSupport = m_ResourceLocation.GetResource()->CheckDSVSupport();
 		CORE_ASSERT(bCheckDSVSupport, "Check DSVSutrue, pport");
 
-		if (m_DSVs.size() == Descs.size())
+		if (m_DSVs.size() != Descs.size())
 		{
-			return;
+			m_DSVs.resize(Descs.size());
+			m_DSVDescs.clear();
 		}
 		m_DSVs.clear();
 		m_DSVs.resize(Descs.size());
@@ -540,6 +559,15 @@ namespace Zero
 		for (uint32_t i = 0; i < Descs.size(); ++i)
 		{
 			auto& SubresourceDesc = Descs[i];
+			if (m_DSVDescs.size() == i)
+			{
+				m_DSVDescs.push_back(SubresourceDesc);
+			}
+			else if (m_DSVDescs[i] == SubresourceDesc)
+			{
+				continue;
+			}
+
 			D3D12_DEPTH_STENCIL_VIEW_DESC DSVDesc;
 			DSVDesc.Flags = D3D12_DSV_FLAG_NONE;
 			switch (m_TextureDesc.Format)
@@ -599,12 +627,24 @@ namespace Zero
 		bool bCheckUAVSupport = m_ResourceLocation.GetResource()->CheckUAVSupport();
 		CORE_ASSERT(bCheckUAVSupport, "Check UAVSupport");
 
-		m_DSVs.clear();
-		m_DSVs.resize(Descs.size());
+		if (m_UAVs.size() != Descs.size())
+		{
+			m_UAVs.resize(Descs.size());
+			m_UAVDescs.clear();
+		}
 
 		for (uint32_t i = 0; i < Descs.size(); ++i)
 		{ 
 			auto& SubresourceDesc = Descs[i];
+			if (m_UAVDescs.size() == i)
+			{
+				m_UAVDescs.push_back(SubresourceDesc);
+			}
+			else if (m_UAVDescs[i] == SubresourceDesc)
+			{
+				continue;
+			}
+
 			D3D12_UNORDERED_ACCESS_VIEW_DESC UAVDesc;
 			switch (m_TextureDesc.Format)
 			{

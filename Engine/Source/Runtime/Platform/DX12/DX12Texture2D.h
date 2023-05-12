@@ -92,9 +92,16 @@ namespace Zero
 
 
 		std::vector<Scope<FDX12ShaderResourceView>> m_SRVs;
+        std::vector<FTextureSubresourceDesc> m_SRVDescs;
+
 		std::vector<Scope<FDX12UnorderedAccessResourceView>> m_UAVs;
+        std::vector<FTextureSubresourceDesc> m_UAVDescs;
+
         std::vector<Scope<FDX12RenderTargetView>> m_RTVs;
+        std::vector<FTextureSubresourceDesc> m_RTVDescs;
+
 		std::vector<Scope<FDX12DepthStencilView>> m_DSVs;
+        std::vector<FTextureSubresourceDesc> m_DSVDescs;
 
 		FResourceLocation m_ResourceLocation;
 

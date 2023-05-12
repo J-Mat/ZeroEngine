@@ -14,6 +14,7 @@ namespace Zero
 
 	FRenderGraph::~FRenderGraph()
 	{
+        /*
         for (auto& [RGTextureID, _] : m_SRVTex2DDescMap)
         { 
             FTexture2D* Texture = GetTexture2D(RGTextureID);
@@ -61,6 +62,7 @@ namespace Zero
             FTexture2D* Texture = GetTexture2D(RGTextureID);
             Texture->ReleaseDSVs();
         }
+        */
 	}
 
 	void FRenderGraph::FDependencyLevel::AddPass(Ref<FRGPassBase> Pass)

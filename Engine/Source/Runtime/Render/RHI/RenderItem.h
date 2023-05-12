@@ -45,11 +45,11 @@ namespace Zero
 		FSubMesh m_SubMesh;
 		Ref<IShaderConstantsBuffer> m_PerObjectBuffer = nullptr;
 		ZMath::mat4 m_Transform;
-		bool CanRender(FCommandListHandle ComamndListHandle, const FRenderSettings& RenderSettings);
+		bool CanRender(FCommandListHandle ComamndListHandle, const FRenderParams& RenderSettings);
 		void Render(FCommandListHandle ComamndListHandle);
 		void Reset();
 		
-		Ref<FPipelineStateObject> GetPsoObj(const FRenderSettings& RenderSettings);
+		Ref<FPipelineStateObject> GetPsoObj(const FRenderParams& RenderSettings);
 		Ref<FPipelineStateObject> GetPsoObj();
 	private:
 		Ref<FPipelineStateObject> m_PipelineStateObject = nullptr;

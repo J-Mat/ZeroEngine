@@ -75,7 +75,7 @@ namespace Zero
 
 
 				{
-					FRenderSettings LightRenderSettings =
+					FRenderParams LightRenderSettings =
 					{
 						.RenderLayer = ERenderLayer::Light,
 						.PiplineStateMode = EPiplineStateMode::Dependent,
@@ -84,7 +84,7 @@ namespace Zero
 				}
 				
 				{
-					FRenderSettings ForwardRenderSettings =
+					FRenderParams ForwardRenderSettings =
 					{
 						.RenderLayer = ERenderLayer::Opaque,
 						.PiplineStateMode = EPiplineStateMode::Dependent,

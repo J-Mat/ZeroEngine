@@ -31,7 +31,7 @@ namespace Zero
 			[=](FRenderGraphContext& Context, FCommandListHandle CommandListHandle)
 			{
 				
-				FRenderSettings SkyboxRenderSettings =
+				FRenderParams SkyboxRenderSettings =
 				{
 					.RenderLayer = ERenderLayer::Skybox,
 					.PiplineStateMode = EPiplineStateMode::Dependent,

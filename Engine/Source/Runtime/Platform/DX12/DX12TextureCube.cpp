@@ -154,9 +154,9 @@ namespace Zero
 			// Create DSV	
 			if (m_bRenderDepth && (Desc.Flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL) != 0 && m_ResourceLocation.GetResource()->CheckDSVSupport())
 			{
+				m_DSVs.resize(6);
 				for (uint32_t i = 0; i < 6; ++i)
 				{
-					m_DSVs.resize(6);
 					D3D12_DEPTH_STENCIL_VIEW_DESC DsvDesc = {
 						.Format = DXGI_FORMAT_D24_UNORM_S8_UINT,
 						.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2DARRAY,
@@ -268,7 +268,6 @@ namespace Zero
 		uint32_t Index = 0;
 		for (auto& SubDesc : Descs)
 		{
-			m_DSVs.resize(6);
 			D3D12_DEPTH_STENCIL_VIEW_DESC DsvDesc = {
 				.Format = DXGI_FORMAT_D24_UNORM_S8_UINT,
 				.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2DARRAY,

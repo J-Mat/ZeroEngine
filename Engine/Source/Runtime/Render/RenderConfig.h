@@ -21,7 +21,7 @@ namespace Zero
 		Only,
 	};
 
-	struct FRenderSettings
+	struct FRenderParams
 	{
 		ERenderLayer RenderLayer;
 		EPiplineStateMode PiplineStateMode = EPiplineStateMode::Dependent;

@@ -5,7 +5,7 @@ namespace Zero
 {
 	Ref<FImageBasedLighting> FRenderUtils::s_IBLMoudule = nullptr;
 	bool FRenderUtils::s_bNeedRefreshIBL = false;
-	void FRenderUtils::RenderLayer(const FRenderSettings& RenderSettings, FCommandListHandle CommandListHandle, FRenderFunc&& RenderFunc)
+	void FRenderUtils::RenderLayer(const FRenderParams& RenderSettings, FCommandListHandle CommandListHandle, FRenderFunc&& RenderFunc)
 	{
 		auto RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool(RenderSettings.RenderLayer);
 		for (Ref<FRenderItem> RenderItem : *RenderItemPool.get())
@@ -14,7 +14,7 @@ namespace Zero
 		}
 	}
 
-	void FRenderUtils::RenderLayer(const FRenderSettings& RenderSettings, FCommandListHandle CommandListHandle)
+	void FRenderUtils::RenderLayer(const FRenderParams& RenderSettings, FCommandListHandle CommandListHandle)
 	{
 		auto RenderItemPool = UWorld::GetCurrentWorld()->GetRenderItemPool(RenderSettings.RenderLayer);
 		for (Ref<FRenderItem> RenderItem : *RenderItemPool.get())
@@ -23,7 +23,7 @@ namespace Zero
 		}
 	}
 
-	void FRenderUtils::DrawRenderItem(Ref<FRenderItem> RenderItem, const FRenderSettings& RenderSettings, FCommandListHandle CommandListHandle, FRenderFunc&& RenderFunc)
+	void FRenderUtils::DrawRenderItem(Ref<FRenderItem> RenderItem, const FRenderParams& RenderSettings, FCommandListHandle CommandListHandle, FRenderFunc&& RenderFunc)
 	{
 		if (RenderItem->CanRender(CommandListHandle, RenderSettings))
 		{
@@ -32,7 +32,7 @@ namespace Zero
 		}
 	}
 
-	void FRenderUtils::DrawRenderItem(Ref<FRenderItem> RenderItem, const FRenderSettings& RenderSettings, FCommandListHandle CommandListHandle)
+	void FRenderUtils::DrawRenderItem(Ref<FRenderItem> RenderItem, const FRenderParams& RenderSettings, FCommandListHandle CommandListHandle)
 	{
 		if (RenderItem->CanRender(CommandListHandle, RenderSettings))
 		{ 
