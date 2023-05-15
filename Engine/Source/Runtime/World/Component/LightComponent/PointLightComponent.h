@@ -16,15 +16,9 @@ namespace Zero
 		UPROPERTY()
 		float m_Far = 10.0f;	
 			
-		UPROPERTY()
-		float m_Constant = 1.0f;
 
-		UPROPERTY()
-		float m_Linear = 0.09f;
-
-		UPROPERTY()
-		float m_Quadratic = 0.032f;
-
+		float GetRange() { return m_Far; }
+	
 		const FSceneCaptureCube& GetSceneCaptureCube() { return m_SceneCaptureCube; }
 	private:
 		void OnTransfromChanged(UTransformComponent* TransformComponent);

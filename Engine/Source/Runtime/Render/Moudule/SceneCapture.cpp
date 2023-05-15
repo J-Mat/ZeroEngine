@@ -118,8 +118,8 @@ namespace Zero
 			m_ViewCameraBuffers[i]->SetMatrix4x4("View", m_SceneViews[i].View);
 			m_ViewCameraBuffers[i]->SetMatrix4x4("ProjectionView", m_SceneViews[i].ProjectionView);
 			m_ViewCameraBuffers[i]->SetFloat3("ViewPos", m_SceneViews[i].ViewPos);
-			m_ViewCameraBuffers[i]->SetFloat("gNearZ", m_SceneViews[i].Near);
-			m_ViewCameraBuffers[i]->SetFloat("gFarZ", m_SceneViews[i].Far);
+			m_ViewCameraBuffers[i]->SetFloat("NearZ", m_SceneViews[i].Near);
+			m_ViewCameraBuffers[i]->SetFloat("FarZ", m_SceneViews[i].Far);
 		}
 	}
 

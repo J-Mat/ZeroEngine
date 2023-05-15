@@ -13,6 +13,7 @@ Texture2D _BrdfLUT : register(t6);
 
 TextureCube IBLPrefilterMap : register(t7);
 
+TextureCube _gShadowMapCubes[4] : register(t8);
 Texture2D _gShadowMaps[2] : register(t0, space1);
 
 #include "./Utils.hlsl"
@@ -53,7 +54,7 @@ PixelOutput PS(VertexOut Pin)
 	PixelOutput Out;
 	float3 FinalColor = 0.0f;
 	float2 UV = float2(Pin.TexC.x, 1.0f - Pin.TexC.y);
-	float3 Albedo = gDiffuseMap.SampleLevel(gSamLinearWarp, UV, 0).rgb;
+	float3 BaseColor = gDiffuseMap.SampleLevel(gSamLinearWarp, UV, 0).rgb;
 	float3 EmissiveColor = pow(gEmissionMap.Sample(gSamAnisotropicWarp, UV).rgb, 2.2f);
 	float Metallic = gMetallicMap.Sample(gSamAnisotropicWarp, UV).r; 
 	float Roughness = gRoughnessMap.Sample(gSamAnisotropicWarp, UV).r;
@@ -70,26 +71,40 @@ PixelOutput PS(VertexOut Pin)
 		float3 Irradiance = IBLIrradianceMap.Sample(gSamLinearClamp, N).rgb;
 		float NdotV = dot(N, ViewDir);
 		float2 LUT = _BrdfLUT.Sample(gSamAnisotropicWarp, float2(NdotV, Roughness)).rg;
-		FinalColor =  AmbientLighting(Metallic, Albedo, Irradiance, PrefilteredColor, LUT) + EmissiveColor;
+		FinalColor =  AmbientLighting(Metallic, BaseColor, Irradiance, PrefilteredColor, LUT) + EmissiveColor;
 	}
 	else if (ShadingMode == 1)
 	{
-		float3 Ambient = 0.05f * Albedo;
-		float3 LightColor = DirectLights[0].Color * DirectLights[0].Intensity;
-		float3 L = normalize(-DirectLights[0].Direction);
-		float3 V = normalize(ViewPos - Pin.WorldPos); 
-		float3 H = normalize(V + L);
-		float NdotL = max(0.0f, dot(Pin.Normal, L));
+		float3 Ambient = 0.05f * BaseColor;
+		FinalColor = Ambient;
+		for (int LightIndex = 0; LightIndex < DirectLightNum; ++LightIndex)
+		{
+			float3 LightColor = DirectLights[LightIndex].Color * DirectLights[LightIndex].Intensity;
+			float3 L = normalize(-DirectLights[LightIndex].Direction);
+			float3 V = normalize(ViewPos - Pin.WorldPos); 
+			float3 H = normalize(V + L);
+			float NdotL = max(0.0f, dot(Pin.Normal, L));
+			
+			float3 Diffuse = NdotL * LightColor;
+
+			float3 Spec = 0.0f;
+			float3 ReflectDir = reflect(-V, N);
+			Spec = pow(max(dot(V, ReflectDir), 0.0f), 35.0f) * LightColor;
+
+			float ShadowFactor = CalcShadowFactor(0, Pin.ShadowPosH, MipLevel);
+			FinalColor +=  (Diffuse + Spec) * ShadowFactor * BaseColor;
+		}
 		
-		float3 Diffuse = NdotL * LightColor;
-
-		float3 Spec = 0.0f;
-		float3 ReflectDir = reflect(-V, N);
-		Spec = pow(max(dot(V, ReflectDir), 0.0f), 35.0f) * LightColor;
-
-		float ShadowFactor = CalcShadowFactor(0, Pin.ShadowPosH, MipLevel);
-		FinalColor =  Ambient + (Diffuse + Spec) * ShadowFactor * Albedo;
-		//FinalColor =  float3(ShadowFactor, ShadowFactor, ShadowFactor); //Ambient + (Diffuse + Spec) * ShadowFactor * Albedo;
+		for (int LightIndex = 0; LightIndex < PointLightNum; ++LightIndex)
+		{
+			float3 LightToPoint = Pin.WorldPos - PointLights[LightIndex].LightPos;
+			float ShaderFactor = CalcVisibilityOmni(LightToPoint, LightIndex, PointLights[LightIndex].Range);
+			
+			float3 LightDir = normalize(PointLights[LightIndex].LightPos - Pin.WorldPos);
+			float Attenuation = CalcDistanceAttenuation(Pin.WorldPos, PointLights[LightIndex].LightPos, PointLights[LightIndex].Range);
+			float3 Radiance = PointLights[LightIndex].Intensity * Attenuation * PointLights[LightIndex].Color;
+		}
+		//FinalColor =  float3(ShadowFactor, ShadowFactor, ShadowFactor); //Ambient + (Diffuse + Spec) * ShadowFactor * BaseColor;
 	}
 
     // gamma correct

@@ -180,7 +180,7 @@ namespace Zero
 		{
 			FShaderDesc ShaderDesc
 			{
-				.FileName = "Shader\\Shadow\\OmniShadowMap.hlsl",
+				.FileName = "Shader\\Shadow\\PointLightShadowMap.hlsl",
 				.ShaderID = EShaderID::PointLightShadowMap,
 			};
 			FPSODescriptor ShadowDesc{

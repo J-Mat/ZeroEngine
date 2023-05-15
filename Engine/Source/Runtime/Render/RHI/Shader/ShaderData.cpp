@@ -36,8 +36,8 @@ namespace Zero
 			{EShaderDataType::Mat4, "Projection" },
 			{EShaderDataType::Mat4, "ProjectionView" },
 			{EShaderDataType::Float3, "ViewPos" },
-			{EShaderDataType::Float, "gNearZ" },
-			{EShaderDataType::Float, "gFarZ" },
+			{EShaderDataType::Float, "NearZ" },
+			{EShaderDataType::Float, "FarZ" },
 		},
 		false
 	};
@@ -74,22 +74,22 @@ namespace Zero
 			{EShaderDataType::Float3,  "PointLights[0].Color"},
 			{EShaderDataType::Float, "PointLights[0].Intensity"},
 			{EShaderDataType::Float3, "PointLights[0].LightPos"},
-			{EShaderDataType::Float, "PointLights[0].Blank"},
+			{EShaderDataType::Float, "PointLights[0].Range"},
 
 			{EShaderDataType::Float3,  "PointLights[1].Color"},
 			{EShaderDataType::Float, "PointLights[1].Intensity"},
 			{EShaderDataType::Float3, "PointLights[1].LightPos"},
-			{EShaderDataType::Float, "PointLights[1].Blank"},
+			{EShaderDataType::Float, "PointLights[1].Range"},
 
 			{EShaderDataType::Float3,  "PointLights[2].Color"},
 			{EShaderDataType::Float, "PointLights[2].Intensity"},
 			{EShaderDataType::Float3, "PointLights[2].LightPos"},
-			{EShaderDataType::Float, "PointLights[2].Blank"},
+			{EShaderDataType::Float, "PointLights[2].Range"},
 
 			{EShaderDataType::Float3,  "PointLights[3].Color"},
 			{EShaderDataType::Float, "PointLights[3].Intensity"},
 			{EShaderDataType::Float3, "PointLights[3].LightPos"},
-			{EShaderDataType::Float, "PointLights[3].Blank"},
+			{EShaderDataType::Float, "PointLights[3].Range"},
 
 			{EShaderDataType::Int,  "DirectLightNum"},
 			{EShaderDataType::Int,  "PointLightNum"},

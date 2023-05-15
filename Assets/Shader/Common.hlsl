@@ -42,7 +42,7 @@ struct FPointLight
     float3 Color;
     float Intensity;
     float3 LightPos;
-    float Blank;
+    float Range;
 };
 
 
@@ -66,6 +66,8 @@ cbuffer cbCameraObject : register(b1)
     float4x4 Projection;
     float4x4 ProjectionView;
     float3 ViewPos;
+    float NearZ;
+    float FarZ;
 }
 
 

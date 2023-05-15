@@ -553,8 +553,6 @@ namespace Zero
 			m_DSVs.resize(Descs.size());
 			m_DSVDescs.clear();
 		}
-		m_DSVs.clear();
-		m_DSVs.resize(Descs.size());
 
 		for (uint32_t i = 0; i < Descs.size(); ++i)
 		{

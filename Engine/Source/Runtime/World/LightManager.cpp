@@ -9,7 +9,7 @@ namespace  Zero
 	FLightManager::FLightManager()
 	{
 		m_DirectLightProperties = {"Color", "Intensity", "Direction", "ProjectionView" };
-		m_PointLightProperties = {"Color", "Intensity", "LightPos"};
+		m_PointLightProperties = {"Color", "Intensity", "LightPos", "Range"};
 	}
 
 	void FLightManager::AddDirectLight(UDirectLightActor* Light)
@@ -58,18 +58,21 @@ namespace  Zero
 		{
 			auto* LightActor = m_PointLights[i];
 			LightActor->SetParameter("PointLightIndex", EShaderDataType::Int, &i, ERenderLayer::Light);
-			UPointLightComponnet*  DirectLightComponent =  LightActor->GetComponent<UPointLightComponnet>();
+			UPointLightComponnet*  PointLightComponent =  LightActor->GetComponent<UPointLightComponnet>();
 			UTransformComponent* TransformComponent = LightActor->GetComponent<UTransformComponent>();
 			uint32_t PropertyIndex = 0;
 
 			std::string PropertyStr = std::format("PointLights[{0}].{1}", i, m_PointLightProperties[PropertyIndex++]);
-			Buffer->SetFloat3(PropertyStr, DirectLightComponent->GetLightColor());
+			Buffer->SetFloat3(PropertyStr, PointLightComponent->GetLightColor());
 
 			PropertyStr = std::format("PointLights[{0}].{1}", i, m_PointLightProperties[PropertyIndex++]);
-			Buffer->SetFloat(PropertyStr, DirectLightComponent->GetLightIntensity());
+			Buffer->SetFloat(PropertyStr, PointLightComponent->GetLightIntensity());
 
 			PropertyStr = std::format("PointLights[{0}].{1}", i, m_PointLightProperties[PropertyIndex++]);
 			Buffer->SetFloat3(PropertyStr, TransformComponent->GetPosition());
+
+			PropertyStr = std::format("PointLights[{0}].{1}", i, m_PointLightProperties[PropertyIndex++]);
+			Buffer->SetFloat(PropertyStr,PointLightComponent->GetRange());
 		}
 	}
 }
