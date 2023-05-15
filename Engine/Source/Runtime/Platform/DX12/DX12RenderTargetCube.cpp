@@ -117,31 +117,63 @@ namespace Zero
 	void FDX12RenderTargetCube::Bind(FCommandListHandle CommandListHandle)
 	{
 		auto  CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
-		FDX12TextureCube* DX12TextureCubemap = static_cast<FDX12TextureCube*>(m_TextureColorCubemap.Texture);
+		if (m_TextureColorCubemap.Texture != nullptr)
+		{
+			FDX12TextureCube* DX12TextureCubemap = static_cast<FDX12TextureCube*>(m_TextureColorCubemap.Texture);
 
-		CommandList->TransitionBarrier(DX12TextureCubemap->GetResource()->GetD3DResource(), D3D12_RESOURCE_STATE_RENDER_TARGET);
+			CommandList->TransitionBarrier(DX12TextureCubemap->GetResource()->GetD3DResource(), D3D12_RESOURCE_STATE_RENDER_TARGET);
+		}
+		
+		if (m_TextureDepthCubemap.Texture != nullptr)
+		{
+			FDX12TextureCube* DX12TextureCubemap = static_cast<FDX12TextureCube*>(m_TextureDepthCubemap.Texture);
+			CommandList->TransitionBarrier(DX12TextureCubemap->GetResource()->GetD3DResource(), D3D12_RESOURCE_STATE_DEPTH_WRITE);
+		}
 	}
 
 	void FDX12RenderTargetCube::SetRenderTarget(FCommandListHandle CommandListHandle, uint32_t FaceIndex, uint32_t SubResource /*= -1*/)
 	{
 		auto  CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
-		FDX12TextureCube* DX12TextureCubemap = static_cast<FDX12TextureCube*>(m_TextureColorCubemap.Texture);
-		SetViewportRect(SubResource == -1 ? 0 : SubResource);
-		FDX12RenderTargetView* RTV = static_cast<FDX12RenderTargetView*>(DX12TextureCubemap->GetRTV(FaceIndex, SubResource));
-		float Color[4] = { 0.0f, 0.0f, 0.0f, 0.0f};
 		CommandList->GetD3D12CommandList()->RSSetViewports(1, &m_ViewPort);
 		CommandList->GetD3D12CommandList()->RSSetScissorRects(1, &m_ScissorRect);
-		CommandList->GetD3D12CommandList()->ClearRenderTargetView(RTV->GetDescriptorHandle(),Color, 0, nullptr);
-		CommandList->GetD3D12CommandList()->OMSetRenderTargets(1, &RTV->GetDescriptorHandle(), true, nullptr);
+
+		FDX12TextureCube* ColorCubemap = static_cast<FDX12TextureCube*>(m_TextureColorCubemap.Texture);
+		FDX12RenderTargetView* RtvPtr = m_TextureColorCubemap.Texture != nullptr ? static_cast<FDX12RenderTargetView*>(ColorCubemap->GetRTV(FaceIndex, SubResource)) : nullptr;
+		auto* DsvTexture = static_cast<FDX12TextureCube*>(m_TextureDepthCubemap.Texture);
+		FDX12DepthStencilView* DsvPtr = m_TextureDepthCubemap.Texture != nullptr ? static_cast<FDX12DepthStencilView*>(DsvTexture->GetDSV(FaceIndex)) : nullptr;
+
+		if (RtvPtr)
+		{
+			float Color[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+			CommandList->GetD3D12CommandList()->ClearRenderTargetView(RtvPtr->GetDescriptorHandle(), Color, 0, nullptr);	
+		}
+
+		if (DsvPtr)
+		{
+			CommandList->GetD3D12CommandList()->ClearDepthStencilView(DsvPtr->GetDescriptorHandle(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+		}
+
+		CommandList->GetD3D12CommandList()->OMSetRenderTargets(
+			RtvPtr ? 1 : 0,
+			RtvPtr ? &RtvPtr->GetDescriptorHandle() : nullptr,
+			false,
+			DsvPtr ? &DsvPtr->GetDescriptorHandle() : nullptr
+		);
 	}
 
 	void FDX12RenderTargetCube::UnBind(FCommandListHandle CommandListHandle, uint32_t FaceIndex, uint32_t SubResource /*= -1*/)
 	{
 		auto  CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
-		FDX12TextureCube* DX12TextureCubemap = static_cast<FDX12TextureCube*>(m_TextureColorCubemap.Texture);
+		if (m_TextureColorCubemap.Texture != nullptr)
+		{
+			FDX12TextureCube* ColorCubemap = static_cast<FDX12TextureCube*>(m_TextureColorCubemap.Texture);
+			CommandList->TransitionBarrier(ColorCubemap->GetResource()->GetD3DResource(), D3D12_RESOURCE_STATE_COMMON);
+		}
 		
-		uint32_t SubResourceIndex = SubResource == -1 ? -1 : m_RenderTargetCubeDesc.MipLevels * FaceIndex + SubResource;
-
-		CommandList->TransitionBarrier(DX12TextureCubemap->GetResource()->GetD3DResource(), D3D12_RESOURCE_STATE_GENERIC_READ);
+		if (m_TextureDepthCubemap.Texture != nullptr)
+		{
+			FDX12TextureCube* DsvCubemap = static_cast<FDX12TextureCube*>(m_TextureDepthCubemap.Texture);
+			CommandList->TransitionBarrier(DsvCubemap->GetResource()->GetD3DResource(), D3D12_RESOURCE_STATE_COMMON);
+		}
 	}
 }

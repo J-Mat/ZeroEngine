@@ -36,6 +36,15 @@ namespace Zero
 		return RGTextureReadOnlyID;
 	}
 
+	FRGTexCubeReadOnlyID FRenderGraphBuilder::ReadTextureCubeImpl(FRGResourceName Name, ERGReadAccess ReadAcess, const FTextureSubresourceDesc& Desc)
+	{
+		CORE_ASSERT(m_RgPass.m_Type != ERenderPassType::Copy, "Invalid Call in Copy Pass");
+		FRGTexCubeReadOnlyID RGTextureReadOnlyID = m_RenderGrpah.ReadTextureCube(Name, Desc);
+		FRGTextureCubeID RGTextureID = RGTextureReadOnlyID.GetResourceID();
+		m_RgPass.m_TextureCubeReads.insert(RGTextureID);
+		return RGTextureReadOnlyID;
+	}
+
 	FRGTex2DReadWriteID FRenderGraphBuilder::WriteTexture2DImpl(FRGResourceName Name, const FTextureSubresourceDesc& Desc)
 	{
 		CORE_ASSERT(m_RgPass.m_Type != ERenderPassType::Copy, "Invalid Call in Copy Pass");
@@ -47,6 +56,24 @@ namespace Zero
 		}
 		m_RgPass.m_Texture2DWrites.insert(RGTextureID);
 		FRGTexture2D* Texture = m_RenderGrpah.GetRGTexture2D(RGTextureID);
+		if (Texture->bImported)
+		{
+			m_RgPass.m_Flags |= ERGPassFlags::ForceNoCull;
+		}
+		return RGTextureWriteOnlyID;
+	}
+
+	FRGTexCubeReadWriteID FRenderGraphBuilder::WriteTextureCubeImpl(FRGResourceName Name, const FTextureSubresourceDesc& Desc)
+	{
+		CORE_ASSERT(m_RgPass.m_Type != ERenderPassType::Copy, "Invalid Call in Copy Pass");
+		FRGTexCubeReadWriteID RGTextureWriteOnlyID = m_RenderGrpah.WriteTextureCube(Name, Desc);
+		FRGTextureCubeID RGTextureID = RGTextureWriteOnlyID.GetResourceID();
+		if (!m_RgPass.m_TextureCubeCreates.contains(RGTextureID) && !m_RgPass.ActAsCreatorWhenWriting())
+		{
+			DummyReadTextureCube(Name);
+		}
+		m_RgPass.m_TextureCubeWrites.insert(RGTextureID);
+		FRGTextureCube* Texture = m_RenderGrpah.GetRGTextureCube(RGTextureID);
 		if (Texture->bImported)
 		{
 			m_RgPass.m_Flags |= ERGPassFlags::ForceNoCull;
@@ -104,6 +131,32 @@ namespace Zero
 		return DepthStencilID;
 	}
 
+	FRGTexCubeDepthStencilID FRenderGraphBuilder::WriteDepthStencilCubeImpl(FRGResourceName Name, ERGLoadStoreAccessOp LoadStoreOp, ERGLoadStoreAccessOp StencilLoadStoreOp, const FTextureSubresourceDesc& Desc)
+	{
+		CORE_ASSERT(m_RgPass.m_Type != ERenderPassType::Copy, "Invalid Call in Copy Pass");
+		FRGTexCubeDepthStencilID DepthStencilID = m_RenderGrpah.DepthStencilCube(Name, Desc);
+		FRGTextureCubeID ResID = DepthStencilID.GetResourceID();
+		FRGPassBase::FDepthStencilInfo DepthStencilInfo
+		{
+			.RGTexCubeDepthStencilID = DepthStencilID,
+			.DepthAccess = LoadStoreOp,
+			.StencilAccess = StencilLoadStoreOp,
+			.bReadOnly = false
+		};
+		m_RgPass.m_DepthStencil = DepthStencilInfo;
+		if (!m_RgPass.m_TextureCubeCreates.contains(ResID) && !m_RgPass.ActAsCreatorWhenWriting())
+		{
+			DummyReadTextureCube(Name);
+		}
+		m_RgPass.m_TextureCubeWrites.insert(m_RenderGrpah.GetTextureCubeID(Name));
+		FRGTextureCube* Texture = m_RenderGrpah.GetRGTextureCube(ResID);
+		if (Texture->bImported)
+		{
+			m_RgPass.m_Flags |= ERGPassFlags::ForceNoCull;
+		}
+		return DepthStencilID;
+	}
+
 	FRGTex2DDepthStencilID FRenderGraphBuilder::ReadDepthStencil2DImpl(FRGResourceName Name, ERGLoadStoreAccessOp LoadStoreOp, ERGLoadStoreAccessOp StencilLoadStoreOps, const FTextureSubresourceDesc& Desc)
 	{
 		CORE_ASSERT(m_RgPass.m_Type != ERenderPassType::Copy, "Invalid Call in Copy Pass");
@@ -118,81 +171,6 @@ namespace Zero
 		};
 		FRGTexture2D* Texture = m_RenderGrpah.GetRGTexture2D(ResID);
 		m_RgPass.m_Texture2DReads.insert(ResID);
-
-
-		if (Texture->bImported)
-		{
-			m_RgPass.m_Flags |= ERGPassFlags::ForceNoCull;
-		}
-		return RGDepthStencilID;
-	}
-	
-
-	FRGTexCubeReadOnlyID FRenderGraphBuilder::ReadTextureCubeImpl(FRGResourceName Name, ERGReadAccess ReadAcess, const FTextureSubresourceDesc& Desc)
-	{
-		CORE_ASSERT(m_RgPass.m_Type != ERenderPassType::Copy, "Invalid Call in Copy Pass");
-		FRGTexCubeReadOnlyID RGTextureReadOnlyID = m_RenderGrpah.ReadTextureCube(Name, Desc);
-		FRGTextureCubeID RGTextureID = RGTextureReadOnlyID.GetResourceID();
-		m_RgPass.m_TextureCubeReads.insert(RGTextureID);
-		return RGTextureReadOnlyID;
-	}
-
-	FRGTexCubeReadWriteID FRenderGraphBuilder::WriteTextureCubeImpl(FRGResourceName Name, const FTextureSubresourceDesc& Desc)
-	{
-		CORE_ASSERT(m_RgPass.m_Type != ERenderPassType::Copy, "Invalid Call in Copy Pass");
-		FRGTexCubeReadWriteID RGTextureWriteOnlyID = m_RenderGrpah.WriteTextureCube(Name, Desc);
-		FRGTextureCubeID RGTextureID = RGTextureWriteOnlyID.GetResourceID();
-		if (!m_RgPass.m_TextureCubeCreates.contains(RGTextureID) && !m_RgPass.ActAsCreatorWhenWriting())
-		{
-			DummyReadTextureCube(Name);
-		}
-		m_RgPass.m_TextureCubeWrites.insert(RGTextureID);
-		FRGTextureCube* Texture = m_RenderGrpah.GetRGTextureCube(RGTextureID);
-		if (Texture->bImported)
-		{
-			m_RgPass.m_Flags |= ERGPassFlags::ForceNoCull;
-		}
-		return RGTextureWriteOnlyID;
-	}
-
-	FRGTexCubeRenderTargetID FRenderGraphBuilder::WriteRenderTargetCubeImpl(FRGResourceName Name, ERGLoadStoreAccessOp LoadStoreOp, const FTextureSubresourceDesc& Desc)
-	{
-		CORE_ASSERT(m_RgPass.m_Type != ERenderPassType::Copy, "Invalid Call in Copy Pass");
-		FRGTexCubeRenderTargetID RenderTargetID = m_RenderGrpah.RenderTargetCube(Name, Desc);
-		FRGTextureCubeID ResID = RenderTargetID.GetResourceID();
-		FRGPassBase::FRenderTargetInfo RenderTargetInfo
-		{
-			.RGRenderTargetCubeID = RenderTargetID,
-			.RenderTargetAccess = LoadStoreOp,
-		};
-		m_RgPass.m_RenderTergetInfo.push_back(RenderTargetInfo);
-		if (!m_RgPass.m_TextureCubeCreates.contains(ResID) && !m_RgPass.ActAsCreatorWhenWriting())
-		{
-			DummyReadTextureCube(Name);
-		}
-		m_RgPass.m_TextureCubeWrites.insert(m_RenderGrpah.GetTextureCubeID(Name));
-		FRGTextureCube* Texture = m_RenderGrpah.GetRGTextureCube(ResID);
-		if (Texture->bImported)
-		{
-			m_RgPass.m_Flags |= ERGPassFlags::ForceNoCull;
-		}
-		return RenderTargetID;
-	}
-
-	FRGTexCubeDepthStencilID FRenderGraphBuilder::WriteDepthStencilCubeImpl(FRGResourceName Name, ERGLoadStoreAccessOp LoadStoreOp, ERGLoadStoreAccessOp StencilLoadStoreOp, const FTextureSubresourceDesc& Desc)
-	{
-		CORE_ASSERT(m_RgPass.m_Type != ERenderPassType::Copy, "Invalid Call in Copy Pass");
-		FRGTexCubeDepthStencilID RGDepthStencilID = m_RenderGrpah.DepthStencilCube(Name, Desc);
-		FRGTextureCubeID ResID = RGDepthStencilID.GetResourceID();
-		FRGPassBase::FDepthStencilInfo DepthStencilInfo
-		{
-			.RGTexCubeDepthStencilID = RGDepthStencilID,
-			.DepthAccess = LoadStoreOp,
-			.StencilAccess = StencilLoadStoreOp,
-			.bReadOnly = false
-		};
-		FRGTextureCube* Texture = m_RenderGrpah.GetRGTextureCube(ResID);
-		m_RgPass.m_TextureCubeReads.insert(ResID);
 
 
 		if (Texture->bImported)
@@ -223,6 +201,30 @@ namespace Zero
 			m_RgPass.m_Flags |= ERGPassFlags::ForceNoCull;
 		}
 		return RGDepthStencilID;
+	}	
+
+	FRGTexCubeRenderTargetID FRenderGraphBuilder::WriteRenderTargetCubeImpl(FRGResourceName Name, ERGLoadStoreAccessOp LoadStoreOp, const FTextureSubresourceDesc& Desc)
+	{
+		CORE_ASSERT(m_RgPass.m_Type != ERenderPassType::Copy, "Invalid Call in Copy Pass");
+		FRGTexCubeRenderTargetID RenderTargetID = m_RenderGrpah.RenderTargetCube(Name, Desc);
+		FRGTextureCubeID ResID = RenderTargetID.GetResourceID();
+		FRGPassBase::FRenderTargetInfo RenderTargetInfo
+		{
+			.RGRenderTargetCubeID = RenderTargetID,
+			.RenderTargetAccess = LoadStoreOp,
+		};
+		m_RgPass.m_RenderTergetInfo.push_back(RenderTargetInfo);
+		if (!m_RgPass.m_TextureCubeCreates.contains(ResID) && !m_RgPass.ActAsCreatorWhenWriting())
+		{
+			DummyReadTextureCube(Name);
+		}
+		m_RgPass.m_TextureCubeWrites.insert(m_RenderGrpah.GetTextureCubeID(Name));
+		FRGTextureCube* Texture = m_RenderGrpah.GetRGTextureCube(ResID);
+		if (Texture->bImported)
+		{
+			m_RgPass.m_Flags |= ERGPassFlags::ForceNoCull;
+		}
+		return RenderTargetID;
 	}
 
 	FRGBufferReadOnlyID FRenderGraphBuilder::ReadBufferImpl(FRGResourceName Name, ERGReadAccess ReadAccess, const FBufferSubresourceDesc& Desc)

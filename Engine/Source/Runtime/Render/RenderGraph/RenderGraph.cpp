@@ -155,24 +155,48 @@ namespace Zero
                 if (Pass->m_DepthStencil.has_value())
                 {
                     auto DepthStencilInfo = Pass->m_DepthStencil.value();
-                    FRGTexture2DID RGTextureID = DepthStencilInfo.RGTex2DDepthStencilID->GetResourceID();
-                    FTexture2D* Texture = m_RenderGrpah.GetTexture2D(RGTextureID);
-
-					ERGLoadAccessOp LoadAccess = ERGLoadAccessOp::NoAccess;
-					ERGStoreAccessOp StoreAccess = ERGStoreAccessOp::NoAccess;
-                    SplitAccessOp(DepthStencilInfo.DepthAccess, LoadAccess, StoreAccess);
-
-                    const FTextureDesc& TexDesc = Texture->GetDesc();
-
-                    FDsvAttachmentDesc DsvDesc = 
+                    if (Pass->GetRenderPassRTType() == ERenderPassRTType::Texuture2D)
                     {
-                        .DSTexture2D = Texture,
-                        .DepthBeginningAccess = LoadAccess,
-                        .DepthEndingAccess = StoreAccess,
-                        .ClearValue = TexDesc.ClearValue,
-                    };
-                    RenderPassDesc.DsvAttachment = std::move(DsvDesc);
+                        FRGTexture2DID RGTextureID = DepthStencilInfo.RGTex2DDepthStencilID->GetResourceID();
+                        FTexture2D* Texture = m_RenderGrpah.GetTexture2D(RGTextureID);
+
+					    ERGLoadAccessOp LoadAccess = ERGLoadAccessOp::NoAccess;
+					    ERGStoreAccessOp StoreAccess = ERGStoreAccessOp::NoAccess;
+                        SplitAccessOp(DepthStencilInfo.DepthAccess, LoadAccess, StoreAccess);
+
+                        const FTextureDesc& TexDesc = Texture->GetDesc();
+
+                        FDsvAttachmentDesc DsvDesc = 
+                        {
+                            .DSTexture2D = Texture,
+                            .DepthBeginningAccess = LoadAccess,
+                            .DepthEndingAccess = StoreAccess,
+                            .ClearValue = TexDesc.ClearValue,
+                        };
+                        RenderPassDesc.DsvAttachment = std::move(DsvDesc);
+                    }
+                    else
+                    {
+                        FRGTextureCubeID RGTextureID = DepthStencilInfo.RGTexCubeDepthStencilID->GetResourceID();
+                        FTextureCube* Texture = m_RenderGrpah.GetTextureCube(RGTextureID);
+
+                        ERGLoadAccessOp LoadAccess = ERGLoadAccessOp::NoAccess;
+                        ERGStoreAccessOp StoreAccess = ERGStoreAccessOp::NoAccess;
+                        SplitAccessOp(DepthStencilInfo.DepthAccess, LoadAccess, StoreAccess);
+
+                        const FTextureDesc& TexDesc = Texture->GetDesc();
+
+                        FDsvAttachmentDesc DsvDesc =
+                        {
+                            .DSTextureCube = Texture,
+                            .DepthBeginningAccess = LoadAccess,
+                            .DepthEndingAccess = StoreAccess,
+                            .ClearValue = TexDesc.ClearValue,
+                        };
+                        RenderPassDesc.DsvAttachment = std::move(DsvDesc);
+                    }
                 }
+
                 //CORE_ASSERT(Pass->m_VieportWidth != 0 && Pass->m_VieportHeight != 0, "Viewport Width/Height is 0! The call to builder.SetViewport is probably missing...");
                 RenderPassDesc.Width = Pass->m_VieportWidth;
                 RenderPassDesc.Height = Pass->m_VieportHeight;
@@ -318,6 +342,13 @@ namespace Zero
                 FRGTexture2D* RGTexture = GetRGTexture2D(RGTextureID);
                 RGTexture->Resource = m_ResourcePool.AllocateTexture2D(RGTexture->Desc, RGTexture->Name);
                 CreateTexture2DViews(RGTextureID);
+            }
+
+            for (auto RGTextureID : DependencyLevel.m_TextureCubeCreates)
+            {
+                FRGTextureCube* RGTexture = GetRGTextureCube(RGTextureID);
+                RGTexture->Resource = m_ResourcePool.AllocateTextureCube(RGTexture->Desc, RGTexture->Name);
+                CreateTextureCubeViews(RGTextureID);
             }
 
             for (auto RGBufferID : DependencyLevel.m_BufferCreates)

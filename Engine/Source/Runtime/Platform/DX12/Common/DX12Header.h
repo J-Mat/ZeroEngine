@@ -337,6 +337,48 @@ namespace Zero
 			return DXGI_FORMAT_UNKNOWN;
 		}
 
+		static DXGI_FORMAT GetSRGBFormat(DXGI_FORMAT Format)
+		{
+			DXGI_FORMAT SrgbFormat = Format;
+			switch (Format)
+			{
+			case DXGI_FORMAT_R8G8B8A8_UNORM:
+				SrgbFormat = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+				break;
+			case DXGI_FORMAT_BC1_UNORM:
+				SrgbFormat = DXGI_FORMAT_BC1_UNORM_SRGB;
+				break;
+			case DXGI_FORMAT_BC2_UNORM:
+				SrgbFormat = DXGI_FORMAT_BC2_UNORM_SRGB;
+				break;
+			case DXGI_FORMAT_BC3_UNORM:
+				SrgbFormat = DXGI_FORMAT_BC3_UNORM_SRGB;
+				break;
+			case DXGI_FORMAT_B8G8R8A8_UNORM:
+				SrgbFormat = DXGI_FORMAT_B8G8R8A8_UNORM_SRGB;
+				break;
+			case DXGI_FORMAT_B8G8R8X8_UNORM:
+				SrgbFormat = DXGI_FORMAT_B8G8R8X8_UNORM_SRGB;
+				break;
+			case DXGI_FORMAT_BC7_UNORM:
+				SrgbFormat = DXGI_FORMAT_BC7_UNORM_SRGB;
+				break;
+			}
+
+			return SrgbFormat;
+		}
+		static DXGI_FORMAT GetSRVFormat(DXGI_FORMAT Format)
+		{
+			switch (Format)
+			{
+			case DXGI_FORMAT_D24_UNORM_S8_UINT:
+				return DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+			default:
+				return DXGI_FORMAT_UNKNOWN;
+			}
+			return DXGI_FORMAT_UNKNOWN;
+		}
+
 		static D3D12_RESOURCE_FLAGS BindFlagsByResourceFlags(EResourceBindFlag BindFlags)
 		{
 			D3D12_RESOURCE_FLAGS Flags = D3D12_RESOURCE_FLAG_NONE;

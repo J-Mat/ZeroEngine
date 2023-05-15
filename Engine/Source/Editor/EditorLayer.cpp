@@ -53,12 +53,12 @@ namespace Zero
 
 	void FEditorLayer::RegisterPso()
 	{
+		FPSOCache::Get().RegisterIBLPSO();
 		FPSOCache::Get().RegisterComputeShader();
 		FPSOCache::Get().RegisterDefaultPSO();
 		FPSOCache::Get().RegsiterForwardLitPSO();
 		FPSOCache::Get().RegisterErrorPSO();
 		FPSOCache::Get().RegisterSkyboxPSO();
-		FPSOCache::Get().RegisterIBLPSO();
 		FPSOCache::Get().RegisterShadowPSO();
 	}
 

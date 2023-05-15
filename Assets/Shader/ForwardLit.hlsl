@@ -61,15 +61,16 @@ PixelOutput PS(VertexOut Pin)
 		//float AO = gAOMap.Sample(gSamAnisotropicWarp, UV).r;
 	float3 NormalMap = gNormalMap.Sample(gSamAnisotropicWarp, UV).xyz;
 	//float3 N = NormalSampleToWorldSpace(NormalMap, Pin.Normal, Pin.Tangent);
-	float3 N = float3(Pin.Normal.x, Pin.Normal.y, Pin.Normal.z);
+	float3 Normal = Pin.Normal;
+
+	float3 ViewDir = normalize(ViewPos - Pin.WorldPos.xyz);
 
 	if (ShadingMode == 0)
 	{
-		float3 ViewDir = normalize(ViewPos - Pin.WorldPos.xyz);
-		float3 ReflectDir = reflect(-ViewDir, N);
+		float3 ReflectDir = reflect(-ViewDir, Normal);
 		float3 PrefilteredColor  = GetPrefilteredColor(IBLPrefilterMap, MipLevel, ReflectDir);
-		float3 Irradiance = IBLIrradianceMap.Sample(gSamLinearClamp, N).rgb;
-		float NdotV = dot(N, ViewDir);
+		float3 Irradiance = IBLIrradianceMap.Sample(gSamLinearClamp, Normal).rgb;
+		float NdotV = dot(Normal, ViewDir);
 		float2 LUT = _BrdfLUT.Sample(gSamAnisotropicWarp, float2(NdotV, Roughness)).rg;
 		FinalColor =  AmbientLighting(Metallic, BaseColor, Irradiance, PrefilteredColor, LUT) + EmissiveColor;
 	}
@@ -88,7 +89,7 @@ PixelOutput PS(VertexOut Pin)
 			float3 Diffuse = NdotL * LightColor;
 
 			float3 Spec = 0.0f;
-			float3 ReflectDir = reflect(-V, N);
+			float3 ReflectDir = reflect(-V, Normal);
 			Spec = pow(max(dot(V, ReflectDir), 0.0f), 35.0f) * LightColor;
 
 			float ShadowFactor = CalcShadowFactor(0, Pin.ShadowPosH, MipLevel);
@@ -98,11 +99,12 @@ PixelOutput PS(VertexOut Pin)
 		for (int LightIndex = 0; LightIndex < PointLightNum; ++LightIndex)
 		{
 			float3 LightToPoint = Pin.WorldPos - PointLights[LightIndex].LightPos;
-			float ShaderFactor = CalcVisibilityOmni(LightToPoint, LightIndex, PointLights[LightIndex].Range);
+			float ShadowFactor = CalcVisibilityOmni(LightToPoint, LightIndex, PointLights[LightIndex].Range);
 			
 			float3 LightDir = normalize(PointLights[LightIndex].LightPos - Pin.WorldPos);
 			float Attenuation = CalcDistanceAttenuation(Pin.WorldPos, PointLights[LightIndex].LightPos, PointLights[LightIndex].Range);
 			float3 Radiance = PointLights[LightIndex].Intensity * Attenuation * PointLights[LightIndex].Color;
+			FinalColor += DirectLighting(Radiance, LightDir, Normal, ViewDir, Roughness, Metallic, BaseColor, ShadowFactor);
 		}
 		//FinalColor =  float3(ShadowFactor, ShadowFactor, ShadowFactor); //Ambient + (Diffuse + Spec) * ShadowFactor * BaseColor;
 	}

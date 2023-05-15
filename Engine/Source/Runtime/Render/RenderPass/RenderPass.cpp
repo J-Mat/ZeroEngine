@@ -56,7 +56,7 @@ namespace Zero
 	void FRenderPass::AttachRenderTargetCube(FRenderPassDesc const& Desc)
 	{
 		m_RenderTargetCube = m_RenderGrpah.GetResourcePool().AllocateRenderTargetCube();
-		CORE_ASSERT(Desc.RtvAttachments.size() == 1, "Desc.RtvAttachments.size() == 1");
+		CORE_ASSERT(Desc.RtvAttachments.size() <= 1, "Desc.RtvAttachments.size() == 1");
 		for (uint32_t i = 0; i < Desc.RtvAttachments.size(); ++i)
 		{
 			const FRtvAttachmentDesc& RtvAttachmentDesc = Desc.RtvAttachments[i];
@@ -107,7 +107,7 @@ namespace Zero
 		}
 		else
 		{
-			m_RenderTargetCube->UnBind(CommandListHandle, 0);
+			//m_RenderTargetCube->UnBind(CommandListHandle, 0);
 			m_RenderGrpah.GetResourcePool().ReleaseRenderTargetCube(m_RenderTargetCube);
 		}
 	}

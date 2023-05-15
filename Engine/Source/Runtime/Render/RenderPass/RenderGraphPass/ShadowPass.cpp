@@ -128,15 +128,16 @@ namespace Zero
 				const FSceneCaptureCube& SceneCaptureCube = PointLight->GetSceneCaptureCube();
 				const FSceneView& SceneView = SceneCaptureCube.GetSceneView(FaceIndex); 
 				const Ref<IShaderConstantsBuffer> Camera = SceneCaptureCube.GetCamera(FaceIndex);
+				std::string PassName = std::format("PointLightShadowMap Pass {0}", FaceIndex);
 				RenderGraph.AddPass<void>(
-					"PointLightShadowMap Pass",
+					PassName.c_str(),
 					[=](FRenderGraphBuilder& Builder)
 					{
 						if (FaceIndex == 0)
 						{ 
 							Builder.DeclareTextureCube(RGResourceName::PointLightShadowMaps[LightIndex], FRGTextureDesc::MakeShadowCubeDesc(m_Width, m_Height));
 						}
-						Builder.WriteDepthStencilCube(RGResourceName::PointLightShadowMaps[LightIndex], ERGLoadStoreAccessOp::Clear_Preserve);
+						Builder.WriteDepthStencilCube(RGResourceName::PointLightShadowMaps[LightIndex], ERGLoadStoreAccessOp::Clear_Preserve, 0, -1, FaceIndex);
 						Builder.SetViewport(m_Width, m_Height, FaceIndex);
 					},
 					[=](FRenderGraphContext& Context, FCommandListHandle CommandListHandle)

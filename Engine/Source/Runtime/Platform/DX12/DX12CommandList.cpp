@@ -419,7 +419,7 @@ namespace Zero
 		// Create an SRV that uses the format of the original texture.
 		D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc
 		{
-			.Format = bIsSRGB ? FDX12Texture2D::GetSRGBFormat(ResourceDesc.Format) : ResourceDesc.Format,
+			.Format = bIsSRGB ? FDX12Utils::GetSRGBFormat(ResourceDesc.Format) : ResourceDesc.Format,
 			.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D,
 			.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
 			.Texture2D = {
@@ -747,28 +747,26 @@ namespace Zero
 	{
 		if (Resource)
 		{
-			TransitionBarrier(Resource->GetD3DResource(), StateAfter, Subresource, bFlushBarriers);
+			TransitionBarrier(Resource->GetD3DResource().Get(), StateAfter, Subresource, bFlushBarriers);
 		}
 	}
 
 	void FDX12CommandList::TransitionBarrier(ComPtr<ID3D12Resource> Resource, D3D12_RESOURCE_STATES StateAfter, UINT Subresource, bool bFlushBarriers)
 	{
-		if (Resource)
-		{
-			auto Barrier = CD3DX12_RESOURCE_BARRIER::Transition(Resource.Get(), D3D12_RESOURCE_STATE_COMMON, StateAfter, Subresource);
-			m_ResourceStateTracker->ResourceBarrier(Barrier);
-		}
-
-		if (bFlushBarriers)
-		{
-			FlushResourceBarriers();
-		}
+		TransitionBarrier(Resource.Get(), StateAfter, Subresource, bFlushBarriers);
 	}
 
 	void FDX12CommandList::TransitionBarrier(ID3D12Resource* Resource, D3D12_RESOURCE_STATES StateAfter, UINT Subresource /*= D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES*/, bool bFlushBarriers /*= false*/)
 	{
 		if (Resource)
 		{
+			if (Resource == m_ResourceTransitionRecord.Resource && StateAfter == m_ResourceTransitionRecord.StateAfter)
+			{
+				return;
+			}
+			m_ResourceTransitionRecord.Resource = Resource;
+			m_ResourceTransitionRecord.StateAfter = StateAfter;
+
 			auto Barrier = CD3DX12_RESOURCE_BARRIER::Transition(Resource, D3D12_RESOURCE_STATE_COMMON, StateAfter, Subresource);
 			m_ResourceStateTracker->ResourceBarrier(Barrier);
 		}
@@ -900,6 +898,7 @@ namespace Zero
 	void FDX12CommandList::Close()
 	{
 		FlushResourceBarriers();
+		m_ResourceTransitionRecord.Reset();
 		m_D3DCommandList->Close();
 	}
 

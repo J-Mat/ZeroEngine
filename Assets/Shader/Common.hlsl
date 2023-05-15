@@ -2,9 +2,6 @@
 #define COMMON_HLSL
 
 
-#define PI 3.14159265359
-
-
 struct VertexIn
 {
 	float3 PosL    : POSITION;

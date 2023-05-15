@@ -363,7 +363,7 @@ namespace Zero
 				m_DSVs[0] = std::move(Dsv);
 			}
 			// Create SRV
-			m_SRVFormat = GetSRVFormat(Desc.Format);
+			m_SRVFormat = FDX12Utils::GetSRVFormat(Desc.Format);
 			if (((Desc.Flags & D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE) == 0 && m_ResourceLocation.GetResource()->CheckSRVSupport()) || m_SRVFormat != DXGI_FORMAT_UNKNOWN)
 			{
 				D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc = {};
@@ -416,7 +416,7 @@ namespace Zero
 	{
 		bool bCheckSRVSupport = m_ResourceLocation.GetResource()->CheckSRVSupport();
 		CD3DX12_RESOURCE_DESC Desc(m_ResourceLocation.GetResource()->GetD3DResource()->GetDesc());
-		m_SRVFormat = GetSRVFormat(Desc.Format);
+		m_SRVFormat = FDX12Utils::GetSRVFormat(Desc.Format);
 
 		if (m_SRVs.size() != Descs.size())
 		{
@@ -767,47 +767,5 @@ namespace Zero
 		}
 
 		return false;
-	}
-
-	DXGI_FORMAT FDX12Texture2D::GetSRGBFormat(DXGI_FORMAT Format)
-	{
-		DXGI_FORMAT SrgbFormat = Format;
-		switch (Format)
-		{
-		case DXGI_FORMAT_R8G8B8A8_UNORM:
-			SrgbFormat = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-			break;
-		case DXGI_FORMAT_BC1_UNORM:
-			SrgbFormat = DXGI_FORMAT_BC1_UNORM_SRGB;
-			break;
-		case DXGI_FORMAT_BC2_UNORM:
-			SrgbFormat = DXGI_FORMAT_BC2_UNORM_SRGB;
-			break;
-		case DXGI_FORMAT_BC3_UNORM:
-			SrgbFormat = DXGI_FORMAT_BC3_UNORM_SRGB;
-			break;
-		case DXGI_FORMAT_B8G8R8A8_UNORM:
-			SrgbFormat = DXGI_FORMAT_B8G8R8A8_UNORM_SRGB;
-			break;
-		case DXGI_FORMAT_B8G8R8X8_UNORM:
-			SrgbFormat = DXGI_FORMAT_B8G8R8X8_UNORM_SRGB;
-			break;
-		case DXGI_FORMAT_BC7_UNORM:
-			SrgbFormat = DXGI_FORMAT_BC7_UNORM_SRGB;
-			break;
-		}
-
-		return SrgbFormat;
-	}
-	DXGI_FORMAT FDX12Texture2D::GetSRVFormat(DXGI_FORMAT Format)
-	{
-		switch (Format)
-		{
-		case DXGI_FORMAT_D24_UNORM_S8_UINT:
-			return DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
-		default:
-			return DXGI_FORMAT_UNKNOWN;
-		}
-		return DXGI_FORMAT_UNKNOWN;
 	}
 }

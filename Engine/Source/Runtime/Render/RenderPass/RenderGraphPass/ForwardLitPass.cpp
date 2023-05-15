@@ -24,6 +24,7 @@ namespace Zero
 		struct FForwardLitPassData
 		{
 			FRGTex2DReadOnlyID DirectLightShadowMaps[2];
+			FRGTexCubeReadOnlyID PointLightShadowMaps[4];
 		};
 
 		RenderGraph.AddPass<FForwardLitPassData>(
@@ -59,6 +60,13 @@ namespace Zero
 				{
 					FRGTex2DReadOnlyID RGTextureReadOnlyID =  Builder.ReadTexture2D(RGResourceName::DirectLightShadowMaps[LightIndex]);
 					Data.DirectLightShadowMaps[LightIndex] = RGTextureReadOnlyID;
+				}
+
+				const std::vector<UPointLightActor*>& PointLights = FLightManager::Get().GetPointLights();
+				for (size_t LightIndex = 0; LightIndex < PointLights.size(); ++LightIndex)
+				{
+					FRGTexCubeReadOnlyID RGTextureReadOnlyID =  Builder.ReadTextureCube(RGResourceName::PointLightShadowMaps[LightIndex]);
+					Data.PointLightShadowMaps[LightIndex] = RGTextureReadOnlyID;
 				}
 
 				Builder.SetViewport(m_Width, m_Height);

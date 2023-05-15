@@ -76,5 +76,10 @@ namespace Zero
 
 		FResourceLocation m_ResourceLocation;
         bool m_bHasGuiResource = false;
+	private:
+		DXGI_FORMAT m_SRVFormat = DXGI_FORMAT_UNKNOWN;
+		DXGI_FORMAT m_RTVFormat = DXGI_FORMAT_UNKNOWN;
+		DXGI_FORMAT m_DSVFormat = DXGI_FORMAT_UNKNOWN;
+		DXGI_FORMAT m_UAVFormat = DXGI_FORMAT_UNKNOWN;
 	};
 }

@@ -173,11 +173,12 @@ namespace Zero
 				}
 			}
 			// Create SRV
-			if ((Desc.Flags & D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE) == 0 && m_ResourceLocation.GetResource()->CheckSRVSupport())
+			m_SRVFormat = FDX12Utils::GetSRVFormat(Desc.Format);
+			if (((Desc.Flags & D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE) == 0 && m_ResourceLocation.GetResource()->CheckSRVSupport()) || m_SRVFormat != DXGI_FORMAT_UNKNOWN)
 			{
 				m_SRVs.resize(1);
 				D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc = {
-					.Format = Desc.Format,
+					.Format = m_SRVFormat == DXGI_FORMAT_UNKNOWN ? Desc.Format : m_SRVFormat,
 					.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE,
 					.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
 					.Texture2D = 
@@ -220,12 +221,13 @@ namespace Zero
 		auto D3DDevice = FDX12Device::Get()->GetDevice();
 		CD3DX12_RESOURCE_DESC Desc(m_ResourceLocation.GetResource()->GetD3DResource()->GetDesc());
 
+		m_SRVFormat = FDX12Utils::GetSRVFormat(Desc.Format);
 		m_SRVs.resize(Descs.size());
 		uint32_t Index = 0;
 		for (auto& SubDesc : Descs)
 		{
 			D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc = {
-				.Format = Desc.Format,
+				.Format = m_SRVFormat == DXGI_FORMAT_UNKNOWN ? Desc.Format : m_SRVFormat,
 				.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE,
 				.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
 				.Texture2D =

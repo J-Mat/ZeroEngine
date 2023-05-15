@@ -7,7 +7,7 @@
 
 
 static const float F0_DIELECTRIC = 0.04f;
-const static float PI = 3.14159265359;
+static const float PI = 3.14159265359f;
 
 float Square( float x )
 {
@@ -167,7 +167,5 @@ float3 DirectLighting(float3 Radiance, float3 LightDir, float3 Normal, float3 Vi
 	float NoL = saturate(dot(Normal, LightDir));
 	return Radiance  * BRDF * NoL * ShadowFactor;
 }
-
-
 
 #endif

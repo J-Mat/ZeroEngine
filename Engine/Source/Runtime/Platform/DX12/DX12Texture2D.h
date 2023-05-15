@@ -31,8 +31,6 @@ namespace Zero
 
         static DXGI_FORMAT GetUAVCompatableFormat(DXGI_FORMAT Format);
         static bool IsSRGBFormat(DXGI_FORMAT Format);
-        static DXGI_FORMAT GetSRGBFormat(DXGI_FORMAT Format);
-        static DXGI_FORMAT GetSRVFormat(DXGI_FORMAT Format);
 
         virtual ZMath::uvec2 GetSize() 
         {
