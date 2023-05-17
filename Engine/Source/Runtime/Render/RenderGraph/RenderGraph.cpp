@@ -299,7 +299,7 @@ namespace Zero
 
 	}
 
-	void FRenderGraph::DestroyTexture(FDependencyLevel& DependencyLevel)
+	void FRenderGraph::DestroyTextureResource(FDependencyLevel& DependencyLevel)
 	{
         for (FRGTexture2DID RGTextureID : DependencyLevel.m_Texture2DDestroys)
         {
@@ -310,10 +310,15 @@ namespace Zero
                 m_ResourcePool.ReleaseTexture2D(Texture);
             }
         }
-	}
-
-	void FRenderGraph::DestroyBuffer(FDependencyLevel& DependencyLevel)
-	{
+        for (FRGTextureCubeID RGTextureID : DependencyLevel.m_TextureCubeDestroys)
+        {
+            FRGTextureCube* RGTexture = GetRGTextureCube(RGTextureID);
+            FTextureCube* Texture = RGTexture->Resource;
+            if (!RGTexture->bImported)
+            {
+                m_ResourcePool.ReleaseTextureCube(Texture);
+            }
+        }
         for (FRGBufferID RGBufferID : DependencyLevel.m_BufferDestroys)
         {
             FRGBuffer* RGTexture = GetRGBuffer(RGBufferID);
@@ -323,7 +328,6 @@ namespace Zero
                 m_ResourcePool.ReleaseBuffer(Buffer);
             }
         }
-
 	}
 
 	void FRenderGraph::Execute()
@@ -358,8 +362,7 @@ namespace Zero
             }
             DependencyLevel.Execute();
            
-            DestroyTexture(DependencyLevel);
-            DestroyBuffer(DependencyLevel);
+            DestroyTextureResource(DependencyLevel);
         }
 
     }

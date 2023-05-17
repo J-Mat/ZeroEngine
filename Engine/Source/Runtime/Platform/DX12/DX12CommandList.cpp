@@ -760,13 +760,6 @@ namespace Zero
 	{
 		if (Resource)
 		{
-			if (Resource == m_ResourceTransitionRecord.Resource && StateAfter == m_ResourceTransitionRecord.StateAfter)
-			{
-				return;
-			}
-			m_ResourceTransitionRecord.Resource = Resource;
-			m_ResourceTransitionRecord.StateAfter = StateAfter;
-
 			auto Barrier = CD3DX12_RESOURCE_BARRIER::Transition(Resource, D3D12_RESOURCE_STATE_COMMON, StateAfter, Subresource);
 			m_ResourceStateTracker->ResourceBarrier(Barrier);
 		}
@@ -898,7 +891,6 @@ namespace Zero
 	void FDX12CommandList::Close()
 	{
 		FlushResourceBarriers();
-		m_ResourceTransitionRecord.Reset();
 		m_D3DCommandList->Close();
 	}
 

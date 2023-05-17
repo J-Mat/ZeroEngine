@@ -61,8 +61,7 @@ namespace Zero
 		}
 
 
-		void DestroyTexture(FDependencyLevel& DependencyLevel);
-		void DestroyBuffer(FDependencyLevel& DependencyLevel);
+		void DestroyTextureResource(FDependencyLevel& DependencyLevel);
 
 		void ImportTexture2D(FRGResourceName Name, FTexture2D* Texture);
 		void ImportTextureCube(FRGResourceName Name, FTextureCube* TextureCube);

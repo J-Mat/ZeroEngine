@@ -21,13 +21,6 @@ namespace Zero
 
 	class FDX12CommandList : public FCommandList, public std::enable_shared_from_this<FDX12CommandList>
 	{
-		struct FResourceTransitionRecord
-		{
-			ID3D12Resource* Resource{};
-			D3D12_RESOURCE_STATES StateAfter{};
-			void Reset() { Resource = nullptr; }
-			bool IsNull() { return Resource == nullptr; }
-		};
 	public:
 		FDX12CommandList(D3D12_COMMAND_LIST_TYPE Type);
 		virtual ~FDX12CommandList() = default;
@@ -204,7 +197,6 @@ namespace Zero
 		void SetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE HeapType, ID3D12DescriptorHeap* Heap);
 
 	private:
-		FResourceTransitionRecord m_ResourceTransitionRecord;
 
 		Scope<FDescriptorCache> m_DescriptorCache;
 		Scope<FGenerateMipsPSO> m_GenerateMipsPSO = nullptr;
