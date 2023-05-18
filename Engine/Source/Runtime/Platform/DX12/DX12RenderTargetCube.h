@@ -14,6 +14,7 @@ namespace Zero
 	public:
 		FDX12RenderTargetCube();
 		FDX12RenderTargetCube(const FRenderTargetCubeDesc& Desc);
+		virtual void Resize(uint32_t Width, uint32_t Height);
 		void SetViewportRect(uint32_t Mip);
 		virtual void Bind(FCommandListHandle CommandListHandle) override;
 		virtual void SetRenderTarget(FCommandListHandle CommandListHandle, uint32_t FaceIndex, uint32_t SubResource = -1) override;

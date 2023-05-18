@@ -95,6 +95,11 @@ namespace Zero
 	}
 
 
+	void FDX12RenderTargetCube::Resize(uint32_t Width, uint32_t Height)
+	{
+		m_RenderTargetCubeDesc.Size = Width;
+	}
+
 	void FDX12RenderTargetCube::SetViewportRect(uint32_t Mip)
 	{
 		// Set Viewport
@@ -134,6 +139,7 @@ namespace Zero
 	void FDX12RenderTargetCube::SetRenderTarget(FCommandListHandle CommandListHandle, uint32_t FaceIndex, uint32_t SubResource /*= -1*/)
 	{
 		auto  CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
+		SetViewportRect(SubResource == -1 ? 0 : SubResource);
 		CommandList->GetD3D12CommandList()->RSSetViewports(1, &m_ViewPort);
 		CommandList->GetD3D12CommandList()->RSSetScissorRects(1, &m_ScissorRect);
 

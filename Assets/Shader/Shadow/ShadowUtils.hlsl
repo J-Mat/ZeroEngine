@@ -99,7 +99,7 @@ float CalcShadowFactor(int ShadowMapIndex, float4 ShadowPos, float LightPixelWid
 
 float CalcVisibilityOmni(float3 LightToPoint, uint ShadowMapIndex, float FarZ)
 {
-	float ClosestDepth = _gShadowMapCubes[ShadowMapIndex].SampleLevel(gSamPointClamp, normalize(LightToPoint), 0).r;
+	float ClosestDepth = _gShadowMapCube.SampleLevel(gSamPointClamp, normalize(LightToPoint), 0).r;
 
 	ClosestDepth *= FarZ;
 	

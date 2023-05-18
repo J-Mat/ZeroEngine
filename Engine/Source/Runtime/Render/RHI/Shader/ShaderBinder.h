@@ -147,7 +147,7 @@ namespace Zero
 		virtual FShaderResourcesDesc* GetShaderResourceDesc() = 0;
 		virtual void SetTexture2D(const std::string& Name, FTexture2D* Texture) = 0;
 		virtual void SetTexture2DArray(const std::string& Name, std::vector<FTexture2D*> Textures) = 0;
-		virtual void SetTextureCubemap(const std::string& Name, FTextureCube* Texture) = 0;
+		virtual void SetTextureCube(const std::string& Name, FTextureCube* Texture) = 0;
 		virtual void SetTextureCubemapArray(const std::string& Name, const std::vector<Ref<FTextureCube>>& TextureCubes) = 0;
 
 		virtual void UploadDataIfDirty(FCommandListHandle CommandListHandle) = 0;

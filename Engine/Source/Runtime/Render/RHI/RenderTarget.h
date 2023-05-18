@@ -82,6 +82,7 @@ namespace Zero
 		FRenderTargetCube();
 		FRenderTargetCube(const FRenderTargetCubeDesc& Desc);
 		void InitParams();
+		virtual void Resize(uint32_t Width, uint32_t Height) = 0;
 		virtual void Bind(FCommandListHandle CommandListHandle) = 0;
 		virtual void SetRenderTarget(FCommandListHandle CommandListHandle, uint32_t FaceIndex, uint32_t SubResource = -1) = 0;
 		virtual void UnBind(FCommandListHandle CommandListHandle, uint32_t FaceIndex, uint32_t SubResource = -1) = 0;

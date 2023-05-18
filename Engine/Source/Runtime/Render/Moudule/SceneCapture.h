@@ -51,6 +51,7 @@ namespace Zero
 	public:
 		FSceneCaptureCube();
 		const FSceneView& GetSceneView(uint32_t Index) const { return m_SceneViews[Index]; }
+		FSceneView& GetSceneView(uint32_t Index) { return m_SceneViews[Index]; }
 		Ref<IShaderConstantsBuffer> GetCamera(uint32_t Index) const {	return m_ViewCameraBuffers[Index];}
 		void SetFarAndNear(float Far, float Near);
 		void SetViewPos(ZMath::vec3 ViewPos);

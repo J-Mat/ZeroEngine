@@ -44,7 +44,8 @@ namespace Zero
 		m_CameraBuffer->SetMatrix4x4("View", m_SceneView.View);
 		m_CameraBuffer->SetMatrix4x4("ProjectionView", m_SceneView.ProjectionView);
 		m_CameraBuffer->SetFloat3("ViewPos", m_SceneView.ViewPos);
-
+		m_CameraBuffer->SetFloat("NearZ", m_SceneView.Near);
+		m_CameraBuffer->SetFloat("FarZ", m_SceneView.Far);
 	}
 
 	FSceneCaptureCube::FSceneCaptureCube()
@@ -87,8 +88,8 @@ namespace Zero
 
 			float Fov = ZMath::half_pi<float>();
 			float AspectRatio = 1.0f; //Square
-			m_SceneViews[i].Near = 0.01f;
-			m_SceneViews[i].Far = 10.0f;
+			m_SceneViews[i].Near = m_Near;
+			m_SceneViews[i].Far = m_Far;
 
 			m_SceneViews[i].Proj = ZMath::perspectiveLH(Fov, AspectRatio, m_SceneViews[i].Near, m_SceneViews[i].Far);
 
@@ -107,7 +108,6 @@ namespace Zero
 	{
 		m_Far = Far;
 		m_Near = Near;
-		UpdateParams();
 	}
 
 	void FSceneCaptureCube::UploadBuffer()

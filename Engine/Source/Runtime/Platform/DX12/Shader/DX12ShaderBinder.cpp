@@ -263,7 +263,7 @@ namespace Zero
 		}
 	}
 
-	void FDX12ShaderResourcesBuffer::SetTextureCubemap(const std::string& Name, FTextureCube* Texture)
+	void FDX12ShaderResourcesBuffer::SetTextureCube(const std::string& Name, FTextureCube* Texture)
 	{
 		FShaderResourceItem Item;
 		if (m_Desc.Mapper.FetchResource(Name, Item))

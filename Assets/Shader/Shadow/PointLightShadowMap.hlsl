@@ -25,7 +25,7 @@ float PS(VertexOut pin) : SV_Depth
 	float LightDistance = length(pin.WorldPos - LightPos);
 	
 	// Map to [0,1] range by dividing by far plane
-	LightDistance /= FarZ;
+	LightDistance /= 10.0f;
 		
 	// Write this as modified depth
 	return LightDistance;

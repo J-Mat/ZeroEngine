@@ -13,7 +13,7 @@ Texture2D _BrdfLUT : register(t6);
 
 TextureCube IBLPrefilterMap : register(t7);
 
-TextureCube _gShadowMapCubes[4] : register(t8);
+TextureCube _gShadowMapCube : register(t8);
 Texture2D _gShadowMaps[2] : register(t0, space1);
 
 #include "./Utils.hlsl"
@@ -96,15 +96,15 @@ PixelOutput PS(VertexOut Pin)
 			FinalColor +=  (Diffuse + Spec) * ShadowFactor * BaseColor;
 		}
 		
-		for (int LightIndex = 0; LightIndex < PointLightNum; ++LightIndex)
+		if (PointLightNum > 0)
 		{
-			float3 LightToPoint = Pin.WorldPos - PointLights[LightIndex].LightPos;
-			float ShadowFactor = CalcVisibilityOmni(LightToPoint, LightIndex, PointLights[LightIndex].Range);
-			
-			float3 LightDir = normalize(PointLights[LightIndex].LightPos - Pin.WorldPos);
-			float Attenuation = CalcDistanceAttenuation(Pin.WorldPos, PointLights[LightIndex].LightPos, PointLights[LightIndex].Range);
-			float3 Radiance = PointLights[LightIndex].Intensity * Attenuation * PointLights[LightIndex].Color;
-			//FinalColor += DirectLighting(Radiance, LightDir, Normal, ViewDir, Roughness, Metallic, BaseColor, ShadowFactor);
+			float3 LightToPoint = Pin.WorldPos - PointLights[0].LightPos;
+			float ShadowFactor = CalcVisibilityOmni(LightToPoint, 0, 10.0f);
+				
+			float3 LightDir = normalize(PointLights[0].LightPos - Pin.WorldPos);
+			float Attenuation = CalcDistanceAttenuation(Pin.WorldPos, PointLights[0].LightPos, PointLights[0].Range);
+			float3 Radiance = PointLights[0].Intensity * Attenuation * PointLights[0].Color;
+				//FinalColor += DirectLighting(Radiance, LightDir, Normal, ViewDir, Roughness, Metallic, BaseColor, ShadowFactor);
 
 			float3 V = normalize(ViewPos - Pin.WorldPos); 
 			float3 L = normalize(-LightToPoint);
@@ -115,11 +115,11 @@ PixelOutput PS(VertexOut Pin)
 			float3 ReflectDir = reflect(-V, Normal);
 			Spec = pow(max(dot(V, ReflectDir), 0.0f), 35.0f) * Radiance * Attenuation;
 			FinalColor +=  (Diffuse + Spec) * ShadowFactor * BaseColor;
+		}
 
 			//float ShadowFactor = CalcShadowFactor(0, Pin.ShadowPosH, MipLevel);
 
 			//FinalColor +=  (Diffuse + Spec) * ShadowFactor * BaseColor;
-		}
 		//FinalColor =  float3(ShadowFactor, ShadowFactor, ShadowFactor); //Ambient + (Diffuse + Spec) * ShadowFactor * BaseColor;
 	}
 

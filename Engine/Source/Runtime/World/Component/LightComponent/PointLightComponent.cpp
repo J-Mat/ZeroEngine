@@ -12,6 +12,7 @@ namespace Zero
 	void UPointLightComponnet::Tick()
 	{
 		Supper::Tick();
+		m_SceneCaptureCube.SetFarAndNear(m_Far, m_Near);
 		m_SceneCaptureCube.UpdateParams();
 	}
 

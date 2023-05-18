@@ -74,13 +74,20 @@ namespace Zero
 			[=](const FForwardLitPassData& Data, FRenderGraphContext& Context, FCommandListHandle CommandListHandle)
 			{
 				const std::vector<UDirectLightActor*>& DirectLights = FLightManager::Get().GetDirectLights();
-				std::vector<FTexture2D*> ShadowMaps;
+				std::vector<FTexture2D*> DirectLghtShadowMaps;
 				for (size_t LightIndex = 0; LightIndex < DirectLights.size(); ++LightIndex)
 				{
 					FTexture2D* Texture = Context.GetTexture2D(Data.DirectLightShadowMaps[LightIndex].GetResourceID());
-					ShadowMaps.push_back(Texture);
+					DirectLghtShadowMaps.push_back(Texture);
 				}
 
+				const std::vector<UPointLightActor*>& PointLights = FLightManager::Get().GetPointLights();
+				std::vector<FTextureCube*> PointLghtShadowMaps;
+				for (size_t LightIndex = 0; LightIndex < PointLights.size(); ++LightIndex)
+				{
+					FTextureCube* Texture = Context.GetTextureCube(Data.PointLightShadowMaps[LightIndex].GetResourceID());
+					PointLghtShadowMaps.push_back(Texture);
+				}
 
 				{
 					FRenderParams LightRenderSettings =
@@ -101,16 +108,24 @@ namespace Zero
 						[&](Ref<FRenderItem> RenderItem)
 						{
 							auto& IBLModule = FRenderUtils::GetIBLMoudule();
-							RenderItem->m_Material->SetTextureCubemap("IBLIrradianceMap", IBLModule->GetIrradianceRTCube()->GetColorTexCube());
-							RenderItem->m_Material->SetTextureCubemap("IBLPrefilterMap", IBLModule->GetPrefilterEnvMapRTCube()->GetColorTexCube());
+							RenderItem->m_Material->SetTextureCube("IBLIrradianceMap", IBLModule->GetIrradianceRTCube()->GetColorTexCube());
+							RenderItem->m_Material->SetTextureCube("IBLPrefilterMap", IBLModule->GetPrefilterEnvMapRTCube()->GetColorTexCube());
 							RenderItem->m_Material->SetTexture2D("_BrdfLUT", FTextureManager::Get().GetLutTexture().get());
 							RenderItem->m_Material->SetIBL(true);
-							uint32_t EmptyLightsNum = FLightManager::Get().GetMaxDirectLightsNum() - uint32_t(ShadowMaps.size());
-							while (EmptyLightsNum--)
+
 							{
-								ShadowMaps.push_back(FTextureManager::Get().GetDefaultTexture().get());
+								uint32_t EmptyLightsNum = FLightManager::Get().GetMaxDirectLightsNum() - uint32_t(DirectLghtShadowMaps.size());
+								while (EmptyLightsNum--)
+								{
+									DirectLghtShadowMaps.push_back(FTextureManager::Get().GetDefaultTexture().get());
+								}
+								RenderItem->m_Material->SetTexture2DArray("_gShadowMaps", DirectLghtShadowMaps);
 							}
-							RenderItem->m_Material->SetTexture2DArray("_gShadowMaps", ShadowMaps);
+
+							if (PointLights.size() > 0)
+							{
+								RenderItem->m_Material->SetTextureCube("_gShadowMapCube", PointLghtShadowMaps[0]);
+							}
 						}
 					);
 				}
