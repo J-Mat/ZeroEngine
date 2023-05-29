@@ -14,7 +14,7 @@
 
 namespace Zero
 {
-	class FDX12PipelineStateObject;
+	class FDX12GraphicPipelineStateObject;
 	class FDX12Resource;
 	class FDX12Texture2D;
 
@@ -92,7 +92,7 @@ namespace Zero
 		/**
 		* Set the pipeline state object on the command list.
 		*/
-		void SetPipelineState(const Ref<FDX12PipelineStateObject>& PipelineState);
+		void SetPipelineState(const Ref<FDX12GraphicPipelineStateObject>& PipelineState);
 		void SetPipelineState(ComPtr<ID3D12PipelineState> D3DPipelineState);
 
 		/**

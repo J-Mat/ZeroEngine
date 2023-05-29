@@ -13,11 +13,12 @@ namespace Zero
 	{
 		Supper::Tick();
 		m_SceneCaptureCube.SetFarAndNear(m_Far, m_Near);
+		m_SceneCaptureCube.SetViewPos(m_TransformCompent->GetPosition());
 		m_SceneCaptureCube.UpdateParams();
 	}
 
 	void UPointLightComponnet::OnTransfromChanged(UTransformComponent* TransformComponent)
 	{
-		m_SceneCaptureCube.SetViewPos(TransformComponent->GetPosition());
+		//m_SceneCaptureCube.SetViewPos(TransformComponent->GetPosition());
 	}
 }

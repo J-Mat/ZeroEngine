@@ -1,7 +1,7 @@
 #include "ForwardStage.h"
 #include "Render/RHI/RenderItem.h"
 #include "Render/Moudule/Material.h"
-#include "Render/RHI/PipelineStateObject.h"
+#include "Render/RHI/GraphicPipelineStateObject.h"
 #include "Render/RHI/SwapChain.h"
 #include "Render/RHI/RenderTarget.h"
 #include "World/World.h"

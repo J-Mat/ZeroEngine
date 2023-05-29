@@ -1,6 +1,6 @@
 #include "DX12CommandList.h"
 #include "DX12Texture2D.h"
-#include "PSO/DX12PipelineStateObject.h"
+#include "PSO/DX12GraphicPipelineStateObject.h"
 #include "DX12RenderTarget2D.h"
 #include "DX12RootSignature.h"
 #include "./PSO/GenerateMipsPSO.h"
@@ -727,7 +727,7 @@ namespace Zero
 		m_D3DCommandList->SetDescriptorHeaps(NumDescriptorHeaps, DescriptorHeaps);
 	}
 
-	void FDX12CommandList::SetPipelineState(const Ref<FDX12PipelineStateObject>& PipelineState)
+	void FDX12CommandList::SetPipelineState(const Ref<FDX12GraphicPipelineStateObject>& PipelineState)
 	{
 		auto D3DPipelineStateObj = PipelineState->GetD3D12PipelineState();
 		SetPipelineState(D3DPipelineStateObj);

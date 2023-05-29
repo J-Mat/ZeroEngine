@@ -3,7 +3,8 @@
 #include "Render/RHI/Shader/ShaderBinder.h"
 #include "Render/RenderConfig.h"
 #include "Render/RendererAPI.h"
-#include "Render/RHI/PipelineStateObject.h"
+#include "Render/RHI/GraphicPipelineStateObject.h"
+#include "Render/RHI/ComputePipelineStateObject.h"
 #include "Platform/DX12/PSO/GenerateMipsPSO.h"
 #include "Render/RHI/GraphicDevice.h"
 #include "Render/Moudule/ShaderCache.h"
@@ -14,7 +15,8 @@ namespace Zero
 {
 	FPSOCache::FPSOCache()
 	{
-		m_PsoCache.resize(EPsoID::PSOCount);
+		m_GraphicPsoCache.resize(EGraphicPsoID::PSOCount);
+		m_ComputePsoCache.resize(EComputePsoID::PSOCount);
 	}
 
 	void FPSOCache::RegisterErrorPSO()
@@ -31,7 +33,7 @@ namespace Zero
 		};
 
 		ErrorDesc.Shader = FShaderCache::Get().CreateShader(ShaderDesc);
-		m_PsoCache[EPsoID::GlobalPso] = FGraphic::GetDevice()->CreatePSO(ErrorDesc);
+		m_GraphicPsoCache[EPsoID::GlobalPso] = FGraphic::GetDevice()->CreateGraphicPSO(ErrorDesc);
 	*/
 	}
 
@@ -44,9 +46,9 @@ namespace Zero
 				.FileName = "Shader\\DirectLight.hlsl",
 				.ShaderID = EShaderID::DirectLight
 			};
-			FPSODescriptor DirectLightDesc;
-			DirectLightDesc.Shader = FShaderCache::Get().CreateShader(ShaderDesc);
-		 	m_PsoCache[EPsoID::DirectLight] = FGraphic::GetDevice()->CreatePSO(DirectLightDesc);
+			FGraphicPSODescriptor DirectLightDesc;
+			DirectLightDesc.Shader = FShaderCache::Get().CreateGraphicShader(ShaderDesc);
+		 	m_GraphicPsoCache[EGraphicPsoID::DirectLight] = FGraphic::GetDevice()->CreateGraphicPSO(DirectLightDesc);
 		}
 
 		{
@@ -55,9 +57,9 @@ namespace Zero
 				.FileName = "Shader\\PointLight.hlsl",
 				.ShaderID = EShaderID::PointLight
 			};
-			FPSODescriptor PointLightDesc;
-			PointLightDesc.Shader = FShaderCache::Get().CreateShader(ShaderDesc);
-		 	m_PsoCache[EPsoID::PointLight] = FGraphic::GetDevice()->CreatePSO(PointLightDesc);
+			FGraphicPSODescriptor PointLightDesc;
+			PointLightDesc.Shader = FShaderCache::Get().CreateGraphicShader(ShaderDesc);
+		 	m_GraphicPsoCache[EGraphicPsoID::PointLight] = FGraphic::GetDevice()->CreateGraphicPSO(PointLightDesc);
 		}
 	}
 
@@ -68,13 +70,13 @@ namespace Zero
 			.FileName = "Shader\\Skybox.hlsl",
 			.ShaderID = EShaderID::SkyBox
 		};
-		FPSODescriptor SkyboxPSODesc
+		FGraphicPSODescriptor SkyboxPSODesc
 		{
-			.Shader = FShaderCache::Get().CreateShader(ShaderDesc),
+			.Shader = FShaderCache::Get().CreateGraphicShader(ShaderDesc),
 			.DepthFunc = EComparisonFunc::LESS_EQUAL,
 			.CullMode = ECullMode::CULL_MODE_FRONT
 		};
-		 m_PsoCache[EPsoID::Skybox] = FGraphic::GetDevice()->CreatePSO(SkyboxPSODesc);
+		 m_GraphicPsoCache[EGraphicPsoID::Skybox] = FGraphic::GetDevice()->CreateGraphicPSO(SkyboxPSODesc);
 	}
 
 	void FPSOCache::RegsiterForwardLitPSO()
@@ -99,11 +101,11 @@ namespace Zero
 				break;
 			}
 
-			FPSODescriptor ForwadLitDesc{
+			FGraphicPSODescriptor ForwadLitDesc{
 				.PSOType =	EPSOType::PT_Normal
 			};
-			ForwadLitDesc.Shader = FShaderCache::Get().CreateShader(ShaderDesc);
-		 	m_PsoCache[EPsoID::ForwadLit] = FGraphic::GetDevice()->CreatePSO(ForwadLitDesc);
+			ForwadLitDesc.Shader = FShaderCache::Get().CreateGraphicShader(ShaderDesc);
+		 	m_GraphicPsoCache[EGraphicPsoID::ForwadLit] = FGraphic::GetDevice()->CreateGraphicPSO(ForwadLitDesc);
 		}
 	}
 
@@ -119,13 +121,13 @@ namespace Zero
 					EResourceFormat::R8G8B8A8_UNORM
 				},
 			};
-			FPSODescriptor IrradianceMapPSODesc
+			FGraphicPSODescriptor IrradianceMapPSODesc
 			{
-				.Shader = FShaderCache::Get().CreateShader(IBLIrradianceShaderDesc),
+				.Shader = FShaderCache::Get().CreateGraphicShader(IBLIrradianceShaderDesc),
 				.bDepthEnable = false,
 				.CullMode = ECullMode::CULL_MODE_FRONT,
 			};
-			m_PsoCache[EPsoID::IBLIrradiance] = FGraphic::GetDevice()->CreatePSO(IrradianceMapPSODesc);
+			m_GraphicPsoCache[EGraphicPsoID::IBLIrradiance] = FGraphic::GetDevice()->CreateGraphicPSO(IrradianceMapPSODesc);
 		}
 
 		{
@@ -138,13 +140,13 @@ namespace Zero
 					EResourceFormat::R8G8B8A8_UNORM
 				},
 			};
-			FPSODescriptor PrefilterMapPSODesc
+			FGraphicPSODescriptor PrefilterMapPSODesc
 			{
-				.Shader = FShaderCache::Get().CreateShader(PrefilterMapShaderDesc),
+				.Shader = FShaderCache::Get().CreateGraphicShader(PrefilterMapShaderDesc),
 				.bDepthEnable = false,
 				.CullMode = ECullMode::CULL_MODE_FRONT,
 			};
-			m_PsoCache[EPsoID::IBLPrefilter] = FGraphic::GetDevice()->CreatePSO(PrefilterMapPSODesc);
+			m_GraphicPsoCache[EGraphicPsoID::IBLPrefilter] = FGraphic::GetDevice()->CreateGraphicPSO(PrefilterMapPSODesc);
 		}
 	}
 
@@ -156,12 +158,13 @@ namespace Zero
 				.FileName = "Shader\\Shadow\\DirectLightShadowMap.hlsl",
 				.ShaderID = EShaderID::DirectLightShadowMap,
 			};
-			FPSODescriptor ShadowDesc{
+			FGraphicPSODescriptor ShadowDesc{
 				.PSOType = EPSOType::PT_Depth,
-				.Shader = FShaderCache::Get().CreateShader(ShaderDesc),
+				.Shader = FShaderCache::Get().CreateGraphicShader(ShaderDesc),
 			};
-			m_PsoCache[EPsoID::DirectLightShadowMap] = FGraphic::GetDevice()->CreatePSO(ShadowDesc);
+			m_GraphicPsoCache[EGraphicPsoID::DirectLightShadowMap] = FGraphic::GetDevice()->CreateGraphicPSO(ShadowDesc);
 		}
+
 
 		{
 			FShaderDesc ShaderDesc
@@ -169,12 +172,12 @@ namespace Zero
 				.FileName = "Shader\\Shadow\\ShadowDebug.hlsl",
 				.ShaderID = EShaderID::ShadowDebug,
 			};
-			FPSODescriptor ShadowDesc
+			FGraphicPSODescriptor ShadowDesc
 			{
-				.Shader = FShaderCache::Get().CreateShader(ShaderDesc),
+				.Shader = FShaderCache::Get().CreateGraphicShader(ShaderDesc),
 				.bDepthEnable = false,
 			};
-			m_PsoCache[EPsoID::ShadowDebug] = FGraphic::GetDevice()->CreatePSO(ShadowDesc);
+			m_GraphicPsoCache[EGraphicPsoID::ShadowDebug] = FGraphic::GetDevice()->CreateGraphicPSO(ShadowDesc);
 		}
 
 		{
@@ -183,63 +186,107 @@ namespace Zero
 				.FileName = "Shader\\Shadow\\PointLightShadowMap.hlsl",
 				.ShaderID = EShaderID::PointLightShadowMap,
 			};
-			FPSODescriptor ShadowDesc{
+			FGraphicPSODescriptor ShadowDesc{
 				.PSOType = EPSOType::PT_Depth,
+				.Shader = FShaderCache::Get().CreateGraphicShader(ShaderDesc),
+			};
+			m_GraphicPsoCache[EGraphicPsoID::PointLightShadowMap] = FGraphic::GetDevice()->CreateGraphicPSO(ShadowDesc);
+		}
+
+		/*
+		{
+			FShaderDesc ShaderDesc
+			{
+				.FileName = "Shader\\Shadow\\PointLightShadowMap_test.hlsl",
+				.ShaderID = EShaderID::PointLightShadowMap,
+				.NumRenderTarget = 1,
+				.Formats = {
+					EResourceFormat::R8G8B8A8_UNORM
+				},
+			};
+			FPSODescriptor ShadowDesc{
 				.Shader = FShaderCache::Get().CreateShader(ShaderDesc),
 			};
-			m_PsoCache[EPsoID::PointLightShadowMap] = FGraphic::GetDevice()->CreatePSO(ShadowDesc);
+			m_GraphicPsoCache[EPsoID::PointLightShadowMap] = FGraphic::GetDevice()->CreateGraphicPSO(ShadowDesc);
 		}
+		*/
 	}
 
 	void FPSOCache::RegisterComputeShader()
 	{
 		{
-			struct FComputeShaderDesc GenerteMipShader
+			struct FShaderDesc PrefixSumTexShader
 			{
-				.ShaderName = GENERATE_MIP_SHADER,
-					.BlockSize_X = 8,
-					.BlockSize_Y = 8,
-					.BlockSize_Z = 1
+				.FileName = "Shader\\Compute\\PrefixSumTex_CS.hlsl",
+				.BlockSize_X = 1024,
+				.BlockSize_Y = 1,
+				.BlockSize_Z = 1
 			};
-			FGraphic::GraphicFactroy->CreateComputeShader(GenerteMipShader);
+			Ref<FShader> Shader = FGraphic::GetDevice()->CreateComputeShader(PrefixSumTexShader);
+			FComputePSODescriptor PrefixSumPso = 
+			{
+				.Shader = Shader,
+				.BlockSize_X = 1024,
+				.BlockSize_Y = 1,
+				.BlockSize_Z = 1
+			};
+			m_ComputePsoCache[EComputePsoID::PrefixSumTex] = FGraphic::GetDevice()->CreateComputePSO(PrefixSumPso);
 		}
 
 		{
-			struct FComputeShaderDesc GenerteMipShader
+			struct FShaderDesc GenerteMipShader
 			{
-				.ShaderName = GENERATE_MIP_SHADER_TEST,
-					.BlockSize_X = 8,
-					.BlockSize_Y = 8,
-					.BlockSize_Z = 1
+				.FileName = GENERATE_MIP_SHADER,
+				.BlockSize_X = 8,
+				.BlockSize_Y = 8,
+				.BlockSize_Z = 1
 			};
-			FGraphic::GraphicFactroy->CreateComputeShader(GenerteMipShader);
+			Ref<FShader> Shader = FGraphic::GetDevice()->CreateComputeShader(GenerteMipShader);
+			TLibrary<FShader>::Push(GENERATE_MIP_SHADER_TEST, Shader);
+		}
+
+		{
+			struct FShaderDesc GenerteMipShader
+			{
+				.FileName = GENERATE_MIP_SHADER_TEST,
+				.BlockSize_X = 8,
+				.BlockSize_Y = 8,
+				.BlockSize_Z = 1
+			};
+			Ref<FShader> Shader = FGraphic::GetDevice()->CreateComputeShader(GenerteMipShader);
+			TLibrary<FShader>::Push(GENERATE_MIP_SHADER_TEST, Shader);
 		}
 	}
 
 
-	void FPSOCache::OnReCreatePso(Ref<FShader> Shader)
+	void FPSOCache::OnReCreateGraphicPSO(Ref<FShader> Shader)
 	{
-		for (uint32_t i = 0; i < m_PsoCache.size();++i)
+		for (uint32_t i = 0; i < m_GraphicPsoCache.size();++i)
 		{
-			if (!m_PsoCache[i])
+			if (!m_GraphicPsoCache[i])
 			{
 				continue;
 			}
-			auto& PsoDesc = m_PsoCache[i]->GetPSODescriptor();
+			auto& PsoDesc = m_GraphicPsoCache[i]->GetPSODescriptor();
 			auto OldShader = PsoDesc.Shader;
 			if (OldShader->GetDesc().ShaderID == Shader->GetDesc().ShaderID)
 			{
 				auto NewPsoDesc = PsoDesc;
 				NewPsoDesc.Shader = Shader;
-				m_PsoCache[i] = FGraphic::GetDevice()->CreatePSO(NewPsoDesc);
+				m_GraphicPsoCache[i] = FGraphic::GetDevice()->CreateGraphicPSO(NewPsoDesc);
 				m_PsoRecreateEvent.Broadcast(i);
 			}
 		}
 	}
 
-	Ref<FPipelineStateObject> Zero::FPSOCache::Fetch(uint32_t PsoID)
+	Ref<FComputePipelineStateObject> FPSOCache::FetchComputePso(uint32_t PsoID)
 	{
-		return m_PsoCache[PsoID];
+		return m_ComputePsoCache[PsoID];
+	}
+
+	Ref<FGraphicPipelineStateObject> Zero::FPSOCache::FetchGraphicPso(uint32_t PsoID)
+	{
+		return m_GraphicPsoCache[PsoID];
 	}
 
 }

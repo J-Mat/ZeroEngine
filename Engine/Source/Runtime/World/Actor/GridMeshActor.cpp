@@ -8,7 +8,7 @@ namespace Zero
 	UGridMeshActor::UGridMeshActor()
 		: UMeshActor()
 	{
-		m_MeshRenderComponent->AttachRenderLayer(ERenderLayer::Opaque, EPsoID::ForwadLit);
+		m_MeshRenderComponent->AttachRenderLayer(ERenderLayer::Opaque, EGraphicPsoID::ForwadLit);
 		m_MeshRenderComponent->AttachRenderLayer(ERenderLayer::Shadow);
 	}
 
@@ -19,7 +19,7 @@ namespace Zero
 		, m_Rows(Rows)
 		, m_Cols(Cols)
 	{
-		m_MeshRenderComponent->AttachRenderLayer(ERenderLayer::Opaque, EPsoID::ForwadLit);
+		m_MeshRenderComponent->AttachRenderLayer(ERenderLayer::Opaque, EGraphicPsoID::ForwadLit);
 		m_MeshRenderComponent->AttachRenderLayer(ERenderLayer::Shadow);
 	}
 

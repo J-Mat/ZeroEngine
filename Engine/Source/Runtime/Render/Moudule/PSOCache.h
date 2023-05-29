@@ -21,12 +21,14 @@ namespace Zero
 		void RegisterIBLPSO();
 		void RegisterShadowPSO();
 		void RegisterComputeShader();
-		void OnReCreatePso(Ref<FShader> Shader);
+		void OnReCreateGraphicPSO(Ref<FShader> Shader);
 	public:
 		FPsoRecreateEvent& GetPsoRecreateEvent() { return m_PsoRecreateEvent; };
-		Ref<FPipelineStateObject> Fetch(uint32_t PsoID);
+		Ref<FGraphicPipelineStateObject> FetchGraphicPso(uint32_t PsoID);
+		Ref<FComputePipelineStateObject> FetchComputePso(uint32_t PsoID);
 	private:
-		std::vector<Ref<FPipelineStateObject>> m_PsoCache;
+		std::vector<Ref<FGraphicPipelineStateObject>> m_GraphicPsoCache;
+		std::vector<Ref<FComputePipelineStateObject>> m_ComputePsoCache;
 
 		FPsoRecreateEvent m_PsoRecreateEvent;
 	};

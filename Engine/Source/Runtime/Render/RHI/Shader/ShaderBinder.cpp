@@ -122,7 +122,7 @@ namespace Zero
 
         m_ShaderResourceDesc = CreateRef<FShaderResourcesDesc>();
         uint32_t ResIndex = 0;
-        for (FTextureTableElement& Element : m_Desc.m_TextureBufferLayout)
+        for (FSRVElement& Element : m_Desc.m_SRVResourceLayout)
         {
             FShaderResourceItem ShaderResourceItem{
                 .Name = Element.ResourceName,
@@ -136,6 +136,6 @@ namespace Zero
             ResIndex++;
             ParaIndex++;
         }
-        m_ShaderResourceDesc->Size = (uint32_t)m_Desc.m_TextureBufferLayout.GetSrvCount();
+        m_ShaderResourceDesc->Size = (uint32_t)m_Desc.m_SRVResourceLayout.GetSrvCount();
     }
 }

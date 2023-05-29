@@ -9,7 +9,7 @@ namespace Zero
 	UCustomMeshActor::UCustomMeshActor()
 		: UMeshActor()
 	{
-		m_MeshRenderComponent->AttachRenderLayer(ERenderLayer::Opaque, EPsoID::ForwadLit);
+		m_MeshRenderComponent->AttachRenderLayer(ERenderLayer::Opaque, EGraphicPsoID::ForwadLit);
 		m_MeshRenderComponent->AttachRenderLayer(ERenderLayer::Shadow);
 	}
 	UCustomMeshActor::UCustomMeshActor(const std::string& FileName)
@@ -18,7 +18,7 @@ namespace Zero
 	{
 		std::filesystem::path Path = m_FileName;
 		SetTagName(Path.stem().string());
-		m_MeshRenderComponent->AttachRenderLayer(ERenderLayer::Opaque, EPsoID::ForwadLit);
+		m_MeshRenderComponent->AttachRenderLayer(ERenderLayer::Opaque, EGraphicPsoID::ForwadLit);
 		m_MeshRenderComponent->AttachRenderLayer(ERenderLayer::Shadow);
 	}
 

@@ -151,6 +151,33 @@ namespace Zero
 		if (RtvPtr)
 		{
 			float Color[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+			if (FaceIndex == 0)
+			{
+				Color[0] = 1.0f;
+			}
+			else if (FaceIndex == 1)
+			{
+				Color[1] = 1.0f;
+			}
+			else if (FaceIndex == 2)
+			{
+				Color[2] = 1.0f;
+			}
+			else if (FaceIndex == 3)
+			{
+				Color[0] = 1.0f;
+				Color[1] = 1.0f;
+			}
+			else if (FaceIndex == 4)
+			{
+				Color[0] = 1.0f;
+				Color[2] = 1.0f;
+			}
+			else if (FaceIndex == 5)
+			{
+				Color[1] = 1.0f;
+				Color[2] = 1.0f;
+			}
 			CommandList->GetD3D12CommandList()->ClearRenderTargetView(RtvPtr->GetDescriptorHandle(), Color, 0, nullptr);	
 		}
 
@@ -159,12 +186,19 @@ namespace Zero
 			CommandList->GetD3D12CommandList()->ClearDepthStencilView(DsvPtr->GetDescriptorHandle(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 		}
 
-		CommandList->GetD3D12CommandList()->OMSetRenderTargets(
-			RtvPtr ? 1 : 0,
-			RtvPtr ? &RtvPtr->GetDescriptorHandle() : nullptr,
-			false,
-			DsvPtr ? &DsvPtr->GetDescriptorHandle() : nullptr
-		);
+		if (RtvPtr)
+		{
+			CommandList->GetD3D12CommandList()->OMSetRenderTargets(
+				1,
+				&RtvPtr->GetDescriptorHandle(),
+				false,
+				DsvPtr ? &DsvPtr->GetDescriptorHandle() : nullptr
+			);
+		}
+		else
+		{
+			CommandList->GetD3D12CommandList()->OMSetRenderTargets(0, nullptr, false, DsvPtr ? &DsvPtr->GetDescriptorHandle() : nullptr);
+		}
 	}
 
 	void FDX12RenderTargetCube::UnBind(FCommandListHandle CommandListHandle, uint32_t FaceIndex, uint32_t SubResource /*= -1*/)

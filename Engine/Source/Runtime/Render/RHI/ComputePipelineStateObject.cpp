@@ -1,4 +1,3 @@
-#include "PipelineStateObject.h"
 #include "ComputePipelineStateObject.h"
 
 namespace Zero
@@ -8,7 +7,7 @@ namespace Zero
 	{
 	}
 
-	void FComputePipelineStateObject::SetShader(Ref<FComputeShader> Shader)
+	void FComputePipelineStateObject::SetShader(Ref<FShader> Shader)
 	{
 		if (m_ComputePSODescriptor.Shader != Shader)
 		{

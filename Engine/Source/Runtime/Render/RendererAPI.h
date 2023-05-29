@@ -7,7 +7,6 @@
 #include "Render/RHI/Shader/Shader.h"
 #include "Render/RHI/RootSignature.h"
 #include "Platform/DX12/Shader/DX12Shader.h"
-#include "Platform/DX12/Shader/DX12ComputeShader.h"
 #include "Platform/DX12/Shader/DX12ShaderBinder.h"
 #include "Platform/DX12/DX12RootSignature.h"
 #include "Core/Framework/Library.h"
@@ -60,7 +59,6 @@ namespace Zero
 		virtual Ref<FWinWindow> CreatePlatformWindow(const FWindowsConfig& Config) = 0;
 		virtual Ref<IShaderConstantsBuffer> CreateConstantBuffer(FShaderConstantsDesc& Desc) = 0;
 		virtual Ref<IShaderResourcesBuffer> CreateShaderResourceBuffer(FShaderResourcesDesc& Desc, FRootSignature* RootSignature) = 0;
-		virtual Ref<FComputeShader> CreateComputeShader(const FComputeShaderDesc& ComputeShaderDesc) = 0;
 	};
 	
 
@@ -94,17 +92,6 @@ namespace Zero
 		{
 			FDX12RootSignature* D3DRootSignature = static_cast<FDX12RootSignature*>(RootSignature);
 			return CreateRef<FDX12ShaderResourcesBuffer>(Desc, D3DRootSignature);
-		}
-
-		virtual Ref<FComputeShader> CreateComputeShader(const FComputeShaderDesc& ComputeShaderDesc)
-		{
-			Ref<FComputeShader> Shader = TLibrary<FComputeShader>::Fetch(ComputeShaderDesc.ShaderName);
-			if (Shader == nullptr)
-			{
-				Shader = CreateRef<FDX12ComputeShader>(ComputeShaderDesc);
-				TLibrary<FComputeShader>::Push(ComputeShaderDesc.ShaderName, Shader);
-			}
-			return Shader;
 		}
 	};
 

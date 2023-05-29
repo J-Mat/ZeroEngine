@@ -96,9 +96,11 @@ namespace Zero
 		FRenderGraph RenderGraph(m_RGResourcePool);
 		ImportResource(RenderGraph);
 		
+
 		SetupEnvironmentMap(RenderGraph);
 
 		m_ForwardLitPass.AddPass(RenderGraph);
+
 
 
 		m_CopyToFinalTexturePass.AddPass(RenderGraph);

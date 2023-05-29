@@ -1,6 +1,6 @@
-#include "DX12PipelineStateObject.h"
+#include "DX12GraphicPipelineStateObject.h"
 #include "../DX12Device.h"
-#include "../Shader/DX12ComputeShader.h"
+#include "../Shader/DX12Shader.h"
 #include "../Shader/DX12ShaderBinder.h"
 #include "../DX12CommandList.h"
 #include "DX12ComputePipelineStateObject.h"
@@ -19,14 +19,14 @@ namespace Zero
 
 	void FDX12ComputePipelineStateObject::CreateComputePsoObj()
 	{
-		auto* DX12ComputeShader = static_cast<FDX12ComputeShader*>(m_ComputePSODescriptor.Shader.get());
+		auto* DX12ComputeShader = static_cast<FDX12Shader*>(m_ComputePSODescriptor.Shader.get());
 		FDX12RootSignature* DX12RootSignature = static_cast<FDX12RootSignature*>(DX12ComputeShader->m_ShaderBinder->GetRootSignature());
 		D3D12_COMPUTE_PIPELINE_STATE_DESC ComputePsoDesc
 		{
 			.pRootSignature = DX12RootSignature->GetD3D12RootSignature().Get(),
 			.CS = {
-				reinterpret_cast<BYTE*>(DX12ComputeShader->m_ShaderPass->GetBufferPointer()),
-				DX12ComputeShader->m_ShaderPass->GetBufferSize()
+				reinterpret_cast<BYTE*>(DX12ComputeShader->GetPointer(EShaderStage::CS)),
+				DX12ComputeShader->GetLength(EShaderStage::CS)
 			},
 			.Flags = D3D12_PIPELINE_STATE_FLAG_NONE
 		};

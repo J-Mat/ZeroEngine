@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Render/RenderConfig.h"
-#include "Render/RHI/PipelineStateObject.h"
+#include "Render/RHI/GraphicPipelineStateObject.h"
 #include "Component.h"
 #include "MeshRenderComponent.reflection.h"
 
@@ -21,7 +21,7 @@ namespace Zero
 	class FMaterial;
 	struct FRenderLayerInfo
 	{
-		uint32_t PsoID = EPsoID::GlobalPso;
+		uint32_t PsoID = EGraphicPsoID::GlobalPso;
 		std::vector<Ref<FMaterial>> Materials;
 	};
 
@@ -41,7 +41,7 @@ namespace Zero
 		void SetParameter(const std::string& ParameterName, EShaderDataType ShaderDataType, void* ValuePtr, ERenderLayer RenderLayer = ERenderLayer::Opaque);
 
 		uint32_t GetPsoID(ERenderLayer RenderLayer);
-		void  OnRecreatePso(uint32_t PsoID);
+		void  OnReCreateGraphicPSO(uint32_t PsoID);
 
 		void SetShadingMode(EShadingMode ShadingMode);
 

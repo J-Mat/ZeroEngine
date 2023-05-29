@@ -15,7 +15,7 @@ namespace Zero
 	{
 	public:
 		FShaderCache();
-		Ref<FShader> CreateShader(const FShaderDesc& ShaderDesc);
+		Ref<FShader> CreateGraphicShader(const FShaderDesc& ShaderDesc);
 
 		FShaderRecompiledEvent& GetShaderRecompiledEvent() { m_ShaderRecompiledEvent; };
 

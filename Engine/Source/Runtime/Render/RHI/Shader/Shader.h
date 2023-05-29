@@ -34,6 +34,10 @@ namespace Zero
 		bool bCreatePS = true;
 		EShaderCompilerFlagBit Flags = ShaderCompilerFlag_Debug;
 		std::unordered_map<std::string, std::string> DefinesMap;
+
+		uint32_t BlockSize_X = 8;
+		uint32_t BlockSize_Y = 8;
+		uint32_t BlockSize_Z = 8;
 		
 		void SetDefine(const std::string& Name, const std::string& Value)
 		{
@@ -89,32 +93,10 @@ namespace Zero
 
 		std::map<std::pair<uint32_t, uint32_t>, FShaderCBVParameter> m_CBVParams;
 		std::map<std::pair<uint32_t, uint32_t>, FShaderSRVParameter> m_SRVParams;
-		std::vector<FShaderUAVParameter> m_UAVParams;
+		std::map<std::pair<uint32_t, uint32_t>, FShaderUAVParameter> m_UAVParams;
 		std::vector<FShaderSamplerParameter> m_SamplerParams;
 
 		std::set<std::string> m_IncludeFiles;
 		FShaderBlob m_ByteCode[uint32_t(EShaderStage::ShaderCount)] = {};
 	};
-
-	struct FComputeShaderDesc
-	{
-		std::string ShaderName;
-		FShaderMacro ShaderDefines;
-		std::string CSEntryPoint = "CS";
-		uint32_t BlockSize_X = 8;
-		uint32_t BlockSize_Y = 8;
-		uint32_t BlockSize_Z = 8;
-	};
-
-	class FComputeShader
-	{
-	public:
-		FComputeShader(const FShaderBinderDesc& BinderDesc, const FComputeShaderDesc& Desc);
-		FComputeShader(const FComputeShaderDesc& Desc);
-	protected:
-		Ref<IShaderBinder> m_ShaderBinder;
-		FComputeShaderDesc m_ComputeShaderDesc;
-		FShaderBinderDesc m_ShaderBinderDesc;
-	};
-	
 }

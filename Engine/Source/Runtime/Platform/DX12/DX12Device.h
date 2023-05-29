@@ -7,7 +7,7 @@
 #include "Adapter.h"
 #include "MemoryManage/Descriptor/DescriptorAllocation.h"
 #include "DX12SwapChain.h"
-#include "Render/RHI/PipelineStateObject.h"
+#include "Render/RHI/GraphicPipelineStateObject.h"
 #include "MemoryManage/Resource/ResourceAllocator.h"
 #include "MemoryManage/ConstantBuffer/LinearDynamicAllocator.h"
 #include "D3D12MemAlloc/D3D12MemAlloc.h"
@@ -19,7 +19,7 @@ namespace Zero
 	class FDX12CommandQueue;
 	class FDescriptorAllocator;
 	class FDX12Texture2D;
-	struct FPSODescriptor;
+	struct FGraphicPSODescriptor;
 	class FDX12Device : public IDevice, public std::enable_shared_from_this<FDX12Device>
 	{
 	public:
@@ -117,7 +117,8 @@ namespace Zero
 		D3D12MA::Allocator* GetMemAllocator() const;
 
 	public:
-		virtual Ref<FPipelineStateObject> CreatePSO(const FPSODescriptor& PSODescriptor) override;
+		virtual Ref<FGraphicPipelineStateObject> CreateGraphicPSO(const FGraphicPSODescriptor& PSODescriptor) override;
+		virtual Ref<FComputePipelineStateObject> CreateComputePSO(const FComputePSODescriptor& PSODescriptor) override;
 		virtual FTexture2D* CreateTexture2D(const std::string& TextureName, const FTextureDesc& Desc, bool bCreateTextureView = true) override;
 		virtual FTextureCube* CreateTextureCube(const std::string& TextureName, const FTextureDesc& Desc, bool bCreateTextureView = true) override;
 		virtual Ref<FTexture2D> GetOrCreateTexture2D(const std::string& Filename, bool bNeedMipMap = false) override;
@@ -126,8 +127,8 @@ namespace Zero
 		virtual FRenderTarget2D* CreateRenderTarget2D() override;
 		virtual FRenderTargetCube* CreateRenderTargetCube() override;
 		virtual Ref<FRenderTargetCube> CreateRenderTargetCube(const FRenderTargetCubeDesc& Desc) override;
-		virtual Ref<FShader> CreateShader(const FShaderBinderDesc& BinderDesc, const FShaderDesc& ShaderDesc);
-		virtual Ref<FShader> CreateShader(const FShaderDesc& ShaderDesc);
+		virtual Ref<FShader> CreateGraphicShader(const FShaderDesc& ShaderDesc);
+		virtual Ref<FShader> CreateComputeShader(const FShaderDesc& ShaderDesc);
 		virtual Ref<FMesh> CreateMesh(const std::vector<FMeshData>& MeshDatas, FVertexBufferLayout& Layout);
 		virtual Ref<FMesh> CreateMesh(float* Vertices, uint32_t VertexCount, uint32_t* Indices, uint32_t IndexCount, FVertexBufferLayout& Layout);
 		virtual FBuffer* CreateBuffer(const FBufferDesc& Desc) override;

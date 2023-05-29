@@ -4,7 +4,7 @@
 #include "Platform/DX12/DX12Device.h"
 #include "DX12ShaderBinder.h"
 #include "../DX12RootSignature.h"
-#include "../PSO/DX12PipelineStateObject.h"
+#include "../PSO/DX12GraphicPipelineStateObject.h"
 #include "../DX12CommandList.h"
 #include "DX12ShaderCompiler.h"
 #include "ZConfig.h"
@@ -60,48 +60,6 @@ namespace Zero
 	FDX12Shader::FDX12Shader(const FShaderDesc& Desc)
 		:FShader(Desc)
 	{
-		Compile();
-	}
-
-	void FDX12Shader::Compile()
-	{
-		std::string FileName = ZConfig::GetAssestsFullPath(m_ShaderDesc.FileName).string();
-		m_CBVParams.clear();
-		m_SRVParams.clear();
-		m_UAVParams.clear();
-		m_SamplerParams.clear();
-
-		// Test
-		{
-				m_CBVParams.clear();
-				m_SRVParams.clear();
-				m_UAVParams.clear();
-				m_SamplerParams.clear();
-			{
-				FShaderCompileOutput VSOutput
-				{
-					.Shader = this
-				};
-				FDX12ShaderCompiler::Get().CompileShader(EShaderStage::VS, m_ShaderDesc, VSOutput, m_IncludeFiles);
-				ParseShader(VSOutput.ShaderReflection.Get(), EShaderStage::VS);
-			}
-
-			{
-				FShaderCompileOutput PSOutput
-				{
-					.Shader = this
-				};
-				FDX12ShaderCompiler::Get().CompileShader(EShaderStage::PS, m_ShaderDesc, PSOutput, m_IncludeFiles);
-				ParseShader(PSOutput.ShaderReflection.Get(), EShaderStage::PS);
-			}
-			m_IncludeFiles.insert(ZConfig::GetAssestsFullPath(m_ShaderDesc.FileName).string());
-		}
-
-		GenerateShaderDesc();
-		m_ShaderBinderDesc.MapCBBufferIndex();
-		GenerateInputLayout();
-		CreateBinder();
-
 	}
 
 	void FDX12Shader::CreateBinder()
@@ -210,6 +168,11 @@ namespace Zero
 			{
 				CORE_ASSERT(ShaderStage == EShaderStage::CS, "ShaderStage must be Compute Shader");
 
+				if (m_UAVParams.find(Key) != m_UAVParams.end())
+				{
+					continue;
+				}
+
 				FShaderUAVParameter Param;
 				Param.ResourceName = ResoureceVarName;
 				Param.ShaderStage = ShaderStage;
@@ -217,12 +180,17 @@ namespace Zero
 				Param.BindCount = BindCount;
 				Param.RegisterSpace = RegisterSpace;
 
-				m_UAVParams.push_back(Param);
+				m_UAVParams.insert({ Key, Param });
 			}
 			else if (ResourceType == D3D_SHADER_INPUT_TYPE::D3D_SIT_UAV_RWTYPED)
 			{
 				CORE_ASSERT(ShaderStage == EShaderStage::CS, "ShaderStage must be Compute Shader");
 
+				if (m_UAVParams.find(Key) != m_UAVParams.end())
+				{
+					continue;
+				}
+
 				FShaderUAVParameter Param;
 				Param.ResourceName = ResoureceVarName;
 				Param.ShaderStage = ShaderStage;
@@ -230,11 +198,10 @@ namespace Zero
 				Param.BindCount = BindCount;
 				Param.RegisterSpace = RegisterSpace;
 
-				m_UAVParams.push_back(Param);
+				m_UAVParams.insert({ Key, Param });
 			}
 			else if (ResourceType == D3D_SHADER_INPUT_TYPE::D3D_SIT_SAMPLER)
 			{
-				CORE_ASSERT(ShaderStage == EShaderStage::PS, "ShaderStage must be Pixel Shader");
 
 				FShaderSamplerParameter Param;
 				Param.ResourceName = ResoureceVarName;
@@ -331,4 +298,75 @@ namespace Zero
 			);
 		}
 	}
+
+	FDX12GraphicShader::FDX12GraphicShader(const FShaderDesc& Desc)
+		:FDX12Shader(Desc)
+	{
+		m_ShaderBinderDesc.m_RenderPassType = ERenderPassType::Graphics;
+		Compile();
+	}
+
+	void FDX12GraphicShader::Compile()
+	{
+		std::string FileName = ZConfig::GetAssestsFullPath(m_ShaderDesc.FileName).string();
+
+		m_CBVParams.clear();
+		m_SRVParams.clear();
+		m_UAVParams.clear();
+		m_SamplerParams.clear();
+		{
+			FShaderCompileOutput VSOutput
+			{
+				.Shader = this
+			};
+			FDX12ShaderCompiler::Get().CompileShader(EShaderStage::VS, m_ShaderDesc, VSOutput, m_IncludeFiles);
+			ParseShader(VSOutput.ShaderReflection.Get(), EShaderStage::VS);
+		}
+
+		{
+			FShaderCompileOutput PSOutput
+			{
+				.Shader = this
+			};
+			FDX12ShaderCompiler::Get().CompileShader(EShaderStage::PS, m_ShaderDesc, PSOutput, m_IncludeFiles);
+			ParseShader(PSOutput.ShaderReflection.Get(), EShaderStage::PS);
+		}
+		m_IncludeFiles.insert(ZConfig::GetAssestsFullPath(m_ShaderDesc.FileName).string());
+
+		GenerateShaderDesc();
+		m_ShaderBinderDesc.MapCBBufferIndex();
+		GenerateInputLayout();
+		CreateBinder();
+	}
+
+	FDX12ComputeShader::FDX12ComputeShader(const FShaderDesc& Desc)
+		:FDX12Shader(Desc)
+	{
+		m_ShaderBinderDesc.m_RenderPassType = ERenderPassType::Compute;
+		Compile();
+	}
+
+	void FDX12ComputeShader::Compile()
+	{
+		std::string FileName = ZConfig::GetAssestsFullPath(m_ShaderDesc.FileName).string();
+
+		m_CBVParams.clear();
+		m_SRVParams.clear();
+		m_UAVParams.clear();
+		m_SamplerParams.clear();
+
+		FShaderCompileOutput CSOutput
+		{
+			.Shader = this
+		};
+		FDX12ShaderCompiler::Get().CompileShader(EShaderStage::CS, m_ShaderDesc, CSOutput, m_IncludeFiles);
+		ParseShader(CSOutput.ShaderReflection.Get(), EShaderStage::CS);
+
+		m_IncludeFiles.insert(ZConfig::GetAssestsFullPath(m_ShaderDesc.FileName).string());
+
+		GenerateShaderDesc();
+		m_ShaderBinderDesc.MapCBBufferIndex();
+		CreateBinder();
+	}
+
 }

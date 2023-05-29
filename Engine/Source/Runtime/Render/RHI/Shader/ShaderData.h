@@ -157,6 +157,7 @@ namespace Zero
 	struct FShaderUAVParameter : FShaderParameter
 	{
 		UINT BindCount;
+		EShaderResourceType ShaderResourceType;
 	};
 	
 	struct FBufferElement
@@ -241,7 +242,7 @@ namespace Zero
 		bool m_bDynamic = false;
 	};
 
-	struct FTextureTableElement
+	struct FSRVElement
 	{
 		EShaderResourceType Type;
 		std::string ResourceName;
@@ -251,12 +252,12 @@ namespace Zero
 		bool bWillBeModified = false;
 	};
 	
-	class FShaderResourceLayout
+	class FSRVResourceLayout
 	{
 		friend class FShader;
 	public:
-		FShaderResourceLayout() {}
-		FShaderResourceLayout(const std::initializer_list<FTextureTableElement>& Elements)
+		FSRVResourceLayout() {}
+		FSRVResourceLayout(const std::initializer_list<FSRVElement>& Elements)
 			:m_Elements(Elements)
 		{
 		}
@@ -266,17 +267,17 @@ namespace Zero
 			return m_Elements.size();
 		}
 
-		const std::vector<FTextureTableElement>& GetElements() const { return m_Elements; }
+		const std::vector<FSRVElement>& GetElements() const { return m_Elements; }
 
-		std::vector<FTextureTableElement>::iterator begin() { return m_Elements.begin(); }
-		std::vector<FTextureTableElement>::iterator end() { return m_Elements.end(); }
+		std::vector<FSRVElement>::iterator begin() { return m_Elements.begin(); }
+		std::vector<FSRVElement>::iterator end() { return m_Elements.end(); }
 
 	private:
-		std::vector<FTextureTableElement> m_Elements;
+		std::vector<FSRVElement> m_Elements;
 	};
 
 
-	struct FReadWriteElement
+	struct FUAVElement
 	{
 		EShaderResourceType Type;
 		std::string ResourceName;
@@ -286,11 +287,12 @@ namespace Zero
 		bool bWillBeModified = false;
 	};
 
-	class FReadWriteResoureceLayout
+	class FUAVResoureceLayout
 	{
+		friend class FShader;
 	public:
-		FReadWriteResoureceLayout() {}
-		FReadWriteResoureceLayout(const std::initializer_list<FReadWriteElement>& elements)
+		FUAVResoureceLayout() {}
+		FUAVResoureceLayout(const std::initializer_list<FUAVElement>& elements)
 			:m_Elements(elements)
 		{
 		}
@@ -300,12 +302,12 @@ namespace Zero
 			return m_Elements.size();
 		}
 
-		inline const std::vector<FReadWriteElement>& GetElements() const { return m_Elements; }
+		inline const std::vector<FUAVElement>& GetElements() const { return m_Elements; }
 
-		std::vector<FReadWriteElement>::iterator begin() { return m_Elements.begin(); }
-		std::vector<FReadWriteElement>::iterator end() { return m_Elements.end(); }
+		std::vector<FUAVElement>::iterator begin() { return m_Elements.begin(); }
+		std::vector<FUAVElement>::iterator end() { return m_Elements.end(); }
 
 	private:
-		std::vector<FReadWriteElement> m_Elements;
+		std::vector<FUAVElement> m_Elements;
 	};
 }

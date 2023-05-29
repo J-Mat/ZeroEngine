@@ -6,7 +6,7 @@
 #include "GenerateMipsPSO.h"
 #include "Platform/DX12/DX12RootSignature.h"
 #include "Platform/DX12/DX12Device.h"
-#include "../Shader/DX12ComputeShader.h"
+#include "../Shader/DX12Shader.h"
 #include "Runtime/Render/RHI/Shader/Shader.h"
 
 
@@ -41,14 +41,14 @@ namespace Zero
 
 		m_RootSignature = CreateRef<FDX12RootSignature>(RootSignatureDesc.Desc_1_1);
 
-		auto GenerateMipShader = TLibrary<FComputeShader>::Fetch(GENERATE_MIP_SHADER_TEST);
-		auto* DX12ComputeShader = static_cast<FDX12ComputeShader*>(GenerateMipShader.get());
+		auto GenerateMipShader = TLibrary<FShader>::Fetch(GENERATE_MIP_SHADER_TEST);
+		auto* DX12ComputeShader = static_cast<FDX12Shader*>(GenerateMipShader.get());
 		D3D12_COMPUTE_PIPELINE_STATE_DESC ComputePsoDesc
 		{
 			.pRootSignature = m_RootSignature->GetD3D12RootSignature().Get(),
 			.CS = {
-				reinterpret_cast<BYTE*>(DX12ComputeShader->GetShaderPass()->GetBufferPointer()),
-				DX12ComputeShader->GetShaderPass()->GetBufferSize()
+				reinterpret_cast<BYTE*>(DX12ComputeShader->GetPointer(EShaderStage::CS)),
+				DX12ComputeShader->GetLength(EShaderStage::CS)
 			},
 			.Flags = D3D12_PIPELINE_STATE_FLAG_NONE
 		};
@@ -79,7 +79,7 @@ namespace Zero
 		m_RootSignature = CreateRef<FDX12RootSignature>(RootSignatureDesc.Desc_1_1);
 
 		auto GenerateMipShader = TLibrary<FComputeShader>::Fetch(GENERATE_MIP_SHADER);
-		auto* DX12ComputeShader = static_cast<FDX12ComputeShader*>(GenerateMipShader.get());
+		auto* DX12ComputeShader = static_cast<FDX12Shader*>(GenerateMipShader.get());
 		D3D12_COMPUTE_PIPELINE_STATE_DESC ComputePsoDesc
 		{
 			.pRootSignature = m_RootSignature->GetD3D12RootSignature().Get(),

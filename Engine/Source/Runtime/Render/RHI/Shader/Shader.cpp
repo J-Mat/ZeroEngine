@@ -48,10 +48,10 @@ namespace Zero
 		
 		for (auto Iter : m_SRVParams)
 		{
-			std::cout << std::format("Name : {0}\n", Iter.second.ResourceName);
+			std::cout << std::format("SRV Name : {0}\n", Iter.second.ResourceName);
 			std::cout << std::format("BindPoint : {0}\n", Iter.second.BindPoint);
 			std::cout << std::format("RegisterSpace : {0}\n", Iter.second.RegisterSpace);
-			FTextureTableElement TextureTableElement
+			FSRVElement SRVElement
 			{
 				.Type = Iter.second.ShaderResourceType,
 				.ResourceName = Iter.second.ResourceName,
@@ -59,7 +59,23 @@ namespace Zero
 				.BindPoint = Iter.second.BindPoint,
 				.RegisterSpace = Iter.second.RegisterSpace
 			};
-			m_ShaderBinderDesc.m_TextureBufferLayout.m_Elements.push_back(TextureTableElement);
+			m_ShaderBinderDesc.m_SRVResourceLayout.m_Elements.push_back(SRVElement);
+		}
+
+		for (auto Iter : m_UAVParams)
+		{
+			std::cout << std::format("UAV Name : {0}\n", Iter.second.ResourceName);
+			std::cout << std::format("BindPoint : {0}\n", Iter.second.BindPoint);
+			std::cout << std::format("RegisterSpace : {0}\n", Iter.second.RegisterSpace);
+			FUAVElement UAVElement
+			{
+				.Type = Iter.second.ShaderResourceType,
+				.ResourceName = Iter.second.ResourceName,
+				.TextureNum = Iter.second.BindCount,
+				.BindPoint = Iter.second.BindPoint,
+				.RegisterSpace = Iter.second.RegisterSpace
+			};
+			m_ShaderBinderDesc.m_UAVResourceLayout.m_Elements.push_back(UAVElement);
 		}
 		std::cout << "------------------------------------------\n";
 		
@@ -89,15 +105,5 @@ namespace Zero
 			}
 		}
 		return true;
-	}
-
-	FComputeShader::FComputeShader(const FShaderBinderDesc& BinderDesc, const FComputeShaderDesc& Desc)
-		:m_ShaderBinderDesc(BinderDesc)
-		, m_ComputeShaderDesc(Desc)
-	{
-	}
-	FComputeShader::FComputeShader(const FComputeShaderDesc& Desc)
-		: m_ComputeShaderDesc(Desc)
-	{
 	}
 }

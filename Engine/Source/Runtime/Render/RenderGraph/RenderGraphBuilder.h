@@ -47,6 +47,20 @@ namespace Zero
 			};
 			return Desc;
 		}
+
+		static FRGTextureDesc MakeColorCubeDesc(uint32_t Width, uint32_t Height)
+		{
+			FRGTextureDesc Desc = 
+			{
+				.Type = ETextureType::TextureType_2D,
+				.Width = Width,
+				.Height = Height,
+				.ArraySize = 6,
+				.ClearValue = FTextureClearValue(0.0f, 0.0f, 0.0f, 0.0f),
+				.Format = EResourceFormat::R8G8B8A8_UNORM,
+			};
+			return Desc;
+		}
 	};
 
 	struct FRGBufferDesc

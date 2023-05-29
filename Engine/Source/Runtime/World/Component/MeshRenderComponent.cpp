@@ -6,7 +6,7 @@
 #include "World/Object/PropertyObject.h"
 #include "World/Object/MapPropretyObject.h"
 #include "Data/Asset/AssetObject/MaterialAsset.h"
-#include "Render/RHI/PipelineStateObject.h"
+#include "Render/RHI/GraphicPipelineStateObject.h"
 #include "Render/Moudule/ConstantsBufferManager.h"
 #include "Render/Moudule/Texture/TextureManager.h"
 #include "Render/Moudule/PSOCache.h"
@@ -73,7 +73,7 @@ namespace Zero
 		Ref<FRenderLayerInfo> RenderLayerInfo = CreateRef<FRenderLayerInfo>();
 		RenderLayerInfo->PsoID = PsoID;
 		m_LayerInfo.insert({ RenderLayer, RenderLayerInfo });
-		FPSOCache::Get().GetPsoRecreateEvent().AddFunction<UMeshRenderComponent>(this, &UMeshRenderComponent::OnRecreatePso);
+		FPSOCache::Get().GetPsoRecreateEvent().AddFunction<UMeshRenderComponent>(this, &UMeshRenderComponent::OnReCreateGraphicPSO);
 	}
 
 	void UMeshRenderComponent::SetParameter(const std::string& ParameterName, EShaderDataType ShaderDataType, void* ValuePtr, ERenderLayer RenderLayer)
@@ -95,7 +95,7 @@ namespace Zero
 		return Iter->second->PsoID;
 	}
 
-	void UMeshRenderComponent::OnRecreatePso(uint32_t PsoID)
+	void UMeshRenderComponent::OnReCreateGraphicPSO(uint32_t PsoID)
 	{
 		for (auto& [_, RenderLayerInfo] : m_LayerInfo)
 		{
@@ -103,7 +103,7 @@ namespace Zero
 			{ 
 				for (auto Material : RenderLayerInfo->Materials)
 				{
-					auto Pso = FPSOCache::Get().Fetch(PsoID);
+					auto Pso = FPSOCache::Get().FetchGraphicPso(PsoID);
 					Material->SetShader(Pso->GetPSODescriptor().Shader);
 				}
 				UpdateSettings();
@@ -200,7 +200,7 @@ namespace Zero
 		}
 
 		uint32_t PsoID = GetPsoID(ERenderLayer::Opaque);
-		const FShaderBinderDesc& ShaderBinderDesc = FPSOCache::Get().Fetch(PsoID)->GetPSODescriptor().Shader->GetBinder()->GetBinderDesc();
+		const FShaderBinderDesc& ShaderBinderDesc = FPSOCache::Get().FetchGraphicPso(PsoID)->GetPSODescriptor().Shader->GetBinder()->GetBinderDesc();
 		{
 			UProperty* FloatProperty = GetClassCollection().FindProperty("m_Floats");
 			UMapProperty* MapFloatProperty = dynamic_cast<UMapProperty*>(FloatProperty);
@@ -232,8 +232,8 @@ namespace Zero
 			if (MapTextureProperty != nullptr)
 			{
 				MapTextureProperty->RemoveAllItem();
-				const FShaderResourceLayout& Layout = ShaderBinderDesc.GetTextureResourceLayout();
-				const std::vector<FTextureTableElement>& Elements = Layout.GetElements();
+				const FSRVResourceLayout& Layout = ShaderBinderDesc.GetTextureResourceLayout();
+				const std::vector<FSRVElement>& Elements = Layout.GetElements();
 				for (const auto& Element : Elements)
 				{
 					if (Element.Type == EShaderResourceType::Texture2D && !Element.ResourceName.starts_with("_"))

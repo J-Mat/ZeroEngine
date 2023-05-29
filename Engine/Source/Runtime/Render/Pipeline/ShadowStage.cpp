@@ -37,7 +37,7 @@ namespace Zero
 		);
 		m_ShadowMapDebugItem->m_SubMesh = *m_ShadowMapDebugItem->m_Mesh->begin();
 		m_ShadowMapDebugItem->m_Material = CreateRef<FMaterial>();
-		m_ShadowMapDebugItem->m_PsoID = EPsoID::ShadowDebug;
+		m_ShadowMapDebugItem->m_PsoID = EGraphicPsoID::ShadowDebug;
 		m_ShadowMapDebugItem->m_Material->SetShader(m_ShadowMapDebugItem->GetPsoObj()->GetPSODescriptor().Shader);
 	}
 

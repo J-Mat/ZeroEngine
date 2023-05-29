@@ -39,7 +39,7 @@ namespace Zero
 			m_ShadowMapDebugItems[LightIndex]->m_Mesh = Rect;
 			m_ShadowMapDebugItems[LightIndex]->m_SubMesh = *m_ShadowMapDebugItems[LightIndex]->m_Mesh->begin();
 			m_ShadowMapDebugItems[LightIndex]->m_Material = CreateRef<FMaterial>();
-			m_ShadowMapDebugItems[LightIndex]->m_PsoID = EPsoID::ShadowDebug;
+			m_ShadowMapDebugItems[LightIndex]->m_PsoID = EGraphicPsoID::ShadowDebug;
 			m_ShadowMapDebugItems[LightIndex]->m_Material->SetShader(m_ShadowMapDebugItems[LightIndex]->GetPsoObj()->GetPSODescriptor().Shader);
 		}
 	}
@@ -66,7 +66,7 @@ namespace Zero
 						{
 							.RenderLayer = ERenderLayer::Shadow,
 							.PiplineStateMode = EPiplineStateMode::AllSpecific,
-							.PsoID = EPsoID::DirectLightShadowMap,
+							.PsoID = EGraphicPsoID::DirectLightShadowMap,
 						};
 						FRenderUtils::RenderLayer(ShadowRenderSettings, CommandListHandle,
 							[=](Ref<FRenderItem> RenderItem)
@@ -101,7 +101,7 @@ namespace Zero
 						{
 							.RenderLayer = ERenderLayer::Unknown,
 							.PiplineStateMode = EPiplineStateMode::AllSpecific,
-							.PsoID = EPsoID::DirectLightShadowMap,
+							.PsoID = EGraphicPsoID::DirectLightShadowMap,
 						};
 						FRenderUtils::DrawRenderItem(m_ShadowMapDebugItems[LightIndex], ShadowDebugRenderParams, CommandListHandle,
 							[&](Ref<FRenderItem> RenderItem)
@@ -124,10 +124,6 @@ namespace Zero
 		{
 			for (uint32_t FaceIndex = 0; FaceIndex < 6; ++FaceIndex)
 			{
-				UPointLightActor* PointLight = FLightManager::Get().GetPointLights()[LightIndex];
-				const FSceneCaptureCube& SceneCaptureCube = PointLight->GetSceneCaptureCube();
-				const FSceneView& SceneView = SceneCaptureCube.GetSceneView(FaceIndex); 
-				const Ref<IShaderConstantsBuffer> Camera = SceneCaptureCube.GetCamera(FaceIndex);
 				std::string PassName = std::format("PointLightShadowMap Pass {0}", FaceIndex);
 				RenderGraph.AddPass<void>(
 					PassName.c_str(),
@@ -142,12 +138,16 @@ namespace Zero
 					},
 					[=](FRenderGraphContext& Context, FCommandListHandle CommandListHandle)
 					{
+						UPointLightActor* PointLight = FLightManager::Get().GetPointLights()[LightIndex];
+						const FSceneCaptureCube& SceneCaptureCube = PointLight->GetSceneCaptureCube();
+						const FSceneView& SceneView = SceneCaptureCube.GetSceneView(FaceIndex); 
+						const Ref<IShaderConstantsBuffer> Camera = SceneCaptureCube.GetCamera(FaceIndex);
 						{
 							FRenderParams ShadowRenderParams =
 							{
 								.RenderLayer = ERenderLayer::Shadow,
 								.PiplineStateMode = EPiplineStateMode::AllSpecific,
-								.PsoID = EPsoID::PointLight,
+								.PsoID = EGraphicPsoID::PointLightShadowMap,
 							};
 							FRenderUtils::RenderLayer(ShadowRenderParams, CommandListHandle,
 								[=](Ref<FRenderItem> RenderItem)

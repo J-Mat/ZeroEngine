@@ -253,7 +253,7 @@ namespace Zero
 				.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DARRAY,
 				.Texture2DArray =
 				{
-					.MipSlice = SubDesc.FirstMip,
+					.MipSlice = 0,
 					.FirstArraySlice = UINT(SubDesc.FirstSlice),
 					.ArraySize = 1,
 					.PlaneSlice = 0,

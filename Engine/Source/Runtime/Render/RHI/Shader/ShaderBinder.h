@@ -2,6 +2,7 @@
 
 #include "Core.h"
 #include "ShaderData.h"
+#include "Render/RenderConfig.h"
 
 namespace Zero
 {
@@ -12,22 +13,22 @@ namespace Zero
 		FShaderBinderDesc(
 			std::vector<EShaderSampler>& ShaderSamplers,
 			std::vector<FConstantBufferLayout>& ConstantBufferLayouts,
-			FShaderResourceLayout& ShaderResourceLayout = FShaderResourceLayout(),
-			FReadWriteResoureceLayout& ReadWriteResourceLayout = FReadWriteResoureceLayout())
+			FSRVResourceLayout& ShaderResourceLayout = FSRVResourceLayout(),
+			FUAVResoureceLayout& ReadWriteResourceLayout = FUAVResoureceLayout())
 			: m_ShaderSamplers(ShaderSamplers)
 			, m_ConstantBufferLayouts(ConstantBufferLayouts)
-			, m_TextureBufferLayout(ShaderResourceLayout)
-			, m_ReadWriteResourceLayout(ReadWriteResourceLayout)
+			, m_SRVResourceLayout(ShaderResourceLayout)
+			, m_UAVResourceLayout(ReadWriteResourceLayout)
 		{
 		}
 		~FShaderBinderDesc() {};
 		const FConstantBufferLayout& GetConstantBufferLayoutByName (const std::string& ResourceName) const;
-		const FShaderResourceLayout& GetTextureResourceLayout() const { return m_TextureBufferLayout; }
-		const FReadWriteResoureceLayout& GetReadWriteResourceLayout() const { return m_ReadWriteResourceLayout; }
+		const FSRVResourceLayout& GetTextureResourceLayout() const { return m_SRVResourceLayout; }
+		const FUAVResoureceLayout& GetReadWriteResourceLayout() const { return m_UAVResourceLayout; }
 		size_t GetConstantBufferCount() const { return m_ConstantBufferLayouts.size(); }
 		std::vector<FConstantBufferLayout> m_ConstantBufferLayouts;
-		FShaderResourceLayout m_TextureBufferLayout = FShaderResourceLayout();
-		FReadWriteResoureceLayout  m_ReadWriteResourceLayout;
+		FSRVResourceLayout m_SRVResourceLayout = FSRVResourceLayout();
+		FUAVResoureceLayout  m_UAVResourceLayout;
 		std::vector<EShaderSampler> m_ShaderSamplers;
 		void MapCBBufferIndex();
 	
@@ -36,6 +37,8 @@ namespace Zero
 		int32_t m_CameraIndex = Utils::InvalidIndex;
 		int32_t m_GloabalConstantIndex = Utils::InvalidIndex;
 		int32_t m_MaterialIndex = Utils::InvalidIndex;
+
+		ERenderPassType m_RenderPassType;
 	};
 
 

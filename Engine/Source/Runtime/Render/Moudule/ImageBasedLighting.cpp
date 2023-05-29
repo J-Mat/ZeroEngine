@@ -1,7 +1,7 @@
 #include "ImageBasedLighting.h"
 #include "Render/RHI/RenderItem.h"
 #include "Render/Moudule/Material.h"
-#include "Render/RHI/PipelineStateObject.h"
+#include "Render/RHI/GraphicPipelineStateObject.h"
 #include "Render/RendererAPI.h"
 #include "Render/Moudule/ConstantsBufferManager.h"
 #include "Render/Moudule/PSOCache.h"
@@ -28,7 +28,7 @@ namespace Zero
 		);
 		m_IrradianceMapRenderItem->m_SubMesh = *m_IrradianceMapRenderItem->m_Mesh->begin();
 		m_IrradianceMapRenderItem->m_Material = CreateRef<FMaterial>();
-		m_IrradianceMapRenderItem->m_PsoID = EPsoID::IBLIrradiance;
+		m_IrradianceMapRenderItem->m_PsoID = EGraphicPsoID::IBLIrradiance;
 		m_IrradianceMapRenderItem->m_Material->SetShader(m_IrradianceMapRenderItem->GetPsoObj()->GetPSODescriptor().Shader);
 		m_IrradianceMapRenderItem->m_PerObjectBuffer = FConstantsBufferManager::Get().GetPerObjectConstantsBuffer();
 		m_IrradianceMapRenderItem->m_PerObjectBuffer->PreDrawCall();
@@ -58,7 +58,7 @@ namespace Zero
 			m_PrefilterMapRenderItems[Mip]->m_Mesh = Mesh;
 			m_PrefilterMapRenderItems[Mip]->m_SubMesh = *m_PrefilterMapRenderItems[Mip]->m_Mesh->begin();
 			m_PrefilterMapRenderItems[Mip]->m_Material = CreateRef<FMaterial>();
-			m_PrefilterMapRenderItems[Mip]->m_PsoID = EPsoID::IBLPrefilter;
+			m_PrefilterMapRenderItems[Mip]->m_PsoID = EGraphicPsoID::IBLPrefilter;
 			m_PrefilterMapRenderItems[Mip]->m_Material->SetShader(m_PrefilterMapRenderItems[Mip]->GetPsoObj()->GetPSODescriptor().Shader);
 			m_PrefilterMapRenderItems[Mip]->m_PerObjectBuffer = FConstantsBufferManager::Get().GetPerObjectConstantsBuffer();
 			m_PrefilterMapRenderItems[Mip]->m_PerObjectBuffer->PreDrawCall();
@@ -101,7 +101,6 @@ namespace Zero
 		{ 
 			const FSceneView& SceneView = m_IBLIrradianceMapRTCube->GetSceneView(FaceIndex);
 			Ref<IShaderConstantsBuffer> Camera = m_IBLIrradianceMapRTCube->GetCamera(FaceIndex);
-			m_IrradianceMapRenderItem->m_Material->SetCamera(Camera);
 
 			m_IBLIrradianceMapRTCube->SetRenderTarget(m_CommandListHandle, FaceIndex);
 
@@ -111,11 +110,12 @@ namespace Zero
 				{
 					.RenderLayer = ERenderLayer::Unknown,
 					.PiplineStateMode = EPiplineStateMode::AllSpecific,
-					.PsoID = EPsoID::IBLIrradiance,
+					.PsoID = EGraphicPsoID::IBLIrradiance,
 				};
 				FRenderUtils::DrawRenderItem(m_IrradianceMapRenderItem, RenderSettings, m_CommandListHandle,
 					[&](Ref<FRenderItem> RenderItem)
 					{
+						m_IrradianceMapRenderItem->m_Material->SetCamera(Camera);
 						m_IrradianceMapRenderItem->m_Material->SetCameraViewMat("View", SceneView.View);
 						m_IrradianceMapRenderItem->m_Material->SetCameraViewPos("ViewPos", SceneView.ViewPos);
 						m_IrradianceMapRenderItem->m_Material->SetCameraProjectMat("Projection", SceneView.Proj);
@@ -139,17 +139,17 @@ namespace Zero
 				m_PrefilterEnvMapRTCube->SetRenderTarget(m_CommandListHandle, FaceIndex, Mip);
 				const FSceneView& SceneView = m_PrefilterEnvMapRTCube->GetSceneView(FaceIndex);
 				Ref<IShaderConstantsBuffer> Camera = m_PrefilterEnvMapRTCube->GetCamera(FaceIndex);
-				m_PrefilterMapRenderItems[Mip]->m_Material->SetCamera(Camera);
 
 				FRenderParams RenderSettings =
 				{
 					.RenderLayer = ERenderLayer::Unknown,
 					.PiplineStateMode = EPiplineStateMode::AllSpecific,
-					.PsoID = EPsoID::IBLPrefilter
+					.PsoID = EGraphicPsoID::IBLPrefilter
 				};
 				FRenderUtils::DrawRenderItem(m_PrefilterMapRenderItems[Mip], RenderSettings, m_CommandListHandle,
 					[&](Ref<FRenderItem> RenderItem)
 					{
+						m_PrefilterMapRenderItems[Mip]->m_Material->SetCamera(Camera);
 						m_PrefilterMapRenderItems[Mip]->m_Material->SetCameraViewMat("View", SceneView.View);
 						m_PrefilterMapRenderItems[Mip]->m_Material->SetFloat("Roughness", Roughness);
 						m_PrefilterMapRenderItems[Mip]->m_Material->SetCameraViewPos("ViewPos", SceneView.ViewPos);

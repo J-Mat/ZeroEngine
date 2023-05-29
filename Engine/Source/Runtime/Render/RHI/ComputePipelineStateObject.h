@@ -9,9 +9,15 @@ namespace Zero
 	{
 		bool operator==(const FComputePSODescriptor& Other) const
 		{
-			return Other.Shader == Shader;
+			return Other.Shader == Shader &&
+				Other.BlockSize_X == BlockSize_X &&
+				Other.BlockSize_Y == BlockSize_Y &&
+				Other.BlockSize_Z == BlockSize_Z;
 		}
-		Ref<FComputeShader> Shader = nullptr;
+		Ref<FShader> Shader = nullptr;
+		uint32_t BlockSize_X = 8;
+		uint32_t BlockSize_Y = 8;
+		uint32_t BlockSize_Z = 8;
 	};
 
 	class FComputePipelineStateObject
@@ -22,7 +28,7 @@ namespace Zero
 		virtual void Bind() = 0;
 		virtual void CreateComputePsoObj() = 0;
 		const FComputePSODescriptor& GetPSODescriptor() const {return m_ComputePSODescriptor;}
-		void SetShader(Ref<FComputeShader> Shader);
+		void SetShader(Ref<FShader> Shader);
 	protected:
 		FComputePSODescriptor m_ComputePSODescriptor;
 	};

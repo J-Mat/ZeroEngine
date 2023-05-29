@@ -8,7 +8,7 @@ namespace Zero
 	class FMaterial;
 	class IShaderConstantsBuffer;
 	class FRenderItem;
-	class FPipelineStateObject;
+	class FGraphicPipelineStateObject;
 	
 
 	class FRenderItemPool
@@ -49,9 +49,9 @@ namespace Zero
 		void Render(FCommandListHandle ComamndListHandle);
 		void Reset();
 		
-		Ref<FPipelineStateObject> GetPsoObj(const FRenderParams& RenderSettings);
-		Ref<FPipelineStateObject> GetPsoObj();
+		Ref<FGraphicPipelineStateObject> GetPsoObj(const FRenderParams& RenderSettings);
+		Ref<FGraphicPipelineStateObject> GetPsoObj();
 	private:
-		Ref<FPipelineStateObject> m_PipelineStateObject = nullptr;
+		Ref<FGraphicPipelineStateObject> m_PipelineStateObject = nullptr;
 	};
 }

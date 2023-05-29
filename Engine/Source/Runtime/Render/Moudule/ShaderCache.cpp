@@ -12,9 +12,9 @@ namespace Zero
         m_FileWatcher.GetFileModifiedEvent().AddFunction<FShaderCache>(this, &FShaderCache::OnShaderFileChanged);
 	}
 
-	Zero::Ref<Zero::FShader> FShaderCache::CreateShader(const FShaderDesc& ShaderDesc)
+	Ref<FShader> FShaderCache::CreateGraphicShader(const FShaderDesc& ShaderDesc)
     {
-        auto Shader =  FGraphic::GetDevice()->CreateShader(ShaderDesc);
+        auto Shader =  FGraphic::GetDevice()->CreateGraphicShader(ShaderDesc);
         m_AllShaders[ShaderDesc.ShaderID] = Shader;
         return Shader;
     }
@@ -31,8 +31,8 @@ namespace Zero
             if (Shader->GetAllIncludeFiles().contains(Filename))
             {
                 auto Desc = Shader->GetDesc();
-                auto Shader = CreateShader(Desc);
-                FPSOCache::Get().OnReCreatePso(Shader);
+                auto Shader = CreateGraphicShader(Desc);
+                FPSOCache::Get().OnReCreateGraphicPSO(Shader);
             }
         }
     }

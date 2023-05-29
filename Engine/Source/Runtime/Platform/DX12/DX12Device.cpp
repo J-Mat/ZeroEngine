@@ -7,7 +7,8 @@
 #include "DX12TextureCube.h"
 #include "DX12Mesh.h"
 #include "./Shader/DX12Shader.h"
-#include "./PSO/DX12PipelineStateObject.h"
+#include "./PSO/DX12GraphicPipelineStateObject.h"
+#include "./PSO/DX12ComputePipelineStateObject.h"
 #include "Core/Framework/Library.h"
 #include "Render/Moudule/MeshGenerator.h"
 #include "./Shader/DX12ShaderCompiler.h"
@@ -112,9 +113,14 @@ namespace Zero
 		return m_MemAllocator.get();
 	}
 
-	Ref<FPipelineStateObject> FDX12Device::CreatePSO(const FPSODescriptor& PSODescriptor)
+	Ref<FGraphicPipelineStateObject> FDX12Device::CreateGraphicPSO(const FGraphicPSODescriptor& PSODescriptor)
 	{
-		return CreateRef<FDX12PipelineStateObject>(PSODescriptor);
+		return CreateRef<FDX12GraphicPipelineStateObject>(PSODescriptor);
+	}
+
+	Ref<FComputePipelineStateObject> FDX12Device::CreateComputePSO(const FComputePSODescriptor& PSODescriptor)
+	{
+		return CreateRef<FDX12ComputePipelineStateObject>(PSODescriptor);
 	}
 
 	FTexture2D* FDX12Device::CreateTexture2D(const std::string& TextureName, const FTextureDesc& Desc, bool bCreateTextureView /*= true*/)
@@ -140,20 +146,15 @@ namespace Zero
 		return Texture;
 	
 	}	
-	Ref<FShader> FDX12Device::CreateShader(const FShaderBinderDesc& BinderDesc, const FShaderDesc& ShaderDesc)
+
+	Ref<FShader> FDX12Device::CreateGraphicShader(const FShaderDesc& ShaderDesc)
 	{
-		Ref<FShader> Shader = TLibrary<FShader>::Fetch(ShaderDesc.FileName);
-		if (Shader == nullptr)
-		{
-			Shader = CreateRef<FDX12Shader>(BinderDesc, ShaderDesc);
-			TLibrary<FShader>::Push(ShaderDesc.FileName, Shader);
-		}
-		return Shader;
+		return CreateRef<FDX12GraphicShader>(ShaderDesc);
 	}
 
-	Ref<FShader> FDX12Device::CreateShader(const FShaderDesc& ShaderDesc)
+	Ref<FShader> FDX12Device::CreateComputeShader(const FShaderDesc& ShaderDesc)
 	{
-		return CreateRef<FDX12Shader>(ShaderDesc);
+		return CreateRef<FDX12ComputeShader>(ShaderDesc);
 	}
 
 	Ref<FMesh> FDX12Device::CreateMesh(const std::vector<FMeshData>& MeshDatas, FVertexBufferLayout& Layout)

@@ -112,11 +112,12 @@ namespace Zero
 			ShadowDebug,
 			DirectLightShadowMap,
 			PointLightShadowMap,
+			PrefixSumTex,
 			ShaderCount,
 		};
 	}
 
-	namespace EPsoID
+	namespace EGraphicPsoID
 	{
 		enum
 		{
@@ -131,6 +132,14 @@ namespace Zero
 			GenerateMips,
 			IBLIrradiance,
 			IBLPrefilter,
+			PSOCount,
+		};
+	}
+	namespace EComputePsoID
+	{
+		enum
+		{
+			PrefixSumTex,
 			PSOCount,
 		};
 	}

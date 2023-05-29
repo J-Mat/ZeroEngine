@@ -60,7 +60,7 @@ namespace Zero
 
 	void FSceneCaptureCube::UpdateParams()
 	{
-		static ZMath::vec3 Targets[6] =
+		ZMath::vec3 Targets[6] =
 		{
 			m_ViewPos + ZMath::vec3(1.0f,  0.0f,  0.0f), // +X 
 			m_ViewPos + ZMath::vec3(-1.0f, 0.0f,  0.0f), // -X 
@@ -70,7 +70,7 @@ namespace Zero
 			m_ViewPos + ZMath::vec3(0.0f,  0.0f, -1.0f)  // -Z 
 		};
 
-		static ZMath::vec3 Ups[6] =
+		ZMath::vec3 Ups[6] =
 		{
 			{0.0f, 1.0f, 0.0f},  // +X 
 			{0.0f, 1.0f, 0.0f},  // -X 

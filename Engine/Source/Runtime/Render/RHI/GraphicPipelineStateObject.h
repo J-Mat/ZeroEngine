@@ -10,9 +10,9 @@ namespace Zero
 		PT_Normal,	
 		PT_Depth,
 	};
-	struct FPSODescriptor
+	struct FGraphicPSODescriptor
 	{
-		bool operator==(const FPSODescriptor& Other) const 
+		bool operator==(const FGraphicPSODescriptor& Other) const 
 		{
 			return Other.PSOType == PSOType
 				&& Other.Shader == Shader
@@ -31,20 +31,20 @@ namespace Zero
 		ECullMode CullMode = ECullMode::CULL_MODE_BACK;
 	};
 
-	class FPipelineStateObject
+	class FGraphicPipelineStateObject
 	{
 	public:
-		FPipelineStateObject();
-		FPipelineStateObject(const FPSODescriptor& PSODescriptor);
-		virtual ~FPipelineStateObject() = default;
+		FGraphicPipelineStateObject();
+		FGraphicPipelineStateObject(const FGraphicPSODescriptor& PSODescriptor);
+		virtual ~FGraphicPipelineStateObject() = default;
 		virtual void Bind(FCommandListHandle CommandListHandle) = 0;
-		virtual void CreatePsoObj() = 0;
-		const FPSODescriptor& GetPSODescriptor() const {return m_PSODescriptor;}
+		virtual void CreateGraphicPSOObj() = 0;
+		const FGraphicPSODescriptor& GetPSODescriptor() const {return m_PSODescriptor;}
 		void SetShader(Ref<FShader> Shader);
 		void OnShaderRecompiled(Ref<FShader> Shader);
 		bool IsValid() { return m_bValid; }
 	protected:
 		bool m_bValid;
-		FPSODescriptor m_PSODescriptor;
+		FGraphicPSODescriptor m_PSODescriptor;
 	};
 }

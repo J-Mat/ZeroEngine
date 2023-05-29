@@ -166,7 +166,7 @@ namespace Zero
 
 	void FDX12ShaderBinder::BuildRootSignature()
 	{
-		size_t ParamterCount = m_Desc.m_ConstantBufferLayouts.size() + m_Desc.m_TextureBufferLayout.GetSrvCount();
+		size_t ParamterCount = m_Desc.m_ConstantBufferLayouts.size() + m_Desc.m_SRVResourceLayout.GetSrvCount() + m_Desc.m_UAVResourceLayout.GetUavCount();
 		std::vector<CD3DX12_ROOT_PARAMETER1> SlotRootParameter;
 		SlotRootParameter.resize(ParamterCount);
 		
@@ -177,15 +177,28 @@ namespace Zero
 			++ParameterIndex;
 		}
 		
-		UINT SrvIndex = 0;
-		std::vector<CD3DX12_DESCRIPTOR_RANGE1> SrvTable(m_Desc.m_TextureBufferLayout.GetSrvCount());
-		for (FTextureTableElement& Element : m_Desc.m_TextureBufferLayout)
-		{
-			SrvTable[SrvIndex].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (UINT)Element.TextureNum, Element.BindPoint, Element.RegisterSpace, D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE);
-			SlotRootParameter[ParameterIndex].InitAsDescriptorTable(1, &SrvTable[SrvIndex], D3D12_SHADER_VISIBILITY_PIXEL);
-			++ParameterIndex;
-			++SrvIndex;
-		}
+			UINT SrvIndex = 0;
+			std::vector<CD3DX12_DESCRIPTOR_RANGE1> SrvTable(m_Desc.m_SRVResourceLayout.GetSrvCount());
+			for (FSRVElement& Element : m_Desc.m_SRVResourceLayout)
+			{
+				
+				SrvTable[SrvIndex].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (UINT)Element.TextureNum, Element.BindPoint, Element.RegisterSpace,
+					m_Desc.m_RenderPassType == ERenderPassType::Graphics ? D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE : D3D12_DESCRIPTOR_RANGE_FLAG_NONE);
+				SlotRootParameter[ParameterIndex].InitAsDescriptorTable(1, &SrvTable[SrvIndex], 
+					m_Desc.m_RenderPassType == ERenderPassType::Graphics ? D3D12_SHADER_VISIBILITY_PIXEL : D3D12_SHADER_VISIBILITY_ALL);
+				++ParameterIndex;
+				++SrvIndex;
+			}
+
+			UINT UavIndex = 0;
+			std::vector<CD3DX12_DESCRIPTOR_RANGE1> UavTable(m_Desc.m_UAVResourceLayout.GetUavCount());
+			for (FUAVElement& Element : m_Desc.m_UAVResourceLayout)
+			{
+				UavTable[UavIndex].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, (UINT)Element.TextureNum, Element.BindPoint, Element.RegisterSpace, D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE);
+				SlotRootParameter[ParameterIndex].InitAsDescriptorTable(1, &UavTable[UavIndex], D3D12_SHADER_VISIBILITY_ALL);
+				++ParameterIndex;
+				++UavIndex;
+			}
 
 		D3D12_ROOT_SIGNATURE_FLAGS RootSignatureFlags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
 			D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |

@@ -3,7 +3,7 @@
 #include "./Shader/ShaderBinder.h"
 #include "Render/Moudule/Material.h"
 #include "Render/Moudule/PSOCache.h"
-#include "Render/RHI/PipelineStateObject.h"
+#include "Render/RHI/GraphicPipelineStateObject.h"
 
 namespace Zero
 {
@@ -68,22 +68,22 @@ namespace Zero
 		m_PerObjectBuffer->SetMatrix4x4("Model", Transform);
 	}
 	
-	Zero::Ref<Zero::FPipelineStateObject> FRenderItem::GetPsoObj(const FRenderParams& RenderSettings)
+	Zero::Ref<Zero::FGraphicPipelineStateObject> FRenderItem::GetPsoObj(const FRenderParams& RenderSettings)
 {
 		switch (RenderSettings.PiplineStateMode)
 		{
 		case EPiplineStateMode::Dependent:
-			m_PipelineStateObject = FPSOCache::Get().Fetch(m_PsoID);
+			m_PipelineStateObject = FPSOCache::Get().FetchGraphicPso(m_PsoID);
 			break;
 		case EPiplineStateMode::AllSpecific:
-			m_PipelineStateObject = FPSOCache::Get().Fetch(RenderSettings.PsoID);
+			m_PipelineStateObject = FPSOCache::Get().FetchGraphicPso(RenderSettings.PsoID);
 			break;
 		case EPiplineStateMode::Only:
 			if (m_PsoID == RenderSettings.PsoID)
 			{
 				return nullptr;
 			}
-			m_PipelineStateObject = FPSOCache::Get().Fetch(m_PsoID);
+			m_PipelineStateObject = FPSOCache::Get().FetchGraphicPso(m_PsoID);
 			break;
 		default:
 			break;
@@ -91,9 +91,9 @@ namespace Zero
 		return m_PipelineStateObject;
 	}
 
-	Ref<Zero::FPipelineStateObject> FRenderItem::GetPsoObj()
+	Ref<Zero::FGraphicPipelineStateObject> FRenderItem::GetPsoObj()
 	{
-		m_PipelineStateObject = FPSOCache::Get().Fetch(m_PsoID);
+		m_PipelineStateObject = FPSOCache::Get().FetchGraphicPso(m_PsoID);
 		return m_PipelineStateObject;
 	}
 

@@ -14,7 +14,7 @@ namespace Zero
 		virtual void Tick() override;
 
 		UPROPERTY()
-		float m_Far = 10.0f;	
+		float m_Far = 100.0f;	
 			
 
 		float GetRange() { return m_Far; }

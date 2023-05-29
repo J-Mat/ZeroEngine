@@ -45,8 +45,8 @@ namespace Zero
 				if (MapTextureProperty != nullptr)
 				{
 					MapTextureProperty->RemoveAllItem();
-					const FShaderResourceLayout&  Layout = ShaderBinderDesc.GetTextureResourceLayout();
-					const std::vector<FTextureTableElement>& Elements = Layout.GetElements();
+					const FSRVResourceLayout&  Layout = ShaderBinderDesc.GetTextureResourceLayout();
+					const std::vector<FSRVElement>& Elements = Layout.GetElements();
 					for (const auto& Element : Elements)
 					{
 						if (Element.Type == EShaderResourceType::Texture2D)

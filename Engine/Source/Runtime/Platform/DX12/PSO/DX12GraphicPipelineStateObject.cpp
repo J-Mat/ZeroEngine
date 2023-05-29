@@ -1,4 +1,4 @@
-#include "DX12PipelineStateObject.h"
+#include "DX12GraphicPipelineStateObject.h"
 #include "../DX12Device.h"
 #include "../Shader/DX12Shader.h"
 #include "../Shader/DX12ShaderBinder.h"
@@ -6,19 +6,19 @@
 
 namespace Zero
 {
-	FDX12PipelineStateObject::FDX12PipelineStateObject(const FPSODescriptor& PSODescriptor)
-		:FPipelineStateObject(PSODescriptor)
+	FDX12GraphicPipelineStateObject::FDX12GraphicPipelineStateObject(const FGraphicPSODescriptor& PSODescriptor)
+		:FGraphicPipelineStateObject(PSODescriptor)
 	{
-		CreatePsoObj();
+		CreateGraphicPSOObj();
 	}
 
-	void FDX12PipelineStateObject::Bind(FCommandListHandle CommandListHandle)
+	void FDX12GraphicPipelineStateObject::Bind(FCommandListHandle CommandListHandle)
 	{
 		Ref<FDX12CommandList> CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
 		CommandList->GetD3D12CommandList()->SetPipelineState(m_D3DPipelineState.Get());
 	}
 
-	void FDX12PipelineStateObject::CreatePsoObj()
+	void FDX12GraphicPipelineStateObject::CreateGraphicPSOObj()
 	{
 		auto* D3DShader = static_cast<FDX12Shader*>(m_PSODescriptor.Shader.get());
 		FDX12ShaderBinder* DX12ShaderBinder = static_cast<FDX12ShaderBinder*>(D3DShader->m_ShaderBinder.get());
