@@ -10,10 +10,10 @@ Actors:
         Properties:
           m_Position:UTransformComponent:
             Type: ZMath::vec3
-            Value: [-0.860366821, -2.36552739, 3.80164027]
+            Value: [-4.44194126, -2.99729919, 2.9646275]
           m_Rotation:UTransformComponent:
             Type: ZMath::FRotation
-            Value: [-0.12915428, 2.66860867, 0]
+            Value: [-0.347320437, 2.20260572, 0]
           m_Scale:UTransformComponent:
             Type: ZMath::vec3
             Value: [1, 1, 1]
@@ -111,15 +111,12 @@ Actors:
       m_Tag:UActor:
         Type: std::string
         Value: UPointLightActor
-      m_Tag:UActor:
-        Type: std::string
-        Value: UPointLightActor
     Component:
       - ComopnentName: UTransformComponent
         Properties:
           m_Position:UTransformComponent:
             Type: ZMath::vec3
-            Value: [-0.244539455, -0.242855132, 2.55493784]
+            Value: [-0.244539455, -0.242855132, 4.58137226]
           m_Rotation:UTransformComponent:
             Type: ZMath::FRotation
             Value: [0, -0, 0]
@@ -174,9 +171,6 @@ Actors:
             Value: 300
   - ActorName: UGridMeshActor
     Properties:
-      m_Tag:UActor:
-        Type: std::string
-        Value: UGridMeshActor
       m_Tag:UActor:
         Type: std::string
         Value: UGridMeshActor

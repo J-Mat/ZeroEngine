@@ -99,7 +99,7 @@ PixelOutput PS(VertexOut Pin)
 		if (PointLightNum > 0)
 		{
 			float3 LightToPoint = Pin.WorldPos - PointLights[0].LightPos;
-			float ShadowFactor = CalcVisibilityOmni(LightToPoint, 0, 10.0f);
+			float ShadowFactor = CalcVisibilityOmni(LightToPoint, 0, PointLights[0].Range);
 				
 			float3 LightDir = normalize(PointLights[0].LightPos - Pin.WorldPos);
 			float Attenuation = CalcDistanceAttenuation(Pin.WorldPos, PointLights[0].LightPos, PointLights[0].Range);
@@ -115,6 +115,7 @@ PixelOutput PS(VertexOut Pin)
 			float3 ReflectDir = reflect(-V, Normal);
 			Spec = pow(max(dot(V, ReflectDir), 0.0f), 35.0f) * Radiance * Attenuation;
 			FinalColor +=  (Diffuse + Spec) * ShadowFactor * BaseColor;
+			//FinalColor =  _gShadowMapCube.SampleLevel(gSamPointClamp, normalize(Normal), 0).rgb;
 		}
 
 			//float ShadowFactor = CalcShadowFactor(0, Pin.ShadowPosH, MipLevel);

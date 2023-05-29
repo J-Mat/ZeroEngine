@@ -105,7 +105,8 @@ float CalcVisibilityOmni(float3 LightToPoint, uint ShadowMapIndex, float FarZ)
 	
 	float CurrentDepth = length(LightToPoint);
 
-	return CurrentDepth > ClosestDepth? 1.0f : 0.0f;
+	float Bias = 0.05f;
+	return CurrentDepth - Bias> ClosestDepth? 0.0f : 1.0f;
 }
 
 #endif

@@ -6,7 +6,6 @@ VertexOut VS(VertexIn vin)
 	
 	Vout.PosH = mul(Model, float4(vin.PosL, 1.0f));
 
-	Vout.PosH = mul(Model, float4(vin.PosL, 1.0f));
 	Vout.WorldPos = Vout.PosH.xyz;
 
 	Vout.PosH = mul(View, Vout.PosH);
@@ -25,7 +24,7 @@ float PS(VertexOut pin) : SV_Depth
 	float LightDistance = length(pin.WorldPos - LightPos);
 	
 	// Map to [0,1] range by dividing by far plane
-	LightDistance /= 10.0f;
+	LightDistance /= FarZ;
 		
 	// Write this as modified depth
 	return LightDistance;
