@@ -50,9 +50,13 @@ namespace Zero
 		FDX12ShaderResourcesBuffer(FShaderResourcesDesc& Desc, FDX12RootSignature* RootSignature);
 		virtual FShaderResourcesDesc* GetShaderResourceDesc();
 		virtual void SetTexture2D(const std::string& Name, FTexture2D* Texture) override;
+		virtual void SetBuffer(const std::string& Name, FBuffer* Buffer) override;
 		virtual void SetTexture2DArray(const std::string& Name, std::vector<FTexture2D*> Textures) override;
 		virtual void SetTextureCube(const std::string& Name, FTextureCube* Texture) override;
 		virtual void SetTextureCubemapArray(const std::string& Name, const std::vector<Ref<FTextureCube>>& TextureCubes) override;
+
+		virtual void SetTexture2D_UAV(const std::string& Name, FTexture2D* Texture) override;
+		virtual void SetBuffer_UAV(const std::string& Name, FTexture2D* Texture) override;
 
 		virtual void UploadDataIfDirty(FCommandListHandle CommandListHandle) override;
 	private:

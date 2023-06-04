@@ -23,6 +23,7 @@ namespace Zero
 				.Size = VertexCount * Stride,
 				.ResourceUsage = EResourceUsage::Default,
 				.ResourceBindFlag = EResourceBindFlag::None,
+				.BufferMiscFlag = EBufferMiscFlag::VertexBuffer,
 				.Stride = Stride,
 				.Count = VertexCount
 			};
@@ -36,6 +37,7 @@ namespace Zero
 				.Size = IndexCount * (bSmallIndex ? 2 : 4),
 				.ResourceUsage = EResourceUsage::Default,
 				.ResourceBindFlag = EResourceBindFlag::None,
+				.BufferMiscFlag = EBufferMiscFlag::IndexBuffer,
 				.Stride = bSmallIndex ? uint32_t(2) : uint32_t(4),
 				.Count = IndexCount,	
 				.Format = bSmallIndex ? EResourceFormat::R16_UINT : EResourceFormat::R32_UINT
@@ -122,10 +124,16 @@ namespace Zero
 		const FBufferDesc& GetDesc() const { return m_Desc; }
 		FBufferDesc& GetDesc() { return m_Desc; }
 		uint32_t GetCount() const { return static_cast<UINT>(m_Desc.Size / m_Desc.Stride);}
-		virtual void* Map() { return nullptr; }
+		virtual void* Map()  { return nullptr; }
 		virtual void Unmap() {}
-		virtual void Update(void const* SrcData, size_t DataSize, size_t Offset = 0) {};
+		virtual void Update(Ref<FCommandList> CommandList, void const* SrcData, size_t DataSize, size_t Offset = 0) {};
 		virtual void* GetNative() { return nullptr; }
+
+		virtual void MakeSRVs(const std::vector<FBufferSubresourceDesc>& Descs) = 0;
+        virtual void MakeUAVs(const std::vector<FBufferSubresourceDesc>& Descs) = 0;
+
+        virtual void ReleaseSRVs() = 0;
+		virtual void ReleaseUAVs() = 0;
 	protected:
 		FBufferDesc m_Desc;
 		std::string m_BufferName;

@@ -65,8 +65,8 @@ namespace Zero
 
 	struct FRGBufferDesc
 	{
-		uint32_t Size = 0;
 		uint32_t Stride = 0;
+		uint32_t Size = 0;
 		EResourceUsage ResourceUsage = EResourceUsage::Default;
 		EBufferMiscFlag MiscFlags = EBufferMiscFlag::None;
 		EResourceFormat Format = EResourceFormat::UNKNOWN;

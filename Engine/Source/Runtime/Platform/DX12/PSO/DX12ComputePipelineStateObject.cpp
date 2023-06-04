@@ -11,10 +11,15 @@ namespace Zero
 		: FComputePipelineStateObject(PSODescriptor)
 	{
 		CreateComputePsoObj();
+		m_ShaderParamsBinder = CreateScope<FShaderParamsBinder>();
+		m_ShaderParamsBinder->SetShader(m_ComputePSODescriptor.Shader);
 	}
 
-	void FDX12ComputePipelineStateObject::Bind()
+
+	void FDX12ComputePipelineStateObject::Bind(FCommandListHandle CommandListHandle)
 	{
+		Ref<FDX12CommandList> CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
+		CommandList->GetD3D12CommandList()->SetPipelineState(m_D3DPipelineState.Get()); 
 	}
 
 	void FDX12ComputePipelineStateObject::CreateComputePsoObj()

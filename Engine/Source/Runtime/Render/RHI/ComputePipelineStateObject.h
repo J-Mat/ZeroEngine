@@ -2,6 +2,7 @@
 #include "Core.h"
 #include "Shader/Shader.h"
 #include "Render/RenderConfig.h"
+#include "Render/RHI/GraphicDevice.h"
 
 namespace Zero
 {
@@ -25,7 +26,7 @@ namespace Zero
 	public:
 		FComputePipelineStateObject(const FComputePSODescriptor& ComputePSODescriptor);
 		virtual ~FComputePipelineStateObject() = default;
-		virtual void Bind() = 0;
+		virtual void Bind(FCommandListHandle CommandListHandle) = 0;
 		virtual void CreateComputePsoObj() = 0;
 		const FComputePSODescriptor& GetPSODescriptor() const {return m_ComputePSODescriptor;}
 		void SetShader(Ref<FShader> Shader);

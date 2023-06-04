@@ -90,6 +90,7 @@ namespace Zero
 	private:
 		FOnSetParameter m_OnSetFloat;
 		FOnSetParameter m_OnSetInt;
-		FCommandListHandle m_CommandListHandle = ZERO_INVALID_ID;
+		FCommandListHandle m_CommandListHandle{};
 	};
+	using FShaderParamsBinder = FMaterial;
 }

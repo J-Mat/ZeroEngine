@@ -76,7 +76,7 @@ namespace Zero
         * Get the UAV for the texture at a specific mip level.
         * Note: Only only supported for 1D and 2D textures.
         */
-        FResourceView* GetUAV(uint32_t mip) const;
+        FResourceView* GetUAV(uint32_t mip = 0) const;
         
         Ref<FDX12Resource> GetResource() { return m_ResourceLocation.GetResource(); }
 		virtual void* GetNative() override { return m_ResourceLocation.GetResource()->GetD3DResource().Get(); };

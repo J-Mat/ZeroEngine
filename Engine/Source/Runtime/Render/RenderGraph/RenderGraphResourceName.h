@@ -53,6 +53,9 @@ namespace Zero
 		constexpr FRGResourceName ShadowMap_Debug_0 =  RG_RES_NAME(ShadowMap_Debug_0);
 		constexpr FRGResourceName ShadowMap_Debug_1 =  RG_RES_NAME(ShadowMap_Debug_1);
 		constexpr FRGResourceName ShadowMaps_Debug[2] = {ShadowMap_Debug_0 , ShadowMap_Debug_1};
+
+		constexpr FRGResourceName BufferArray = RG_RES_NAME(BufferArray);
+		constexpr FRGResourceName ResultBuffer = RG_RES_NAME(ResultBuffer);
 	}
 }
 

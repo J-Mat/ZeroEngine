@@ -121,21 +121,37 @@ namespace Zero
         }
 
         m_ShaderResourceDesc = CreateRef<FShaderResourcesDesc>();
-        uint32_t ResIndex = 0;
-        for (FSRVElement& Element : m_Desc.m_SRVResourceLayout)
         {
-            FShaderResourceItem ShaderResourceItem{
-                .Name = Element.ResourceName,
-                .Type = Element.Type,
-                .SRTIndex = ParaIndex,
-                .Offset = 0,
-                .ResNum  = Element.TextureNum
-            }; 
-            m_ResourcesMapper.InsertResource(ShaderResourceItem);
-            m_ShaderResourceDesc->Mapper.InsertResource(ShaderResourceItem);
-            ResIndex++;
-            ParaIndex++;
+            for (FSRVElement& Element : m_Desc.m_SRVResourceLayout)
+            {
+                FShaderResourceItem ShaderResourceItem{
+                    .Name = Element.ResourceName,
+                    .Type = Element.Type,
+                    .SRTIndex = ParaIndex,
+                    .Offset = 0,
+                    .ResNum = Element.TextureNum
+                };
+                m_ResourcesMapper.InsertResource(ShaderResourceItem);
+                m_ShaderResourceDesc->Mapper.InsertResource(ShaderResourceItem);
+                ParaIndex++;
+            }
         }
-        m_ShaderResourceDesc->Size = (uint32_t)m_Desc.m_SRVResourceLayout.GetSrvCount();
+
+        {
+            for (FUAVElement& Element : m_Desc.m_UAVResourceLayout)
+            {
+                FShaderResourceItem ShaderResourceItem{
+                    .Name = Element.ResourceName,
+                    .Type = Element.Type,
+                    .SRTIndex = ParaIndex,
+                    .Offset = 0,
+                    .ResNum = Element.TextureNum
+                };
+                m_ResourcesMapper.InsertResource(ShaderResourceItem);
+                m_ShaderResourceDesc->Mapper.InsertResource(ShaderResourceItem);
+                ParaIndex++;
+            }
+        }
+        m_ShaderResourceDesc->Size = (uint32_t)m_Desc.m_SRVResourceLayout.GetSrvCount() + (uint32_t)m_Desc.m_UAVResourceLayout.GetUavCount();
     }
 }

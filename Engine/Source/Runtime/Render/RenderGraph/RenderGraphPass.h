@@ -3,6 +3,7 @@
 #include "Utils/EnumUtil.h"
 #include "RenderGraphContext.h"
 #include "Render/RenderConfig.h"
+#include "Render/RHI/GraphicDevice.h"
 
 namespace Zero
 {	

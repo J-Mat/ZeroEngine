@@ -77,7 +77,7 @@ namespace Zero
 
 	void FMaterial::PostDrawCall()
 	{
-		m_CommandListHandle = ZERO_INVALID_ID;
+		m_CommandListHandle = {};
 	}
 
 	void FMaterial::SetShader(Ref<FShader> Shader)

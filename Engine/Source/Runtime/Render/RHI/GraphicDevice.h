@@ -27,6 +27,14 @@ namespace Zero
 	class FRenderTargetCube;
 	class FResourceBarrierBatch;
 	class FShader;
+
+	struct FCommandListHandle
+	{
+		uint32_t CommandListIndex = -1;
+		ERenderPassType RenderPassType = ERenderPassType::Graphics;
+	};
+	
+
 	class IDevice 
 	{
 	public:
@@ -42,7 +50,7 @@ namespace Zero
 		virtual void Flush() = 0;
 		virtual Ref<FSwapChain>  GetSwapChain() { return nullptr; }
 		virtual void CreateSwapChain(HWND hWnd) = 0;
-		virtual Ref<FCommandList> GetRHICommandList(FCommandListHandle Handle, ERenderPassType RenderPassType = ERenderPassType::Graphics) = 0;
+		virtual Ref<FCommandList> GetRHICommandList(FCommandListHandle Handle) = 0;
 		virtual Ref<FGraphicPipelineStateObject> CreateGraphicPSO(const FGraphicPSODescriptor& PSODescriptor) = 0;
 		virtual Ref<FComputePipelineStateObject> CreateComputePSO(const FComputePSODescriptor& PSODescriptor) = 0;
 		virtual Ref<FTexture2D> GetOrCreateTexture2D(const std::string& Filename, bool bNeedMipMap = false) = 0;

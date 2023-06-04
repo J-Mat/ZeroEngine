@@ -259,6 +259,20 @@ namespace Zero
 		}
 	}
 
+	void FDX12ShaderResourcesBuffer::SetBuffer(const std::string& Name, FBuffer* Buffer)
+	{
+		FShaderResourceItem Item;
+		if (m_Desc.Mapper.FetchResource(Name, Item))
+		{
+			FDX12Buffer* D3DTexture = static_cast<FDX12Buffer*>(Buffer);
+			FDX12ShaderResourceView* Srv = static_cast<FDX12ShaderResourceView*>(D3DTexture->GetSRV());
+			m_SrvDynamicDescriptorHeap->StageDescriptors(Item.SRTIndex, Item.Offset, 1, Srv->GetDescriptorHandle());
+			m_Desc.Mapper.SetTextureID(Name); 
+			m_bIsDirty = true;
+		}
+
+	}
+
 	void FDX12ShaderResourcesBuffer::SetTexture2DArray(const std::string& Name, std::vector<FTexture2D*> Textures)
 	{
 		FShaderResourceItem Item;
@@ -304,6 +318,24 @@ namespace Zero
 			m_Desc.Mapper.SetTextureID(Name); 
 			m_bIsDirty = true;
 		}
+
+	}
+
+	void FDX12ShaderResourcesBuffer::SetTexture2D_UAV(const std::string& Name, FTexture2D* Texture)
+	{
+		FShaderResourceItem Item;
+		if (m_Desc.Mapper.FetchResource(Name, Item))
+		{
+			FDX12Texture2D* D3DTexture = static_cast<FDX12Texture2D*>(Texture);
+			FDX12UnorderedAccessResourceView* Srv = static_cast<FDX12UnorderedAccessResourceView*>(D3DTexture->GetUAV());
+			m_SrvDynamicDescriptorHeap->StageDescriptors(Item.SRTIndex, Item.Offset, 1, Srv->GetDescriptorHandle());
+			m_Desc.Mapper.SetTextureID(Name); 
+			m_bIsDirty = true;
+		}
+	}
+
+	void FDX12ShaderResourcesBuffer::SetBuffer_UAV(const std::string& Name, FTexture2D* Texture)
+	{
 
 	}
 

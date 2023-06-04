@@ -4,6 +4,7 @@
 #include "../Common/DX12Header.h"
 #include "Render/RHI/ComputePipelineStateObject.h"
 #include "Render/RenderConfig.h"
+#include "Render/Moudule/Material.h"
 
 namespace Zero
 {
@@ -17,10 +18,12 @@ namespace Zero
         {
             return m_D3DPipelineState;
         }
-        virtual void Bind() override;
+        virtual void Bind(FCommandListHandle CommandListHandle) override;
         virtual void CreateComputePsoObj() override;
+        FShaderParamsBinder* GetShaderParamsBinder() { return m_ShaderParamsBinder.get(); }
 
     private:
         ComPtr<ID3D12PipelineState> m_D3DPipelineState;
+        Scope<FShaderParamsBinder> m_ShaderParamsBinder;
     };
 } 

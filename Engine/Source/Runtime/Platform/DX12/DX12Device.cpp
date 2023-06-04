@@ -433,19 +433,19 @@ namespace Zero
 	{
 		auto CommanList = m_CommandQueue[uint32_t(RenderPassType)]->GetCommandList();
 		m_CommandLists[RenderPassType].push_back(CommanList);
-		auto Handle = FCommandListHandle(m_CommandLists[RenderPassType].size() - 1);
+		auto Handle = FCommandListHandle(m_CommandLists[RenderPassType].size() - 1, RenderPassType);
 		CommanList->SetComandListHandle(Handle);
 		return Handle;
 	}
 
 	Ref<FDX12CommandList> FDX12Device::GetCommandList(FCommandListHandle Handle, ERenderPassType RenderPassType)
 	{
-		return m_CommandLists[uint32_t(RenderPassType)][Handle];
+		return m_CommandLists[uint32_t(Handle.RenderPassType)][Handle.CommandListIndex];
 	}
 
-	Ref<FCommandList> FDX12Device::GetRHICommandList(FCommandListHandle Handle, ERenderPassType RenderPassType /*= ERenderPassType::Graphics*/)
+	Ref<FCommandList> FDX12Device::GetRHICommandList(FCommandListHandle Handle)
 	{
-		return m_CommandLists[uint32_t(RenderPassType)][Handle];
+		return m_CommandLists[uint32_t(Handle.RenderPassType)][Handle.CommandListIndex];
 	}
 
 	void FDX12Device::PreInitWorld()

@@ -109,9 +109,7 @@ namespace Zero
 	using FJsonObj = nlohmann::json;
 	using FMaterialHandle = std::string;
 	using FAssetHandle = Utils::Guid;
-	using FShaderFileHandle = std::string;
-	using FCommandListHandle = uint32_t;
-	
+	using FShaderFileHandle = std::string;	
 	struct FFloatSlider
 	{
 		float Value = 0.0f;
