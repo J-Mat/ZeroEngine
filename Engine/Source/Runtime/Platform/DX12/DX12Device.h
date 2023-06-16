@@ -79,15 +79,15 @@ namespace Zero
 
 
 		virtual FCommandListHandle GenerateCommanList(ERenderPassType RenderPassType = ERenderPassType::Graphics) override;
-		Ref<FDX12CommandList> GetCommandList(FCommandListHandle Handle, ERenderPassType RenderPassType = ERenderPassType::Graphics);
-		virtual Ref<FCommandList> GetRHICommandList(FCommandListHandle Handle, ERenderPassType RenderPassType = ERenderPassType::Graphics) override;
+		Ref<FDX12CommandList> GetCommandList(FCommandListHandle Handle);
+		virtual Ref<FCommandList> GetRHICommandList(FCommandListHandle Handle) override;
 		virtual FCommandListHandle GetSingleThreadCommadList(ERenderPassType RenderPassType = ERenderPassType::Graphics) override { return m_SingleThreadCommandListHandles[RenderPassType]; }
 
 		void SetInitWorldCommandList(FCommandListHandle Handle) {  m_InitWorldCommandListHandle = Handle; }
 		void SetMipCommandList(FCommandListHandle Handle) {  m_MipCommandListHandle = Handle; }
 		FCommandListHandle GetInitWorldCommadListHandle() { return m_InitWorldCommandListHandle; };
-		Ref<FDX12CommandList> GetInitWorldCommandList() { return GetCommandList(m_InitWorldCommandListHandle, ERenderPassType::Graphics); }
-		Ref<FDX12CommandList> GetMipCommandList() { return GetCommandList(m_MipCommandListHandle, ERenderPassType::Compute); }
+		Ref<FDX12CommandList> GetInitWorldCommandList() { return GetCommandList(m_InitWorldCommandListHandle); }
+		Ref<FDX12CommandList> GetMipCommandList() { return GetCommandList(m_MipCommandListHandle); }
 		virtual void PreInitWorld() override;
 		virtual void FlushInitCommandList() override;
 		
@@ -107,6 +107,8 @@ namespace Zero
 		Ref<FDX12CommandList> GetActiveCommandList(uint32_t Slot);
 	
 		FUploadBufferAllocator* GetUploadBufferAllocator() { return m_UploadBufferAllocator.get(); }
+
+		FReadBackBufferAllocator* GetReadBackBufferAllocator() { return m_ReadBackBufferAllocator.get(); }
 
 		FDefaultBufferAllocator* GetDefaultBufferAllocator() { return m_DefaultBufferAllocator.get(); }
 
@@ -145,9 +147,9 @@ namespace Zero
 
 		
 	private:
-		FCommandListHandle m_SingleThreadCommandListHandles[3] = { uint32_t(-1), uint32_t(-1), uint32_t(-1) };
-		FCommandListHandle m_InitWorldCommandListHandle = -1;
-		FCommandListHandle m_MipCommandListHandle = -1;
+		FCommandListHandle m_SingleThreadCommandListHandles[3] = { {}, {}, {} };
+		FCommandListHandle m_InitWorldCommandListHandle{};
+		FCommandListHandle m_MipCommandListHandle{};
 		UINT m_RtvDescriptorSize;
 		UINT m_DsvDescriptorSize;
 		UINT m_Cbv_Srv_UavDescriptorSize;
@@ -159,6 +161,8 @@ namespace Zero
 
 
 		Scope<FUploadBufferAllocator> m_UploadBufferAllocator;
+
+		Scope<FReadBackBufferAllocator> m_ReadBackBufferAllocator;
 
 		Scope<FDefaultBufferAllocator> m_DefaultBufferAllocator;
 

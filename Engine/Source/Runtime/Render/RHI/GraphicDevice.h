@@ -28,13 +28,6 @@ namespace Zero
 	class FResourceBarrierBatch;
 	class FShader;
 
-	struct FCommandListHandle
-	{
-		uint32_t CommandListIndex = -1;
-		ERenderPassType RenderPassType = ERenderPassType::Graphics;
-	};
-	
-
 	class IDevice 
 	{
 	public:

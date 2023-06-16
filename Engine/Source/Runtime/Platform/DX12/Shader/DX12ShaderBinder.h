@@ -55,8 +55,8 @@ namespace Zero
 		virtual void SetTextureCube(const std::string& Name, FTextureCube* Texture) override;
 		virtual void SetTextureCubemapArray(const std::string& Name, const std::vector<Ref<FTextureCube>>& TextureCubes) override;
 
-		virtual void SetTexture2D_UAV(const std::string& Name, FTexture2D* Texture) override;
-		virtual void SetBuffer_UAV(const std::string& Name, FTexture2D* Texture) override;
+		virtual void SetTexture2D_Uav(const std::string& Name, FTexture2D* Texture) override;
+		virtual void SetBuffer_Uav(const std::string& Name, FBuffer* Buffer) override;
 
 		virtual void UploadDataIfDirty(FCommandListHandle CommandListHandle) override;
 	private:

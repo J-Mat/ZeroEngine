@@ -11,7 +11,7 @@ namespace Zero
 			.ResourceBindFlag = EResourceBindFlag::ShaderResource,
 		};
 		m_Buffer = CreateScope<FDX12Buffer>(Desc);
-		m_CpuAddress = m_Buffer->GetMappedData();
+		m_CpuAddress = m_Buffer->Map();
 	}
 
 	FDynamicAllocation FLinearDynamicAllocator::Allocate(size_t SizeInBytes, size_t Alignment /*= 0*/)

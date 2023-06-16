@@ -236,7 +236,7 @@ namespace Zero
 			ReadAccess = ERGReadAccess::ReadAccess_NonPixelShader;
 		}
 		FRGBufferID ResID = ReadOnlyID.GetResourceID();
-		m_RgPass.m_BufferCreates.insert(ResID);
+		m_RgPass.m_BufferReads.insert(ResID);
 		return ReadOnlyID;
 	}
 

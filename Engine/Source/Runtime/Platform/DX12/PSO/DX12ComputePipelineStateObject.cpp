@@ -11,8 +11,6 @@ namespace Zero
 		: FComputePipelineStateObject(PSODescriptor)
 	{
 		CreateComputePsoObj();
-		m_ShaderParamsBinder = CreateScope<FShaderParamsBinder>();
-		m_ShaderParamsBinder->SetShader(m_ComputePSODescriptor.Shader);
 	}
 
 

@@ -127,7 +127,7 @@ namespace Zero
                 FShaderResourceItem ShaderResourceItem{
                     .Name = Element.ResourceName,
                     .Type = Element.Type,
-                    .SRTIndex = ParaIndex,
+                    .ParamsIndex = ParaIndex,
                     .Offset = 0,
                     .ResNum = Element.TextureNum
                 };
@@ -143,7 +143,7 @@ namespace Zero
                 FShaderResourceItem ShaderResourceItem{
                     .Name = Element.ResourceName,
                     .Type = Element.Type,
-                    .SRTIndex = ParaIndex,
+                    .ParamsIndex = ParaIndex,
                     .Offset = 0,
                     .ResNum = Element.TextureNum
                 };

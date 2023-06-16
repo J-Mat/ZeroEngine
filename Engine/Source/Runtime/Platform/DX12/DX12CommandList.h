@@ -65,7 +65,7 @@ namespace Zero
 		void DrawIndexed(uint32_t indexCount, uint32_t instanceCount = 1, uint32_t startIndex = 0, int32_t baseVertex = 0,
 			uint32_t startInstance = 0);
 
-		void Dispatch(uint32_t NumGroupsX, uint32_t NumGroupsY, uint32_t NumGroupsZ);
+		virtual void Dispatch(uint32_t NumGroupsX, uint32_t NumGroupsY, uint32_t NumGroupsZ) override;
 		/**
 		 * Close the command list.
 		* Used by the command queue.

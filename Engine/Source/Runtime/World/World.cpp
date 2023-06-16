@@ -1,5 +1,4 @@
 #include "World.h"
-#include "Render/RHI/RenderItem.h"
 #include "Actor/MeshActor.h"
 #include "LightManager.h"
 
@@ -15,6 +14,7 @@ namespace Zero
 		m_RenderItemPool.insert({ ERenderLayer::Skybox, CreateRef<FRenderItemPool>()});
 		m_RenderItemPool.insert({ ERenderLayer::Shadow, CreateRef<FRenderItemPool>()});
 		
+		m_ComputeRenderItemPool = CreateRef<FComputeRenderItemPool>();
 		m_DIYRenderItemPool = CreateRef<FRenderItemPool>();
 	}
 
@@ -25,6 +25,7 @@ namespace Zero
 		{
 			Iter.second->Reset();
 		}
+		m_ComputeRenderItemPool->Reset();
 		
 		if (!m_bTick)
 		{

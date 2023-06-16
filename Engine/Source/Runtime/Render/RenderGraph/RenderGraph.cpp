@@ -296,7 +296,18 @@ namespace Zero
 
 	void FRenderGraph::CreateBufferViews(FRGBufferID RGBufferID)
 	{
+        FBuffer* Buffer = GetBuffer(RGBufferID);
+        if (auto Iter = m_SRVBufferDescMap.find(RGBufferID); Iter != m_SRVBufferDescMap.end())
+        {
+            const auto& SubDesc = Iter->second;
+            Buffer->CreateSRV(SubDesc);
+        }
 
+        if (auto Iter = m_UAVBufferDescMap.find(RGBufferID);Iter != m_UAVBufferDescMap.end())
+        {
+            const auto& SubDesc = Iter->second;
+            Buffer->CreateUAV(SubDesc);
+        }
 	}
 
 	void FRenderGraph::DestroyTextureResource(FDependencyLevel& DependencyLevel)
@@ -359,6 +370,7 @@ namespace Zero
             { 
                 FRGBuffer* RGBuffer = GetRGBuffer(RGBufferID);
                 RGBuffer->Resource = m_ResourcePool.AllocateBuffer(RGBuffer->Desc);
+                CreateBufferViews(RGBufferID);
             }
             DependencyLevel.Execute();
            
@@ -885,18 +897,8 @@ namespace Zero
         FRGBuffer* RGBuffer = GetRGBuffer(Handle);
         RGBuffer->Desc.ResourceBindFlag |= EResourceBindFlag::ShaderResource;
 
-        std::vector<FBufferSubresourceDesc>& ViewDescs = m_SRVBufferDescMap[Handle];  // m_BufferViewDescMap[Handle];
-        for (uint32_t i = 0; i < ViewDescs.size(); ++i)
-        { 
-            auto const& [_Desc, _Type] = ViewDescs[i];
-            if (ViewDescs[i] == Desc)
-            { 
-                return FRGBufferReadOnlyID(i, Handle);
-            }
-        }
-        ViewDescs.emplace_back(Desc);
-        uint32_t ViewID = uint32_t(ViewDescs.size() - 1);
-        return FRGBufferReadOnlyID(ViewID, Handle);
+        m_SRVBufferDescMap[Handle] = Desc;
+        return FRGBufferReadOnlyID(0, Handle);
     }
 
     FRGBufferReadWriteID FRenderGraph::WriteBuffer(FRGResourceName Name, const FBufferSubresourceDesc& Desc)
@@ -905,17 +907,7 @@ namespace Zero
         CORE_ASSERT(IsValidBufferHandle(Handle), "Resource has not been declared!");
         FRGBuffer* RGBuffer = GetRGBuffer(Handle);
         RGBuffer->Desc.ResourceBindFlag |= EResourceBindFlag::UnorderedAccess;
-        std::vector<FBufferSubresourceDesc>& ViewDescs = m_UAVBufferDescMap[Handle]; //m_BufferViewDescMap[Handle];
-        for (uint32_t i = 0; i < ViewDescs.size(); ++i)
-        { 
-            if (ViewDescs[i] == Desc)
-            { 
-                return FRGBufferReadWriteID(i, Handle);
-            }
-        }
-
-        ViewDescs.emplace_back(Desc);
-        uint32_t ViewID = uint32_t(ViewDescs.size() - 1);
-        return FRGBufferReadWriteID(ViewID, Handle);
+        m_UAVBufferDescMap[Handle] = Desc;
+        return FRGBufferReadWriteID(0, Handle);
     }
 }

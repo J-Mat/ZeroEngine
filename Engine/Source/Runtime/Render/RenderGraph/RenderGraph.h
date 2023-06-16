@@ -115,10 +115,8 @@ namespace Zero
 		std::map<FRGTextureCubeID, std::vector<FTextureSubresourceDesc>> m_UAVTexCubeDescMap;
 		//mutable std::map<FRGBufferID, std::vector<std::pair<FBufferSubresourceDesc, ERGDescriptorType>>> m_BufferViewDescMap;
 
-		std::map<FRGBufferID, std::vector<FBufferSubresourceDesc>> m_SRVBufferDescMap;
-		std::map<FRGBufferID, std::vector<FBufferSubresourceDesc>> m_DSVBufferDescMap;
-		std::map<FRGBufferID, std::vector<FBufferSubresourceDesc>> m_RTVBufferDescMap;
-		std::map<FRGBufferID, std::vector<FBufferSubresourceDesc>> m_UAVBufferDescMap;
+		std::map<FRGBufferID, FBufferSubresourceDesc> m_SRVBufferDescMap;
+		std::map<FRGBufferID, FBufferSubresourceDesc> m_UAVBufferDescMap;
 
 	private:
 		void AddBufferBindFlags(FRGResourceName Name,  EResourceBindFlag Flags);

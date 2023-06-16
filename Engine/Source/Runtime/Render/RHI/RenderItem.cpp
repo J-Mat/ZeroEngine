@@ -1,9 +1,12 @@
 #include "RenderItem.h"
 #include "./Shader/Shader.h"
+#include "Render/RendererAPI.h"
+#include "Render/RHI/GraphicDevice.h"
 #include "./Shader/ShaderBinder.h"
-#include "Render/Moudule/Material.h"
 #include "Render/Moudule/PSOCache.h"
 #include "Render/RHI/GraphicPipelineStateObject.h"
+#include "Render/RHI/ComputePipelineStateObject.h"
+#include "Render/RHI/CommandList.h"
 
 namespace Zero
 {
@@ -40,6 +43,39 @@ namespace Zero
 	void FRenderItemPool::Push(Ref<FRenderItem> Item)
 	{
 		m_RenderItems.push_back(Item);
+	}
+
+
+	void FComputeRenderItemPool::Reset()
+	{
+		m_AvailableRenderItems.insert(
+			m_AvailableRenderItems.end(),
+			m_ComputeRenderItems.begin(),
+			m_ComputeRenderItems.end()
+		);
+		
+		m_ComputeRenderItems.clear();
+	}
+
+	Ref<FComputeRenderItem> FComputeRenderItemPool::Request()
+	{
+		Ref<FComputeRenderItem> Item = nullptr;
+		if (m_AvailableRenderItems.size() != 0)
+		{
+			Item = m_AvailableRenderItems.back();
+			m_AvailableRenderItems.pop_back();
+		}
+		else
+		{
+			Item = CreateRef<FComputeRenderItem>();
+		}
+		Item->Reset();
+		return Item;
+	}
+
+	void FComputeRenderItemPool::Push(Ref<FComputeRenderItem> Item)
+	{
+		m_ComputeRenderItems.push_back(Item);
 	}
 
 
@@ -96,6 +132,8 @@ namespace Zero
 		m_PipelineStateObject = FPSOCache::Get().FetchGraphicPso(m_PsoID);
 		return m_PipelineStateObject;
 	}
+	
+	
 
 	bool FRenderItem::CanRender(FCommandListHandle ComamndListHandle, const FRenderParams& RenderSettings)
 	{
@@ -132,6 +170,36 @@ namespace Zero
 		}
 		m_Material->PostDrawCall();
 	}
+	
+	FComputeRenderItem::FComputeRenderItem()
+	{
+		m_ShaderParamsGroup = CreateRef<FShaderParamsGroup>();
+	}
 
+	void FComputeRenderItem::Reset()
+	{
+		m_PipelineStateObject = nullptr;
+	}
 
+	Ref<FComputePipelineStateObject> FComputeRenderItem::GetPsoObj()
+	{
+		m_PipelineStateObject = FPSOCache::Get().FetchComputePso(m_PsoID);
+		return m_PipelineStateObject;
+	}
+	
+	void FComputeRenderItem::Compute(FCommandListHandle ComamndListHandle, uint32_t NumGroupsX, uint32_t NumGroupsY, uint32_t NumGroupsZ)
+	{
+		auto PsoObj = GetPsoObj();
+		if (PsoObj == nullptr)
+		{
+			return;
+		}
+		PsoObj->Bind(ComamndListHandle);
+		m_ShaderParamsGroup->SetShader(PsoObj->GetPSODescriptor().Shader);
+		m_ShaderParamsGroup->Tick();
+		m_ShaderParamsGroup->SetPass(ComamndListHandle);
+
+		Ref<FCommandList> RHICommandList = FGraphic::GetDevice()->GetRHICommandList(ComamndListHandle);
+		RHICommandList->Dispatch(NumGroupsX, NumGroupsY, NumGroupsZ);
+	}
 }

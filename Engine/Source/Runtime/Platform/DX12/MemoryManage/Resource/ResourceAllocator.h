@@ -111,6 +111,17 @@ namespace Zero
 		Scope<FMultiBuddyAllocator> m_Allocator = nullptr;
 	};
 
+	class FReadBackBufferAllocator
+	{
+	public:
+		FReadBackBufferAllocator();
+		void* AllocReadBackResource(uint64_t Size, uint32_t Alignment, FResourceLocation& ResourceLocation);
+		void CleanUpAllocations();
+
+	private:
+		Scope<FMultiBuddyAllocator> m_Allocator = nullptr;
+	};
+
 	class FDefaultBufferAllocator
 	{
 	public:

@@ -46,6 +46,7 @@ namespace Zero
 
 		m_DefaultBufferAllocator = CreateScope<FDefaultBufferAllocator>();
 		m_UploadBufferAllocator = CreateScope<FUploadBufferAllocator>();
+		m_ReadBackBufferAllocator = CreateScope<FReadBackBufferAllocator>();
 		m_TextureResourceAllocator = CreateScope<FTextureResourceAllocator>();
 
 		for (int i = 0; i < IDevice::BACKBUFFER_COUNT; ++i)
@@ -433,12 +434,12 @@ namespace Zero
 	{
 		auto CommanList = m_CommandQueue[uint32_t(RenderPassType)]->GetCommandList();
 		m_CommandLists[RenderPassType].push_back(CommanList);
-		auto Handle = FCommandListHandle(m_CommandLists[RenderPassType].size() - 1, RenderPassType);
+		auto Handle = FCommandListHandle(uint32_t(m_CommandLists[RenderPassType].size() - 1), RenderPassType);
 		CommanList->SetComandListHandle(Handle);
 		return Handle;
 	}
 
-	Ref<FDX12CommandList> FDX12Device::GetCommandList(FCommandListHandle Handle, ERenderPassType RenderPassType)
+	Ref<FDX12CommandList> FDX12Device::GetCommandList(FCommandListHandle Handle)
 	{
 		return m_CommandLists[uint32_t(Handle.RenderPassType)][Handle.CommandListIndex];
 	}
@@ -490,15 +491,15 @@ namespace Zero
 	void FDX12Device::ExecuteSingleThreadCommandLists()
 	{
 		{
-			auto ComandList = GetCommandList(m_SingleThreadCommandListHandles[ERenderPassType::Graphics], ERenderPassType::Graphics);
+			auto ComandList = GetCommandList(m_SingleThreadCommandListHandles[ERenderPassType::Graphics]);
 			GetCommandQueue(ERenderPassType::Graphics).ExecuteCommandList(ComandList);
 		}
 		{
-			auto ComandList = GetCommandList(m_SingleThreadCommandListHandles[ERenderPassType::Compute], ERenderPassType::Compute);
+			auto ComandList = GetCommandList(m_SingleThreadCommandListHandles[ERenderPassType::Compute]);
 			GetCommandQueue(ERenderPassType::Compute).ExecuteCommandList(ComandList);
 		}
 		{
-			auto ComandList = GetCommandList(m_SingleThreadCommandListHandles[ERenderPassType::Copy], ERenderPassType::Copy);
+			auto ComandList = GetCommandList(m_SingleThreadCommandListHandles[ERenderPassType::Copy]);
 			GetCommandQueue(ERenderPassType::Copy).ExecuteCommandList(ComandList);
 		}
 	}
@@ -507,6 +508,7 @@ namespace Zero
 	{
 		m_DefaultBufferAllocator->CleanUpAllocations();
 		m_UploadBufferAllocator->CleanUpAllocations();
+		m_ReadBackBufferAllocator->CleanUpAllocations();
 		m_TextureResourceAllocator->CleanUpAllocations();
 		FResourceStateTracker::RemoveGarbageResources();
 	}

@@ -4,6 +4,7 @@
 #include "DX12CommandList.h"
 #include "DX12TextureCube.h"
 #include "Colors.h"
+#include "Render/RHI/GraphicDevice.h"
 
 
 namespace Zero

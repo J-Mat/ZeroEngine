@@ -43,7 +43,6 @@ namespace Zero
 		
 	private: 
 		Scope<FDAGRender> m_DAGRender = nullptr;
-		Ref<FRenderPipeline> m_ScriptablePipeline;
 		UWorld* m_World = nullptr;
 		Ref<FEditorCameraController> m_CameraController;
 		Ref<FViewportPanel> m_ViewportPanel;

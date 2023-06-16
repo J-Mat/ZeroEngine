@@ -101,6 +101,12 @@ namespace Zero
 
 		m_ForwardLitPass.AddPass(RenderGraph);
 
+		static bool bOnce = true;
+		if (bOnce)
+		{
+			m_TestPass.AddPass(RenderGraph);
+			bOnce = false;
+		}
 
 
 		m_CopyToFinalTexturePass.AddPass(RenderGraph);

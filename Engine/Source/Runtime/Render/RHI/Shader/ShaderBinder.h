@@ -65,7 +65,7 @@ namespace Zero
 	{
 		std::string Name;
 		EShaderResourceType Type;
-		uint32_t SRTIndex;
+		uint32_t ParamsIndex;
 		uint32_t Offset;
 		uint32_t ResNum = 1;
 		std::string TextureID = "";
@@ -142,6 +142,8 @@ namespace Zero
 
 	class FTexture2D;
 	class FTextureCube;
+	class FBuffer;
+	struct FCommandListHandle;
 	class IShaderResourcesBuffer
 	{
 	public:
@@ -154,8 +156,8 @@ namespace Zero
 		virtual void SetTextureCube(const std::string& Name, FTextureCube* Texture) = 0;
 		virtual void SetTextureCubemapArray(const std::string& Name, const std::vector<Ref<FTextureCube>>& TextureCubes) = 0;
 
-		virtual void SetTexture2D_UAV(const std::string& Name, FTexture2D* Texture) = 0;
-		virtual void SetBuffer_UAV(const std::string& Name, FTexture2D* Texture) = 0;
+		virtual void SetTexture2D_Uav(const std::string& Name, FTexture2D* Texture) = 0;
+		virtual void SetBuffer_Uav(const std::string& Name, FBuffer* Buffer)= 0;
 
 		virtual void UploadDataIfDirty(FCommandListHandle CommandListHandle) = 0;
 	protected:

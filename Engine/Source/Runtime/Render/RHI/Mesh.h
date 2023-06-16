@@ -15,6 +15,7 @@ namespace Zero
 	
 	class FVertexBuffer;
 	class FIndexBuffer;
+	struct FCommandListHandle;
 	class FMesh
 	{
 	public:

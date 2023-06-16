@@ -217,7 +217,7 @@ namespace Zero
 		{
 			struct FShaderDesc PrefixSumTexShader
 			{
-				.FileName = "Shader\\Compute\\PrefixSumTex_CS.hlsl",
+				.FileName = "Shader\\Compute\\PrefixSum_CS.hlsl",
 				.BlockSize_X = 1024,
 				.BlockSize_Y = 1,
 				.BlockSize_Z = 1

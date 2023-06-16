@@ -76,6 +76,7 @@ namespace Zero
 		EResourceFormat TextureFormat = EResourceFormat::R8G8B8A8_UNORM;
 	};
 
+	struct FCommandListHandle;
 	class FRenderTargetCube
 	{
 	public:	

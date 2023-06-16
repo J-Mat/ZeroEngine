@@ -11,6 +11,7 @@ namespace Zero
 	struct FMeshData;
 	class FVertexBufferLayout;
 	class FDX12Buffer;
+	struct FCommandListHandle;
 	class FDX12Mesh : public FMesh
 	{
 	public:

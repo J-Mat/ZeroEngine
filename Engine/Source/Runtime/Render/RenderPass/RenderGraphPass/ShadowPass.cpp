@@ -165,58 +165,10 @@ namespace Zero
 		}
 	}
 
-	void FShadowPass::ComputeShaderTest(FRenderGraph& RenderGraph)
-	{
-		std::string PassName = "ComputeShaderTest";
-		struct FComputeShaderData
-		{
-			FRGBufferReadOnlyID ReadBufferID;
-			FRGBufferReadWriteID ResultBufferID;
-		};
-		RenderGraph.AddPass<FComputeShaderData>(
-			PassName.c_str(),
-			[=](FComputeShaderData Data, FRenderGraphBuilder& Builder)
-			{
-				FRGBufferDesc Desc{
-					.Stride = sizeof(float),
-					.Size = sizeof(float) * 2048,
-					.ResourceUsage = EResourceUsage::Default,
-					.MiscFlags = EBufferMiscFlag::BufferRaw,
-					.Format = EResourceFormat::R32_FLOAT
-				};
-				Builder.DeclareBuffer(RGResourceName::BufferArray, Desc);
-				Data.ReadBufferID = Builder.ReadBuffer(RGResourceName::BufferArray);
-				Data.ResultBufferID = Builder.WriteBuffer(RGResourceName::ResultBuffer);
-			},
-			[=](const FComputeShaderData& Data, FRenderGraphContext& Context, FCommandListHandle CommandListHandle)
-			{
-				Ref<FCommandList> CommandList = FGraphic::GetDevice()->GetRHICommandList(CommandListHandle);
-				FBuffer* InputBuffer = Context.GetBuffer(Data.ReadBufferID.GetResourceID());
-				std::vector<float> ReadArray;
-				for (size_t i = 0; i < 2048; ++i)
-				{
-					ReadArray.push_back(1.0f);
-				}
-				InputBuffer->Update(CommandList, ReadArray.data(), sizeof(float)* ReadArray.size());
-				Ref<FComputePipelineStateObject> Pso = FPSOCache::Get().FetchComputePso(EComputePsoID::PrefixSumTex);
-				Pso->Bind(CommandListHandle);
-			
-				Ref<FShader> Shader = Pso->GetPSODescriptor().Shader;
-				Shader->GetBinder()~
-				 
-			},
-			ERenderPassType::Compute,
-			ERGPassFlags::ForceNoCull
-		);
-	
-
-	}
-
 	void FShadowPass::AddPass(FRenderGraph& RenderGraph)
 	{
 		SetupDirectLightShadow(RenderGraph);
 		SetupPointLightShadow(RenderGraph);
-		ComputeShaderTest(RenderGraph);
 	}
 
 	void FShadowPass::OnResize(uint32_t Width, uint32_t Height)

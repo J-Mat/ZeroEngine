@@ -2,13 +2,14 @@
 #include "DX12Device.h"
 #include "DX12CommandList.h"
 
+
 namespace Zero
 {
-	FDX12Buffer::FDX12Buffer(const FBufferDesc& Desc, void* Data /*= 0*/, bool bCreateTextureView /*= true*/)
-		: FBuffer(Desc, Data)
+	FDX12Buffer::FDX12Buffer(const FBufferDesc& Desc, void* BufferData /*= 0*/, bool bCreateTextureView /*= true*/)
+		: FBuffer(Desc, BufferData)
 	{
 		uint64_t BufferSize = m_Desc.Size;
-		if (HasAnyFlag(m_Desc.BufferMiscFlag, EBufferMiscFlag::ConstantBuffer))
+		if (HasAnyFlag(m_Desc.MiscFlag, EBufferMiscFlag::ConstantBuffer))
 			BufferSize = ZMath::AlignUp(BufferSize, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
 
 		D3D12_RESOURCE_DESC ResourceDesc
@@ -34,53 +35,71 @@ namespace Zero
 			ResourceDesc.Flags |= D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE;
 
 		D3D12_RESOURCE_STATES ResourceState = D3D12_RESOURCE_STATE_COMMON;
-		if (HasAllFlags(m_Desc.BufferMiscFlag, EBufferMiscFlag::AccelStruct))
+		if (HasAllFlags(m_Desc.MiscFlag, EBufferMiscFlag::AccelStruct))
 			ResourceState = D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE;
 		
-		if (m_Desc.ResourceUsage == EResourceUsage::Upload)
+		switch (m_Desc.ResourceUsage)
 		{
-			auto UploadBufferAllocator = FDX12Device::Get()->GetUploadBufferAllocator();
-			UploadBufferAllocator->AllocUploadResource(m_Desc.Size, UPLOAD_RESOURCE_ALIGNMENT, m_ResourceLocation);
-		}
-
-		if (Data != nullptr)
+		case EResourceUsage::Default:
 		{
 			FDX12Device::Get()->GetInitWorldCommandList()->CreateAndInitDefaultBuffer(
-				Data,
+				BufferData,
 				m_Desc.Size,
 				DEFAULT_RESOURCE_ALIGNMENT,
 				m_ResourceLocation);
-			/*
-			m_D3DResource = FDX12Device::Get()->GetInitWorldCommandList()->CreateDefaultBuffer(
-				m_Data,
-				m_Desc.Size
-			);
-			*/
+			break;
 		}
+		case EResourceUsage::Readback:
+		{
+			auto ReadBackBufferAllocator = FDX12Device::Get()->GetReadBackBufferAllocator();
+			ReadBackBufferAllocator->AllocReadBackResource(m_Desc.Size, DEFAULT_RESOURCE_ALIGNMENT, m_ResourceLocation);
+			break;
+		}
+		case EResourceUsage::Upload:
+		{
+			auto UploadBufferAllocator = FDX12Device::Get()->GetUploadBufferAllocator();
+			void* UploadBufferMap = UploadBufferAllocator->AllocUploadResource(m_Desc.Size, UPLOAD_RESOURCE_ALIGNMENT, m_ResourceLocation);
+			if (BufferData != nullptr)
+			{
+				memcpy(UploadBufferMap, BufferData, m_Desc.Size);
+			}
+			break;
+		}
+		default:
+			break;
+		}
+
 		if (bCreateTextureView)
 		{
-			CreateViews();
+			//CreateViews();
 		}
 	}
 
 
-
-	void FDX12Buffer::Update(Ref<FCommandList> CommandList, void const* SrcData, size_t DataSize, size_t Offset /*= 0*/)
+	void FDX12Buffer::Update(FCommandListHandle CommandListHandle, void const* SrcData, size_t DataSize, size_t Offset /*= 0*/)
 	{
-		FResourceLocation UploadResourceLocation;
-		auto UploadBufferAllocator = FDX12Device::Get()->GetUploadBufferAllocator();
-		BYTE* MappedData = (BYTE*)UploadBufferAllocator->AllocUploadResource(DataSize, UPLOAD_RESOURCE_ALIGNMENT, UploadResourceLocation);
+		if (m_Desc.ResourceUsage == EResourceUsage::Default)
+		{
+			FResourceLocation UploadResourceLocation;
+			auto UploadBufferAllocator = FDX12Device::Get()->GetUploadBufferAllocator();
+			BYTE* MappedData = (BYTE*)UploadBufferAllocator->AllocUploadResource(DataSize, UPLOAD_RESOURCE_ALIGNMENT, UploadResourceLocation);
 
-		memcpy(MappedData + Offset, SrcData, DataSize);
-		
-		Ref<FDX12Resource> UnderlyingResource = m_ResourceLocation.m_UnderlyingResource;
-		Ref<FDX12Resource> UploadBuffer = UploadResourceLocation.m_UnderlyingResource;
-		
-		FDX12CommandList* DX12CommandList = static_cast<FDX12CommandList*>(CommandList.get());
-		DX12CommandList->TransitionBarrier(UnderlyingResource->GetD3DResource().Get(), D3D12_RESOURCE_STATE_COPY_DEST);
-		DX12CommandList->CopyBufferRegion(UnderlyingResource->GetD3DResource(), m_ResourceLocation.m_OffsetFromBaseOfResource,
-			UploadBuffer->GetD3DResource(), UploadResourceLocation.m_OffsetFromBaseOfResource, DataSize);
+			memcpy(MappedData + Offset, SrcData, DataSize);
+			
+			Ref<FDX12Resource> UnderlyingResource = m_ResourceLocation.m_UnderlyingResource;
+			Ref<FDX12Resource> UploadBuffer = UploadResourceLocation.m_UnderlyingResource;
+			
+			auto DX12CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
+			DX12CommandList->TransitionBarrier(UnderlyingResource->GetD3DResource().Get(), D3D12_RESOURCE_STATE_COPY_DEST);
+			DX12CommandList->CopyBufferRegion(UnderlyingResource->GetD3DResource(), m_ResourceLocation.m_OffsetFromBaseOfResource,
+				UploadBuffer->GetD3DResource(), UploadResourceLocation.m_OffsetFromBaseOfResource, DataSize);
+		}
+		else
+		{
+			memcpy((uint8_t*)m_ResourceLocation.GetMapAddress() + Offset, SrcData, DataSize);
+		}
 	}
+
 
 
 	D3D12_GPU_VIRTUAL_ADDRESS FDX12Buffer::GetGPUAddress()
@@ -91,90 +110,104 @@ namespace Zero
 
 	void FDX12Buffer::CreateViews()
 	{
-		if (m_ResourceLocation.GetResource()->GetD3DResource())
-		{
-			auto D3DDevice = FDX12Device::Get()->GetDevice();
-			
-			CD3DX12_RESOURCE_DESC Desc(m_ResourceLocation.GetResource()->GetD3DResource()->GetDesc());
+	}
 
-			// Create SRV
-			m_SRVFormat = FDX12Utils::GetSRVFormat(Desc.Format);
-			if (((Desc.Flags & D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE) == 0 && m_ResourceLocation.GetResource()->CheckSRVSupport()) || m_SRVFormat != DXGI_FORMAT_UNKNOWN)
+	FResourceView* FDX12Buffer::GetSRV()
+	{
+		return m_Srv.get();
+	}
+
+	FResourceView* FDX12Buffer::GetUAV()
+	{
+		return m_Uav.get();
+	}
+
+	void FDX12Buffer::CreateSRV(const FBufferSubresourceDesc& SubDesc)
+	{
+		if (SubDesc == m_SrvSubresourceDesc && m_Srv != nullptr)
+		{
+			return;
+		}
+		D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc{};
+		SrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		SrvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+
+		if (m_Desc.Format == EResourceFormat::UNKNOWN)
+		{
+			if (HasAllFlags(m_Desc.MiscFlag, EBufferMiscFlag::BufferRaw))
 			{
-				D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc = {};
-				if (m_ImageData != nullptr)
-				{
-					std::uint8_t srv_srcs[4];
-					for (size_t i = 0; i < m_ImageData->GetChannel(); i++)
-						srv_srcs[i] = static_cast<std::uint8_t>(i);
-					for (size_t i = m_ImageData->GetChannel(); i < 4; i++)
-						srv_srcs[i] = D3D12_SHADER_COMPONENT_MAPPING_FORCE_VALUE_1;
-					SrvDesc.Shader4ComponentMapping =
-						D3D12_ENCODE_SHADER_4_COMPONENT_MAPPING(srv_srcs[0], srv_srcs[1], srv_srcs[2], srv_srcs[3]);
-				}
-				else
-				{
-					SrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-				}
-				SrvDesc.Format = m_SRVFormat == DXGI_FORMAT_UNKNOWN ? m_ResourceLocation.GetResource()->GetD3DResource()->GetDesc().Format : m_SRVFormat;
-				SrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-				SrvDesc.Texture2D.MostDetailedMip = 0;
-				SrvDesc.Texture2D.MipLevels = Desc.MipLevels;
-				SrvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
-				SrvDesc.Texture2D.PlaneSlice = 0;
-				m_SRVs.resize(1);
-				auto Srv = CreateScope<FDX12ShaderResourceView>(m_ResourceLocation.GetResource(), &SrvDesc);
-				m_SRVs[0] = std::move(Srv);
-				
+				SrvDesc.Format = DXGI_FORMAT_R32_TYPELESS;
+				SrvDesc.Buffer.FirstElement = (UINT)SubDesc.Offset / sizeof(uint32_t);
+				SrvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_RAW;
+				SrvDesc.Buffer.NumElements = (UINT)std::min<UINT64>(SubDesc.Size, m_Desc.Size - SubDesc.Offset) / sizeof(uint32_t);
 			}
-			if ((Desc.Flags & D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE) == 0 && m_ResourceLocation.GetResource()->CheckSRVSupport())
+			else if (HasAllFlags(m_Desc.MiscFlag, EBufferMiscFlag::BufferStructured))
 			{
-				m_bHasGuiResource = false;
-				RegistGuiShaderResource();
-			}
-			// Create UAV for each mip (only supported for 1D and 2D textures).
-			if ((Desc.Flags & D3D12_RESOURCE_STATE_UNORDERED_ACCESS) != 0 && m_ResourceLocation.GetResource()->CheckUAVSupport() &&
-				Desc.DepthOrArraySize == 1)
-			{
-				m_UAVs.resize(Desc.MipLevels);
-				for (int i = 0; i < Desc.MipLevels; ++i)
-				{
-					auto UavDesc = GetUAVDesc(Desc, i);
-					auto Uav = CreateScope<FDX12UnorderedAccessResourceView>(m_ResourceLocation.GetResource(), nullptr, &UavDesc);
-					m_UAVs[i] = std::move(Uav);
-				}
+				SrvDesc.Format = DXGI_FORMAT_UNKNOWN;
+				SrvDesc.Buffer.FirstElement = (UINT)SubDesc.Offset / m_Desc.Stride;
+				SrvDesc.Buffer.NumElements = (UINT)std::min<UINT64>(SubDesc.Size, m_Desc.Size - SubDesc.Offset) / m_Desc.Stride;
+				SrvDesc.Buffer.StructureByteStride = m_Desc.Stride;
 			}
 		}
+		else
+		{ 
+			uint32_t Stride = FDX12Utils::GetFormatStride(m_Desc.Format);
+			SrvDesc.Format = FDX12Utils::ConvertResourceFormat(m_Desc.Format);
+			SrvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+			SrvDesc.Buffer.FirstElement = SubDesc.Offset / Stride;
+			SrvDesc.Buffer.NumElements = (UINT)std::min<UINT64>(SubDesc.Size, m_Desc.Size - SubDesc.Offset) / Stride;
+		}
+		m_Srv = CreateScope<FDX12ShaderResourceView>(m_ResourceLocation.GetResource(), &SrvDesc);
+		m_SrvSubresourceDesc = SubDesc;
 	}
 
-	Zero::FResourceView* FDX12Buffer::GetSRV()
+	void FDX12Buffer::CreateUAV(const FBufferSubresourceDesc& SubDesc)
 	{
+		if (SubDesc == m_SrvSubresourceDesc && m_Srv != nullptr)
+		{
+			return;
+		}
+		D3D12_UNORDERED_ACCESS_VIEW_DESC UavDesc{};
+		UavDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
+		UavDesc.Buffer.FirstElement = 0;
 
-	}
-
-	Zero::FResourceView* FDX12Buffer::GetUAV()
-	{
-
-	}
-
-	void FDX12Buffer::MakeSRVs(const std::vector<FBufferSubresourceDesc>& Descs)
-	{
-
-	}
-
-	void FDX12Buffer::MakeUAVs(const std::vector<FBufferSubresourceDesc>& Descs)
-	{
+		if (m_Desc.Format == EResourceFormat::UNKNOWN)
+		{
+			if (HasAllFlags(m_Desc.MiscFlag, EBufferMiscFlag::BufferRaw))
+			{
+				UavDesc.Format = DXGI_FORMAT_R32_TYPELESS;
+				UavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_RAW;
+				UavDesc.Buffer.FirstElement = (UINT)SubDesc.Offset / sizeof(uint32_t);
+				UavDesc.Buffer.NumElements = (UINT)std::min<UINT64>(SubDesc.Size, m_Desc.Size - SubDesc.Offset) / sizeof(uint32_t);
+			}
+			else if (HasAllFlags(m_Desc.MiscFlag, EBufferMiscFlag::BufferStructured))
+			{
+				UavDesc.Format = DXGI_FORMAT_UNKNOWN;
+				UavDesc.Buffer.FirstElement = (UINT)SubDesc.Offset / m_Desc.Stride;
+				UavDesc.Buffer.NumElements = (UINT)std::min<UINT64>(SubDesc.Size, m_Desc.Size - SubDesc.Offset) / m_Desc.Stride;
+				UavDesc.Buffer.StructureByteStride = m_Desc.Stride;
+			}
+		}
+		else
+		{ 
+			uint32_t Stride = FDX12Utils::GetFormatStride(m_Desc.Format);
+			UavDesc.Format = FDX12Utils::ConvertResourceFormat(m_Desc.Format);
+			UavDesc.Buffer.FirstElement = SubDesc.Offset / Stride;
+			UavDesc.Buffer.NumElements = (UINT)std::min<UINT64>(SubDesc.Size, m_Desc.Size - SubDesc.Offset) / Stride;
+		}
+		m_Uav = CreateScope<FDX12UnorderedAccessResourceView>(m_ResourceLocation.GetResource(), nullptr, &UavDesc);
+		m_UavSubresourceDesc = SubDesc;
 
 	}
 
 	void FDX12Buffer::ReleaseSRVs()
 	{
-
+		m_Srv = nullptr;
 	}
 
 	void FDX12Buffer::ReleaseUAVs()
 	{
-
+		m_Uav = nullptr;
 	}
 
 }

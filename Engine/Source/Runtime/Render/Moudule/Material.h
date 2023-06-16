@@ -3,7 +3,6 @@
 #include "Delegate.h"
 #include "Render/RHI/Shader/ShaderData.h"
 #include "Render/RenderConfig.h"
-#include "World/World.h"
 #include "World/Actor/CameraActor.h"
 
 namespace Zero
@@ -56,6 +55,9 @@ namespace Zero
 		void SetCameraProjectViewMat(const std::string& Name, const ZMath::mat4& Value);
 		void SetCameraViewPos(const std::string& Name, const ZMath::vec3& Value);
 		void SetTexture2D(const std::string& Name, FTexture2D* Texture);
+		void SetTexture2D_Uav(const std::string& Name, FTexture2D* Texture);
+		void SetBuffer(const std::string& Name, FBuffer* Buffer);
+		void SetBuffer_Uav(const std::string& Name, FBuffer* Buffer);
 		void SetTexture2DArray(const std::string& Name, const std::vector<FTexture2D*> Textures);
 		void SetTextureCube(const std::string& Name, FTextureCube* Texture);
 		void SetTextureCubemapArray(const std::string& Name, const std::vector<Ref<FTextureCube>>& Textures);
@@ -92,5 +94,5 @@ namespace Zero
 		FOnSetParameter m_OnSetInt;
 		FCommandListHandle m_CommandListHandle{};
 	};
-	using FShaderParamsBinder = FMaterial;
+	using FShaderParamsGroup = FMaterial;
 }

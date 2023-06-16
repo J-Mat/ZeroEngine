@@ -10,7 +10,7 @@ namespace Zero
 		uint32_t Size = 0;
 		EResourceUsage ResourceUsage = EResourceUsage::Default;
 		EResourceBindFlag ResourceBindFlag = EResourceBindFlag::None;
-		EBufferMiscFlag BufferMiscFlag = EBufferMiscFlag::None;
+		EBufferMiscFlag MiscFlag = EBufferMiscFlag::None;
 		uint32_t Stride = 0;
 		uint32_t Count = 0;
 		EResourceFormat Format = EResourceFormat::UNKNOWN;
@@ -22,8 +22,7 @@ namespace Zero
 			{
 				.Size = VertexCount * Stride,
 				.ResourceUsage = EResourceUsage::Default,
-				.ResourceBindFlag = EResourceBindFlag::None,
-				.BufferMiscFlag = EBufferMiscFlag::VertexBuffer,
+				.MiscFlag = EBufferMiscFlag::VertexBuffer,
 				.Stride = Stride,
 				.Count = VertexCount
 			};
@@ -37,7 +36,7 @@ namespace Zero
 				.Size = IndexCount * (bSmallIndex ? 2 : 4),
 				.ResourceUsage = EResourceUsage::Default,
 				.ResourceBindFlag = EResourceBindFlag::None,
-				.BufferMiscFlag = EBufferMiscFlag::IndexBuffer,
+				.MiscFlag = EBufferMiscFlag::IndexBuffer,
 				.Stride = bSmallIndex ? uint32_t(2) : uint32_t(4),
 				.Count = IndexCount,	
 				.Format = bSmallIndex ? EResourceFormat::R16_UINT : EResourceFormat::R32_UINT
@@ -109,6 +108,7 @@ namespace Zero
 		uint32_t Stride = 0;
 	};
 
+	struct FCommandListHandle;
 	class FBuffer
 	{
 	public:
@@ -124,18 +124,29 @@ namespace Zero
 		const FBufferDesc& GetDesc() const { return m_Desc; }
 		FBufferDesc& GetDesc() { return m_Desc; }
 		uint32_t GetCount() const { return static_cast<UINT>(m_Desc.Size / m_Desc.Stride);}
-		virtual void* Map()  { return nullptr; }
+		virtual void* Map() const { return nullptr; }
 		virtual void Unmap() {}
-		virtual void Update(Ref<FCommandList> CommandList, void const* SrcData, size_t DataSize, size_t Offset = 0) {};
+		virtual void Update(FCommandListHandle CommandListHandle, void const* SrcData, size_t DataSize, size_t Offset = 0) = 0;
 		virtual void* GetNative() { return nullptr; }
 
-		virtual void MakeSRVs(const std::vector<FBufferSubresourceDesc>& Descs) = 0;
-        virtual void MakeUAVs(const std::vector<FBufferSubresourceDesc>& Descs) = 0;
+		virtual void CreateSRV(const FBufferSubresourceDesc& Descs) = 0;
+        virtual void CreateUAV(const FBufferSubresourceDesc& Descs) = 0;
 
         virtual void ReleaseSRVs() = 0;
 		virtual void ReleaseUAVs() = 0;
+
+
+		template<typename T>
+		T* GetMappedData() const
+		{
+			void* MapData = Map();
+			return reinterpret_cast<T*>(MapData);
+		}
+
 	protected:
 		FBufferDesc m_Desc;
+		FBufferSubresourceDesc m_SrvSubresourceDesc;
+		FBufferSubresourceDesc m_UavSubresourceDesc;
 		std::string m_BufferName;
 		void* m_Data = 0;
 	};

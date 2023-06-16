@@ -1,6 +1,4 @@
 #include "EditorLayer.h"
-#include "Render/Pipeline/ForwardStage.h"
-#include "Render/Pipeline/ShadowStage.h"
 #include "Platform/Windows/WinWindow.h"
 #include "EditorCameraController.h"
 #include "Dialog/DialogUtils.h"

@@ -68,7 +68,9 @@ namespace Zero
 	{
 		Texture2D,
 		Cubemap,
-		RenderTarget,
+		Texture2D_Uav,
+		Buffer,
+		Buffer_Uav,
 	};
 
 	enum class EShaderSampler

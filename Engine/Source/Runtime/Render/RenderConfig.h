@@ -4,6 +4,7 @@
 
 namespace Zero
 {
+
 	enum class ERenderLayer
 	{
 		 Opaque,
@@ -95,6 +96,11 @@ namespace Zero
 		CULL_MODE_BACK,
 	};
 
+	struct FCommandListHandle
+	{
+		uint32_t CommandListIndex = static_cast<uint32_t>(-1);
+		ERenderPassType RenderPassType = ERenderPassType::Graphics;
+	};
 
 	namespace EShaderID
 	{

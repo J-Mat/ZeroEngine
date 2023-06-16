@@ -3,6 +3,7 @@
 #include "Common/DX12Header.h"
 #include "DX12Texture2D.h"
 #include "Render/RHI/RenderTarget.h"
+#include "Render/RHI/GraphicDevice.h"
 
 
 namespace Zero

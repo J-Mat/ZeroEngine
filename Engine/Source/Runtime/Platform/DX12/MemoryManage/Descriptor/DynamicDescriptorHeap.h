@@ -20,6 +20,7 @@ namespace Zero
 {
 	class FDX12Device;
 	class FDX12CommandList;
+	struct FCommandListHandle;
 	class FDynamicDescriptorHeap
 	{
 	public:

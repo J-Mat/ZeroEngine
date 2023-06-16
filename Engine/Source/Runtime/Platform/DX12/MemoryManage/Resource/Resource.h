@@ -33,6 +33,7 @@ namespace Zero
 		void SetType(EResourceLocationType Type) { m_ResourceLocationType = Type; }
 
 		Ref<FDX12Resource> GetResource() { return m_UnderlyingResource; }
+		void* GetMapAddress() {return m_MappedAddress;}
 	public:
 		EResourceLocationType m_ResourceLocationType = EResourceLocationType::Undefined;
 

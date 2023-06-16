@@ -156,7 +156,7 @@ namespace Zero
 		uint32_t TableBitMask = m_DescriptorTableBitMask;
 		DWORD RootIndex;
 		
-		auto CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle, ERenderPassType::Compute);
+		auto CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
 
 		// Scan from LSB to MSB for a bit set in staleDescriptorsBitMask
 		while (_BitScanForward(&RootIndex, TableBitMask))

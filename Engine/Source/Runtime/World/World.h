@@ -1,11 +1,11 @@
 #pragma once
 
 #include "Core.h"
+#include "Render/RHI/RenderItem.h"
 #include "Render/RendererAPI.h"
 #include "Object/CoreObject.h"
 #include "Render/RHI/GraphicDevice.h"
 #include "Actor/Actor.h"
-#include "Render/RHI/RenderItem.h"
 #include "Actor/CameraActor.h"
 #include "Actor/SkyActor.h"
 
@@ -25,6 +25,7 @@ namespace Zero
 		Ref<IDevice> GetDevice() { return m_Device; }
 		void SetDevice(Ref<IDevice> Device) { m_Device = Device; }
 		Ref<FRenderItemPool> GetDIYRenderItemPool() { return m_DIYRenderItemPool; }
+		Ref<FComputeRenderItemPool> GetComputeRenderItemPool() { return m_ComputeRenderItemPool; }
 		virtual void Tick();
 		Ref<FRenderItemPool> GetRenderItemPool(ERenderLayer RenderLayerType);
 		static  UWorld* GetCurrentWorld() { return s_CurrentWorld; }
@@ -86,6 +87,7 @@ namespace Zero
 		UCameraActor* m_MainCamera = nullptr;
 		USkyActor* m_SkyActor = nullptr;
 		std::map<ERenderLayer, Ref<FRenderItemPool>> m_RenderItemPool;
+		Ref<FComputeRenderItemPool> m_ComputeRenderItemPool;
 		Ref<FRenderItemPool> m_DIYRenderItemPool;
 		Ref<IDevice> m_Device;
 		std::vector<UActor*> m_Actors;

@@ -948,19 +948,22 @@ namespace Zero
 		auto* DefaultBufferAllocator = FDX12Device::Get()->GetDefaultBufferAllocator();
 		DefaultBufferAllocator->AllocDefaultResource(ResourceDesc, Alignment, ResourceLocation);
 
-		//Create upload resource 
-		FResourceLocation UploadResourceLocation;
-		auto UploadBufferAllocator = FDX12Device::Get()->GetUploadBufferAllocator();
-		void* MappedData = UploadBufferAllocator->AllocUploadResource(Size, UPLOAD_RESOURCE_ALIGNMENT, UploadResourceLocation);
+		if (BufferData != nullptr)
+		{
+			//Create upload resource 
+			FResourceLocation UploadResourceLocation;
+			auto UploadBufferAllocator = FDX12Device::Get()->GetUploadBufferAllocator();
+			void* MappedData = UploadBufferAllocator->AllocUploadResource(Size, UPLOAD_RESOURCE_ALIGNMENT, UploadResourceLocation);
 
-		memcpy(MappedData, BufferData, Size);
-		
-		Ref<FDX12Resource>	DefaultBuffer = ResourceLocation.m_UnderlyingResource;
-		Ref<FDX12Resource>	UploadBuffer = UploadResourceLocation.m_UnderlyingResource;
-		TransitionBarrier(DefaultBuffer->GetD3DResource().Get(), D3D12_RESOURCE_STATE_COPY_DEST);
-		CopyBufferRegion(DefaultBuffer->GetD3DResource(), ResourceLocation.m_OffsetFromBaseOfResource,
-			UploadBuffer->GetD3DResource(), UploadResourceLocation.m_OffsetFromBaseOfResource, Size);
-		//UploadResourceLocation.ReleaseResource();
+			memcpy(MappedData, BufferData, Size);
+
+			Ref<FDX12Resource>	DefaultBuffer = ResourceLocation.m_UnderlyingResource;
+			Ref<FDX12Resource>	UploadBuffer = UploadResourceLocation.m_UnderlyingResource;
+			TransitionBarrier(DefaultBuffer->GetD3DResource().Get(), D3D12_RESOURCE_STATE_COPY_DEST);
+			CopyBufferRegion(DefaultBuffer->GetD3DResource(), ResourceLocation.m_OffsetFromBaseOfResource,
+				UploadBuffer->GetD3DResource(), UploadResourceLocation.m_OffsetFromBaseOfResource, Size);
+			//UploadResourceLocation.ReleaseResource();
+		}
 	}
 
 	void FDX12CommandList::CreateAndInitDefaultBuffer(const void* BufferData, uint32_t Size, ComPtr<ID3D12Resource> Resource)

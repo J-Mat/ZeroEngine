@@ -69,6 +69,7 @@ namespace Zero
 		uint32_t Size = 0;
 		EResourceUsage ResourceUsage = EResourceUsage::Default;
 		EBufferMiscFlag MiscFlags = EBufferMiscFlag::None;
+		EResourceBindFlag BindFlag = EResourceBindFlag::None;
 		EResourceFormat Format = EResourceFormat::UNKNOWN;
 	};
 
@@ -92,7 +93,7 @@ namespace Zero
 		BufferDesc.Size = RGBufferDesc.Size;
 		BufferDesc.Stride = RGBufferDesc.Stride;
 		BufferDesc.ResourceUsage = RGBufferDesc.ResourceUsage;
-		BufferDesc.BufferMiscFlag = RGBufferDesc.MiscFlags;
+		BufferDesc.MiscFlag = RGBufferDesc.MiscFlags;
 		BufferDesc.Format = RGBufferDesc.Format;
 		BufferDesc.ResourceBindFlag = EResourceBindFlag::None;
 	}

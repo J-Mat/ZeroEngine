@@ -4,6 +4,7 @@
 #include "RenderPass/RenderGraphPass/CopyToFinalTexturePass.h"
 #include "RenderPass/RenderGraphPass/SkyboxPass.h"
 #include "RenderPass/RenderGraphPass/ShadowPass.h"
+#include "RenderPass/RenderGraphPass/TestPass.h"
 #include "Render/RenderGraph/RenderGraphResourcePool.h"
 
 namespace Zero
@@ -45,6 +46,7 @@ namespace Zero
 		FForwardLitPass m_ForwardLitPass;
 		FSkyboxPass m_SkyboxPass;
 		FShadowPass m_ShadowPass;
+		FTestPass m_TestPass;
 		FCopyToFinalTexturePass m_CopyToFinalTexturePass;
 	};
 };

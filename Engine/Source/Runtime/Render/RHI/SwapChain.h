@@ -5,6 +5,7 @@ namespace Zero
 {
 	class FRenderTarget2D;
 	class FTexture2D;
+	struct FCommandListHandle;
 	class FSwapChain
 	{
 	public:

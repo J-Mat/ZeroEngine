@@ -253,7 +253,7 @@ namespace Zero
 		{
 			FDX12Texture2D* D3DTexture = static_cast<FDX12Texture2D*>(Texture);
 			FDX12ShaderResourceView* Srv = static_cast<FDX12ShaderResourceView*>(D3DTexture->GetSRV());
-			m_SrvDynamicDescriptorHeap->StageDescriptors(Item.SRTIndex, Item.Offset, 1, Srv->GetDescriptorHandle());
+			m_SrvDynamicDescriptorHeap->StageDescriptors(Item.ParamsIndex, Item.Offset, 1, Srv->GetDescriptorHandle());
 			m_Desc.Mapper.SetTextureID(Name); 
 			m_bIsDirty = true;
 		}
@@ -266,11 +266,10 @@ namespace Zero
 		{
 			FDX12Buffer* D3DTexture = static_cast<FDX12Buffer*>(Buffer);
 			FDX12ShaderResourceView* Srv = static_cast<FDX12ShaderResourceView*>(D3DTexture->GetSRV());
-			m_SrvDynamicDescriptorHeap->StageDescriptors(Item.SRTIndex, Item.Offset, 1, Srv->GetDescriptorHandle());
-			m_Desc.Mapper.SetTextureID(Name); 
+			m_SrvDynamicDescriptorHeap->StageDescriptors(Item.ParamsIndex, Item.Offset, 1, Srv->GetDescriptorHandle());
+			m_Desc.Mapper.SetTextureID(Name, EShaderResourceType::Buffer);
 			m_bIsDirty = true;
 		}
-
 	}
 
 	void FDX12ShaderResourcesBuffer::SetTexture2DArray(const std::string& Name, std::vector<FTexture2D*> Textures)
@@ -283,9 +282,9 @@ namespace Zero
 			{
 				FDX12Texture2D* D3DTexture = static_cast<FDX12Texture2D*>(Texture);
 				FDX12ShaderResourceView* Srv = static_cast<FDX12ShaderResourceView*>(D3DTexture->GetSRV());
-				m_SrvDynamicDescriptorHeap->StageDescriptors(Item.SRTIndex, Offset++, 1, Srv->GetDescriptorHandle());
+				m_SrvDynamicDescriptorHeap->StageDescriptors(Item.ParamsIndex, Offset++, 1, Srv->GetDescriptorHandle());
 			}
-			m_Desc.Mapper.SetTextureID(Name); 
+			m_Desc.Mapper.SetTextureID(Name, EShaderResourceType::Texture2D);
 			m_bIsDirty = true;
 		}
 	}
@@ -297,8 +296,8 @@ namespace Zero
 		{
 			FDX12TextureCube* D3DTexture = static_cast<FDX12TextureCube*>(Texture);
 			FDX12ShaderResourceView* Srv = static_cast<FDX12ShaderResourceView*>(D3DTexture->GetSRV());
-			m_SrvDynamicDescriptorHeap->StageDescriptors(Item.SRTIndex, Item.Offset, 1, Srv->GetDescriptorHandle());
-			m_Desc.Mapper.SetTextureID(Name); 
+			m_SrvDynamicDescriptorHeap->StageDescriptors(Item.ParamsIndex, Item.Offset, 1, Srv->GetDescriptorHandle());
+			m_Desc.Mapper.SetTextureID(Name, EShaderResourceType::Cubemap);
 			m_bIsDirty = true;
 		}
 	}
@@ -313,29 +312,38 @@ namespace Zero
 			{
 				FDX12TextureCube* D3DTexture = static_cast<FDX12TextureCube*>(Texture.get());
 				FDX12ShaderResourceView* Srv = static_cast<FDX12ShaderResourceView*>(D3DTexture->GetSRV());
-				m_SrvDynamicDescriptorHeap->StageDescriptors(Item.SRTIndex, Offset++, 1, Srv->GetDescriptorHandle());
+				m_SrvDynamicDescriptorHeap->StageDescriptors(Item.ParamsIndex, Offset++, 1, Srv->GetDescriptorHandle());
 			}
-			m_Desc.Mapper.SetTextureID(Name); 
+			m_Desc.Mapper.SetTextureID(Name, EShaderResourceType::Cubemap);
 			m_bIsDirty = true;
 		}
 
 	}
 
-	void FDX12ShaderResourcesBuffer::SetTexture2D_UAV(const std::string& Name, FTexture2D* Texture)
+	void FDX12ShaderResourcesBuffer::SetTexture2D_Uav(const std::string& Name, FTexture2D* Texture)
 	{
 		FShaderResourceItem Item;
 		if (m_Desc.Mapper.FetchResource(Name, Item))
 		{
 			FDX12Texture2D* D3DTexture = static_cast<FDX12Texture2D*>(Texture);
 			FDX12UnorderedAccessResourceView* Srv = static_cast<FDX12UnorderedAccessResourceView*>(D3DTexture->GetUAV());
-			m_SrvDynamicDescriptorHeap->StageDescriptors(Item.SRTIndex, Item.Offset, 1, Srv->GetDescriptorHandle());
-			m_Desc.Mapper.SetTextureID(Name); 
+			m_SrvDynamicDescriptorHeap->StageDescriptors(Item.ParamsIndex, Item.Offset, 1, Srv->GetDescriptorHandle());
+			m_Desc.Mapper.SetTextureID(Name, EShaderResourceType::Texture2D_Uav);
 			m_bIsDirty = true;
 		}
 	}
 
-	void FDX12ShaderResourcesBuffer::SetBuffer_UAV(const std::string& Name, FTexture2D* Texture)
+	void FDX12ShaderResourcesBuffer::SetBuffer_Uav(const std::string& Name, FBuffer* Buffer)
 	{
+		FShaderResourceItem Item;
+		if (m_Desc.Mapper.FetchResource(Name, Item))
+		{
+			FDX12Buffer* D3DBuffer = static_cast<FDX12Buffer*>(Buffer);
+			FDX12UnorderedAccessResourceView* Uav = static_cast<FDX12UnorderedAccessResourceView*>(D3DBuffer->GetUAV());
+			m_SrvDynamicDescriptorHeap->StageDescriptors(Item.ParamsIndex, Item.Offset, 1, Uav->GetDescriptorHandle());
+			m_Desc.Mapper.SetTextureID(Name, EShaderResourceType::Buffer_Uav);
+			m_bIsDirty = true;
+		}
 
 	}
 

@@ -6,6 +6,7 @@
 #include "Core/Framework/Library.h"
 #include "Core/Framework/Application.h"
 #include "Core/Base/FrameTimer.h"
+#include "World/World.h"
 #include "Render/Moudule/ConstantsBufferManager.h"
 
 namespace Zero
@@ -188,6 +189,30 @@ namespace Zero
 		if (m_ResourcesBuffer)
 		{
 			m_ResourcesBuffer->SetTexture2D(Name, Texture);
+		}
+	}
+
+	void FMaterial::SetTexture2D_Uav(const std::string& Name, FTexture2D* Texture)
+	{
+		if (m_ResourcesBuffer)
+		{
+			m_ResourcesBuffer->SetTexture2D_Uav(Name, Texture);
+		}
+	}
+
+	void FMaterial::SetBuffer(const std::string& Name, FBuffer* Buffer)
+	{
+		if (m_ResourcesBuffer)
+		{
+			m_ResourcesBuffer->SetBuffer(Name, Buffer);
+		}
+	}
+
+	void FMaterial::SetBuffer_Uav(const std::string& Name, FBuffer* Buffer)
+	{
+		if (m_ResourcesBuffer)
+		{
+			m_ResourcesBuffer->SetBuffer_Uav(Name, Buffer);
 		}
 	}
 

@@ -339,6 +339,28 @@ namespace Zero
 	{
 		m_Allocator->CleanUpAllocations();
 	}
+	
+	FReadBackBufferAllocator::FReadBackBufferAllocator()
+	{
+		FBuddyAllocator::FAllocatorInitData InitData =
+		{
+			.AllocationStrategy = FBuddyAllocator::EAllocationStrategy::ManualSubAllocation,
+			.HeapType = D3D12_HEAP_TYPE_READBACK,
+			.ResourceFlags = D3D12_RESOURCE_FLAG_NONE
+		};
+		m_Allocator = CreateScope<FMultiBuddyAllocator>(InitData);
+	}
+	
+	void* FReadBackBufferAllocator::AllocReadBackResource(uint64_t Size, uint32_t Alignment, FResourceLocation& ResourceLocation)
+	{
+		m_Allocator->AllocResource((uint32_t)Size, Alignment, ResourceLocation);
+		return ResourceLocation.m_MappedAddress;
+	}
+	
+	void FReadBackBufferAllocator::CleanUpAllocations()
+	{
+		m_Allocator->CleanUpAllocations();
+	}
 
 	FDefaultBufferAllocator::FDefaultBufferAllocator()
 	{

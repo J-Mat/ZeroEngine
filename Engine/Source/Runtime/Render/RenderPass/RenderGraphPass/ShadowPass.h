@@ -15,7 +15,6 @@ namespace Zero
 	private:
 		void SetupDirectLightShadow(FRenderGraph& RenderGraph);
 		void SetupPointLightShadow(FRenderGraph& RenderGraph);
-		void ComputeShaderTest(FRenderGraph& RenderGraph);
 	private:
 		Ref<FRenderItem> m_ShadowMapDebugItems[2];
 		uint32_t m_Width;
