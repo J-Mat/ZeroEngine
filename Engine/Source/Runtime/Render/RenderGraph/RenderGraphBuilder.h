@@ -249,6 +249,7 @@ namespace Zero
 			return ReadBufferImpl(Name, ReadAccess, Desc);
 		}
 
+
 		FRGBufferReadWriteID WriteBuffer(FRGResourceName Name, uint32_t Offset = 0, uint32_t Size = -1)
 		{
 			FBufferSubresourceDesc Desc;

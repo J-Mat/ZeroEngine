@@ -68,6 +68,14 @@ namespace Zero
 		}
 	}
 
+	void FApplication::OnEndFrame()
+	{
+		for (auto Layer : m_LayerStack)
+		{
+			Layer->OnEndFrame();
+		}
+	}
+
 	void FApplication::PostDraw()
 	{
 		for (auto Layer : m_LayerStack)

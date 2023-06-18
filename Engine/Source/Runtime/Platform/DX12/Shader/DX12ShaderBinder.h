@@ -73,7 +73,7 @@ namespace Zero
 		virtual ~FDX12ShaderBinder();
 		virtual FRootSignature* GetRootSignature() { return m_RootSignature.get(); }
 		virtual void BindConstantsBuffer(FCommandListHandle CommandListHandle, int32_t Slot, IShaderConstantsBuffer* Buffer) override;
-		virtual void Bind(FCommandListHandle CommandListHandle) override;
+		virtual void Bind(FCommandListHandle CommandListHandle, ERenderPassType RenderPassUsage) override;
 	private:
 		void BuildRootSignature();
 		void BuildDynamicHeap();

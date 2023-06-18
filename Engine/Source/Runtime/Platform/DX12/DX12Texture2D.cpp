@@ -643,7 +643,7 @@ namespace Zero
 				continue;
 			}
 
-			D3D12_UNORDERED_ACCESS_VIEW_DESC UAVDesc;
+			D3D12_UNORDERED_ACCESS_VIEW_DESC UAVDesc{};
 			switch (m_TextureDesc.Format)
 			{
 			case EResourceFormat::R16_TYPELESS:
@@ -682,7 +682,6 @@ namespace Zero
 
 	void FDX12Texture2D::GenerateMip()
 	{
-		FDX12Device::Get()->GetMipCommandList()->GenerateMipSimple(GetResource());
 	}
 
 	void FDX12Texture2D::ReleaseDSVs()

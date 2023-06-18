@@ -158,11 +158,23 @@ namespace Zero
 		}
 	}
 
-	void FDX12ShaderBinder::Bind(FCommandListHandle CommandListHandle)
+	void FDX12ShaderBinder::Bind(FCommandListHandle CommandListHandle, ERenderPassType RenderPassUsage)
 	{
 		Ref<FDX12CommandList> CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
-		CommandList->SetGraphicsRootSignature(m_RootSignature);
+		switch (RenderPassUsage)
+		{
+		case ERenderPassType::Graphics:
+			CommandList->SetGraphicsRootSignature(m_RootSignature);
+			break;
+		case ERenderPassType::Compute:
+			CommandList->SetComputeRootSignature(m_RootSignature);
+			break;
+		default:
+			break;
+		}
+		
 	}
+
 
 	void FDX12ShaderBinder::BuildRootSignature()
 	{
@@ -349,6 +361,16 @@ namespace Zero
 
 	void FDX12ShaderResourcesBuffer::UploadDataIfDirty(FCommandListHandle CommandListHandle)
 	{
-		m_SrvDynamicDescriptorHeap->SetAsShaderResourceHeap(CommandListHandle);
+		switch (CommandListHandle.RenderPassType)
+		{
+		case ERenderPassType::Graphics:
+			m_SrvDynamicDescriptorHeap->SetAsShaderResourceHeap(CommandListHandle);
+			break;
+		case ERenderPassType::Compute:
+			m_SrvDynamicDescriptorHeap->SetComputeAsShaderResourceHeap(CommandListHandle);
+			break;
+		default:
+			break;
+		}
 	}
 }

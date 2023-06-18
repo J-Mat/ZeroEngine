@@ -14,12 +14,13 @@ namespace Zero
 	{
 	public:
 		FDX12Buffer(const FBufferDesc& Desc, void* Data = 0, bool bCreateTextureView = true);
-		virtual void* Map() const override { return m_ResourceLocation.m_MappedAddress; }
+		virtual void* Map() const override;
 		virtual void Update(FCommandListHandle CommandListHandle, void const* SrcData, size_t DataSize, size_t Offset = 0) override;
 		D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress();
 		//D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress() { return m_D3DResource->GetGPUVirtualAddress(); }
-		ComPtr<ID3D12Resource> GetResource() {return m_ResourceLocation.GetResource()->GetD3DResource(); }
-		virtual void* GetNative() override { return m_ResourceLocation.GetResource()->GetD3DResource().Get(); };
+		ComPtr<ID3D12Resource> GetResource() { return m_D3DResource; }
+		//virtual void* GetNative() override { return m_ResourceLocation.GetResource()->GetD3DResource().Get(); };
+		virtual void* GetNative() override { return m_D3DResource.Get(); };
 		void CreateViews();
 		FResourceView* GetSRV();
 		FResourceView* GetUAV();

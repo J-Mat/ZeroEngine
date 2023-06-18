@@ -218,15 +218,16 @@ namespace Zero
 			struct FShaderDesc PrefixSumTexShader
 			{
 				.FileName = "Shader\\Compute\\PrefixSum_CS.hlsl",
-				.BlockSize_X = 1024,
+				.BlockSize_X = 32,
 				.BlockSize_Y = 1,
 				.BlockSize_Z = 1
 			};
 			Ref<FShader> Shader = FGraphic::GetDevice()->CreateComputeShader(PrefixSumTexShader);
+			TLibrary<FShader>::Push("PrefixSum", Shader);
 			FComputePSODescriptor PrefixSumPso = 
 			{
 				.Shader = Shader,
-				.BlockSize_X = 1024,
+				.BlockSize_X = 32,
 				.BlockSize_Y = 1,
 				.BlockSize_Z = 1
 			};
@@ -256,6 +257,28 @@ namespace Zero
 			Ref<FShader> Shader = FGraphic::GetDevice()->CreateComputeShader(GenerteMipShader);
 			TLibrary<FShader>::Push(GENERATE_MIP_SHADER_TEST, Shader);
 		}
+
+
+		{
+			struct FShaderDesc PostProcessTexShader
+			{
+				.FileName = "Shader\\Compute\\PostProcess\\TestPostProcess_CS.hlsl",
+					.BlockSize_X = 8,
+					.BlockSize_Y = 8,
+					.BlockSize_Z = 1
+			};
+			Ref<FShader> Shader = FGraphic::GetDevice()->CreateComputeShader(PostProcessTexShader);
+			TLibrary<FShader>::Push("TestPostProcess", Shader);
+			FComputePSODescriptor TestPostProcessPso =
+			{
+				.Shader = Shader,
+				.BlockSize_X = 8,
+				.BlockSize_Y = 8,
+				.BlockSize_Z = 1
+			};
+			m_ComputePsoCache[EComputePsoID::TestPostProcess] = FGraphic::GetDevice()->CreateComputePSO(TestPostProcessPso);
+		}
+
 	}
 
 

@@ -68,13 +68,6 @@ namespace Zero
 		m_ShaderBinder = CreateRef<FDX12ShaderBinder>(m_ShaderBinderDesc);
 	}
 
-
-	void FDX12Shader::Use(FCommandListHandle CommandListHandle)
-	{
-		m_ShaderBinder->Bind(CommandListHandle);
-	}
-
-
 	void FDX12Shader::GetShaderParameters(ComPtr<ID3DBlob> PassBlob, EShaderStage ShaderStage)
 	{
 		if (PassBlob == nullptr)
@@ -172,7 +165,6 @@ namespace Zero
 				{
 					continue;
 				}
-
 				FShaderUAVParameter Param;
 				Param.ResourceName = ResoureceVarName;
 				Param.ShaderStage = ShaderStage;
@@ -197,12 +189,12 @@ namespace Zero
 				Param.BindPoint = BindPoint;
 				Param.BindCount = BindCount;
 				Param.RegisterSpace = RegisterSpace;
+				Param.ShaderResourceType = EShaderResourceType::Buffer_Uav;
 
 				m_UAVParams.insert({ Key, Param });
 			}
 			else if (ResourceType == D3D_SHADER_INPUT_TYPE::D3D_SIT_SAMPLER)
 			{
-
 				FShaderSamplerParameter Param;
 				Param.ResourceName = ResoureceVarName;
 				Param.ShaderStage = ShaderStage;

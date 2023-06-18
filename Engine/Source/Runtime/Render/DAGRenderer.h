@@ -5,6 +5,7 @@
 #include "RenderPass/RenderGraphPass/SkyboxPass.h"
 #include "RenderPass/RenderGraphPass/ShadowPass.h"
 #include "RenderPass/RenderGraphPass/TestPass.h"
+#include "RenderPass/RenderGraphPass/PostProcessor/TestPostprocessPass.h"
 #include "Render/RenderGraph/RenderGraphResourcePool.h"
 
 namespace Zero
@@ -20,11 +21,13 @@ namespace Zero
 		void SetupShadow();
 
 		void CreateSizeDependentResources();
+		void CreateStaticResource();
 		void OnResize(uint32_t Width, uint32_t Height);
 		void OnUpdate();
 		void SetupEnvironmentMap(FRenderGraph& Rg);
 		void ImportResource(FRenderGraph& RenderGraph);
 		void OnDraw();
+		void OnEndFrame();
 
 		Ref<FTexture2D> GetFinalTexture()
 		{
@@ -37,7 +40,9 @@ namespace Zero
 		}
 
 	private:
+		bool m_bAddTestPass = false;
 		Ref<FTexture2D> m_FinalTexture;
+		Ref<FBuffer> m_TestReadbackBuffer;
 		std::vector<Ref<FTexture2D>> m_DirectLightShadowMapDebugs;
 		FRGResourcePool m_RGResourcePool;
 		uint32_t m_Width;
@@ -48,5 +53,6 @@ namespace Zero
 		FShadowPass m_ShadowPass;
 		FTestPass m_TestPass;
 		FCopyToFinalTexturePass m_CopyToFinalTexturePass;
+		FTestPostprecessPass m_TestPostprocessPass;
 	};
 };

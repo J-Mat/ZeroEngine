@@ -20,7 +20,10 @@ namespace Zero
         virtual void Bind(FCommandListHandle CommandListHandle) override;
         virtual void CreateComputePsoObj() override;
 
+        FDX12RootSignature* GetRootSignature() { return m_DX12RootSignature; }
+
     private:
         ComPtr<ID3D12PipelineState> m_D3DPipelineState;
+        FDX12RootSignature* m_DX12RootSignature;
     };
 } 

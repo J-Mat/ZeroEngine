@@ -21,6 +21,8 @@ namespace Zero
 		virtual void PostDraw() {}
 		virtual void OnGuiRender() {}
 		virtual void OnEvent(FEvent& event) {}
+		virtual void OnEndFrame() {};
+
 	protected:
 		std::string m_Name;
 	};

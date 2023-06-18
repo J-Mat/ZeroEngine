@@ -35,6 +35,7 @@ namespace Zero
 		void OnEvent(FEvent &Event);
 		void OnAwake();
 		void OnDraw();
+		void OnEndFrame();
 		void PostDraw();
 		void OnGuiRender();
 		void OnResourceDestroy();

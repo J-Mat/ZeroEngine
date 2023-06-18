@@ -146,6 +146,7 @@ namespace Zero
 		enum
 		{
 			PrefixSumTex,
+			TestPostProcess,
 			PSOCount,
 		};
 	}

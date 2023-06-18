@@ -100,7 +100,7 @@ namespace Zero
 				continue;
 			}
             FRenderGraphContext RenderGraphContexts(m_RenderGrpah, *Pass);
-               FCommandListHandle CommandListHandle = FGraphic::GetDevice()->GetSingleThreadCommadList(ERenderPassType::Graphics);
+            FCommandListHandle CommandListHandle = FGraphic::GetDevice()->GetSingleThreadCommadList(ERenderPassType::Graphics);
             if (Pass->GetPassType() == ERenderPassType::Graphics && !Pass->SkipAutoRenderPassSetup())
             {
                 FRenderPassDesc RenderPassDesc;
@@ -795,7 +795,7 @@ namespace Zero
         FRGTexture2DID Handle = m_Texture2DNameIDMap[Name];
         CORE_ASSERT(IsValidTexture2DHandle(Handle), "Resource has not been declared!");
         FRGTexture2D* RGTexture = GetRGTexture2D(Handle);
-        RGTexture->Desc.ResourceBindFlags |= EResourceBindFlag::ShaderResource;
+        RGTexture->Desc.ResourceBindFlags |= EResourceBindFlag::UnorderedAccess;
         std::vector<FTextureSubresourceDesc>& ViewDescs = m_UAVTex2DDescMap[Handle]; // m_TextureViewDescMap[Handle];
         for (uint32_t i = 0; i < ViewDescs.size(); ++i)
         { 

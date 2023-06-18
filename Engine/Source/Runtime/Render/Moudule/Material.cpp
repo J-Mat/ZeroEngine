@@ -45,10 +45,10 @@ namespace Zero
 		}
 	}
 
-	void FMaterial::SetPass(FCommandListHandle CommandListHandle)
+	void FMaterial::SetPass(FCommandListHandle CommandListHandle, ERenderPassType RenderPassUsage)
 	{
 		m_CommandListHandle = CommandListHandle;
-		m_ShaderBinder->Bind(CommandListHandle);
+		m_ShaderBinder->Bind(CommandListHandle, RenderPassUsage);
 		const auto& BinderDesc = m_ShaderBinder->GetBinderDesc();
 		if (m_MaterialBuffer != nullptr)
 		{
@@ -67,6 +67,7 @@ namespace Zero
 			m_ShaderBinder->BindConstantsBuffer(CommandListHandle, BinderDesc.m_GloabalConstantIndex, FConstantsBufferManager::Get().GetGlobalConstantBuffer().get());
 		}
 	}
+
 
 	void FMaterial::OnDrawCall(FCommandListHandle CommandListHanle)
 	{

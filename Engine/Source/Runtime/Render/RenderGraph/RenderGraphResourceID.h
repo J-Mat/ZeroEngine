@@ -150,7 +150,6 @@ namespace Zero
 
 	using FRGBufferReadOnlyID = FTypedRGResourceDescriptorID<ERGResourceType::Buffer, ERGDescriptorType::ReadOnly>;
 	using FRGBufferReadWriteID = FTypedRGResourceDescriptorID<ERGResourceType::Buffer, ERGDescriptorType::ReadWrite>;
-	using FRGBufferReadBackID = FTypedRGResourceDescriptorID<ERGResourceType::Buffer, ERGDescriptorType::ReadBack>;
 }
 
 namespace std

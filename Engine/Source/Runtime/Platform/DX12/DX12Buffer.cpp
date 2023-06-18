@@ -29,7 +29,9 @@ namespace Zero
 			.Flags = D3D12_RESOURCE_FLAG_NONE,
 		};
 		if (HasAllFlags(m_Desc.ResourceBindFlag, EResourceBindFlag::UnorderedAccess))
+		{
 			ResourceDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+		}
 
 		if (!HasAllFlags(m_Desc.ResourceBindFlag, EResourceBindFlag::ShaderResource))
 			ResourceDesc.Flags |= D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE;
@@ -42,18 +44,46 @@ namespace Zero
 		{
 		case EResourceUsage::Default:
 		{
-			FDX12Device::Get()->GetInitWorldCommandList()->CreateAndInitDefaultBuffer(
-				BufferData,
-				m_Desc.Size,
-				DEFAULT_RESOURCE_ALIGNMENT,
-				m_ResourceLocation);
+			if (HasAllFlags(m_Desc.ResourceBindFlag, EResourceBindFlag::UnorderedAccess))
+			{	
+				ID3D12Device* DX12Device = FDX12Device::Get()->GetDevice();
+				ThrowIfFailed(DX12Device->CreateCommittedResource(
+					&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+					D3D12_HEAP_FLAG_NONE,
+					&CD3DX12_RESOURCE_DESC::Buffer(BufferSize, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS),
+					D3D12_RESOURCE_STATE_COMMON,
+					nullptr,
+					IID_PPV_ARGS(&m_D3DResource)));
+			m_ResourceLocation.m_UnderlyingResource = CreateRef<FDX12Resource>("Uav_test", m_D3DResource);
+			std::cout << "Buffer Ptr: " << m_D3DResource.Get() << std::endl;
+			}
+			else
+			{
+				FDX12Device::Get()->GetInitWorldCommandList()->CreateAndInitDefaultBuffer(
+					ResourceDesc,
+					BufferData,
+					m_Desc.Size,
+					DEFAULT_RESOURCE_ALIGNMENT,
+					m_ResourceLocation);
+			}
 			break;
 		}
 		case EResourceUsage::Readback:
 		{
+			/*
 			auto ReadBackBufferAllocator = FDX12Device::Get()->GetReadBackBufferAllocator();
 			ReadBackBufferAllocator->AllocReadBackResource(m_Desc.Size, DEFAULT_RESOURCE_ALIGNMENT, m_ResourceLocation);
 			break;
+			*/
+			ID3D12Device* DX12Device = FDX12Device::Get()->GetDevice();
+			ThrowIfFailed(DX12Device->CreateCommittedResource(
+				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK),
+				D3D12_HEAP_FLAG_NONE,
+				&CD3DX12_RESOURCE_DESC::Buffer(BufferSize),
+				D3D12_RESOURCE_STATE_COMMON,
+				nullptr,
+				IID_PPV_ARGS(&m_D3DResource)));
+			m_ResourceLocation.m_UnderlyingResource = CreateRef<FDX12Resource>("Readback_test", m_D3DResource);
 		}
 		case EResourceUsage::Upload:
 		{
@@ -76,23 +106,42 @@ namespace Zero
 	}
 
 
-	void FDX12Buffer::Update(FCommandListHandle CommandListHandle, void const* SrcData, size_t DataSize, size_t Offset /*= 0*/)
+		void* FDX12Buffer::Map() const
+		{
+			if (m_Desc.ResourceUsage == EResourceUsage::Readback)
+			{
+				float* mappedData = nullptr;
+				m_ResourceLocation.m_UnderlyingResource->GetD3DResource()->Map(0, nullptr, reinterpret_cast<void**>(&mappedData));
+				for (size_t i = 0; i < 32; ++i)
+				{
+					std::cout << mappedData[i] << " ";
+				}
+			}
+			return  m_ResourceLocation.m_MappedAddress;
+		}
+
+		void FDX12Buffer::Update(FCommandListHandle CommandListHandle, void const* SrcData, size_t DataSize, size_t Offset /*= 0*/)
 	{
 		if (m_Desc.ResourceUsage == EResourceUsage::Default)
 		{
 			FResourceLocation UploadResourceLocation;
 			auto UploadBufferAllocator = FDX12Device::Get()->GetUploadBufferAllocator();
-			BYTE* MappedData = (BYTE*)UploadBufferAllocator->AllocUploadResource(DataSize, UPLOAD_RESOURCE_ALIGNMENT, UploadResourceLocation);
+			void* MappedData = UploadBufferAllocator->AllocUploadResource(DataSize, UPLOAD_RESOURCE_ALIGNMENT, UploadResourceLocation);
 
-			memcpy(MappedData + Offset, SrcData, DataSize);
-			
-			Ref<FDX12Resource> UnderlyingResource = m_ResourceLocation.m_UnderlyingResource;
-			Ref<FDX12Resource> UploadBuffer = UploadResourceLocation.m_UnderlyingResource;
-			
+			memcpy(MappedData, SrcData, DataSize);
+
 			auto DX12CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
-			DX12CommandList->TransitionBarrier(UnderlyingResource->GetD3DResource().Get(), D3D12_RESOURCE_STATE_COPY_DEST);
-			DX12CommandList->CopyBufferRegion(UnderlyingResource->GetD3DResource(), m_ResourceLocation.m_OffsetFromBaseOfResource,
+			Ref<FDX12Resource>	DefaultBuffer = m_ResourceLocation.m_UnderlyingResource;
+			DX12CommandList->TransitionBarrier(DefaultBuffer->GetD3DResource().Get(), D3D12_RESOURCE_STATE_GENERIC_READ);
+			return;
+			Ref<FDX12Resource>	UploadBuffer = UploadResourceLocation.m_UnderlyingResource;
+
+
+			DX12CommandList->TransitionBarrier(DefaultBuffer->GetD3DResource().Get(), D3D12_RESOURCE_STATE_COPY_DEST);
+			DX12CommandList->CopyBufferRegion(DefaultBuffer->GetD3DResource(), m_ResourceLocation.m_OffsetFromBaseOfResource,
 				UploadBuffer->GetD3DResource(), UploadResourceLocation.m_OffsetFromBaseOfResource, DataSize);
+			//UploadResourceLocation.ReleaseResource();
+			DX12CommandList->TransitionBarrier(DefaultBuffer->GetD3DResource().Get(), D3D12_RESOURCE_STATE_GENERIC_READ);
 		}
 		else
 		{
@@ -163,7 +212,7 @@ namespace Zero
 
 	void FDX12Buffer::CreateUAV(const FBufferSubresourceDesc& SubDesc)
 	{
-		if (SubDesc == m_SrvSubresourceDesc && m_Srv != nullptr)
+		if (SubDesc == m_UavSubresourceDesc && m_Uav != nullptr)
 		{
 			return;
 		}
@@ -194,6 +243,10 @@ namespace Zero
 			UavDesc.Format = FDX12Utils::ConvertResourceFormat(m_Desc.Format);
 			UavDesc.Buffer.FirstElement = SubDesc.Offset / Stride;
 			UavDesc.Buffer.NumElements = (UINT)std::min<UINT64>(SubDesc.Size, m_Desc.Size - SubDesc.Offset) / Stride;
+			if (HasAllFlags(m_Desc.MiscFlag, EBufferMiscFlag::BufferRaw))
+			{
+				UavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_RAW;
+			}
 		}
 		m_Uav = CreateScope<FDX12UnorderedAccessResourceView>(m_ResourceLocation.GetResource(), nullptr, &UavDesc);
 		m_UavSubresourceDesc = SubDesc;

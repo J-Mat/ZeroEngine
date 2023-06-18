@@ -142,6 +142,9 @@ namespace Zero
 			void* MapData = Map();
 			return reinterpret_cast<T*>(MapData);
 		}
+		
+		bool IsCopy() { return m_bIsCopy; }
+		void SetCopy(bool bValue) { m_bIsCopy = bValue; }
 
 	protected:
 		FBufferDesc m_Desc;
@@ -149,5 +152,6 @@ namespace Zero
 		FBufferSubresourceDesc m_UavSubresourceDesc;
 		std::string m_BufferName;
 		void* m_Data = 0;
+		bool m_bIsCopy = false;
 	};
 }

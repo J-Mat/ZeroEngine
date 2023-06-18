@@ -54,7 +54,6 @@ namespace Zero
 		FShader(const FShaderBinderDesc& BinderDesc, const FShaderDesc& Desc);
 		FShader(const FShaderDesc& Desc);
 		virtual ~FShader() {}
-		virtual void Use(FCommandListHandle CommandList) = 0;
 		virtual void CreateBinder() = 0;
 
 		virtual Ref<IShaderBinder> GetBinder() { return m_ShaderBinder; }

@@ -46,6 +46,39 @@ namespace Zero
 
 			FTextureManager::Get().LoadDefaultTexture();
 			FTextureManager::Get().LoadTexture("Texture\\pbr\\IBL_BRDF_LUT.png", false);
+
+		}
+		{
+			FBufferDesc Desc{
+				.Size = sizeof(float) * 32,
+				.ResourceUsage = EResourceUsage::Default,
+				.ResourceBindFlag = EResourceBindFlag::UnorderedAccess,
+				.MiscFlag = EBufferMiscFlag::BufferRaw,
+				.Stride = sizeof(float),
+				.Format = EResourceFormat::R32_TYPELESS
+			};
+			Ref<FBuffer> UavBuffer;
+			UavBuffer.reset(FGraphic::GetDevice()->CreateBuffer(Desc));
+			TLibrary<FBuffer>::Push("UavBuffer", UavBuffer);
+			FBufferSubresourceDesc SubDesc
+			{
+				.Offset = 0,
+				.Size = sizeof(float) * 32
+			};
+			UavBuffer->CreateUAV(SubDesc);
+		}
+		{
+			FBufferDesc Desc{
+				.Size = sizeof(float) * 32,
+				.ResourceUsage = EResourceUsage::Readback,
+				.ResourceBindFlag = EResourceBindFlag::None,
+				.MiscFlag = EBufferMiscFlag::BufferRaw,
+				.Stride = sizeof(float),
+				.Format = EResourceFormat::R32_FLOAT
+			};
+			Ref<FBuffer> ReadbackBuffer;
+			ReadbackBuffer.reset(FGraphic::GetDevice()->CreateBuffer(Desc));
+			TLibrary<FBuffer>::Push("ReadbackBuffer", ReadbackBuffer);
 		}
 	}
 
@@ -208,6 +241,17 @@ namespace Zero
 		ImGui::End();
 	}
 	
+	void FEditorLayer::OnEndFrame()
+	{
+		static int cnt = 0;
+		cnt++;
+		//if (cnt < 10)
+		{
+			Ref<FBuffer> ReadbackBuffer = TLibrary<FBuffer>::Fetch("ReadbackBuffer");
+			ReadbackBuffer->Map();
+		}
+	}
+
 	void FEditorLayer::OnEvent(FEvent& Event)
 	{
 		FEventDispatcher Dispatcher(Event);

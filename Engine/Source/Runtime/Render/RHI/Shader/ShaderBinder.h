@@ -177,7 +177,7 @@ namespace Zero
 		}
 		virtual Ref<FShaderResourcesDesc> GetShaderResourcesDesc() { return m_ShaderResourceDesc; }
 		virtual FRootSignature* GetRootSignature() { return nullptr; }
-		virtual void Bind(FCommandListHandle CommandListHandle) = 0;
+		virtual void Bind(FCommandListHandle CommandListHandle, ERenderPassType RenderPassUsage) = 0;
 		const FShaderBinderDesc& GetBinderDesc() { return m_Desc; }
 	protected:
 		void InitMappers();

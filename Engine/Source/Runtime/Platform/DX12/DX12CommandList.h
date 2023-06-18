@@ -33,7 +33,7 @@ namespace Zero
 		void CopyBufferRegion(ComPtr<ID3D12Resource> DstResource, UINT64 DstOffset, ComPtr<ID3D12Resource> SrcResource, UINT64 SrcOffset, UINT64 Size);
 		void CopyTextureRegion(const D3D12_TEXTURE_COPY_LOCATION* Dst, UINT DstX, UINT DstY, UINT DstZ, const D3D12_TEXTURE_COPY_LOCATION* Src, const D3D12_BOX* SrcBox);
 		ComPtr<ID3D12Resource> CreateDefaultBuffer(const void* BufferData, size_t BufferSize, D3D12_RESOURCE_FLAGS Flags = D3D12_RESOURCE_FLAG_NONE);
-		void CreateAndInitDefaultBuffer(const void* BufferData, uint32_t Size, uint32_t Alignment, FResourceLocation& ResourceLocation);
+		void CreateAndInitDefaultBuffer(D3D12_RESOURCE_DESC& ResourceDesc, const void* BufferData, uint32_t Size, uint32_t Alignment, FResourceLocation& ResourceLocation);
 		void CreateAndInitDefaultBuffer(const void* BufferData, uint32_t Size, ComPtr<ID3D12Resource> Resource);
 	
 		Ref<FDX12Resource> CreateTextureResource(const std::string& TextureName, Ref<FImage> Image, bool bGenerateMip = false);

@@ -57,6 +57,8 @@ namespace Zero
 		constexpr FRGResourceName BufferArray = RG_RES_NAME(BufferArray);
 		constexpr FRGResourceName ResultBuffer = RG_RES_NAME(ResultBuffer);
 		constexpr FRGResourceName ReadBackBuffer = RG_RES_NAME(ReadBackBuffer);
+
+		constexpr FRGResourceName PostProcessBuffer = RG_RES_NAME(PostProcessBuffer);
 	}
 }
 

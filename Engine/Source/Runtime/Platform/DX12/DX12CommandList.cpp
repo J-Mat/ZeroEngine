@@ -6,6 +6,7 @@
 #include "./PSO/GenerateMipsPSO.h"
 #include "./ResourceView/DX12RenderTargetView.h"
 #include "Utils.h"
+#include "Core/Framework/Library.h"
 
 namespace Zero
 {
@@ -340,13 +341,32 @@ namespace Zero
 
 		ID3D12Device* D3DDevice = FDX12Device::Get()->GetDevice();
 
+		Ref<FBuffer> ReadbackBuffer = TLibrary<FBuffer>::Fetch("ReadbackBuffer");
+		if (ReadbackBuffer->IsCopy())
+		{
+			return;
+		}
 		if (m_GenerateMipsPSO == nullptr)
 		{
 			m_GenerateMipsPSO = CreateScope<FGenerateMipsPSO>();
 		}
 		SetPipelineState(m_GenerateMipsPSO->GetPipelineState());
 		SetComputeRootSignature(m_GenerateMipsPSO->GetRootSignature());
+		
+		Ref<FBuffer> UavBuffer = TLibrary<FBuffer>::Fetch("UavBuffer");
+		FDX12Buffer* D3DBuffer = static_cast<FDX12Buffer*>(UavBuffer.get());
+		FDX12UnorderedAccessResourceView* Uav = static_cast<FDX12UnorderedAccessResourceView*>(D3DBuffer->GetUAV());
 
+		CD3DX12_GPU_DESCRIPTOR_HANDLE GpuHandle = AppendCbvSrvUavDescriptors(&Uav->GetDescriptorHandle(), 1);
+		m_D3DCommandList->SetComputeRootDescriptorTable(0, GpuHandle);
+
+		m_D3DCommandList->Dispatch(1, 1, 1);
+			
+		CopyResource(ReadbackBuffer->GetNative(), UavBuffer->GetNative());
+		TransitionBarrier(ReadbackBuffer->GetNative(), EResourceState::Common);
+		ReadbackBuffer->SetCopy(true);
+
+		/*
 		D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc
 		{
 			.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D,
@@ -398,6 +418,7 @@ namespace Zero
 			UAVBarrier(TextureResource, true);
 		}
 		TransitionBarrier(TextureResource, D3D12_RESOURCE_STATE_COMMON);
+		*/
 	}
 
 	void FDX12CommandList::GenerateMips_UAV(Ref<FDX12Texture2D> Texture, bool bIsSRGB)
@@ -695,10 +716,12 @@ namespace Zero
 	{
 		FlushResourceBarriers();	
 
+		/*
 		for (int i = 0; i < D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES; ++i)
 		{
 			m_DynamicDescriptorHeap[i]->CommitStagedDescriptorsForDispatch(m_CommandListHandle);
 		}
+		*/
 		m_D3DCommandList->Dispatch(NumGroupsX, NumGroupsY, NumGroupsZ);
 	}
 
@@ -942,9 +965,8 @@ namespace Zero
 		return D3DResource;
 	}
 
-	void FDX12CommandList::CreateAndInitDefaultBuffer(const void* BufferData, uint32_t Size, uint32_t Alignment, FResourceLocation& ResourceLocation)
+	void FDX12CommandList::CreateAndInitDefaultBuffer(D3D12_RESOURCE_DESC& ResourceDesc, const void* BufferData, uint32_t Size, uint32_t Alignment, FResourceLocation& ResourceLocation)
 	{
-		D3D12_RESOURCE_DESC ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(Size, D3D12_RESOURCE_FLAG_NONE);
 		auto* DefaultBufferAllocator = FDX12Device::Get()->GetDefaultBufferAllocator();
 		DefaultBufferAllocator->AllocDefaultResource(ResourceDesc, Alignment, ResourceLocation);
 
@@ -1002,13 +1024,9 @@ namespace Zero
 		if (D3DRootSignature != m_RootSignature)
 		{
 			m_RootSignature = D3DRootSignature;
-			for (int i = 0; i < D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES; ++i)
-			{
-				m_DynamicDescriptorHeap[i]->ParseRootSignature(RootSignature);
-			}
+			m_D3DCommandList->SetComputeRootSignature(m_RootSignature);
 			TrackResource(m_RootSignature);
 		}
-		m_D3DCommandList->SetComputeRootSignature(m_RootSignature);
 	}
 
 	void FDX12CommandList::Reset()

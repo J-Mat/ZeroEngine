@@ -44,7 +44,8 @@ namespace Zero
 
 		void Reset();
 		Ref<FComputePipelineStateObject> GetPsoObj();
-		void Compute(FCommandListHandle ComamndListHandle, uint32_t NumGroupsX, uint32_t NumGroupsY, uint32_t NumGroupsZ);
+		void PreDispatch(FCommandListHandle ComamndListHandle);
+		void Dispatch(FCommandListHandle ComamndListHandle, uint32_t NumGroupsX, uint32_t NumGroupsY, uint32_t NumGroupsZ);
 		void SetPsoID(uint32_t PsoID) { m_PsoID = PsoID; }
 		Ref<FShaderParamsGroup> GetShaderParamsGroup() { return  m_ShaderParamsGroup;}
 	private:

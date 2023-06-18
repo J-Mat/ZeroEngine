@@ -10,6 +10,7 @@
 #include "Render/RHI/Texture.h"
 #include "Render/RenderUtils.h"
 #include "World/LightManager.h"
+#include "Render/RHI/CommandList.h"
 
 namespace Zero
 {
@@ -25,6 +26,7 @@ namespace Zero
 		{
 			FRGTex2DReadOnlyID DirectLightShadowMaps[2];
 			FRGTexCubeReadOnlyID PointLightShadowMaps[4];
+			FRGTex2DRenderTargetID GBufferColorID;
 		};
 
 		RenderGraph.AddPass<FForwardLitPassData>(
@@ -50,7 +52,7 @@ namespace Zero
 						.Format = EResourceFormat::R8G8B8A8_UNORM
 					};
 					Builder.DeclareTexture2D(RGResourceName::GBufferColor, ColorDesc);
-					Builder.WriteRenderTarget2D(RGResourceName::GBufferColor, ERGLoadStoreAccessOp::Clear_Preserve);
+					Data.GBufferColorID =  Builder.WriteRenderTarget2D(RGResourceName::GBufferColor, ERGLoadStoreAccessOp::Clear_Preserve);
 				}
 
 				// Shadow Maps
@@ -129,6 +131,9 @@ namespace Zero
 						}
 					);
 				}
+				FTexture2D* GBufferTexture = Context.GetTexture2D(Data.GBufferColorID.GetResourceID());
+				Ref<FCommandList> CommandList = FGraphic::GetDevice()->GetRHICommandList(CommandListHandle);
+				CommandList->TransitionBarrier(GBufferTexture->GetNative(), EResourceState::Common);
 			},
 			ERenderPassType::Graphics,
 			ERGPassFlags::ForceNoCull

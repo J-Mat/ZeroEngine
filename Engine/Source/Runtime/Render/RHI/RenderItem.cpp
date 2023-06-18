@@ -145,7 +145,7 @@ namespace Zero
 		PsoObj->Bind(ComamndListHandle);
 		m_Material->SetShader(PsoObj->GetPSODescriptor().Shader);
 		m_Material->Tick();
-		m_Material->SetPass(ComamndListHandle);
+		m_Material->SetPass(ComamndListHandle, ERenderPassType::Graphics);
 		return true;
 	}
 
@@ -187,7 +187,7 @@ namespace Zero
 		return m_PipelineStateObject;
 	}
 	
-	void FComputeRenderItem::Compute(FCommandListHandle ComamndListHandle, uint32_t NumGroupsX, uint32_t NumGroupsY, uint32_t NumGroupsZ)
+	void FComputeRenderItem::PreDispatch(FCommandListHandle ComamndListHandle)
 	{
 		auto PsoObj = GetPsoObj();
 		if (PsoObj == nullptr)
@@ -197,8 +197,12 @@ namespace Zero
 		PsoObj->Bind(ComamndListHandle);
 		m_ShaderParamsGroup->SetShader(PsoObj->GetPSODescriptor().Shader);
 		m_ShaderParamsGroup->Tick();
-		m_ShaderParamsGroup->SetPass(ComamndListHandle);
+		m_ShaderParamsGroup->SetPass(ComamndListHandle, ERenderPassType::Compute);
+	}
 
+	void FComputeRenderItem::Dispatch(FCommandListHandle ComamndListHandle, uint32_t NumGroupsX, uint32_t NumGroupsY, uint32_t NumGroupsZ)
+	{
+		m_ShaderParamsGroup->OnDrawCall(ComamndListHandle);
 		Ref<FCommandList> RHICommandList = FGraphic::GetDevice()->GetRHICommandList(ComamndListHandle);
 		RHICommandList->Dispatch(NumGroupsX, NumGroupsY, NumGroupsZ);
 	}

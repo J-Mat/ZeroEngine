@@ -17,16 +17,16 @@ namespace Zero
 	void FDX12ComputePipelineStateObject::Bind(FCommandListHandle CommandListHandle)
 	{
 		Ref<FDX12CommandList> CommandList = FDX12Device::Get()->GetCommandList(CommandListHandle);
-		CommandList->GetD3D12CommandList()->SetPipelineState(m_D3DPipelineState.Get()); 
+		CommandList->SetPipelineState(m_D3DPipelineState.Get());
 	}
 
 	void FDX12ComputePipelineStateObject::CreateComputePsoObj()
 	{
 		auto* DX12ComputeShader = static_cast<FDX12Shader*>(m_ComputePSODescriptor.Shader.get());
-		FDX12RootSignature* DX12RootSignature = static_cast<FDX12RootSignature*>(DX12ComputeShader->m_ShaderBinder->GetRootSignature());
+		m_DX12RootSignature = static_cast<FDX12RootSignature*>(DX12ComputeShader->m_ShaderBinder->GetRootSignature());
 		D3D12_COMPUTE_PIPELINE_STATE_DESC ComputePsoDesc
 		{
-			.pRootSignature = DX12RootSignature->GetD3D12RootSignature().Get(),
+			.pRootSignature = m_DX12RootSignature->GetD3D12RootSignature().Get(),
 			.CS = {
 				reinterpret_cast<BYTE*>(DX12ComputeShader->GetPointer(EShaderStage::CS)),
 				DX12ComputeShader->GetLength(EShaderStage::CS)

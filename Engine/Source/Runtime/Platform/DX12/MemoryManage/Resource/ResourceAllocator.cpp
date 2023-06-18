@@ -27,18 +27,23 @@ namespace Zero
 		{
 			CD3DX12_HEAP_PROPERTIES HeapProperties(InitData.HeapType);
 			D3D12_RESOURCE_STATES HeapResourceStates;
+			std::string ResourceName;
 			if (InitData.HeapType == D3D12_HEAP_TYPE_UPLOAD)
 			{
 				HeapResourceStates = D3D12_RESOURCE_STATE_GENERIC_READ;
+				ResourceName = "UploadResource";
 			}
 			else if (InitData.HeapType == D3D12_HEAP_TYPE_READBACK)
 			{
 				HeapResourceStates = D3D12_RESOURCE_STATE_COPY_DEST;
+				ResourceName = "ReadbackResource";
 			}
 			else //D3D12_HEAP_TYPE_DEFAULT
 			{
 				HeapResourceStates = D3D12_RESOURCE_STATE_COMMON;
+				ResourceName = "DefaultResource";
 			}
+			HeapResourceStates = D3D12_RESOURCE_STATE_COMMON;
 			CD3DX12_RESOURCE_DESC BufferDesc = CD3DX12_RESOURCE_DESC::Buffer(DEFAULT_POOL_SIZE, InitData.ResourceFlags);
 			// Create committed resource, we will allocate sub regions on it.
 			ComPtr<ID3D12Resource> D3DResource;
@@ -49,9 +54,9 @@ namespace Zero
 				HeapResourceStates,
 				nullptr,
 				IID_PPV_ARGS(&D3DResource)));
-			m_BackingResource = CreateRef<FDX12Resource>("BackingResource", D3DResource);
+			m_BackingResource = CreateRef<FDX12Resource>(ResourceName, D3DResource);
 
-			if (InitData.HeapType == D3D12_HEAP_TYPE_UPLOAD)
+			if (InitData.HeapType == D3D12_HEAP_TYPE_UPLOAD || InitData.HeapType == D3D12_HEAP_TYPE_READBACK)
 			{
 				m_BackingResource->Map();
 			}
@@ -162,7 +167,7 @@ namespace Zero
 				ResourceLocation.m_OffsetFromBaseOfResource = AlignedOffsetFromResourceBase;
 				ResourceLocation.m_GPUVirtualAddress = m_BackingResource->m_GPUVirtualAddress + AlignedOffsetFromResourceBase;
 
-				if (m_InitData.HeapType == D3D12_HEAP_TYPE_UPLOAD)
+				if (m_InitData.HeapType == D3D12_HEAP_TYPE_UPLOAD || m_InitData.HeapType == D3D12_HEAP_TYPE_READBACK)
 				{
 					ResourceLocation.m_MappedAddress = ((uint8_t*)m_BackingResource->m_MappedBaseAddress + AlignedOffsetFromResourceBase);
 				}
@@ -387,7 +392,7 @@ namespace Zero
 
 	void FDefaultBufferAllocator::AllocDefaultResource(const D3D12_RESOURCE_DESC& ResourceDesc, uint32_t Alignment, FResourceLocation& ResourceLocation)
 	{
-		if (ResourceDesc.Flags == D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS)
+		if (HasAnyFlag(ResourceDesc.Flags, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS))
 		{
 			m_UavAllocator->AllocResource((uint32_t)ResourceDesc.Width, Alignment, ResourceLocation);
 		}

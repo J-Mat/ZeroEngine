@@ -24,6 +24,8 @@ namespace Zero
 		virtual void OnUpdate() override;
 		virtual void OnDraw() override;
 		virtual void OnGuiRender() override;
+		virtual void OnEndFrame() override;
+
 		void OnEvent(FEvent& Event) override;
 
 		void SaveScene();
