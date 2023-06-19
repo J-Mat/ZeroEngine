@@ -54,7 +54,7 @@ PixelOutput PS(VertexOut Pin)
 	PixelOutput Out;
 	float3 FinalColor = 0.0f;
 	float2 UV = float2(Pin.TexC.x, 1.0f - Pin.TexC.y);
-	float3 BaseColor = gDiffuseMap.SampleLevel(gSamLinearWarp, UV, 0).rgb;
+	float3 BaseColor = gDiffuseMap.SampleLevel(gSamLinearWarp, UV, MipLevel).rgb;
 	float3 EmissiveColor = pow(gEmissionMap.Sample(gSamAnisotropicWarp, UV).rgb, 2.2f);
 	float Metallic = gMetallicMap.Sample(gSamAnisotropicWarp, UV).r; 
 	float Roughness = gRoughnessMap.Sample(gSamAnisotropicWarp, UV).r;
@@ -73,6 +73,7 @@ PixelOutput PS(VertexOut Pin)
 		float NdotV = dot(Normal, ViewDir);
 		float2 LUT = _BrdfLUT.Sample(gSamAnisotropicWarp, float2(NdotV, Roughness)).rg;
 		FinalColor =  AmbientLighting(Metallic, BaseColor, Irradiance, PrefilteredColor, LUT) + EmissiveColor;
+		FinalColor = BaseColor;
 	}
 	else if (ShadingMode == 1)
 	{
