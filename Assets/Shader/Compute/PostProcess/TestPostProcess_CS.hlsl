@@ -6,5 +6,5 @@ void CS(int3 DispatchThreadID : SV_DispatchThreadID,
         int3 GroupThreadID : SV_GroupThreadID)
 {
     float4 Color = SrcTexture[DispatchThreadID.xy];
-    DstTexture[DispatchThreadID.xy] = Color.yxzw;
+    DstTexture[DispatchThreadID.xy] = float4(1.0f, 0.0f, 0.0f, 1.0f);
 }

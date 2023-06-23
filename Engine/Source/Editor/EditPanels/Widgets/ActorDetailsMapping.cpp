@@ -1,5 +1,6 @@
 #include "ActorDetailsMapping.h"
 #include "DetailsMappingManager.h"
+#include "World/World.h"
 
 namespace Zero
 {

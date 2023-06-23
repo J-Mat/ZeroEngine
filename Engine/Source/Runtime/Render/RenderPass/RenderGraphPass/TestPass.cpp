@@ -69,7 +69,7 @@ namespace Zero
 			[=](const FComputeShaderData& Data, FRenderGraphContext& Context, FCommandListHandle CommandListHandle)
 			{
 				Ref<FComputeRenderItemPool> ComputeRenderItemPool = UWorld::GetCurrentWorld()->GetComputeRenderItemPool();
-				Ref<FComputeRenderItem> Item = ComputeRenderItemPool->Request();
+				Ref<FComputeItem> Item = ComputeRenderItemPool->Request();
 				Item->SetPsoID(EComputePsoID::PrefixSumTex);
 				Item->PreDispatch(CommandListHandle);
 				Ref<FShaderParamsGroup> ShaderParamsBinder = Item->GetShaderParamsGroup();
@@ -95,7 +95,6 @@ namespace Zero
 				FBuffer* ReadBackBuffer = Context.GetBuffer(Data.ReadBackBufferID.GetResourceID());
 				Ref<FCommandList> CommandList = FGraphic::GetDevice()->GetRHICommandList(CommandListHandle);
 				CommandList->CopyResource(ReadBackBuffer->GetNative(), OutputBuffer->GetNative());	
-				CommandList->TransitionBarrier(ReadBackBuffer->GetNative(), EResourceState::Common);
 			},
 			ERenderPassType::Compute,
 			ERGPassFlags::ForceNoCull

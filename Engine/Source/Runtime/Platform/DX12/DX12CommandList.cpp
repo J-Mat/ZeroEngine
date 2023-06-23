@@ -114,7 +114,7 @@ namespace Zero
 		TrackResource(UploadResource);
 		TrackResource(TextureD3DResource);
 		
-		Ref<FDX12Resource> TextureResource = CreateRef<FDX12Resource>(TextureName, TextureD3DResource);
+		Ref<FDX12Resource> TextureResource = CreateRef<FDX12Resource>(TextureName, TextureD3DResource, D3D12_RESOURCE_STATE_GENERIC_READ);
 
 		TransitionBarrier(TextureD3DResource.Get(), D3D12_RESOURCE_STATE_COMMON);
 
@@ -339,6 +339,7 @@ namespace Zero
 	{
 		CORE_ASSERT(m_CommandListType == D3D12_COMMAND_LIST_TYPE_COMPUTE, "ComandList must be compute");
 
+		/*
 		ID3D12Device* D3DDevice = FDX12Device::Get()->GetDevice();
 
 		Ref<FBuffer> ReadbackBuffer = TLibrary<FBuffer>::Fetch("ReadbackBuffer");
@@ -363,10 +364,16 @@ namespace Zero
 		m_D3DCommandList->Dispatch(1, 1, 1);
 			
 		CopyResource(ReadbackBuffer->GetNative(), UavBuffer->GetNative());
-		TransitionBarrier(ReadbackBuffer->GetNative(), EResourceState::Common);
 		ReadbackBuffer->SetCopy(true);
+		*/
 
-		/*
+		if (m_GenerateMipsPSO == nullptr)
+		{
+			m_GenerateMipsPSO = CreateScope<FGenerateMipsPSO>();
+		}
+		SetPipelineState(m_GenerateMipsPSO->GetPipelineState());
+		SetComputeRootSignature(m_GenerateMipsPSO->GetRootSignature());
+		ID3D12Device* D3DDevice = FDX12Device::Get()->GetDevice();
 		D3D12_SHADER_RESOURCE_VIEW_DESC SrvDesc
 		{
 			.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D,
@@ -418,7 +425,6 @@ namespace Zero
 			UAVBarrier(TextureResource, true);
 		}
 		TransitionBarrier(TextureResource, D3D12_RESOURCE_STATE_COMMON);
-		*/
 	}
 
 	void FDX12CommandList::GenerateMips_UAV(Ref<FDX12Texture2D> Texture, bool bIsSRGB)

@@ -237,18 +237,6 @@ namespace Zero
 		{
 			struct FShaderDesc GenerteMipShader
 			{
-				.FileName = GENERATE_MIP_SHADER,
-				.BlockSize_X = 8,
-				.BlockSize_Y = 8,
-				.BlockSize_Z = 1
-			};
-			Ref<FShader> Shader = FGraphic::GetDevice()->CreateComputeShader(GenerteMipShader);
-			TLibrary<FShader>::Push(GENERATE_MIP_SHADER_TEST, Shader);
-		}
-
-		{
-			struct FShaderDesc GenerteMipShader
-			{
 				.FileName = GENERATE_MIP_SHADER_TEST,
 				.BlockSize_X = 8,
 				.BlockSize_Y = 8,
@@ -258,17 +246,15 @@ namespace Zero
 			TLibrary<FShader>::Push(GENERATE_MIP_SHADER_TEST, Shader);
 		}
 
-
 		{
 			struct FShaderDesc PostProcessTexShader
 			{
 				.FileName = "Shader\\Compute\\PostProcess\\TestPostProcess_CS.hlsl",
-					.BlockSize_X = 8,
-					.BlockSize_Y = 8,
-					.BlockSize_Z = 1
+				.BlockSize_X = 8,
+				.BlockSize_Y = 8,
+				.BlockSize_Z = 1
 			};
 			Ref<FShader> Shader = FGraphic::GetDevice()->CreateComputeShader(PostProcessTexShader);
-			TLibrary<FShader>::Push("TestPostProcess", Shader);
 			FComputePSODescriptor TestPostProcessPso =
 			{
 				.Shader = Shader,

@@ -43,7 +43,6 @@ namespace Zero
 				HeapResourceStates = D3D12_RESOURCE_STATE_COMMON;
 				ResourceName = "DefaultResource";
 			}
-			HeapResourceStates = D3D12_RESOURCE_STATE_COMMON;
 			CD3DX12_RESOURCE_DESC BufferDesc = CD3DX12_RESOURCE_DESC::Buffer(DEFAULT_POOL_SIZE, InitData.ResourceFlags);
 			// Create committed resource, we will allocate sub regions on it.
 			ComPtr<ID3D12Resource> D3DResource;
@@ -54,7 +53,7 @@ namespace Zero
 				HeapResourceStates,
 				nullptr,
 				IID_PPV_ARGS(&D3DResource)));
-			m_BackingResource = CreateRef<FDX12Resource>(ResourceName, D3DResource);
+			m_BackingResource = CreateRef<FDX12Resource>(ResourceName, D3DResource, HeapResourceStates);
 
 			if (InitData.HeapType == D3D12_HEAP_TYPE_UPLOAD || InitData.HeapType == D3D12_HEAP_TYPE_READBACK)
 			{
@@ -315,7 +314,7 @@ namespace Zero
 		uint64_t HeapOffset = ResourceLocation.m_OffsetFromBaseOfHeap;
 		D3DDeviec->CreatePlacedResource(BackingHeap, HeapOffset, &ResourceDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&D3DResource));
 
-		ResourceLocation.m_UnderlyingResource = CreateRef<FDX12Resource>(TextureName, D3DResource);
+		ResourceLocation.m_UnderlyingResource = CreateRef<FDX12Resource>(TextureName, D3DResource, D3D12_RESOURCE_STATE_COMMON);
 		ResourceLocation.m_BlockData.PlacedResource = ResourceLocation.m_UnderlyingResource;
 	}
 

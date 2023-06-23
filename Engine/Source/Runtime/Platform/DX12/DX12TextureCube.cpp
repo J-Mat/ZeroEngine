@@ -43,7 +43,7 @@ namespace Zero
 					IID_PPV_ARGS(D3DResource.GetAddressOf())
 				)
 			);
-			m_ResourceLocation.m_UnderlyingResource = CreateRef<FDX12Resource>(TextureName, D3DResource, &D3DClearValue);
+			m_ResourceLocation.m_UnderlyingResource = CreateRef<FDX12Resource>(TextureName, D3DResource, D3D12_RESOURCE_STATE_COMMON, &D3DClearValue);
 			m_ResourceLocation.SetType(FResourceLocation::EResourceLocationType::StandAlone);
 		}
 		else

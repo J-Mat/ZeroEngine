@@ -69,11 +69,11 @@ namespace Zero
 	}
 
 
-	void FMaterial::OnDrawCall(FCommandListHandle CommandListHanle)
+	void FMaterial::OnDrawCall(FCommandListHandle CommandListHanle, ERenderPassType RenderPassUsage)
 	{
 		if (m_ResourcesBuffer != nullptr)
 		{
-			m_ResourcesBuffer->UploadDataIfDirty(CommandListHanle);
+			m_ResourcesBuffer->UploadDataIfDirty(CommandListHanle, RenderPassUsage);
 		}
 	}
 

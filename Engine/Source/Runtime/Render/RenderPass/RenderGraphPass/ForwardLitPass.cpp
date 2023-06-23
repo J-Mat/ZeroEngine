@@ -110,9 +110,9 @@ namespace Zero
 						[&](Ref<FRenderItem> RenderItem)
 						{
 							auto& IBLModule = FRenderUtils::GetIBLMoudule();
-							RenderItem->m_Material->SetTextureCube("IBLIrradianceMap", IBLModule->GetIrradianceRTCube()->GetColorTexCube());
-							RenderItem->m_Material->SetTextureCube("IBLPrefilterMap", IBLModule->GetPrefilterEnvMapRTCube()->GetColorTexCube());
-							RenderItem->m_Material->SetTexture2D("_BrdfLUT", FTextureManager::Get().GetLutTexture().get());
+							//RenderItem->m_Material->SetTextureCube("IBLIrradianceMap", IBLModule->GetIrradianceRTCube()->GetColorTexCube());
+							//RenderItem->m_Material->SetTextureCube("IBLPrefilterMap", IBLModule->GetPrefilterEnvMapRTCube()->GetColorTexCube());
+							//RenderItem->m_Material->SetTexture2D("_BrdfLUT", FTextureManager::Get().GetLutTexture().get());
 							RenderItem->m_Material->SetIBL(true);
 
 							{

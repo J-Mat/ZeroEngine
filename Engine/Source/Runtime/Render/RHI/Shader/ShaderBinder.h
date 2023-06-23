@@ -159,7 +159,7 @@ namespace Zero
 		virtual void SetTexture2D_Uav(const std::string& Name, FTexture2D* Texture) = 0;
 		virtual void SetBuffer_Uav(const std::string& Name, FBuffer* Buffer)= 0;
 
-		virtual void UploadDataIfDirty(FCommandListHandle CommandListHandle) = 0;
+		virtual void UploadDataIfDirty(FCommandListHandle CommandListHandle, ERenderPassType RenderPassUsage) = 0;
 	protected:
 		FShaderResourcesDesc& m_Desc;
 	};

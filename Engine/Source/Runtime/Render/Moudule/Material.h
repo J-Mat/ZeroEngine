@@ -36,7 +36,7 @@ namespace Zero
 		void Tick();
 		void SetCamera(Ref<IShaderConstantsBuffer> Camera);
 		void SetPass(FCommandListHandle CommandListHanle, ERenderPassType RenderPassUsage);
-		void OnDrawCall(FCommandListHandle CommandListHanle);
+		void OnDrawCall(FCommandListHandle CommandListHanle, ERenderPassType RenderPassUsage);
 		void PostDrawCall();
 		void SetShader(Ref<FShader> Shader);
 		Ref<FShader> GetShader() { return m_Shader; }

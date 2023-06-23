@@ -34,7 +34,7 @@ namespace Zero
 				FTexture2D* DstTexture = Context.GetTexture2D(Data.Dst);
 				FTexture2D* SrcTexture = Context.GetTexture2D(Data.Src);
 				RHICommandList->CopyResource(DstTexture->GetNative(), SrcTexture->GetNative());
-				RHICommandList->TransitionBarrier(DstTexture->GetNative(), EResourceState::Common);
+				//RHICommandList->TransitionBarrier(DstTexture->GetNative(), EResourceState::Common);
 			},
 			ERenderPassType::Copy,
 			ERGPassFlags::ForceNoCull

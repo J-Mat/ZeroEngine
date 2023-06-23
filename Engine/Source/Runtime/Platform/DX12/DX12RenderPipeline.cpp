@@ -40,7 +40,6 @@ namespace Zero
 		auto InitComandList = Device->GetCommandList(InitWorldCommandListHandle);
 		Device->GetCommandQueue(ERenderPassType::Graphics).ExecuteCommandList(InitComandList);
 		auto MipComandList = Device->GetMipCommandList();
-		FDX12Device::Get()->GetMipCommandList()->GenerateMipSimple(nullptr);
 		Device->GetCommandQueue(ERenderPassType::Compute).ExecuteCommandList(MipComandList);
 		
 		Device->ExecuteSingleThreadCommandLists();

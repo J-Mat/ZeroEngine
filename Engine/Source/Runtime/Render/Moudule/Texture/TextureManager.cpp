@@ -14,7 +14,6 @@ namespace Zero
 
 	void FMipsGenerator::Generate()
 	{
-		return;
 		for (auto Texture2D : m_Resources)
 		{
 			Texture2D->GenerateMip();

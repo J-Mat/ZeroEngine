@@ -58,7 +58,7 @@ namespace Zero
 		virtual void SetTexture2D_Uav(const std::string& Name, FTexture2D* Texture) override;
 		virtual void SetBuffer_Uav(const std::string& Name, FBuffer* Buffer) override;
 
-		virtual void UploadDataIfDirty(FCommandListHandle CommandListHandle) override;
+		virtual void UploadDataIfDirty(FCommandListHandle CommandListHandle, ERenderPassType RenderPassUsage) override;
 	private:
 
 		Ref<FDynamicDescriptorHeap> m_SrvDynamicDescriptorHeap;

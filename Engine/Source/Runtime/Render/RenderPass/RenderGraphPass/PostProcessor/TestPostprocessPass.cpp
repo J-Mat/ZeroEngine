@@ -8,6 +8,7 @@
 #include "Render/RHI/CommandList.h"
 #include "Render/RHI/ComputePipelineStateObject.h"
 #include "Render/RHI/CommandList.h"
+#include "Render/RenderUtils.h"
 
 namespace Zero
 {
@@ -43,18 +44,28 @@ namespace Zero
 			},
 			[=](const FPassData& Data, FRenderGraphContext& Context, FCommandListHandle CommandListHandle)
 			{
+				FDispatchComputeParams DispatchComputeParams
+				{
+					.PsoID = EComputePsoID::TestPostProcess,
+					.ThreadNumX = m_Width,
+					.ThreadNumY = m_Height,
+					.ThreadNumZ = 1
+				};
+				/*
 				Ref<FComputeRenderItemPool> ComputeRenderItemPool = UWorld::GetCurrentWorld()->GetComputeRenderItemPool();
-				Ref<FComputeRenderItem> Item = ComputeRenderItemPool->Request();
+				Ref<FComputeItem> Item = ComputeRenderItemPool->Request();
 				Item->SetPsoID(EComputePsoID::TestPostProcess);
 				Item->PreDispatch(CommandListHandle);
 				Ref<FShaderParamsGroup> ShaderParamsBinder = Item->GetShaderParamsGroup();
+				*/
 				FTexture2D* DstTexture = Context.GetTexture2D(Data.DstTex.GetResourceID());
 				FTexture2D* SrcTexture = Context.GetTexture2D(Data.SrcTex.GetResourceID());
-				ShaderParamsBinder->SetTexture2D("SrcTexture", SrcTexture);
-				ShaderParamsBinder->SetTexture2D_Uav("DstTexture", DstTexture);
-				
-				Item->Dispatch(CommandListHandle, m_Width / 8, m_Height / 8, 1);
-				
+				FRenderUtils::DispatchComputeShader(DispatchComputeParams, CommandListHandle,
+					[=](Ref<FComputeItem> ComputeItem) 
+					{
+						ComputeItem->GetShaderParamsGroup()->SetTexture2D("SrcTexture", SrcTexture); 
+						ComputeItem->GetShaderParamsGroup()->SetTexture2D_Uav("DstTexture", DstTexture); 
+					});
 			},
 			ERenderPassType::Compute,
 			ERGPassFlags::ForceNoCull

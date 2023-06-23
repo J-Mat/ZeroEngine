@@ -57,9 +57,9 @@ namespace Zero
 		m_ComputeRenderItems.clear();
 	}
 
-	Ref<FComputeRenderItem> FComputeRenderItemPool::Request()
+	Ref<FComputeItem> FComputeRenderItemPool::Request()
 	{
-		Ref<FComputeRenderItem> Item = nullptr;
+		Ref<FComputeItem> Item = nullptr;
 		if (m_AvailableRenderItems.size() != 0)
 		{
 			Item = m_AvailableRenderItems.back();
@@ -67,13 +67,13 @@ namespace Zero
 		}
 		else
 		{
-			Item = CreateRef<FComputeRenderItem>();
+			Item = CreateRef<FComputeItem>();
 		}
 		Item->Reset();
 		return Item;
 	}
 
-	void FComputeRenderItemPool::Push(Ref<FComputeRenderItem> Item)
+	void FComputeRenderItemPool::Push(Ref<FComputeItem> Item)
 	{
 		m_ComputeRenderItems.push_back(Item);
 	}
@@ -153,7 +153,7 @@ namespace Zero
 
 	void FRenderItem::Render(FCommandListHandle ComamndListHandle)
 	{
-		m_Material->OnDrawCall(ComamndListHandle);
+		m_Material->OnDrawCall(ComamndListHandle, ERenderPassType::Graphics);
 		if (m_PerObjectBuffer != nullptr)
 		{
 			static auto PerObjIndex = m_Material->GetShader()->GetBinder()->GetBinderDesc().m_PerObjIndex ;
@@ -171,23 +171,23 @@ namespace Zero
 		m_Material->PostDrawCall();
 	}
 	
-	FComputeRenderItem::FComputeRenderItem()
+	FComputeItem::FComputeItem()
 	{
 		m_ShaderParamsGroup = CreateRef<FShaderParamsGroup>();
 	}
 
-	void FComputeRenderItem::Reset()
+	void FComputeItem::Reset()
 	{
 		m_PipelineStateObject = nullptr;
 	}
 
-	Ref<FComputePipelineStateObject> FComputeRenderItem::GetPsoObj()
+	Ref<FComputePipelineStateObject> FComputeItem::GetPsoObj()
 	{
 		m_PipelineStateObject = FPSOCache::Get().FetchComputePso(m_PsoID);
 		return m_PipelineStateObject;
 	}
 	
-	void FComputeRenderItem::PreDispatch(FCommandListHandle ComamndListHandle)
+	void FComputeItem::PreDispatch(FCommandListHandle ComamndListHandle)
 	{
 		auto PsoObj = GetPsoObj();
 		if (PsoObj == nullptr)
@@ -200,10 +200,13 @@ namespace Zero
 		m_ShaderParamsGroup->SetPass(ComamndListHandle, ERenderPassType::Compute);
 	}
 
-	void FComputeRenderItem::Dispatch(FCommandListHandle ComamndListHandle, uint32_t NumGroupsX, uint32_t NumGroupsY, uint32_t NumGroupsZ)
+	void FComputeItem::Dispatch(FCommandListHandle ComamndListHandle, uint32_t ThreadNumX, uint32_t ThreadNumY, uint32_t ThreadNumZ)
 	{
-		m_ShaderParamsGroup->OnDrawCall(ComamndListHandle);
+		m_ShaderParamsGroup->OnDrawCall(ComamndListHandle, ERenderPassType::Compute);
 		Ref<FCommandList> RHICommandList = FGraphic::GetDevice()->GetRHICommandList(ComamndListHandle);
-		RHICommandList->Dispatch(NumGroupsX, NumGroupsY, NumGroupsZ);
+		uint32_t GroupNumX = ThreadNumX / m_PipelineStateObject->GetPSODescriptor().BlockSize_X;
+		uint32_t GroupNumY = ThreadNumX / m_PipelineStateObject->GetPSODescriptor().BlockSize_Y;
+		uint32_t GroupNumZ = ThreadNumX / m_PipelineStateObject->GetPSODescriptor().BlockSize_Z;
+		RHICommandList->Dispatch(GroupNumX, GroupNumY, GroupNumZ);
 	}
 }

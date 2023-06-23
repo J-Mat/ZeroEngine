@@ -28,7 +28,6 @@ namespace Zero
 		FDX12ComputePipelineStateObject* Pso = static_cast<FDX12ComputePipelineStateObject*>(FPSOCache::Get().FetchComputePso(EComputePsoID::PrefixSumTex).get());
 		m_D3DPipelineState = Pso->GetD3D12PipelineState();
 		m_RootSignature.reset(Pso->GetRootSignature());
-		*/
 		auto D3DDevice = FDX12Device::Get()->GetDevice();
 		CD3DX12_DESCRIPTOR_RANGE1 OutMip(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE);
 		CD3DX12_ROOT_PARAMETER1 RootParameters[1];
@@ -47,7 +46,7 @@ namespace Zero
 			.Flags = D3D12_PIPELINE_STATE_FLAG_NONE
 		};
 		ThrowIfFailed(FDX12Device::Get()->GetDevice()->CreateComputePipelineState(&ComputePsoDesc, IID_PPV_ARGS(&m_D3DPipelineState)));
-		/*
+		*/
 		auto D3DDevice = FDX12Device::Get()->GetDevice();
 		CD3DX12_DESCRIPTOR_RANGE1 SrcMip(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE);
 		CD3DX12_DESCRIPTOR_RANGE1 OutMip(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE);
@@ -80,7 +79,6 @@ namespace Zero
 			.Flags = D3D12_PIPELINE_STATE_FLAG_NONE
 		};
 		ThrowIfFailed(FDX12Device::Get()->GetDevice()->CreateComputePipelineState(&ComputePsoDesc, IID_PPV_ARGS(&m_D3DPipelineState)));
-		*/
 	}
 }
 

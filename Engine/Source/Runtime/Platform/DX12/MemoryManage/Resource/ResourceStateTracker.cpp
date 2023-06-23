@@ -75,6 +75,7 @@ namespace Zero
 		}
 	}
 
+
 	void FResourceStateTracker::TransitionResource(ID3D12Resource* Resource, D3D12_RESOURCE_STATES StateAfter, UINT SubResource)
 	{
 		if (Resource != nullptr)

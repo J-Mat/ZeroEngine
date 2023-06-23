@@ -54,7 +54,7 @@ namespace Zero
 					D3D12_RESOURCE_STATE_COMMON,
 					nullptr,
 					IID_PPV_ARGS(&m_D3DResource)));
-			m_ResourceLocation.m_UnderlyingResource = CreateRef<FDX12Resource>("Uav_test", m_D3DResource);
+			m_ResourceLocation.m_UnderlyingResource = CreateRef<FDX12Resource>("Uav_test", m_D3DResource, D3D12_RESOURCE_STATE_COMMON);
 			std::cout << "Buffer Ptr: " << m_D3DResource.Get() << std::endl;
 			}
 			else
@@ -80,10 +80,10 @@ namespace Zero
 				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK),
 				D3D12_HEAP_FLAG_NONE,
 				&CD3DX12_RESOURCE_DESC::Buffer(BufferSize),
-				D3D12_RESOURCE_STATE_COMMON,
+				D3D12_RESOURCE_STATE_COPY_DEST,
 				nullptr,
 				IID_PPV_ARGS(&m_D3DResource)));
-			m_ResourceLocation.m_UnderlyingResource = CreateRef<FDX12Resource>("Readback_test", m_D3DResource);
+			m_ResourceLocation.m_UnderlyingResource = CreateRef<FDX12Resource>("Readback_test", m_D3DResource, D3D12_RESOURCE_STATE_COPY_DEST);
 		}
 		case EResourceUsage::Upload:
 		{

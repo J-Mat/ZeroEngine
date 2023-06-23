@@ -36,16 +36,16 @@ namespace Zero
 	};
 
 
-	class FComputeRenderItem
+	class FComputeItem
 	{
 	public:
-		FComputeRenderItem();
-		~FComputeRenderItem() {};
+		FComputeItem();
+		~FComputeItem() {};
 
 		void Reset();
 		Ref<FComputePipelineStateObject> GetPsoObj();
 		void PreDispatch(FCommandListHandle ComamndListHandle);
-		void Dispatch(FCommandListHandle ComamndListHandle, uint32_t NumGroupsX, uint32_t NumGroupsY, uint32_t NumGroupsZ);
+		void Dispatch(FCommandListHandle ComamndListHandle, uint32_t ThreadNumX, uint32_t ThreadNumY, uint32_t ThreadNumZ);
 		void SetPsoID(uint32_t PsoID) { m_PsoID = PsoID; }
 		Ref<FShaderParamsGroup> GetShaderParamsGroup() { return  m_ShaderParamsGroup;}
 	private:
@@ -81,13 +81,13 @@ namespace Zero
 	public:
 		FComputeRenderItemPool() = default;
 		void Reset();
-		Ref<FComputeRenderItem> Request();
-		void Push(Ref<FComputeRenderItem> Item);
-		using iter = std::vector<Ref<FComputeRenderItem>>::iterator;
+		Ref<FComputeItem> Request();
+		void Push(Ref<FComputeItem> Item);
+		using iter = std::vector<Ref<FComputeItem>>::iterator;
 		iter begin() { return m_ComputeRenderItems.begin(); }
 		iter end() { return m_ComputeRenderItems.end(); }
 	public:
-		std::vector<Ref<FComputeRenderItem>> m_ComputeRenderItems;
-		std::vector<Ref<FComputeRenderItem>> m_AvailableRenderItems;
+		std::vector<Ref<FComputeItem>> m_ComputeRenderItems;
+		std::vector<Ref<FComputeItem>> m_AvailableRenderItems;
 	};
 }

@@ -65,4 +65,13 @@ namespace Zero
 		s_bNeedRefreshIBL = false;
 	}
 
+	void FRenderUtils::DispatchComputeShader(const FDispatchComputeParams DispatchComputeParams, FCommandListHandle CommandListHandle, FDispatchComputeFunc&& DispatchComputeFunc)
+	{
+		Ref<FComputeRenderItemPool> ComputeRenderItemPool = UWorld::GetCurrentWorld()->GetComputeRenderItemPool();
+		Ref<FComputeItem> Item = ComputeRenderItemPool->Request();
+		Item->SetPsoID(DispatchComputeParams.PsoID);
+		Item->PreDispatch(CommandListHandle);
+		DispatchComputeFunc(Item);
+		Item->Dispatch(CommandListHandle, DispatchComputeParams.ThreadNumX, DispatchComputeParams.ThreadNumY, DispatchComputeParams.ThreadNumZ);
+	}
 }

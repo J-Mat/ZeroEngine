@@ -1,6 +1,9 @@
 #pragma once
-
-#include <ZeroEngine.h>
+#include "World/Object/CoreObject.h"
+#include "World/Object/ClassObject.h"
+#include "World/Object/VariateProperty.h"
+#include "World/Object/ClassProperty.h"
+#include "World/Object/ObjectGlobal.h"
 #include "BasePanel.h"
 
 

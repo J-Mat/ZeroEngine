@@ -28,6 +28,13 @@ namespace Zero
 		EPiplineStateMode PiplineStateMode = EPiplineStateMode::Dependent;
 		uint32_t PsoID = ZERO_INVALID_ID;
 	};
+	struct FDispatchComputeParams
+	{
+		uint32_t PsoID = ZERO_INVALID_ID;
+		uint32_t ThreadNumX;
+		uint32_t ThreadNumY;
+		uint32_t ThreadNumZ;
+	};
 
 	#define RENDER_STAGE_FORWARD "ForwardLit"
 	#define RENDER_STAGE_SHADOWMAP "ShadowMap"

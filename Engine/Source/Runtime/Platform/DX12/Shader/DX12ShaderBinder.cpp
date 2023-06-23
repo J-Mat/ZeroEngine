@@ -359,9 +359,9 @@ namespace Zero
 
 	}
 
-	void FDX12ShaderResourcesBuffer::UploadDataIfDirty(FCommandListHandle CommandListHandle)
+	void FDX12ShaderResourcesBuffer::UploadDataIfDirty(FCommandListHandle CommandListHandle, ERenderPassType RenderPassUsage)
 	{
-		switch (CommandListHandle.RenderPassType)
+		switch (RenderPassUsage)
 		{
 		case ERenderPassType::Graphics:
 			m_SrvDynamicDescriptorHeap->SetAsShaderResourceHeap(CommandListHandle);

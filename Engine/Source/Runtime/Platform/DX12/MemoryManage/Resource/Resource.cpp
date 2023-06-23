@@ -10,6 +10,7 @@ namespace Zero
 	}
 	FDX12Resource::FDX12Resource(const std::string& ResourceName, const D3D12_RESOURCE_DESC& ResourceDesc, const D3D12_CLEAR_VALUE* FTextureClearValue)
 	{
+		assert(false);
 		auto* D3dDevice = FDX12Device::Get()->GetDevice();
 		
 		if (FTextureClearValue)
@@ -30,14 +31,14 @@ namespace Zero
 		CheckFeatureSupport();
 	}
 
-	FDX12Resource::FDX12Resource(const std::string& ResourceName,  ComPtr<ID3D12Resource> Resource, const D3D12_CLEAR_VALUE* FTextureClearValue )
+	FDX12Resource::FDX12Resource(const std::string& ResourceName,  ComPtr<ID3D12Resource> Resource, D3D12_RESOURCE_STATES InitState,  const D3D12_CLEAR_VALUE* FTextureClearValue )
 	: m_D3DResource(Resource)
 	{
 		if (FTextureClearValue)
 		{
 			m_D3DClearValue = CreateScope<D3D12_CLEAR_VALUE>(*FTextureClearValue);
 		}
-		FResourceStateTracker::AddGlobalResourceState(m_D3DResource.Get(), D3D12_RESOURCE_STATE_COMMON);
+		FResourceStateTracker::AddGlobalResourceState(m_D3DResource.Get(), InitState);
 		CheckFeatureSupport();
 
 		SetName(Utils::StringToLPCWSTR(ResourceName));

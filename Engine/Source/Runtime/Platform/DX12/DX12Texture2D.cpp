@@ -134,7 +134,7 @@ namespace Zero
 					IID_PPV_ARGS(D3DResource.GetAddressOf())
 				)
 			);
-			m_ResourceLocation.m_UnderlyingResource = CreateRef<FDX12Resource>(TextureName, D3DResource, &D3DClearValue);
+			m_ResourceLocation.m_UnderlyingResource = CreateRef<FDX12Resource>(TextureName, D3DResource, D3D12_RESOURCE_STATE_COMMON, &D3DClearValue);
 			m_ResourceLocation.SetType(FResourceLocation::EResourceLocationType::StandAlone);
 		}
 		else
@@ -182,7 +182,7 @@ namespace Zero
 		: FTexture2D(nullptr)
 	{
 		m_ResourceLocation.ReleaseResource();
-		m_ResourceLocation.m_UnderlyingResource = CreateRef<FDX12Resource>(TextureName, Resource, FTextureClearValue);
+		m_ResourceLocation.m_UnderlyingResource = CreateRef<FDX12Resource>(TextureName, Resource, D3D12_RESOURCE_STATE_COMMON, FTextureClearValue);
 		m_ResourceLocation.SetType(FResourceLocation::EResourceLocationType::StandAlone);
 		m_TextureDesc.Width = Width;
 		m_TextureDesc.Height = Height;
@@ -250,7 +250,7 @@ namespace Zero
 					)
 				);
 				m_ResourceLocation.m_UnderlyingResource.reset();
-				m_ResourceLocation.m_UnderlyingResource = CreateRef<FDX12Resource>(Utils::WString2String(ResourceName), NewResource);
+				m_ResourceLocation.m_UnderlyingResource = CreateRef<FDX12Resource>(Utils::WString2String(ResourceName), NewResource, D3D12_RESOURCE_STATE_COMMON);
 				// Retain the name of the resource if one was already specified.
 
 				FResourceStateTracker::AddGlobalResourceState(m_ResourceLocation.GetResource()->GetD3DResource().Get(), D3D12_RESOURCE_STATE_COMMON);

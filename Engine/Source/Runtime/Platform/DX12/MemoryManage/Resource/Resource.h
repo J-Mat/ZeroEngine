@@ -67,7 +67,7 @@ namespace Zero
 		FDX12Resource();
 		FDX12Resource(const std::string& ResourceName, const D3D12_RESOURCE_DESC& ResourceDesc,
 			const D3D12_CLEAR_VALUE* FTextureClearValue = nullptr);
-		FDX12Resource(const std::string& ResourceName, ComPtr<ID3D12Resource> Resource,
+		FDX12Resource(const std::string& ResourceName, ComPtr<ID3D12Resource> Resource, D3D12_RESOURCE_STATES InitState,
 			const D3D12_CLEAR_VALUE* FTextureClearValue = nullptr);
 
 		void SetName(const std::wstring& Name);

@@ -243,13 +243,7 @@ namespace Zero
 	
 	void FEditorLayer::OnEndFrame()
 	{
-		static int cnt = 0;
-		cnt++;
-		//if (cnt < 10)
-		{
-			Ref<FBuffer> ReadbackBuffer = TLibrary<FBuffer>::Fetch("ReadbackBuffer");
-			ReadbackBuffer->Map();
-		}
+		m_DAGRender->OnEndFrame();
 	}
 
 	void FEditorLayer::OnEvent(FEvent& Event)

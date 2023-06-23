@@ -1,6 +1,5 @@
 #pragma once
 
-#include <ZeroEngine.h>
 #include "BasePanel.h"
 
 namespace Zero
