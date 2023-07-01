@@ -51,13 +51,6 @@ namespace Zero
 					.ThreadNumY = m_Height,
 					.ThreadNumZ = 1
 				};
-				/*
-				Ref<FComputeRenderItemPool> ComputeRenderItemPool = UWorld::GetCurrentWorld()->GetComputeRenderItemPool();
-				Ref<FComputeItem> Item = ComputeRenderItemPool->Request();
-				Item->SetPsoID(EComputePsoID::TestPostProcess);
-				Item->PreDispatch(CommandListHandle);
-				Ref<FShaderParamsGroup> ShaderParamsBinder = Item->GetShaderParamsGroup();
-				*/
 				FTexture2D* DstTexture = Context.GetTexture2D(Data.DstTex.GetResourceID());
 				FTexture2D* SrcTexture = Context.GetTexture2D(Data.SrcTex.GetResourceID());
 				FRenderUtils::DispatchComputeShader(DispatchComputeParams, CommandListHandle,

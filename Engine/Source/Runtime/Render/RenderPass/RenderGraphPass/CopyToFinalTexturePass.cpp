@@ -25,7 +25,7 @@ namespace Zero
 		RenderGraph.AddPass<FCopyToBackbufferPassData>("CopyToFinalTexture Pass",
 			[=](FCopyToBackbufferPassData& Data, FRenderGraphBuilder& Builder)
 			{
-				Data.Src = Builder.ReadCopySrcTexture(RGResourceName::PostProcessBuffer);
+				Data.Src = Builder.ReadCopySrcTexture(RGResourceName::GBufferColor);
 				Data.Dst = Builder.WriteCopyDstTexture(RGResourceName::FinalTexture);
 			},
 			[=](const FCopyToBackbufferPassData& Data, FRenderGraphContext& Context, FCommandListHandle CommandListHandle)

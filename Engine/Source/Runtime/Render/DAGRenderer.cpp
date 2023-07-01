@@ -120,7 +120,7 @@ namespace Zero
 		SetupEnvironmentMap(RenderGraph);
 
 		m_ForwardLitPass.AddPass(RenderGraph);
-		m_TestPostprocessPass.AddPass(RenderGraph);
+		//m_TestPostprocessPass.AddPass(RenderGraph);
 
 
 		m_CopyToFinalTexturePass.AddPass(RenderGraph);
