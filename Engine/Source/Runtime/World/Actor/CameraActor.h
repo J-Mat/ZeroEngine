@@ -18,6 +18,7 @@ namespace Zero
 		virtual void SetRotation(const ZMath::vec3& Rotation);
 		Ref<IShaderConstantsBuffer> GetConstantBuffer() { return m_CameraComponent->GetConstantBuffer(); }
 		void OnResizeViewport(uint32_t Width, uint32_t Height);
+		UCameraComponent* GetCameraComponent() { return m_CameraComponent; }
 
 	private:
 		UCameraComponent* m_CameraComponent = nullptr;

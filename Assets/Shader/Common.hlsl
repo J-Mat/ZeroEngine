@@ -22,7 +22,8 @@ struct VertexOut
 
 struct PixelOutput
 {
-    float4 BaseColor    : SV_TARGET0;
+    float4 BaseColor   : SV_TARGET0;
+    float4 Velocity    : SV_TARGET1;
 };
 
 struct FDirectLight

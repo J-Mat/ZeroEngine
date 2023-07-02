@@ -88,7 +88,7 @@ namespace Zero
 
 	void FDAGRender::SetupEnvironmentMap(FRenderGraph& Rg)
 	{
-		static auto* Settings = FSettingManager::Get().FecthSettings<USceneSettings>(USceneSettings::StaticGetObjectName());
+		static auto* Settings = FSettingManager::Get().GetSceneSettings();
 		if (Settings->m_bUseSkyBox)
 		{
 			FRenderUtils::RefreshIBL();
@@ -120,10 +120,10 @@ namespace Zero
 		SetupEnvironmentMap(RenderGraph);
 
 		m_ForwardLitPass.AddPass(RenderGraph);
-		//m_TestPostprocessPass.AddPass(RenderGraph);
+		//m_TestPostprocessPass.AddPass(RenderGraph)
+		m_PostprocessCollection.AddPasses(RenderGraph);
 
-
-		m_CopyToFinalTexturePass.AddPass(RenderGraph);
+		m_CopyToFinalTexturePass.AddPass(RenderGraph, m_PostprocessCollection.GetFinalRsourceName());
 	
 		RenderGraph.Build();
 		RenderGraph.Execute();

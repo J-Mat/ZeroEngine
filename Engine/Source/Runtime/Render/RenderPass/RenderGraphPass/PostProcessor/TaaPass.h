@@ -9,7 +9,7 @@ namespace Zero
 	public:
 		FTaaPass(uint32_t Width, uint32_t Height);
 
-		void AddPass(FRenderGraph& RenderGraph);
+		FRGResourceName AddPass(FRenderGraph& RenderGraph);
 		void OnResize(uint32_t Width, uint32_t Height);
 	private:
 		uint32_t m_Width;

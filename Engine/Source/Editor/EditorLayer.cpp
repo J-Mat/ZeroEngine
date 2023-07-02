@@ -141,8 +141,8 @@ namespace Zero
 	
 	void FEditorLayer::OnUpdate()
 	{
-		UWorld::GetCurrentWorld()->Tick();
 		m_CameraController->Tick();
+		UWorld::GetCurrentWorld()->Tick();
 		m_DAGRender->OnUpdate();
 	}
 

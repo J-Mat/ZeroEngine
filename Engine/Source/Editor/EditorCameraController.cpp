@@ -1,5 +1,8 @@
 #include "EditorCameraController.h"
 #include "Editor.h"
+#include "Data/Settings/SettingsManager.h"
+#include "Data/Settings/SceneSettings.h"
+#include "Sampler.h"
 
 namespace Zero
 {
@@ -80,6 +83,16 @@ namespace Zero
 		else
 		{
 			bMouseMove = false;
+		}
+
+		static FSceneView& SceneView = m_CameraActor->GetCameraComponent()->GetSceneView();
+		SceneView.ProjectJitter_X = 0.0f;
+		SceneView.ProjectJitter_Y = 0.0f;
+		if (FSettingManager::Get().GetSceneSettings()->m_AntiAliasing == EAntiAliasing::TAA)
+		{
+			__int64 FrameCount = FApplication::Get().GetFrameTimer()->GetFrameCount();
+			SceneView.ProjectJitter_X = SamplerUtils::Halton_2[FrameCount % TAA_SAMPLE_COUNT] / SceneView.ScreenWidth;
+			SceneView.ProjectJitter_Y = SamplerUtils::Halton_3[FrameCount % TAA_SAMPLE_COUNT] / SceneView.ScreenHeight;
 		}
 	}
 

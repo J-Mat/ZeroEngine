@@ -680,7 +680,12 @@ namespace Zero
         m_Texture2DNameIDMap[Name] = FRGTexture2DID(uint32_t(m_Texture2Ds.size() - 1));
     }
 
-    void FRenderGraph::ImportBuffer(FRGResourceName Name, FBuffer* Buffer)
+	void FRenderGraph::ImportTextureCube(FRGResourceName Name, FTextureCube* TextureCube)
+	{
+
+	}
+
+	void FRenderGraph::ImportBuffer(FRGResourceName Name, FBuffer* Buffer)
     {
         m_Buffers.emplace_back(new FRGBuffer(uint32_t(m_Buffers.size()), Buffer, Name));
         m_BufferNameIDMap[Name] = FRGBufferID(uint32_t(m_Buffers.size() - 1));

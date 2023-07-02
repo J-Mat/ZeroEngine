@@ -8,7 +8,6 @@ namespace Zero
 	{
 	public:
 		FCopyToFinalTexturePass();
-		
-		void AddPass(FRenderGraph& RenderGraph);
+		void AddPass(FRenderGraph& RenderGraph, FRGResourceName CopySrcResourceName);
 	};
 }

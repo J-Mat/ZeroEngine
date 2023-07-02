@@ -14,6 +14,7 @@ namespace Zero
 	{
 		static constexpr uint64_t InvalidHash = uint64_t(-1);
 
+		FRGResourceName() : HashedName(InvalidHash), Name{ "uninitialized" } {}
 		template<size_t N>
 		constexpr explicit FRGResourceName(char const (&_name)[N], uint64_t hash) : HashedName(hash), Name(_name)
 		{}
@@ -35,8 +36,14 @@ namespace Zero
 	namespace RGResourceName
 	{
 		constexpr FRGResourceName FinalTexture = RG_RES_NAME(FinalTexture);
-		constexpr FRGResourceName DepthStencil = RG_RES_NAME(DepthStencil);
-		constexpr FRGResourceName GBufferColor = RG_RES_NAME(GBufferColor);
+		constexpr FRGResourceName GBufferBaseColor = RG_RES_NAME(GBufferBaseColor);
+		constexpr FRGResourceName GBufferNormal = RG_RES_NAME(GBufferNormal);
+		constexpr FRGResourceName GBufferWorldPos = RG_RES_NAME(GBufferWorldPos);
+		constexpr FRGResourceName GBufferORM = RG_RES_NAME(GBufferORM);
+		constexpr FRGResourceName GBufferEmissive = RG_RES_NAME(GBufferEmissive);
+		constexpr FRGResourceName GBufferVelocity = RG_RES_NAME(GBufferVelocity);
+		constexpr FRGResourceName GBufferDepthStencil = RG_RES_NAME(GBufferDepthStencil);
+		
 		constexpr FRGResourceName DirectLigthShadowMap_0 =  RG_RES_NAME(DirectLigthShadowMap_0);
 		constexpr FRGResourceName DirectLightShadowMap_1 =  RG_RES_NAME(DirectLightShadowMap_1);
 		constexpr FRGResourceName DirectLightShadowMaps[2] = {DirectLigthShadowMap_0 , DirectLightShadowMap_1};
@@ -59,6 +66,7 @@ namespace Zero
 		constexpr FRGResourceName ReadBackBuffer = RG_RES_NAME(ReadBackBuffer);
 
 		constexpr FRGResourceName PostProcessBuffer = RG_RES_NAME(PostProcessBuffer);
+		constexpr FRGResourceName TaaOutput = RG_RES_NAME(TaaOutput);
 	}
 }
 

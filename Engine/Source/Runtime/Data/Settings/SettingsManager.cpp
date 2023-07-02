@@ -13,7 +13,12 @@ namespace Zero
 		if (Iter != FObjectGlobal::GetClassInfoMap().end())
 		{
 			auto* Settings = static_cast<USettings*>(Iter->second.Class->CreateDefaultObject());
-			m_AllSettings.insert({Settings->GetObjectName(), Settings});
+			m_AllSettings.insert({ Settings->GetObjectName(), Settings });
+			
+			if (SettingsName == USceneSettings::StaticGetObjectName())
+			{
+				m_SceneSettings = static_cast<USceneSettings*>(Settings);
+			}
 		}
 	}
 }

@@ -38,6 +38,8 @@ namespace Zero
 			{EShaderDataType::Float3, "ViewPos" },
 			{EShaderDataType::Float, "NearZ" },
 			{EShaderDataType::Float, "FarZ" },
+			{EShaderDataType::Float, "ScreenWidth" },
+			{EShaderDataType::Float, "ScreenHeight" },
 		},
 		false
 	};

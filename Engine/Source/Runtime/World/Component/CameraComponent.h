@@ -18,6 +18,7 @@ namespace Zero
 		virtual void PostInit();
 		Ref<IShaderConstantsBuffer> GetConstantBuffer() { return m_SceneCapture2D.GetCamera(); }
 		const FSceneView& GetSceneView() const { return m_SceneCapture2D.GetSceneView(); }
+		FSceneView& GetSceneView() { return m_SceneCapture2D.GetSceneView(); }
 		void OnResizeViewport(uint32_t Width, uint32_t Height);
 		virtual void Tick();
 

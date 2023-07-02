@@ -4,10 +4,10 @@
 namespace Zero
 {
 	class FRenderGraph;
-	class FTaaPass
+	class FBasePass
 	{
 	public:
-		FTaaPass(uint32_t Width, uint32_t Height);
+		FBasePass(uint32_t Width, uint32_t Height);
 
 		void AddPass(FRenderGraph& RenderGraph);
 		void OnResize(uint32_t Width, uint32_t Height);

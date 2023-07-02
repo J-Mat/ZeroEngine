@@ -19,10 +19,13 @@ namespace Zero
 		m_TransformCompent =  static_cast<UTransformComponent*>(m_Parent);
 	}
 
+
 	void UCameraComponent::OnResizeViewport(uint32_t Width, uint32_t Height)
 	{
 		static 	FSceneView& SceneView = m_SceneCapture2D.GetSceneView();
 		SceneView.Aspect = (float)Width / Height;
+		SceneView.ScreenHeight = Width;
+		SceneView.ScreenHeight = Height;
 	}
 
 	void UCameraComponent::Tick()

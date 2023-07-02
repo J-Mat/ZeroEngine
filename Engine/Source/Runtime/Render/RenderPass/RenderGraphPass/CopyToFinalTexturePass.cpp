@@ -14,7 +14,7 @@ namespace Zero
 	{
 	}
 
-	void FCopyToFinalTexturePass::AddPass(FRenderGraph& RenderGraph)
+	void FCopyToFinalTexturePass::AddPass(FRenderGraph& RenderGraph, FRGResourceName CopySrcResourceName)
 	{
 		struct FCopyToBackbufferPassData
 		{
@@ -25,7 +25,7 @@ namespace Zero
 		RenderGraph.AddPass<FCopyToBackbufferPassData>("CopyToFinalTexture Pass",
 			[=](FCopyToBackbufferPassData& Data, FRenderGraphBuilder& Builder)
 			{
-				Data.Src = Builder.ReadCopySrcTexture(RGResourceName::GBufferColor);
+				Data.Src = Builder.ReadCopySrcTexture(CopySrcResourceName);
 				Data.Dst = Builder.WriteCopyDstTexture(RGResourceName::FinalTexture);
 			},
 			[=](const FCopyToBackbufferPassData& Data, FRenderGraphContext& Context, FCommandListHandle CommandListHandle)
@@ -40,4 +40,5 @@ namespace Zero
 			ERGPassFlags::ForceNoCull
 		);
 	}
+
 }

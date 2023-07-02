@@ -16,6 +16,19 @@ namespace Zero
 		PCSS,
 	};
 
+	UENUM()
+	enum EAntiAliasing
+	{
+		UPROPERTY()
+		None,
+
+		UPROPERTY()
+		TAA,
+
+		UPROPERTY()
+		FXAA,
+	};
+
 	class USkyActor;
 	UCLASS()
 	class USceneSettings : public USettings
@@ -28,6 +41,9 @@ namespace Zero
 	public:
 		UPROPERTY()
 		EShadowType m_ShadowType = EShadowType::PCF;
+
+		UPROPERTY()
+		EAntiAliasing m_AntiAliasing = EAntiAliasing::TAA; 
 
 		UPROPERTY()
 		bool m_bUseSkyBox = false;

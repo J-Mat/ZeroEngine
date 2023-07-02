@@ -33,9 +33,11 @@ namespace Zero
 			break;
 		}
 		m_SceneView.View = ZMath::lookAtLH(m_SceneView.ViewPos, m_SceneView.Target, m_SceneView.UpDir);
-		m_SceneView.ProjectionView = m_SceneView.Proj * m_SceneView.View;
 
-		UploadBuffer();
+		m_SceneView.Proj[2][0] += m_SceneView.ProjectJitter_X;
+ 		m_SceneView.Proj[2][1] += m_SceneView.ProjectJitter_Y;
+		
+		m_SceneView.ProjectionView = m_SceneView.Proj * m_SceneView.View;
 	}
 
 	void FSceneCapture2D::UploadBuffer()
@@ -46,6 +48,8 @@ namespace Zero
 		m_CameraBuffer->SetFloat3("ViewPos", m_SceneView.ViewPos);
 		m_CameraBuffer->SetFloat("NearZ", m_SceneView.Near);
 		m_CameraBuffer->SetFloat("FarZ", m_SceneView.Far);
+		m_CameraBuffer->SetFloat("ScreenWidth", m_SceneView.ScreenWidth);
+		m_CameraBuffer->SetFloat("ScreenHeight", m_SceneView.ScreenHeight);
 	}
 
 	FSceneCaptureCube::FSceneCaptureCube()

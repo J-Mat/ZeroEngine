@@ -2,6 +2,7 @@
 #include "Core/Base/PublicSingleton.h"
 #include "World/Object/ObjectGenerator.h"
 #include "Settings.h"
+#include "SceneSettings.h"
 
 namespace Zero
 {
@@ -20,9 +21,12 @@ namespace Zero
 			}
 			return nullptr;
 		}
+		
+		USceneSettings* GetSceneSettings() { return m_SceneSettings; }
 
 		std::map<std::string, USettings*>& GetAllSettings() { return m_AllSettings; };
 	private:
 		std::map<std::string, USettings*> m_AllSettings;
+		USceneSettings* m_SceneSettings = nullptr;
 	};
 }

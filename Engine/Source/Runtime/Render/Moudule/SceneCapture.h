@@ -24,6 +24,12 @@ namespace Zero
 		float Bottom = -1000.0f;
 		float Top = +1000.0f;
 		float Fov = 90.0f;
+		
+		float ScreenWidth = 800.0f;
+		float ScreenHeight = 600.0f;
+		
+		float ProjectJitter_X = 0.0f;
+		float ProjectJitter_Y = 0.0f;
 
 		float Aspect = 16.0f / 9.0f;
 		ZMath::vec3 UpDir = { 0.0f, 1.0f, 0.0f };

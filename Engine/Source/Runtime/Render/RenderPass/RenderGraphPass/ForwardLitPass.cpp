@@ -40,8 +40,8 @@ namespace Zero
 						.ClearValue = FTextureClearValue(1.0f, 0),
 						.Format = EResourceFormat::D24_UNORM_S8_UINT
 					};
-					Builder.DeclareTexture2D(RGResourceName::DepthStencil, DepthDesc);
-					Builder.WriteDepthStencil2D(RGResourceName::DepthStencil, ERGLoadStoreAccessOp::Clear_Preserve);
+					Builder.DeclareTexture2D(RGResourceName::GBufferDepthStencil, DepthDesc);
+					Builder.WriteDepthStencil2D(RGResourceName::GBufferDepthStencil, ERGLoadStoreAccessOp::Clear_Preserve);
 				}
 
 				{
@@ -51,8 +51,8 @@ namespace Zero
 						.ClearValue = FTextureClearValue(0.0f, 0.0f, 0.0f, 0.0f),
 						.Format = EResourceFormat::R8G8B8A8_UNORM
 					};
-					Builder.DeclareTexture2D(RGResourceName::GBufferColor, ColorDesc);
-					Data.GBufferColorID =  Builder.WriteRenderTarget2D(RGResourceName::GBufferColor, ERGLoadStoreAccessOp::Clear_Preserve);
+					Builder.DeclareTexture2D(RGResourceName::GBufferBaseColor, ColorDesc);
+					Data.GBufferColorID =  Builder.WriteRenderTarget2D(RGResourceName::GBufferBaseColor, ERGLoadStoreAccessOp::Clear_Preserve);
 				}
 
 				// Shadow Maps
@@ -110,9 +110,9 @@ namespace Zero
 						[&](Ref<FRenderItem> RenderItem)
 						{
 							auto& IBLModule = FRenderUtils::GetIBLMoudule();
-							//RenderItem->m_Material->SetTextureCube("IBLIrradianceMap", IBLModule->GetIrradianceRTCube()->GetColorTexCube());
-							//RenderItem->m_Material->SetTextureCube("IBLPrefilterMap", IBLModule->GetPrefilterEnvMapRTCube()->GetColorTexCube());
-							//RenderItem->m_Material->SetTexture2D("_BrdfLUT", FTextureManager::Get().GetLutTexture().get());
+							RenderItem->m_Material->SetTextureCube("IBLIrradianceMap", IBLModule->GetIrradianceRTCube()->GetColorTexCube());
+							RenderItem->m_Material->SetTextureCube("IBLPrefilterMap", IBLModule->GetPrefilterEnvMapRTCube()->GetColorTexCube());
+							RenderItem->m_Material->SetTexture2D("_BrdfLUT", FTextureManager::Get().GetLutTexture().get());
 							RenderItem->m_Material->SetIBL(true);
 
 							{

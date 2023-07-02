@@ -7,6 +7,7 @@
 #include "RenderPass/RenderGraphPass/TestPass.h"
 #include "RenderPass/RenderGraphPass/PostProcessor/TestPostprocessPass.h"
 #include "Render/RenderGraph/RenderGraphResourcePool.h"
+#include "Render/RenderPass/RenderGraphPass/PostProcessor/PostprocessCollection.h"
 
 namespace Zero
 {
@@ -54,5 +55,6 @@ namespace Zero
 		FTestPass m_TestPass;
 		FCopyToFinalTexturePass m_CopyToFinalTexturePass;
 		FTestPostprecessPass m_TestPostprocessPass;
+		FPostprocessCollection m_PostprocessCollection;
 	};
 };

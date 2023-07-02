@@ -44,9 +44,9 @@ namespace Zero
 		void PushOverlay(FLayer* Overlay);
 		FLayerStack& GetLayerStack() { return m_LayerStack; }
 
-		inline FWindow& GetWindow() { return *m_Window.get(); }
-		inline static FApplication& Get() { return *s_Instance; }
-		inline FFrameTimer* GetFrameTimer() { return m_FrameTimer.get(); }
+		FWindow& GetWindow() { return *m_Window.get(); }
+		static FApplication& Get() { return *s_Instance; }
+		FFrameTimer* GetFrameTimer() { return m_FrameTimer.get(); }
 	
 	private:
 		bool OnWindowClosed(FWindowCloseEvent& Event);
