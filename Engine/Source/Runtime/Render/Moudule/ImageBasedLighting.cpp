@@ -1,6 +1,6 @@
 #include "ImageBasedLighting.h"
 #include "Render/RHI/RenderItem.h"
-#include "Render/Moudule/Material.h"
+#include "Render/Moudule/ShaderParamsSettings.h"
 #include "Render/RHI/GraphicPipelineStateObject.h"
 #include "Render/RendererAPI.h"
 #include "Render/Moudule/ConstantsBufferManager.h"
@@ -27,9 +27,9 @@ namespace Zero
 			FVertexBufferLayout::s_DefaultVertexLayout
 		);
 		m_IrradianceMapRenderItem->m_SubMesh = *m_IrradianceMapRenderItem->m_Mesh->begin();
-		m_IrradianceMapRenderItem->m_Material = CreateRef<FMaterial>();
+		m_IrradianceMapRenderItem->m_ShaderParamsSettings = CreateRef<FShaderParamsSettings>();
 		m_IrradianceMapRenderItem->m_PsoID = EGraphicPsoID::IBLIrradiance;
-		m_IrradianceMapRenderItem->m_Material->SetShader(m_IrradianceMapRenderItem->GetPsoObj()->GetPSODescriptor().Shader);
+		m_IrradianceMapRenderItem->m_ShaderParamsSettings->SetShader(m_IrradianceMapRenderItem->GetPSObj()->GetPSODescriptor().Shader);
 		m_IrradianceMapRenderItem->m_PerObjectBuffer = FConstantsBufferManager::Get().GetPerObjectConstantsBuffer();
 		m_IrradianceMapRenderItem->m_PerObjectBuffer->PreDrawCall();
 		m_IrradianceMapRenderItem->SetModelMatrix(ZMath::mat4(1.0f));
@@ -57,9 +57,9 @@ namespace Zero
 		{
 			m_PrefilterMapRenderItems[Mip]->m_Mesh = Mesh;
 			m_PrefilterMapRenderItems[Mip]->m_SubMesh = *m_PrefilterMapRenderItems[Mip]->m_Mesh->begin();
-			m_PrefilterMapRenderItems[Mip]->m_Material = CreateRef<FMaterial>();
+			m_PrefilterMapRenderItems[Mip]->m_ShaderParamsSettings = CreateRef<FShaderParamsSettings>();
 			m_PrefilterMapRenderItems[Mip]->m_PsoID = EGraphicPsoID::IBLPrefilter;
-			m_PrefilterMapRenderItems[Mip]->m_Material->SetShader(m_PrefilterMapRenderItems[Mip]->GetPsoObj()->GetPSODescriptor().Shader);
+			m_PrefilterMapRenderItems[Mip]->m_ShaderParamsSettings->SetShader(m_PrefilterMapRenderItems[Mip]->GetPSObj()->GetPSODescriptor().Shader);
 			m_PrefilterMapRenderItems[Mip]->m_PerObjectBuffer = FConstantsBufferManager::Get().GetPerObjectConstantsBuffer();
 			m_PrefilterMapRenderItems[Mip]->m_PerObjectBuffer->PreDrawCall();
 			m_PrefilterMapRenderItems[Mip]->SetModelMatrix(ZMath::mat4(1.0f));
@@ -115,12 +115,12 @@ namespace Zero
 				FRenderUtils::DrawRenderItem(m_IrradianceMapRenderItem, RenderSettings, m_CommandListHandle,
 					[&](Ref<FRenderItem> RenderItem)
 					{
-						m_IrradianceMapRenderItem->m_Material->SetCamera(Camera);
-						m_IrradianceMapRenderItem->m_Material->SetCameraViewMat("View", SceneView.View);
-						m_IrradianceMapRenderItem->m_Material->SetCameraViewPos("ViewPos", SceneView.ViewPos);
-						m_IrradianceMapRenderItem->m_Material->SetCameraProjectMat("Projection", SceneView.Proj);
-						m_IrradianceMapRenderItem->m_Material->SetCameraProjectViewMat("ProjectionView", SceneView.ProjectionView);
-						m_IrradianceMapRenderItem->m_Material->SetTextureCube("gSkyboxMap", TextureCubmap.get());
+						m_IrradianceMapRenderItem->m_ShaderParamsSettings->SetCamera(Camera);
+						m_IrradianceMapRenderItem->m_ShaderParamsSettings->SetCameraViewMat("View", SceneView.View);
+						m_IrradianceMapRenderItem->m_ShaderParamsSettings->SetCameraViewPos("ViewPos", SceneView.ViewPos);
+						m_IrradianceMapRenderItem->m_ShaderParamsSettings->SetCameraProjectMat("Projection", SceneView.Proj);
+						m_IrradianceMapRenderItem->m_ShaderParamsSettings->SetCameraProjectViewMat("ProjectionView", SceneView.ProjectionView);
+						m_IrradianceMapRenderItem->m_ShaderParamsSettings->SetTextureCube("gSkyboxMap", TextureCubmap.get());
 					});
 			}
 		}
@@ -149,13 +149,13 @@ namespace Zero
 				FRenderUtils::DrawRenderItem(m_PrefilterMapRenderItems[Mip], RenderSettings, m_CommandListHandle,
 					[&](Ref<FRenderItem> RenderItem)
 					{
-						m_PrefilterMapRenderItems[Mip]->m_Material->SetCamera(Camera);
-						m_PrefilterMapRenderItems[Mip]->m_Material->SetCameraViewMat("View", SceneView.View);
-						m_PrefilterMapRenderItems[Mip]->m_Material->SetFloat("Roughness", Roughness);
-						m_PrefilterMapRenderItems[Mip]->m_Material->SetCameraViewPos("ViewPos", SceneView.ViewPos);
-						m_PrefilterMapRenderItems[Mip]->m_Material->SetCameraProjectMat("Projection", SceneView.Proj);
-						m_PrefilterMapRenderItems[Mip]->m_Material->SetCameraProjectViewMat("ProjectionView", SceneView.ProjectionView);
-						m_PrefilterMapRenderItems[Mip]->m_Material->SetTextureCube("gSkyboxMap", TextureCubmap.get());
+						m_PrefilterMapRenderItems[Mip]->m_ShaderParamsSettings->SetCamera(Camera);
+						m_PrefilterMapRenderItems[Mip]->m_ShaderParamsSettings->SetCameraViewMat("View", SceneView.View);
+						m_PrefilterMapRenderItems[Mip]->m_ShaderParamsSettings->SetFloat("Roughness", Roughness);
+						m_PrefilterMapRenderItems[Mip]->m_ShaderParamsSettings->SetCameraViewPos("ViewPos", SceneView.ViewPos);
+						m_PrefilterMapRenderItems[Mip]->m_ShaderParamsSettings->SetCameraProjectMat("Projection", SceneView.Proj);
+						m_PrefilterMapRenderItems[Mip]->m_ShaderParamsSettings->SetCameraProjectViewMat("ProjectionView", SceneView.ProjectionView);
+						m_PrefilterMapRenderItems[Mip]->m_ShaderParamsSettings->SetTextureCube("gSkyboxMap", TextureCubmap.get());
 					}
 				);
 			}

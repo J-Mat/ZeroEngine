@@ -107,7 +107,7 @@ namespace Zero
 			return m_ShaderIcon;
 		}
 
-		if (FileName.ends_with(".obj") || FileName.ends_with(".fbx"))
+		if (FileName.ends_with(".obj") || FileName.ends_with(".gltf"))
 		{
 			m_DragType = ASSET_PANEL_OBJ;
 			return m_ModelIcon;

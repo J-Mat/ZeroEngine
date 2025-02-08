@@ -3,7 +3,7 @@
 #include "Render/RenderGraph/RenderGraphBuilder.h"
 #include "Render/RenderGraph/RenderGraphContext.h"
 #include "Render/RHI/RenderItem.h"
-#include "Render/Moudule/Material.h"
+#include "Render/Moudule/ShaderParamsSettings.h"
 #include "Render/RenderConfig.h"
 #include "Data/Settings/SceneSettings.h"
 #include "Render/Moudule/ImageBasedLighting.h"
@@ -113,7 +113,7 @@ namespace Zero
 							//RenderItem->m_Material->SetTextureCube("IBLIrradianceMap", IBLModule->GetIrradianceRTCube()->GetColorTexCube());
 							//RenderItem->m_Material->SetTextureCube("IBLPrefilterMap", IBLModule->GetPrefilterEnvMapRTCube()->GetColorTexCube());
 							//RenderItem->m_Material->SetTexture2D("_BrdfLUT", FTextureManager::Get().GetLutTexture().get());
-							RenderItem->m_Material->SetIBL(true);
+							RenderItem->m_ShaderParamsSettings->SetIBL(true);
 
 							{
 								uint32_t EmptyLightsNum = FLightManager::Get().GetMaxDirectLightsNum() - uint32_t(DirectLghtShadowMaps.size());
@@ -121,12 +121,12 @@ namespace Zero
 								{
 									DirectLghtShadowMaps.push_back(FTextureManager::Get().GetDefaultTexture().get());
 								}
-								RenderItem->m_Material->SetTexture2DArray("_gShadowMaps", DirectLghtShadowMaps);
+								RenderItem->m_ShaderParamsSettings->SetTexture2DArray("_gShadowMaps", DirectLghtShadowMaps);
 							}
 
 							if (PointLights.size() > 0)
 							{
-								RenderItem->m_Material->SetTextureCube("_gShadowMapCube", PointLghtShadowMaps[0]);
+								RenderItem->m_ShaderParamsSettings->SetTextureCube("_gShadowMapCube", PointLghtShadowMaps[0]);
 							}
 						}
 					);

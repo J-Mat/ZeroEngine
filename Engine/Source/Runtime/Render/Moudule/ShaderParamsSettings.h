@@ -28,11 +28,11 @@ namespace Zero
 	class IShaderConstantsBuffer;
 	class IShaderResourcesBuffer;
 	DEFINITION_SIMPLE_SINGLE_DELEGATE(FOnSetParameter, void, const std::string&, void*)
-	class FMaterial
+	class FShaderParamsSettings
 	{
 	public:
-		FMaterial();
-		~FMaterial();	
+		FShaderParamsSettings();
+		~FShaderParamsSettings();	
 		void Tick();
 		void SetCamera(Ref<IShaderConstantsBuffer> Camera);
 		void SetPass(FCommandListHandle CommandListHanle, ERenderPassType RenderPassUsage);
@@ -94,5 +94,4 @@ namespace Zero
 		FOnSetParameter m_OnSetInt;
 		FCommandListHandle m_CommandListHandle{};
 	};
-	using FShaderParamsGroup = FMaterial;
 }

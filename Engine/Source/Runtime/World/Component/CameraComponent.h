@@ -7,7 +7,6 @@
 
 namespace Zero
 {
-
 	UCLASS()
 	class UCameraComponent : public UComponent
 	{

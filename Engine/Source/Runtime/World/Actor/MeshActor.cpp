@@ -5,7 +5,7 @@
 #include "Render/RHI/RenderItem.h"
 #include "Render/RHI/Mesh.h"
 #include "World/World.h"
-#include "Render/Moudule/Material.h"
+#include "Render/Moudule/ShaderParamsSettings.h"
 
 namespace Zero
 {
@@ -44,7 +44,7 @@ namespace Zero
 				Item->m_Mesh = m_MeshVertexComponent->m_Mesh;
 				Item->m_SubMesh = SubMesh;
 				Item->m_PerObjectBuffer = m_MeshRenderComponent->GetAndPreDraCallPerObjConstanBuffer();
-				Item->m_Material = Iter.second->Materials[MaterialIndex];
+				Item->m_ShaderParamsSettings = Iter.second->ShaderParamsSettings[MaterialIndex];
 				Item->SetModelMatrix(m_TransformationComponent->GetTransform());
 				MaterialIndex++;
 

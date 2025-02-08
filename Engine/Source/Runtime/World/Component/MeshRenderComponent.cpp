@@ -1,7 +1,7 @@
 #include "MeshRenderComponent.h"
 #include "Render/RHI/Shader/ShaderData.h"
 #include "World/World.h"
-#include "Render/Moudule/Material.h"
+#include "Render/Moudule/ShaderParamsSettings.h"
 #include "Data/Asset/AssetManager.h"
 #include "World/Object/PropertyObject.h"
 #include "World/Object/MapPropretyObject.h"
@@ -45,10 +45,10 @@ namespace Zero
 		}
 	}
 
-	std::vector<Ref<FMaterial>>& UMeshRenderComponent::GetPassMaterials(ERenderLayer RenderLayer)
+	std::vector<Ref<FShaderParamsSettings>>& UMeshRenderComponent::GetPassMaterials(ERenderLayer RenderLayer)
 	{
 		auto& Iter = m_LayerInfo.find(RenderLayer);
-		return Iter->second->Materials;
+		return Iter->second->ShaderParamsSettings;
 	}
 
 	void UMeshRenderComponent::SetSubmeshNum(uint32_t Num)
@@ -59,9 +59,9 @@ namespace Zero
 			ERenderLayer RenderLayer = Iter.first;
 			for (size_t i = 0; i < m_SubmeshNum; i++)
 			{
-				Ref<FMaterial> Material = CreateRef<FMaterial>();
+				Ref<FShaderParamsSettings> Material = CreateRef<FShaderParamsSettings>();
 				//Material->SetShader(Iter.second->PipelineStateObject->GetPSODescriptor().Shader);
-				Iter.second->Materials.push_back(Material);
+				Iter.second->ShaderParamsSettings.push_back(Material);
 			}
 		}
 		
@@ -81,7 +81,7 @@ namespace Zero
 		auto& Iter = m_LayerInfo.find(RenderLayer);
 		if (Iter != m_LayerInfo.end())
 		{
-			auto& CurLayerMaterials = Iter->second->Materials;
+			auto& CurLayerMaterials = Iter->second->ShaderParamsSettings;
 			for (size_t i = 0; i < m_SubmeshNum; i++)
 			{
 				CurLayerMaterials[i]->SetParameter(ParameterName, ShaderDataType, ValuePtr);
@@ -101,7 +101,7 @@ namespace Zero
 		{
 			if (PsoID == RenderLayerInfo->PsoID)
 			{ 
-				for (auto Material : RenderLayerInfo->Materials)
+				for (auto Material : RenderLayerInfo->ShaderParamsSettings)
 				{
 					auto Pso = FPSOCache::Get().FetchGraphicPso(PsoID);
 					Material->SetShader(Pso->GetPSODescriptor().Shader);
@@ -176,17 +176,17 @@ namespace Zero
 					Ref<FTexture2D> Texture = Iter.second;
 					if (Texture != nullptr)
 					{
-						RenderLayer.second->Materials[i]->SetTexture2D(TextureName, Texture.get());
+						RenderLayer.second->ShaderParamsSettings[i]->SetTexture2D(TextureName, Texture.get());
 					}
 				}
 				for (auto Iter : m_Floats)
 				{
-					RenderLayer.second->Materials[i]->SetFloat(Iter.first, Iter.second.Value);
+					RenderLayer.second->ShaderParamsSettings[i]->SetFloat(Iter.first, Iter.second.Value);
 				}
 
 				for (auto Iter : m_Colors)
 				{
-					RenderLayer.second->Materials[i]->SetFloat3(Iter.first, Iter.second);
+					RenderLayer.second->ShaderParamsSettings[i]->SetFloat3(Iter.first, Iter.second);
 				}
 			}
 		}

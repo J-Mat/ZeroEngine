@@ -6,7 +6,7 @@
 #include "Render/RHI/Mesh.h"
 #include "World/World.h"
 #include "SkyActor.h"
-#include "Render/Moudule/Material.h"
+#include "Render/Moudule/ShaderParamsSettings.h"
 #include "Render/RHI/Texture.h"
 
 namespace Zero
@@ -34,8 +34,8 @@ namespace Zero
 		uint32_t MaterialIndex = 0;
 		for (FSubMesh& SubMesh : *m_MeshVertexComponent->m_Mesh.get())
 		{
-			Ref<FMaterial> Material = m_MeshRenderComponent->GetPassMaterials(ERenderLayer::Skybox)[MaterialIndex];
-			Material->SetTextureCube(m_TextureCubeMapName, m_TextureCubeMap.get());
+			Ref<FShaderParamsSettings> ShaderParamsSettings = m_MeshRenderComponent->GetPassMaterials(ERenderLayer::Skybox)[MaterialIndex];
+			ShaderParamsSettings->SetTextureCube(m_TextureCubeMapName, m_TextureCubeMap.get());
 			MaterialIndex++;
 		}
 	}

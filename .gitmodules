@@ -1,0 +1,6 @@
+[submodule "Engine/Source/ThirdParty/tinygltf"]
+	path = Engine/Source/ThirdParty/tinygltf
+	url = https://github.com/syoyo/tinygltf.git
+[submodule "Engine/Source/ThirdParty/meshoptimizer"]
+	path = Engine/Source/ThirdParty/meshoptimizer
+	url = git://github.com/zeux/meshoptimizer

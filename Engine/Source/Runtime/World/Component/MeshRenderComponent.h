@@ -18,11 +18,11 @@ namespace Zero
 		SM_Test,
 	};
 	
-	class FMaterial;
+	class FShaderParamsSettings;
 	struct FRenderLayerInfo
 	{
 		uint32_t PsoID = EGraphicPsoID::GlobalPso;
-		std::vector<Ref<FMaterial>> Materials;
+		std::vector<Ref<FShaderParamsSettings>> ShaderParamsSettings;
 	};
 
 	UCLASS()
@@ -35,7 +35,7 @@ namespace Zero
 
 		void virtual PostInit() override;
 		void SetEnableMaterial(bool bEnable);
-		std::vector<Ref<FMaterial>>& GetPassMaterials(ERenderLayer LayerLayer);
+		std::vector<Ref<FShaderParamsSettings>>& GetPassMaterials(ERenderLayer LayerLayer);
 		void SetSubmeshNum(uint32_t Num);
 		void AttachRenderLayer(ERenderLayer RenderLayer, uint32_t PsoID = ZERO_INVALID_ID);
 		void SetParameter(const std::string& ParameterName, EShaderDataType ShaderDataType, void* ValuePtr, ERenderLayer RenderLayer = ERenderLayer::Opaque);

@@ -7,7 +7,7 @@
 #include "Render/RHI/Texture.h"
 #include "Render/RHI/CommandList.h"
 #include "Render/RenderUtils.h"
-#include "Render/Moudule/Material.h"
+#include "Render/Moudule/ShaderParamsSettings.h"
 #include "Render/Moudule/ImageBasedLighting.h"
 #include "Render/Moudule/Texture/TextureManager.h"
 #include "World/LightManager.h"
@@ -39,9 +39,9 @@ namespace Zero
 			m_ShadowMapDebugItems[LightIndex] = RenderItemPool->Request();
 			m_ShadowMapDebugItems[LightIndex]->m_Mesh = Rect;
 			m_ShadowMapDebugItems[LightIndex]->m_SubMesh = *m_ShadowMapDebugItems[LightIndex]->m_Mesh->begin();
-			m_ShadowMapDebugItems[LightIndex]->m_Material = CreateRef<FMaterial>();
+			m_ShadowMapDebugItems[LightIndex]->m_ShaderParamsSettings = CreateRef<FShaderParamsSettings>();
 			m_ShadowMapDebugItems[LightIndex]->m_PsoID = EGraphicPsoID::ShadowDebug;
-			m_ShadowMapDebugItems[LightIndex]->m_Material->SetShader(m_ShadowMapDebugItems[LightIndex]->GetPsoObj()->GetPSODescriptor().Shader);
+			m_ShadowMapDebugItems[LightIndex]->m_ShaderParamsSettings->SetShader(m_ShadowMapDebugItems[LightIndex]->GetPSObj()->GetPSODescriptor().Shader);
 		}
 	}
 
@@ -72,7 +72,7 @@ namespace Zero
 						FRenderUtils::RenderLayer(ShadowRenderSettings, CommandListHandle,
 							[=](Ref<FRenderItem> RenderItem)
 							{
-								RenderItem->m_Material->SetCamera(LightCamera);
+								RenderItem->m_ShaderParamsSettings->SetCamera(LightCamera);
 							}
 						);
 					}
@@ -107,7 +107,7 @@ namespace Zero
 						FRenderUtils::DrawRenderItem(m_ShadowMapDebugItems[LightIndex], ShadowDebugRenderParams, CommandListHandle,
 							[&](Ref<FRenderItem> RenderItem)
 							{
-								RenderItem->m_Material->SetTexture2D("_gShadowMap", ShadowMap);
+								RenderItem->m_ShaderParamsSettings->SetTexture2D("_gShadowMap", ShadowMap);
 							}
 						);
 					}
@@ -153,7 +153,7 @@ namespace Zero
 							FRenderUtils::RenderLayer(ShadowRenderParams, CommandListHandle,
 								[=](Ref<FRenderItem> RenderItem)
 								{
-									RenderItem->m_Material->SetCamera(Camera);
+									RenderItem->m_ShaderParamsSettings->SetCamera(Camera);
 								}
 							);
 						}

@@ -8,7 +8,7 @@
 #include "Render/RHI/CommandList.h"
 #include "Render/RenderUtils.h"
 #include "Render/RHI/RenderItem.h"
-#include "Render/Moudule/Material.h"
+#include "Render/Moudule/ShaderParamsSettings.h"
 #include "Render/Moudule/ImageBasedLighting.h"
 #include "Render/Moudule/Texture/TextureManager.h"
 

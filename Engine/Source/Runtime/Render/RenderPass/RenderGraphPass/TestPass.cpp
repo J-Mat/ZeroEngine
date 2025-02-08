@@ -6,7 +6,7 @@
 #include "Render/RenderConfig.h"
 #include "Render/RHI/Texture.h"
 #include "Render/RenderUtils.h"
-#include "Render/Moudule/Material.h"
+#include "Render/Moudule/ShaderParamsSettings.h"
 #include "Render/Moudule/ImageBasedLighting.h"
 #include "Render/Moudule/Texture/TextureManager.h"
 #include "World/LightManager.h"
@@ -72,7 +72,7 @@ namespace Zero
 				Ref<FComputeItem> Item = ComputeRenderItemPool->Request();
 				Item->SetPsoID(EComputePsoID::PrefixSumTex);
 				Item->PreDispatch(CommandListHandle);
-				Ref<FShaderParamsGroup> ShaderParamsBinder = Item->GetShaderParamsGroup();
+				Ref<FShaderParamsSettings> ShaderParamsBinder = Item->GetShaderParamsGroup();
 				/*
 				FBuffer* InputBuffer = Context.GetBuffer(Data.ReadBufferID.GetResourceID());
 				std::vector<float> ReadArray;

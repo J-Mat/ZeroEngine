@@ -47,8 +47,10 @@ namespace Zero
 		DetailMappingManager.RegisterVariableMapping("std::map", FMapObjectDetailsMapping::MakeDetailMapping());
 		DetailMappingManager.RegisterVariableMapping("int", FIntDetailsMapping::MakeDetailMapping());
 		DetailMappingManager.RegisterVariableMapping("int32_t", FIntDetailsMapping::MakeDetailMapping());
+
 		DetailMappingManager.RegisterClassMapping("UActor", FActorDetailsMapping::MakeDetailMapping());
 		DetailMappingManager.RegisterClassMapping("USettings", FCoreObjectDetailsMapping::MakeDetailMapping());
+		DetailMappingManager.RegisterClassMapping("UMaterial", FCoreObjectDetailsMapping::MakeDetailMapping());
 		
 		const std::map<std::string, FEnumElement>& EnumMap =  FObjectGlobal::GetRegiterEnumMap();
 		for (auto Iter : EnumMap)

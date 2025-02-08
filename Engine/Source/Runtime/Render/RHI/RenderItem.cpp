@@ -104,8 +104,7 @@ namespace Zero
 		m_PerObjectBuffer->SetMatrix4x4("Model", Transform);
 	}
 	
-	Zero::Ref<Zero::FGraphicPipelineStateObject> FRenderItem::GetPsoObj(const FRenderParams& RenderSettings)
-{
+	Zero::Ref<Zero::FGraphicPipelineStateObject> FRenderItem::GetPSObj(const FRenderParams& RenderSettings) {
 		switch (RenderSettings.PiplineStateMode)
 		{
 		case EPiplineStateMode::Dependent:
@@ -127,7 +126,7 @@ namespace Zero
 		return m_PipelineStateObject;
 	}
 
-	Ref<Zero::FGraphicPipelineStateObject> FRenderItem::GetPsoObj()
+	Ref<Zero::FGraphicPipelineStateObject> FRenderItem::GetPSObj()
 	{
 		m_PipelineStateObject = FPSOCache::Get().FetchGraphicPso(m_PsoID);
 		return m_PipelineStateObject;
@@ -137,15 +136,15 @@ namespace Zero
 
 	bool FRenderItem::CanRender(FCommandListHandle ComamndListHandle, const FRenderParams& RenderSettings)
 	{
-		auto PsoObj = GetPsoObj(RenderSettings);
+		auto PsoObj = GetPSObj(RenderSettings);
 		if (PsoObj == nullptr)
 		{
 			return false;
 		}
 		PsoObj->Bind(ComamndListHandle);
-		m_Material->SetShader(PsoObj->GetPSODescriptor().Shader);
-		m_Material->Tick();
-		m_Material->SetPass(ComamndListHandle, ERenderPassType::Graphics);
+		m_ShaderParamsSettings->SetShader(PsoObj->GetPSODescriptor().Shader);
+		m_ShaderParamsSettings->Tick();
+		m_ShaderParamsSettings->SetPass(ComamndListHandle, ERenderPassType::Graphics);
 		return true;
 	}
 
@@ -153,11 +152,11 @@ namespace Zero
 
 	void FRenderItem::Render(FCommandListHandle ComamndListHandle)
 	{
-		m_Material->OnDrawCall(ComamndListHandle, ERenderPassType::Graphics);
+		m_ShaderParamsSettings->OnDrawCall(ComamndListHandle, ERenderPassType::Graphics);
 		if (m_PerObjectBuffer != nullptr)
 		{
-			static auto PerObjIndex = m_Material->GetShader()->GetBinder()->GetBinderDesc().m_PerObjIndex ;
-			m_Material->GetShader()->GetBinder()->BindConstantsBuffer(ComamndListHandle, PerObjIndex, m_PerObjectBuffer.get());
+			static auto PerObjIndex = m_ShaderParamsSettings->GetShader()->GetBinder()->GetBinderDesc().m_PerObjIndex ;
+			m_ShaderParamsSettings->GetShader()->GetBinder()->BindConstantsBuffer(ComamndListHandle, PerObjIndex, m_PerObjectBuffer.get());
 			m_PerObjectBuffer->UploadDataIfDirty();
 		}
 		if (m_SubMesh.IsNull())
@@ -168,12 +167,12 @@ namespace Zero
 		{
 			m_Mesh->DrawSubMesh(m_SubMesh, ComamndListHandle);
 		}
-		m_Material->PostDrawCall();
+		m_ShaderParamsSettings->PostDrawCall();
 	}
 	
 	FComputeItem::FComputeItem()
 	{
-		m_ShaderParamsGroup = CreateRef<FShaderParamsGroup>();
+		m_ShaderParamsGroup = CreateRef<FShaderParamsSettings>();
 	}
 
 	void FComputeItem::Reset()

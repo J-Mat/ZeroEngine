@@ -5,6 +5,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <tinygltf/tiny_gltf.h>
 #include "Render/RHI/Buffer.h"
 
 namespace Zero

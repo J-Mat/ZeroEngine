@@ -3,7 +3,7 @@
 #include "Core.h"
 #include "Render/RHI/Mesh.h"
 #include "Render/RenderConfig.h"
-#include "Render/Moudule/Material.h"
+#include "Render/Moudule/ShaderParamsSettings.h"
 
 namespace Zero
 {
@@ -19,7 +19,7 @@ namespace Zero
 		FRenderItem(Ref<FMesh> Mesh, const FSubMesh& SubMesh);
 		~FRenderItem();
 		void SetModelMatrix(const ZMath::mat4& Transform);
-		Ref<FMaterial> m_Material = nullptr;
+		Ref<FShaderParamsSettings> m_ShaderParamsSettings = nullptr;
 		uint32_t m_PsoID = ZERO_INVALID_ID;
 		Ref<FMesh> m_Mesh = nullptr;
 		FSubMesh m_SubMesh;
@@ -29,8 +29,8 @@ namespace Zero
 		void Render(FCommandListHandle ComamndListHandle);
 		void Reset();
 		
-		Ref<FGraphicPipelineStateObject> GetPsoObj(const FRenderParams& RenderSettings);
-		Ref<FGraphicPipelineStateObject> GetPsoObj();
+		Ref<FGraphicPipelineStateObject> GetPSObj(const FRenderParams& RenderSettings);
+		Ref<FGraphicPipelineStateObject> GetPSObj();
 	private:
 		Ref<FGraphicPipelineStateObject> m_PipelineStateObject = nullptr;
 	};
@@ -47,11 +47,11 @@ namespace Zero
 		void PreDispatch(FCommandListHandle ComamndListHandle);
 		void Dispatch(FCommandListHandle ComamndListHandle, uint32_t ThreadNumX, uint32_t ThreadNumY, uint32_t ThreadNumZ);
 		void SetPsoID(uint32_t PsoID) { m_PsoID = PsoID; }
-		Ref<FShaderParamsGroup> GetShaderParamsGroup() { return  m_ShaderParamsGroup;}
+		Ref<FShaderParamsSettings> GetShaderParamsGroup() { return  m_ShaderParamsGroup;}
 	private:
 		uint32_t m_PsoID = ZERO_INVALID_ID;
 		Ref<FComputePipelineStateObject> m_PipelineStateObject = nullptr;
-		Ref<FShaderParamsGroup> m_ShaderParamsGroup = nullptr;
+		Ref<FShaderParamsSettings> m_ShaderParamsGroup = nullptr;
 	};
 
 
